@@ -80,9 +80,12 @@ before 'setup_finalize' => sub {
     my @dirs = glob('/tmp/cgi_compile_*');
     if (@dirs) { 
 	print STDERR "Detected cgi_compile dirs... changing permissions.\n";
-	foreach my $d (@dirs) { 
+	foreach my $d (@dirs) {
+	    print STDERR "Chown $d...\n";
 	    $c->chown_generated_dir($d);
+	    
 	}
+	chmod 0700, @dirs;
     }
 
 };
