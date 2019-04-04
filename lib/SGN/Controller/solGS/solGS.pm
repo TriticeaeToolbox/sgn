@@ -431,11 +431,9 @@ sub show_search_result_traits : Path('/solgs/search/result/traits') Args(1) {
 } 
 
 
-sub population : Regex('^solgs/population/([\w|\d]+)(?:/([\w+]+))?') {
-    my ($self, $c) = @_;
-  
-    my ($pop_id, $action) = @{$c->req->captures};
-   
+sub population : Path('/solgs/population') Args(1) {
+    my ($self, $c, $pop_id) = @_;
+      
     my $list_reference = $c->req->param('list_reference');
     $c->stash->{list_reference} = $list_reference;
 
@@ -464,12 +462,12 @@ sub population : Regex('^solgs/population/([\w|\d]+)(?:/([\w+]+))?') {
  
         $c->stash->{template} = $c->controller('solGS::Files')->template('/population.mas');
       
-        if ($action && $action =~ /selecttraits/ ) {
-            $c->stash->{no_traits_selected} = 'none';
-        }
-        else {
-            $c->stash->{no_traits_selected} = 'some';
-        }
+     #   if ($action && $action =~ /selecttraits/ ) {
+     #       $c->stash->{no_traits_selected} = 'none';
+     #   }
+     #   else {
+     #       $c->stash->{no_traits_selected} = 'some';
+     #   }
 
         my $acronym = $self->get_acronym_pairs($c);
         $c->stash->{acronym} = $acronym;
@@ -2018,39 +2016,6 @@ sub build_multiple_traits_models {
     { 
 	@selected_traits =  @{$c->stash->{selected_traits}};
     }
-	#$pop_id = $c->stash->{training_pop_id};
-
-    # 	my $params = $c->stash->{analysis_profile};
-    # 	my $args = $params->{arguments};
-
-    # 	my $json = JSON->new();
-    # 	$args = $json->decode($args);
-
-    # 	if (keys %{$args}) 
-    # 	{     
-    # 	    foreach my $k ( keys %{$args} ) 
-    # 	    {
-    # 		if ($k eq 'trait_id') 
-    # 		{
-    # 		    @selected_traits = @{ $args->{$k} };
-    # 		} 
-
-    # 		if (!$pop_id) 
-    # 		{
-    # 		    if ($k eq 'population_id') 
-    # 		    {
-    # 			my @pop_ids = @{ $args->{$k} };
-    # 			$c->stash->{pop_id} = $pop_ids[0];
-    # 		    }
-    # 		}
-		
-    # 		if ($k eq 'selection_pop_id') 
-    # 		{
-    # 		    $prediction_id = $args->{$k};
-    # 		}
-    # 	    }	    
-    # 	} 
-    # }       
      
     if (!@selected_traits)
     {
@@ -2061,11 +2026,11 @@ sub build_multiple_traits_models {
 	    $self->traits_with_valid_models($c);
 	    @selected_traits = @ {$c->stash->{traits_with_valid_models}};
 	}
-	else 
-	{
-	    $c->res->redirect("/solgs/population/$pop_id/selecttraits");
-	    $c->detach(); 
-	}
+	# else 
+	# {
+	#     $c->res->redirect("/solgs/population/$pop_id");
+	#     $c->detach(); 
+	# }
     }
     else 
     {  
@@ -2151,136 +2116,131 @@ sub build_multiple_traits_models {
 }
 
 
-sub traits_to_analyze :Regex('^solgs/analyze/traits/population/([\w|\d]+)(?:/([\d+]+))?') {
-    my ($self, $c) = @_; 
-   
-    my ($pop_id, $prediction_id) = @{$c->req->captures};
- 
-    my $req = $c->req->param('source');
-    
-    $c->stash->{pop_id} = $pop_id;
-    $c->stash->{prediction_pop_id} = $prediction_id;
-   
-    $self->build_multiple_traits_models($c);
-  
-    my $referer    = $c->req->referer;   
-    my $base       = $c->req->base;
-    $referer       =~ s/$base//;
-    my ($tr_id)    = $referer =~ /(\d+)/;
-    my $trait_page = "solgs/trait/$tr_id/population/$pop_id";
+sub all_traits_output :Path('/solgs/traits/all/population') Args() {
+     my ($self, $c, $training_pop_id, $selection_pop_id) = @_;
+     
+     my $req = $c->req->param('source');
 
-    my $error = $c->stash->{script_error};
-  
-    if ($error) 
-    {
-        $c->stash->{message} = "$error can't create prediction models for the selected traits. 
-                                 There are problems with the datasets of the traits.
-                                 <p><a href=\"/solgs/population/$pop_id\">[ Go back ]</a></p>";
-
+     if (!$training_pop_id) 
+     {
+        $c->stash->{message} = "No valid training population provided.";
         $c->stash->{template} = "/generic_message.mas"; 
-    } 
-    elsif ($req =~ /AJAX/)
-    {     
-    	my $ret->{status} = 'success';
+     }
+     elsif ($training_pop_id !~ /\d+/) 
+     {	 
+	 $c->stash->{message} = "$training_pop_id is not  valid training population id.";
+	 $c->stash->{template} = "/generic_message.mas"; 	 
+     }
+     else
+     {
+
+ 	 my @traits = $c->req->param; 
+	 @traits    = grep {$_ ne 'rank'} @traits;
+	 $c->stash->{training_pop_id} = $training_pop_id;
+	 $c->stash->{pop_id} = $training_pop_id;
+
+	 $self->build_multiple_traits_models($c);
+
+	 my $referer    = $c->req->referer;   
+	 my $base       = $c->req->base;
+	 $referer       =~ s/$base//;
+	 my ($tr_id)    = $referer =~ /(\d+)/;
+	 my $trait_page = "solgs/trait/$tr_id/population/$training_pop_id";
+
+	 my $error = $c->stash->{script_error};
   
-        $ret = to_json($ret);
-        
-        $c->res->content_type('application/json');
-        $c->res->body($ret);       
-    }
-     else
-    {
-        if ($referer =~ m/$trait_page/) 
-        { 
-            $c->res->redirect("/solgs/trait/$tr_id/population/$pop_id");
-            $c->detach(); 
-        }
-        else 
-        {
-            $c->res->redirect("/solgs/traits/all/population/$pop_id/$prediction_id");
-            $c->detach(); 
-        }
-    }
+	 if ($error) 
+	 {
+	     $c->stash->{message} = "$error can't create prediction models for the selected traits. 
+                                 There are problems with the datasets of the traits.
+                                 <p><a href=\"/solgs/population/$training_pop_id\">[ Go back ]</a></p>";
 
+	     $c->stash->{template} = "/generic_message.mas"; 
+	 } 
+	 elsif ($req =~ /AJAX/)
+	 {     
+	     my $ret->{status} = 'success';
+	     
+	     $ret = to_json($ret);
+	     
+	     $c->res->content_type('application/json');
+	     $c->res->body($ret);       
+	 }
+	 else
+	 {
+	     if ($referer =~ m/$trait_page/) 
+	     { 
+		 $c->res->redirect("/solgs/trait/$tr_id/population/$training_pop_id");
+		 $c->detach(); 
+	     } 
+	     else
+	     {
+		 
+		 if ($selection_pop_id)
+		 {
+		     $c->stash->{prediction_pop_id} = $selection_pop_id;
+		     $c->stash->{population_is} = 'prediction population';
+		     $c->controller('solGS::Files')->selection_population_file($c, $selection_pop_id);
+		     
+		     my $pr_rs = $c->model('solGS::solGS')->project_details($selection_pop_id);
+		     
+		     while (my $row = $pr_rs->next) 
+		     {
+			 $c->stash->{prediction_pop_name} = $row->name;
+		     }
+		 }
+		 else
+		 {
+		     $c->stash->{prediction_pop_id} = undef;
+		     $c->stash->{population_is} = 'training population';
+		 }
+		 
+		 $c->stash->{model_id} = $training_pop_id; 
+		 
+		 my @trait_pages;
+		 
+		 $self->traits_with_valid_models($c);
+		 my @traits_with_valid_models = @{$c->stash->{traits_with_valid_models}};
+		 
+		 if (!@traits_with_valid_models)
+		 {
+		     $c->res->redirect("/solgs/population/$training_pop_id");
+		     $c->detach();
+		 }
+
+		 foreach my $trait_abbr (@traits_with_valid_models)
+		 {
+		     $c->stash->{trait_abbr} = $trait_abbr;
+		     $self->get_trait_details_of_trait_abbr($c);
+
+		     my $trait_id = $c->stash->{trait_id};
+		     
+		     $self->get_model_accuracy_value($c, $training_pop_id, $trait_abbr);        
+		     my $accuracy_value = $c->stash->{accuracy_value};
+		     
+		     $c->controller("solGS::Heritability")->get_heritability($c);
+		     my $heritability = $c->stash->{heritability};
+
+		     push @trait_pages,  [ qq | <a href="/solgs/trait/$trait_id/population/$training_pop_id">$trait_abbr</a>|, $accuracy_value, $heritability];
+		     
+		 }
+
+		 $self->project_description($c, $training_pop_id);
+		 my $project_name = $c->stash->{project_name};
+		 my $project_desc = $c->stash->{project_desc};
+		 
+		 my @model_desc = ([qq | <a href="/solgs/population/$training_pop_id">$project_name</a> |, $project_desc, \@trait_pages]);
+		 
+		 $c->stash->{template}    = $c->controller('solGS::Files')->template('/population/multiple_traits_output.mas');
+		 $c->stash->{trait_pages} = \@trait_pages;
+		 $c->stash->{model_data}  = \@model_desc;
+		 
+		 my $acronym = $self->get_acronym_pairs($c);
+		 $c->stash->{acronym} = $acronym;
+	     }
+	 }
+     } 
 }
-
-
-sub all_traits_output :Regex('^solgs/traits/all/population/([\w|\d]+)(?:/([\d+]+))?') {
-     my ($self, $c) = @_;
-         
-     my ($pop_id, $pred_pop_id) = @{$c->req->captures};
-
-     my @traits = $c->req->param; 
-     @traits    = grep {$_ ne 'rank'} @traits;
-     $c->stash->{training_pop_id} = $pop_id;
-     $c->stash->{pop_id} = $pop_id;
-          
-     if ($pred_pop_id)
-     {
-         $c->stash->{prediction_pop_id} = $pred_pop_id;
-         $c->stash->{population_is} = 'prediction population';
-         $c->controller('solGS::Files')->selection_population_file($c, $pred_pop_id);
-        
-         my $pr_rs = $c->model('solGS::solGS')->project_details($pred_pop_id);
-         
-         while (my $row = $pr_rs->next) 
-         {
-             $c->stash->{prediction_pop_name} = $row->name;
-         }
-     }
-     else
-     {
-         $c->stash->{prediction_pop_id} = undef;
-         $c->stash->{population_is} = 'training population';
-     }
-    
-     $c->stash->{model_id} = $pop_id; 
-     
-     my @trait_pages;
-          
-     $self->traits_with_valid_models($c);
-     my @traits_with_valid_models = @{$c->stash->{traits_with_valid_models}};
-     
-     if (!@traits_with_valid_models)
-     {
-	 $c->res->redirect("/solgs/population/$pop_id/selecttraits/");
-	 $c->detach();
-     }
-
-    foreach my $trait_abbr (@traits_with_valid_models)
-    {
-	$c->stash->{trait_abbr} = $trait_abbr;
-        $self->get_trait_details_of_trait_abbr($c);
-
-	my $trait_id = $c->stash->{trait_id};
-	
-	$self->get_model_accuracy_value($c, $pop_id, $trait_abbr);        
-	my $accuracy_value = $c->stash->{accuracy_value};
-	
-	$c->controller("solGS::Heritability")->get_heritability($c);
-	my $heritability = $c->stash->{heritability};
-
-	push @trait_pages,  [ qq | <a href="/solgs/trait/$trait_id/population/$pop_id">$trait_abbr</a>|, $accuracy_value, $heritability];
-       
-    }
-
-     $self->project_description($c, $pop_id);
-     my $project_name = $c->stash->{project_name};
-     my $project_desc = $c->stash->{project_desc};
-   
-     my @model_desc = ([qq | <a href="/solgs/population/$pop_id">$project_name</a> |, $project_desc, \@trait_pages]);
-     
-     $c->stash->{template}    = $c->controller('solGS::Files')->template('/population/multiple_traits_output.mas');
-     $c->stash->{trait_pages} = \@trait_pages;
-     $c->stash->{model_data}  = \@model_desc;
-    
-     my $acronym = $self->get_acronym_pairs($c);
-     $c->stash->{acronym} = $acronym;
- 
-}
-
-
-
 
 
 sub traits_with_valid_models {
@@ -2833,7 +2793,7 @@ sub analyzed_traits {
     my ($self, $c) = @_;
     
     my $training_pop_id = $c->stash->{model_id} || $c->stash->{training_pop_id}; 
-
+    
     my $dir = $c->stash->{solgs_cache_dir};
     opendir my $dh, $dir or die "can't open $dir: $!\n";
     
@@ -2879,7 +2839,7 @@ sub analyzed_traits {
                     }
                 }
             }
-
+	    
             $self->get_model_accuracy_value($c, $training_pop_id, $trait);
             my $av = $c->stash->{accuracy_value};
 
@@ -3285,20 +3245,26 @@ sub format_phenotype_dataset_rows {
     
 }
 
+sub clean_traits {
+    my ($self, $terms) = @_;
+
+    $terms =~ s/(\|\w+:\d+)//g;
+    $terms =~ s/\|/ /g;
+    $terms =~ s/^\s+|\s+$//g;
+
+    return $terms;
+}
 
 sub format_phenotype_dataset_headers {
     my ($self, $all_headers, $meta_headers,  $traits_file) = @_;
-
-    $all_headers =~ s/\|\w+:\d+//g;
-    $all_headers =~ s/\n//g; 
+    
+    $all_headers = $self->clean_traits($all_headers);
     
     my $traits = $all_headers;
      
     foreach my $mh (@$meta_headers) {
        $traits =~ s/($mh)//g;
     }
-
-    $traits =~ s/^\s+|\s+$//g;
 
     write_file($traits_file, $traits) if $traits_file;   
     my  @filtered_traits = split(/\t/, $traits);
