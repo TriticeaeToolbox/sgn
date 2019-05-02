@@ -1,15 +1,17 @@
 <%args>
-    $accession_count
-    $breeding_program_count
-    $accession_count_pheno
-    $accession_count_geno
-    $trait_count
-    $pheno_trial_count
-    $pheno_observations
-    $pheno_last_addition
-    $geno_protocol_count
-    $marker_count
-    $geno_last_addition
+    $accession_count => undef
+    $breeding_program_count => undef
+    $accession_count_pheno => undef
+    $accession_count_geno => undef
+    $trait_count => undef
+    $pheno_trial_count => undef
+    $pheno_observations => undef
+    $pheno_last_addition => undef
+    $geno_map_count => undef
+    $geno_protocol_count => undef
+    $geno_project_count => undef
+    $marker_count => undef
+    $geno_last_addition => undef
 </%args>
 
 <style>
@@ -43,6 +45,7 @@
 
     a.btn {
         color: #fff;
+        margin: 2px 5px;
     }
     a.btn:hover {
         background-color: #286090 !important;
@@ -152,10 +155,27 @@
         <table class="content-status-table">
 
             <tr>
+                <td>Genetic Maps</td>
+                <td><% $geno_map_count %></td>
+                <td>
+                    <a href="/cview" class="btn btn-primary" role="button">Available Maps</a>
+                    <a href="https://maps.triticeaetoolbox.org/" class="btn btn-primary" role="button">Comparative Map Viewer</a>
+                </td>
+            </tr>
+
+            <tr>
                 <td>Genotyping Protocols</td>
                 <td><% $geno_protocol_count %></td>
                 <td>
                     <a href="/search/genotyping_protocols" class="btn btn-primary" role="button">Search</a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Genotyping Projects</td>
+                <td><% $geno_project_count %></td>
+                <td>
+                    <a href="/search/genotyping_data_projects" class="btn btn-primary" role="button">Search</a>
                 </td>
             </tr>
 

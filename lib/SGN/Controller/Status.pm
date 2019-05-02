@@ -12,8 +12,7 @@ sub status : Path('/status') Args(0) {
     my $self = shift;
     my $c = shift;
 
-    my $schema = $c->dbic_schema("Bio::Chado::Schema", 'sgn_chado');
-    my $dbh = $schema->storage->dbh();
+    my $dbh = $c->dbc->dbh();
     my $h;
 
     # Get Accession count
@@ -56,10 +55,20 @@ sub status : Path('/status') Args(0) {
     $h->execute();
     my ($pheno_last_addition) = $h->fetchrow_array() and $h->finish();
 
+    # Get gentic map count
+    $h = $dbh->prepare("SELECT COUNT(map_id) FROM sgn.map;");
+    $h->execute();
+    my ($geno_map_count) = $h->fetchrow_array() and $h->finish();
+
     # Get genotype protocol count
     $h = $dbh->prepare("SELECT COUNT(genotyping_protocol_id) FROM genotyping_protocols;");
     $h->execute();
     my ($geno_protocol_count) = $h->fetchrow_array() and $h->finish();
+
+    # Get genotype project count
+    $h = $dbh->prepare("SELECT COUNT(project_id) AS count FROM project WHERE project_id IN (SELECT project_id FROM projectprop WHERE value = 'genotype_data_project' AND type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'design' AND cv_id = (SELECT cv_id FROM cv WHERE name = 'project_property')));");
+    $h->execute();
+    my ($geno_project_count) = $h->fetchrow_array() and $h->finish();
 
     # Get marker count
     $h = $dbh->prepare("SELECT COUNT(marker_id) FROM sgn.marker;");
@@ -80,7 +89,9 @@ sub status : Path('/status') Args(0) {
     $c->stash->{pheno_trial_count} = $pheno_trial_count;
     $c->stash->{pheno_observations} = $pheno_observations;
     $c->stash->{pheno_last_addition} = $pheno_last_addition;
+    $c->stash->{geno_map_count} = $geno_map_count;
     $c->stash->{geno_protocol_count} = $geno_protocol_count;
+    $c->stash->{geno_project_count} = $geno_project_count;
     $c->stash->{marker_count} = $marker_count;
     $c->stash->{geno_last_addition} = $geno_last_addition;
     $c->stash->{template} = '/about/sgn/status.mas';
