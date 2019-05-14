@@ -60,6 +60,7 @@ jQuery(document).ready(function() {
                     { "data": "properties.Altitude" },
                     { "data": "properties.Trials" },
                 ],
+                order: [[1, "asc"]],
                 buttons: [ 'copy','print'],
                 drawCallback: function( settings ) {
                    var api = this.api();
