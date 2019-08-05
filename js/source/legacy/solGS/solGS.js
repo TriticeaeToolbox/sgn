@@ -26,12 +26,18 @@ solGS.waitPage = function (page, args) {
   		    
     if (page.match(matchItems)) {
 
-	if (page.match(/list_/)) {
-	    askUser(page, args)
-	} else {	    
-	    checkCachedResult(page, args);
-	}
+	var multiTraitsUrls = 'solgs/traits/all/population/'
+	    + '|solgs/models/combined/trials/';
 
+	if (page.match(multiTraitsUrls)) {
+	    getTraitsSelectionId(page, args);	    
+	} else {
+	    if (page.match(/list_/)) {
+		askUser(page, args)
+	    } else {
+		checkCachedResult(page, args);
+	    }
+	}
     }
     else {
 
@@ -40,23 +46,33 @@ solGS.waitPage = function (page, args) {
 
     function checkCachedResult(page, args) {
 
+	var trainingTraitsIds = jQuery('#training_traits_ids').val();
+
+	if (trainingTraitsIds) {
+	    trainingTraitsIds = trainingTraitsIds.split(',');
+	    
+	    if (args === undefined) {
+		args = {'training_traits_ids' : trainingTraitsIds};
+	    } else {
+		args['training_traits_ids'] = trainingTraitsIds;
+	    }
+	}
+
 	args = getArgsFromUrl(page, args);
 	args = JSON.stringify(args);
-	console.log(' check cached result: args' + args)
+	
 	jQuery.ajax({
 	    type    : 'POST',
 	    dataType: 'json',
 	    data    : {'page': page, 'args': args },
 	    url     : '/solgs/check/cached/result/',
 	    success : function(response) {
-		if (response.cached) {
+		if (response.cached) {		     
 		    args = JSON.parse(args);
-		    console.log('cache res page ' + page)
-		    console.log('cache res trait id ' + args.trait_id)
 		    displayAnalysisNow(page, args);
 		   
 		} else {
-		    if (window.location.href.match(/solgs\/search\//)) {
+		    if (document.URL.match(/solgs\/search\//)) {
 			args = JSON.parse(args);
 			askUser(page, args);
 			
@@ -243,7 +259,7 @@ solGS.waitPage = function (page, args) {
 
     function getTraitsSelectionId (page, args) {
 
-	var traitIds = args.trait_id;
+	var traitIds = args.training_traits_ids;
 	
 	jQuery.ajax({
 	    dataType: 'json',
@@ -252,10 +268,16 @@ solGS.waitPage = function (page, args) {
 	    url     : '/solgs/get/traits/selection/id',
 	    success : function (res){
 		var traitsSelectionId = res.traits_selection_id;
-		window.location = page + '/traits/' + traitsSelectionId;		
+		page = page  + '/traits/' + traitsSelectionId;
+		
+		if (page.match(/list_/)) {
+		    askUser(page, args)
+		} else {	    
+		    checkCachedResult(page, args);
+		}		
 	    },
 	    error: function (res, st, error) {
-		console.log('error: ' + error)
+		alert('error: ' + error)
 	    },
 			
 	});
@@ -266,19 +288,14 @@ solGS.waitPage = function (page, args) {
 
 	var matchItems = 'solgs/confirm/request'
 	    + '|solgs/trait/'
+	    + '|solgs/traits/all/population/'
+	    + '|solgs/models/combined/trials/'
 	    + '|solgs/model/combined/trials/';
-	
-	var multiTraitsUrls = 'solgs/traits/all/population/'
-	    + '|solgs/models/combined/trials/';
 
 	if (page.match(matchItems)) {
-
 	    window.location = page;
-	    
-	} else if (page.match(multiTraitsUrls)) {
-		getTraitsSelectionId(page, args);	   
 	}  else if (page.match(/solgs\/populations\/combined\//)) {
-	    retrievePopsData(args.combo_pops_list);  
+	    solGS.combinedTrials.displayCombinedTrialsTrainingPopPage(args.combo_pops_list);  
 	} else if (page.match(/solgs\/population\//)) {
 	    if (page.match(/solgs\/population\/list_/)) {
 		var listId = args.list_id;
@@ -412,7 +429,15 @@ solGS.waitPage = function (page, args) {
 
 
     function getArgsFromUrl (url, args) {
-    
+
+	var referer = document.URL;
+	var trainingTraitsIds = jQuery('#training_traits_ids').val();
+	
+	if (trainingTraitsIds) {
+	    trainingTraitsIds = trainingTraitsIds.split(','); 
+	    args['training_traits_ids'] = trainingTraitsIds;	   
+	}
+		
 	if (window.Prototype) {
 	    delete Array.prototype.toJSON;
 	}
@@ -430,12 +455,10 @@ solGS.waitPage = function (page, args) {
 		       };
 	    }
 	    else {
-
 		args['trait_id']      = [ urlStr[4] ];
 		args['training_pop_id'] = [ urlStr[6] ];
 		args['analysis_type'] = 'single model';
-		args['data_set_type'] = 'single population';
-		
+		args['data_set_type'] = 'single population';		
 	    }
 	} else if (url.match(/solgs\/model\/combined\/trials\//)) {
 
@@ -444,8 +467,6 @@ solGS.waitPage = function (page, args) {
 	    var traitId      = [];
 	    var populationId = [];
 	    var comboPopsId  = [];
-	    
-	    var referer      = window.location.href;
 	    
 	    if (referer.match(/solgs\/search\/trials\/trait\//)) {
 
@@ -497,10 +518,10 @@ solGS.waitPage = function (page, args) {
 	    var urlStr  = url.split(/\/+/);
 	   
 	    var dataSetType;
-
-	    if (window.location.href.match(/solgs\/model\/combined\/populations\/|solgs\/models\/combined\//)) {
+	    
+	    if (referer.match(/solgs\/model\/combined\/populations\/|solgs\/models\/combined\//)) {
 		dataSetType = 'combined populations';
-	    } else if (window.location.href.match(/solgs\/trait\/|solgs\/traits\/all\/population\//)) {
+	    } else if (referer.match(/solgs\/trait\/|solgs\/traits\/all\/population\//)) {
 		dataSetType = 'single population';
 	    }
 
@@ -659,7 +680,7 @@ jQuery(document).ready(function (){
 
 	 var traitIds = jQuery("#traits_selection_div :checkbox").fieldValue();
 	 var popId    = jQuery('#population_id').val(); 
-	 console.log('traits ids: ' + traitIds)
+	 
 	 if (traitIds.length) {	  
 	     var page;
 	     var analysisType;
@@ -720,12 +741,13 @@ jQuery(document).ready(function (){
 		 }	    
 	     }
 	    
-	     var args = {'trait_id'        : traitIds, 
+	     var args = {'trait_id'        : traitIds,
+			 'training_traits_ids': traitIds,
 			 'training_pop_id' : [ popId ], 
 			 'analysis_type'   : analysisType,
 			 'data_set_type'   : dataSetType,
 			};
-
+	     
 	     solGS.waitPage(page, args);
 	     
 	 } else {
@@ -794,12 +816,12 @@ solGS.getPopulationDetails = function () {
 
     var trainingPopId   = jQuery("#population_id").val();
     var trainingPopName = jQuery("#population_name").val();
-
+    
     if (!trainingPopId) {
 	trainingPopId   = jQuery("#training_pop_id").val();
 	trainingPopName = jQuery("#training_pop_name").val();
     }
-   
+
     var selectionPopId   = jQuery("#selection_pop_id").val();
     var selectionPopName = jQuery("#selection_pop_name").val();
 
@@ -807,8 +829,17 @@ solGS.getPopulationDetails = function () {
         trainingPopId  = jQuery("#model_id").val();
         traininPopName = jQuery("#model_name").val();
     }
-     
+  
     var  comboPopsId = jQuery("#combo_pops_id").val();
+
+    var dataSetType;
+   
+    if (comboPopsId) {      
+        dataSetType = 'combined populations';
+	trainingPopId = comboPopsId;
+    } else {        
+        dataSetType = 'single population';
+    } 
        
     return {
 	'training_pop_id'   : trainingPopId,
@@ -817,6 +848,7 @@ solGS.getPopulationDetails = function () {
 	'selection_pop_id'  : selectionPopId,
 	'selection_pop_name': selectionPopName,
 	'combo_pops_id'     : comboPopsId,
+	'data_set_type'     : dataSetType
     };        
 }
 

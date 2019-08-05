@@ -20,8 +20,10 @@ library(phenoAnalysis)
 library(caret)
 library(dplyr)
 library(tibble)
+library(rlang)
 
 allArgs <- commandArgs()
+
 
 inputFiles  <- scan(grep("input_files", allArgs, value = TRUE),
                    what = "character")
@@ -85,19 +87,19 @@ if (file.info(genoFile)$size == 0) {
 readFilteredGenoData <- c()
 filteredGenoData <- c()
 if (length(filteredGenoFile) != 0 && file.info(filteredGenoFile)$size != 0) {
-  filteredGenoData     <- fread(filteredGenoFile, na.strings = c("NA", " ", "--", "-"),  header = TRUE)
+  filteredGenoData     <- fread(filteredGenoFile, na.strings = c("NA", "", "--", "-"),  header = TRUE)
   readFilteredGenoData <- 1
 }
 
 genoData <- c()
 if (is.null(filteredGenoData)) {
-  genoData <- fread(genoFile, na.strings = c("NA", " ", "--", "-"),  header = TRUE)
+  genoData <- fread(genoFile, na.strings = c("NA", "", "--", "-"),  header = TRUE)
   genoData <- unique(genoData, by='V1')
 }
 
 if (length(formattedPhenoFile) != 0 && file.info(formattedPhenoFile)$size != 0) {
   formattedPhenoData <- as.data.frame(fread(formattedPhenoFile,
-                                            na.strings = c("NA", " ", "--", "-", ".")
+                                            na.strings = c("NA", "", "--", "-", ".")
                                             ))
 
 } else {
@@ -111,7 +113,7 @@ if (length(formattedPhenoFile) != 0 && file.info(formattedPhenoFile)$size != 0) 
     stop("phenotype data file is empty.")
   }
 
-  phenoData <- fread(phenoFile, sep="\t", na.strings = c("NA", " ", "--", "-", "."), header = TRUE)
+  phenoData <- fread(phenoFile, sep="\t", na.strings = c("NA", "", "--", "-", "."), header = TRUE)
   phenoData <- data.frame(phenoData)
 }
 
@@ -187,7 +189,7 @@ if (length(selectionTempFile) !=0 ) {
 
   selectionFile <- grep("\\/genotype_data", selectionAllFiles, value = TRUE)
   
-  filteredPredGenoFile   <- grep("filtered_genotype_data_",  selectionAllFiles, value = TRUE)
+  #filteredPredGenoFile   <- grep("filtered_genotype_data_",  selectionAllFiles, value = TRUE)
 }
 
 selectionPopGEBVsFile <- grep("rrblup_selection_gebvs", outputFiles, value = TRUE)
@@ -196,17 +198,18 @@ selectionData            <- c()
 readFilteredPredGenoData <- c()
 filteredPredGenoData     <- c()
 
-if (length(filteredPredGenoFile) != 0 && file.info(filteredPredGenoFile)$size != 0) {
-  selectionData <- fread(filteredPredGenoFile, na.strings = c("NA", " ", "--", "-"),)
-  readFilteredPredGenoData <- 1
+## if (length(filteredPredGenoFile) != 0 && file.info(filteredPredGenoFile)$size != 0) {
+##   selectionData <- fread(filteredPredGenoFile, na.strings = c("NA", " ", "--", "-"),)
+##   readFilteredPredGenoData <- 1
 
-  selectionData           <- data.frame(selectionData)
-  rownames(selectionData) <- selectionData[, 1]
-  selectionData[, 1]      <- NULL
+##   selectionData           <- data.frame(selectionData)
+##   rownames(selectionData) <- selectionData[, 1]
+##   selectionData[, 1]      <- NULL
     
-} else if (length(selectionFile) != 0) {
+## } else
+if (length(selectionFile) != 0) {
     
-  selectionData <- fread(selectionFile, na.strings = c("NA", " ", "--", "-"),)
+  selectionData <- fread(selectionFile, na.strings = c("NA", "", "--", "-"),)
   selectionData <- unique(selectionData, by='V1')
   
   selectionData <- filterGenoData(selectionData, maf=0.01)
@@ -373,26 +376,26 @@ if (length(selectionData) == 0) {
   cat("\n", file = varianceComponentsFile,  append = TRUE)
   cat('Additive genetic variance',  trModel$Vg, file = varianceComponentsFile, sep = '\t', append = TRUE)
   cat("\n", file = varianceComponentsFile,  append = TRUE)
-  cat('Heritability (h)', heritability, file = varianceComponentsFile, sep = '\t', append = TRUE)
+  cat('SNP heritability (h)', heritability, file = varianceComponentsFile, sep = '\t', append = TRUE)
 
   combinedGebvsFile <- grep('selected_traits_gebv', outputFiles, ignore.case = TRUE,value = TRUE)
 
   if (length(combinedGebvsFile) != 0) {
-    fileSize <- file.info(combinedGebvsFile)$size
-    if (fileSize != 0 ) {
-        combinedGebvs <- data.frame(fread(combinedGebvsFile))
+      fileSize <- file.info(combinedGebvsFile)$size
+      if (fileSize != 0 ) {
+          combinedGebvs <- data.frame(fread(combinedGebvsFile))
 
         rownames(combinedGebvs) <- combinedGebvs[,1]
-        combinedGebvs[,1]       <- NULL
+          combinedGebvs[,1]       <- NULL
 
-        allGebvs <- merge(combinedGebvs, trGEBV,
-                          by = 0,
-                          all = TRUE                     
-                          )
+          allGebvs <- merge(combinedGebvs, trGEBV,
+                            by = 0,
+                            all = TRUE                     
+                            )
 
-        rownames(allGebvs) <- allGebvs[,1]
-        allGebvs[,1] <- NULL
-     }
+          rownames(allGebvs) <- allGebvs[,1]
+          allGebvs[,1] <- NULL
+      }
   }
 
 #cross-validation
@@ -401,7 +404,7 @@ if (length(selectionData) == 0) {
     genoNum <- nrow(phenoTrait)
     if (genoNum < 20 ) {
       warning(genoNum, " is too small number of genotypes.")
-    }
+  }
 
     set.seed(4567)
    
@@ -433,23 +436,23 @@ if (length(selectionData) == 0) {
  
         #calculate cross-validation accuracy
         valBlups   <- result$g
+      
         valBlups   <- data.frame(valBlups)
-
+       
         slG <- slG[which(slG <= nrow(phenoTrait))]   
- 
+      
         slGDf <- phenoTrait[(rownames(phenoTrait) %in% slG),]
         rownames(slGDf) <- slGDf[, 1]     
         slGDf[, 1] <- NULL
-      
-        valBlups   <- valBlups[(rownames(valBlups) %in% rownames(slGDf)), ]  
-        valCorData <- merge(slGDf, valBlups, by=0) 
-        rownames(valCorData) <- valCorData[, 1]
-        valCorData[, 1]      <- NULL
-     
-        accuracy   <- try(cor(valCorData))
-   
+        
+        valBlups <-  rownames_to_column(valBlups, var="genotypes")
+        slGDf    <-  rownames_to_column(slGDf, var="genotypes")
+                       
+        valCorData <- inner_join(slGDf, valBlups, by="genotypes")    
+        valCorData$genotypes <- NULL
+            
+        accuracy   <- try(cor(valCorData))  
         validation <- paste("validation", trFoRe, sep = ".")
-
         cvTest <- paste("CV", trFoRe, sep = " ")
 
         if ( class(accuracy) != "try-error")
@@ -465,24 +468,24 @@ if (length(selectionData) == 0) {
             if (!is.na(accuracy[1,1])) {
               validationAll <- rbind(validationAll, accuracy)
             }    
-          }
-      }
+        }
     }
-    
+  }    
+   
     validationAll <- data.matrix(validationAll[order(-validationAll[, 1]), ])
-     
+    
     if (!is.null(validationAll)) {
       validationMean <- data.matrix(round(colMeans(validationAll), digits = 2))
-   
+      
       rownames(validationMean) <- c("Average")
      
       validationAll <- rbind(validationAll, validationMean)
       colnames(validationAll) <- c("Correlation")
-    }
- 
+  }
+
     validationAll <- data.frame(validationAll)
     
-  }
+}
 }
 
 selectionPopResult <- c()
@@ -503,28 +506,28 @@ if (length(selectionData) != 0) {
                                     )
     
     selectionPopGEBVs <- round(data.frame(selectionPopResult$g), 2)
-
+    colnames(selectionPopGEBVs) <- trait
+    selectionPopGEBVs <- rownames_to_column(selectionPopGEBVs, var="genotypes")
+       
     selectionPopPEV <- selectionPopResult$PEV
     selectionPopSE  <- sqrt(selectionPopPEV)
-    selectionPopSE  <- data.frame(round(selectionPopSE, 2))   
+    selectionPopSE  <- data.frame(round(selectionPopSE, 2))
+    colnames(selectionPopSE) <- 'SE'
     genotypesSl     <- rownames(selectionData)
-    selectionPopSE  <- selectionPopSE[rownames(selectionPopSE) %in% genotypesSl, ]
-    selectionPopSE  <- data.frame(selectionPopSE)
-    colnames(selectionPopSE) <- c('SE')
-
-    selectionPopGEBVs <- selectionPopGEBVs[rownames(selectionPopGEBVs) %in% genotypesSl, ]
-    selectionPopGEBVs <- data.frame(selectionPopGEBVs)  
-    colnames(selectionPopGEBVs) <- c(trait)
     
-    selectionPopSE    <- rownames_to_column(selectionPopSE, var="genotypes")
-    selectionPopGEBVs <- rownames_to_column(selectionPopGEBVs, var="genotypes")
-    
-    selectionPopGEBVSE <- full_join(selectionPopGEBVs, selectionPopSE)
-    
-    selectionPopGEBVs <- selectionPopGEBVs %>% arrange_(.dots = paste0('desc(', trait, ')'))
-    selectionPopGEBVs <- column_to_rownames(selectionPopGEBVs, var="genotypes")
+    selectionPopSE <- rownames_to_column(selectionPopSE, var="genotypes")
+    selectionPopSE <-  selectionPopSE %>% filter(genotypes %in% genotypesSl)
    
-    selectionPopGEBVSE <-  selectionPopGEBVSE %>% arrange_(.dots= paste0('desc(', trait, ')'))                                
+    selectionPopGEBVs <-  selectionPopGEBVs %>% filter(genotypes %in% genotypesSl)
+      
+    selectionPopGEBVSE <- inner_join(selectionPopGEBVs, selectionPopSE, by="genotypes")
+   
+    sortVar <- parse_quosure(trait)
+    selectionPopGEBVs <- selectionPopGEBVs %>% arrange(desc((!!sortVar)))    
+    selectionPopGEBVs <- column_to_rownames(selectionPopGEBVs, var="genotypes")
+ 
+    selectionPopGEBVSE <-  selectionPopGEBVSE %>% arrange(desc((!!sortVar)))
+    selectionPopGEBVSE <- column_to_rownames(selectionPopGEBVSE, var="genotypes")
 }
 
 if (!is.null(selectionPopGEBVs) & length(selectionPopGEBVsFile) != 0)  {
@@ -604,14 +607,14 @@ if (!is.null(filteredGenoData) && is.null(readFilteredGenoData)) {
 
 }
 
-if (length(filteredPredGenoFile) != 0 && is.null(readFilteredPredGenoData)) {
-  fwrite(filteredPredGenoData,
-         file  = filteredPredGenoFile,
-         row.names = TRUE,
-         sep   = "\t",
-         quote = FALSE,
-         )
-}
+## if (length(filteredPredGenoFile) != 0 && is.null(readFilteredPredGenoData)) {
+##   fwrite(filteredPredGenoData,
+##          file  = filteredPredGenoFile,
+##          row.names = TRUE,
+##          sep   = "\t",
+##          quote = FALSE,
+##          )
+## }
 
 ## if (!is.null(genoDataMissing)) {
 ##   write.table(genoData,
