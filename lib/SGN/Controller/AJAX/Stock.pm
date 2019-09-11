@@ -92,8 +92,17 @@ sub add_stockprop_POST {
                 $c->detach();
             }
             if (scalar(@$found_accessions) > 0){
-                $c->stash->{rest} = { error => "Synonym not added: The synonym you are adding is already stored as its own unique stock or as a synonym." };
-                $c->detach();
+                if ( $c->config->{stock_synonyms_unique} == 1 ) {
+                    $c->stash->{rest} = { error => "Synonym not added: The synonym you are adding is already stored as its own unique stock or as a synonym." };
+                    $c->detach();
+                }
+                else {
+                    my @found_accession_names;
+                    foreach my $a (@$found_accessions){
+                        push @found_accession_names, $a->{'uniquename'};
+                    }
+                    $message = "CAUTION: The synoynm you are adding has already been added to the following accessions: ".join(', ', @found_accession_names).".";
+                }
             }
             if (scalar(@$fuzzy_accessions) > 0){
                 my @fuzzy_match_names;
