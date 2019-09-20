@@ -321,6 +321,7 @@ sub display_alleles_GET  {
         columnar_table_html(
             headings     =>  [ "Locus name", "Allele symbol", "Phenotype" ],
             data         => \@allele_data,
+            __align      => 'lll'
         )  : undef ;
     $c->stash->{rest} = $hashref;
 }
