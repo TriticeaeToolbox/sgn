@@ -319,7 +319,7 @@ sub display_alleles_GET  {
     }
     $hashref->{html} = @allele_data ?
         columnar_table_html(
-            headings     =>  [ "Locus name", "Allele symbol", "Phenotype" ],
+            headings     =>  [ "Locus name", "Allele name", "Phenotype" ],
             data         => \@allele_data,
             __align      => 'lll'
         )  : undef ;
