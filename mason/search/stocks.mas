@@ -89,7 +89,7 @@ my $breeding_programs_select = simple_selectbox_html(
     </div>
     </&>
 
-    <&| /page/info_section.mas, title => 'Advanced Search', collapsible=>1, collapsed=>0 &>
+    <&| /page/info_section.mas, title => 'Advanced Search', collapsible=>1, collapsed=>1 &>
 
     <&| /page/info_section.mas, title => 'Properties', collapsible=>1, collapsed=>1 &>
 
@@ -336,6 +336,7 @@ my $breeding_programs_select = simple_selectbox_html(
 <script>
 
 var stock_table;
+var selected_loci = {};
 
 jQuery(document).ready(function () {
 
@@ -427,10 +428,10 @@ jQuery(document).ready(function () {
             jQuery('#stock_search_results_div').html(table_header_html);
         }
         stock_table.destroy();
-        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
+        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
     });
 
-    _load_stock_search_results('accession', editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
+    _load_stock_search_results('accession', editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
 
     jQuery('#stock_search_results').on( 'draw.dt', function () {
       var name_links = stock_table.column(0).data();
@@ -449,7 +450,7 @@ jQuery(document).ready(function () {
 
    jQuery('#submit_stock_search').click( function() {
         //stock_table.search("stock_search_results").draw();
-        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
+        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
    });
 
    jQuery('#stock_search_form').keypress( function( e ) {
@@ -519,8 +520,6 @@ jQuery(document).ready(function () {
 
     // ==== GENOTYPE SEARCH ==== //
 
-    var selected_loci = {};
-
     // Add Selected Locus
     jQuery("#locus_search_add").on("click", function() {
       var locus_id = jQuery('#locus_search_term option:selected').attr("value");
@@ -552,6 +551,18 @@ jQuery(document).ready(function () {
 
       jQuery("#selected_loci").append(html);
       _load_alleles(locus_id, locus_name);
+
+      // Update Locus Selected Allele
+      jQuery('#allele_search_term_' + locus_id).change(function() {
+        let allele_id = jQuery('#allele_search_term_' + locus_id + ' option:selected').attr('value');
+        let allele_name = jQuery('#allele_search_term_' + locus_id + ' option:selected').text();
+        selected_loci[locus_name] = {
+            locus_id: locus_id,
+            locus_name: locus_name,
+            allele_id: allele_id,
+            allele_name: allele_name
+          }
+      });
     });
 
     // Remove Selected Locus
@@ -562,9 +573,9 @@ jQuery(document).ready(function () {
       delete selected_loci[locus_name];
     });
 
-
 });
 
+// Load Alleles and populate select menu for specified locus
 function _load_alleles(locus_id, locus_name) {
   jQuery.ajax({
     url: '/ajax/locus/autocomplete?term=' + locus_name + '&mode=allele_info',
@@ -573,6 +584,14 @@ function _load_alleles(locus_id, locus_name) {
       for ( let i = 0; i < response.length; i++ ) {
         let d = response[i].split("Allele: ")[1].split("|");
         html += "<option title='" + d[0] + "' value='" + d[2] + "'>" + d[0] + "</option>";
+        if ( i === 0 ) {
+          selected_loci[locus_name] = {
+            locus_id: locus_id,
+            locus_name: locus_name,
+            allele_id: d[2],
+            allele_name: d[0]
+          }
+        }
       }
       jQuery("#allele_search_term_" + locus_id).html(html);
     },
@@ -580,10 +599,13 @@ function _load_alleles(locus_id, locus_name) {
       alert("ERROR: Could not load locus alleles");
       console.log(response);
     }
-  })
+  });
 }
 
-function _load_stock_search_results(stock_type, editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array){
+
+
+
+function _load_stock_search_results(stock_type, editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci){
     console.log(stock_type);
     console.log("Making AJAX request with editable stockprop "+JSON.stringify(editable_stockprops_search));
     stock_table = jQuery('#stock_search_results').DataTable({
@@ -610,6 +632,7 @@ function _load_stock_search_results(stock_type, editable_stockprops_search, stoc
               d.editable_stockprop_values = JSON.stringify(editable_stockprops_search);
               d.extra_stockprop_columns_view = JSON.stringify(stockprop_extra_columns_view);
               d.stockprop_extra_columns_view_array = JSON.stringify(stockprop_extra_columns_view_array);
+              d.selected_loci = JSON.stringify(Object.values(selected_loci));
             }
         }
     });
