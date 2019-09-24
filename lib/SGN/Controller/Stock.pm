@@ -878,7 +878,7 @@ sub _related_stock_images {
 sub _stock_allele_ids {
     my ($self, $stock) = @_;
     my $ids = $stock->get_schema->storage->dbh->selectcol_arrayref
-	( "SELECT allele_id FROM phenome.stock_allele WHERE stock_id=? ",
+	( "SELECT stock_allele.allele_id FROM phenome.stock_allele JOIN phenome.allele AS a ON stock_allele.allele_id = a.allele_id WHERE stock_id=? ORDER BY a.allele_symbol ",
 	  undef,
 	  $stock->get_stock_id
         );
