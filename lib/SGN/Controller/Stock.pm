@@ -53,17 +53,38 @@ has 'default_page_size' => (
 sub stock_search :Path('/search/stocks') Args(0) {
     my ($self, $c ) = @_;
     my @editable_stock_props = split ',',$c->get_conf('editable_stock_props');
-    $c->stash(
-	template => '/search/stocks.mas',
+    
+    # Get Loci for Advanced Search
+    my @loci;
+    my $rsl = $c->dbic_schema("CXGN::Phenome::Schema")->resultset("Locus")->search( 
+        {
+            -and => [
+             'me.obsolete' => 'f'
+            ]
+        },
+        {
+            '+select' => ['locus_id', 'locus_name', 'locus_symbol' ],
+            order_by  => 'locus_name'
+        } 
+    );
+    while ( my $r = $rsl->next() ) {
+        my %locus;
+        $locus{'id'} = $r->get_column("locus_id");
+        $locus{'name'} = $r->get_column("locus_name");
+        push @loci, \%locus;
+    }
 
+    $c->stash(
+        template => '/search/stocks.mas',
         stock_types => stock_types($self->schema),
-	organisms   => stock_organisms($self->schema) ,
-	sp_person_autocomplete_uri => '/ajax/people/autocomplete',
+        organisms   => stock_organisms($self->schema) ,
+        sp_person_autocomplete_uri => '/ajax/people/autocomplete',
         trait_autocomplete_uri     => '/ajax/stock/trait_autocomplete',
         onto_autocomplete_uri      => '/ajax/cvterm/autocomplete',
-	trait_db_name              => $c->get_conf('trait_ontology_db_name'),
-	breeding_programs          => breeding_programs($self->schema),
-    editable_stock_props => \@editable_stock_props
+	    trait_db_name              => $c->get_conf('trait_ontology_db_name'),
+	    breeding_programs          => breeding_programs($self->schema),
+        editable_stock_props => \@editable_stock_props,
+        loci => \@loci
 	);
 
 }
