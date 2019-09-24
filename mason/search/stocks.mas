@@ -10,6 +10,7 @@
   $stock_types     => undef
   $breeding_programs => undef
   $editable_stock_props => undef
+  $loci => undef
 </%args>
 
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables', 'CXGN.Effects', 'CXGN.List' ] &>
@@ -27,8 +28,8 @@ my $accession_cvterm_id;
 
 for (my $i=0; $i<= scalar(@$stock_types); $i++) {
      if ( $stock_types->[$i][1] eq "accession" ) {
-     	$accession_cvterm_id = $stock_types->[$i][0];
-	last();
+      $accession_cvterm_id = $stock_types->[$i][0];
+  last();
      }
 }
 
@@ -59,7 +60,7 @@ my $breeding_programs_select = simple_selectbox_html(
     <div class="row">
       <div class="col-sm-11">
         <div class="form-group form-group-sm">
-      	  <label class="col-sm-3 control-label">Stock Name or Description: </label>
+          <label class="col-sm-3 control-label">Stock Name or Description: </label>
           <div class="col-sm-9" >
             <div class="form-group form-group-sm">
               <div class="input-group">
@@ -126,7 +127,7 @@ my $breeding_programs_select = simple_selectbox_html(
     <div class="row">
       <div class="col-sm-11">
         <div class="form-group form-group-sm">
-      	  <label class="col-sm-3 control-label">Search By Another Property: </label>
+          <label class="col-sm-3 control-label">Search By Another Property: </label>
           <div class="col-sm-9" >
             <div class="form-group">
               <div class="input-group">
@@ -223,6 +224,37 @@ my $breeding_programs_select = simple_selectbox_html(
     </div>
     </&>
 
+    <&| /page/info_section.mas, title => 'Genotypes', collapsible=>1, collapsed=>1 &>
+      <div class="row">
+        <div class="col-sm-11">
+          <div class="form-group form-group-sm">
+            <label class="col-sm-4 control-label"><br />Search By Locus Allele Value: </label>
+            <div class="col-sm-8">
+              <p><strong>Select Locus:</strong></p>
+              <div class="form-group">
+                <div class="input-group">
+                  <span class="input-group-btn">
+                    <select class="form-control" id="locus_search_term">
+% foreach my $l (@$loci) {
+% my %locus = %$l;
+  <option title="<% $locus{'name'} %>" value="<% $locus{'id'} %>" ><% $locus{'name'} %></option>
+%  }
+                    </select>
+                  </span>
+                  <span class="input-group-btn">
+                    <button class="btn btn-primary btn-sm" id="locus_search_add">Add</button>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="selected_loci">
+      </div>
+    </div>
+    </&>
+
     </&> <!-- closes advanced search -->
 
     <center>
@@ -304,6 +336,7 @@ my $breeding_programs_select = simple_selectbox_html(
 <script>
 
 var stock_table;
+var selected_loci = {};
 
 jQuery(document).ready(function () {
 
@@ -369,7 +402,7 @@ jQuery(document).ready(function () {
         jQuery('#editable_stockprop_search_div').html('');
         for (var property in editable_stockprops_search) {
             if (editable_stockprops_search.hasOwnProperty(property)) {
-                jQuery('#editable_stockprop_search_div').append('<div class="form-group form-group-sm"><label class="col-sm-3 control-label">'+property+': </label><div class="col-sm-9" ><div class="form-group"><div class="input-group"><span class="input-group-btn" width="20%"><select class="form-control" id="editable_stockprop_matchtype" name="editable_stockprop_matchtype" data-property="'+property+'"><option title="contains" value="contains" selected="selected">contains</option><option title="starts with" value="starts_with">starts with</option><option title="ends with" value="ends_with">ends with</option><option title="exactly" value="exactly">exactly</option><option title="one of" value="one of">one of (separate multiple possibilities with commas)</option></select></span><span class="input-group-btn"><input type="text" class="form-control" name="editable_stockprop_search_inputs" id="'+property+'_input_id" data-property="'+property+'" placeholder="Type to Autocomplete"/></span><span class="input-group-btn"><button name="editable_stockprop_search_remove" data-property="'+property+'" class="btn"><span class="glyphicon glyphicon-remove"></span></button></span></div></div></div></div>');
+                jQuery('#editable_stockprop_search_div').append('<div class="form-group form-group-sm"><label class="col-sm-3 control-label">'+property+': </label><div class="col-sm-9" ><div class="form-group"><div class="input-group"><span class="input-group-btn" width="20%"><select class="form-control" id="editable_stockprop_matchtype" name="editable_stockprop_matchtype" data-property="'+property+'"><option title="contains" value="contains" selected="selected">contains</option><option title="starts with" value="starts_with">starts with</option><option title="ends with" value="ends_with">ends with</option><option title="exactly" value="exactly">exactly</option><option title="one of" value="one of">one of (separate multiple possibilities with commas)</option></select></span><span class="input-group-btn"><input type="text" class="form-control" name="editable_stockprop_search_inputs" id="'+property+'_input_id" data-property="'+property+'" placeholder="Type to Autocomplete"/></span><span class="input-group-btn"><button name="editable_stockprop_search_remove" data-property="'+property+'" class="btn btn-primary"><span class="glyphicon glyphicon-remove"></span></button></span></div></div></div></div>');
 
                 jQuery('#editable_stockprop_search_div').find("#"+property+"_input_id").autocomplete({
                    source: '/ajax/stock/stockproperty_autocomplete?property='+property,
@@ -395,10 +428,10 @@ jQuery(document).ready(function () {
             jQuery('#stock_search_results_div').html(table_header_html);
         }
         stock_table.destroy();
-        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
+        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
     });
 
-    _load_stock_search_results('accession', editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
+    _load_stock_search_results('accession', editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
 
     jQuery('#stock_search_results').on( 'draw.dt', function () {
       var name_links = stock_table.column(0).data();
@@ -417,7 +450,7 @@ jQuery(document).ready(function () {
 
    jQuery('#submit_stock_search').click( function() {
         //stock_table.search("stock_search_results").draw();
-        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
+        _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
    });
 
    jQuery('#stock_search_form').keypress( function( e ) {
@@ -485,9 +518,94 @@ jQuery(document).ready(function () {
     });
 
 
+    // ==== GENOTYPE SEARCH ==== //
+
+    // Add Selected Locus
+    jQuery("#locus_search_add").on("click", function() {
+      var locus_id = jQuery('#locus_search_term option:selected').attr("value");
+      var locus_name = jQuery("#locus_search_term option:selected").text();
+
+      if ( selected_loci.hasOwnProperty(locus_name) ) {
+        return;
+      }
+      else {
+        selected_loci[locus_name] = {};
+      }
+
+      var html = "<div class='row' id='selected_locus_" + locus_id + "'><div class='col-sm-11'><div class='form-group form-group-sm'>";
+      html += "<label class='col-sm-4 control-label'><br />" + locus_name + ": </label>";
+      html += "<div class='col-sm-8'>";
+      html += "<p><strong>Select Allele Value:</strong></p>";
+      html += "<div class='form-group'><div class='input-group'>";
+      html += "<span class='input-group-btn'>";
+      html += "<select class='form-control' id='allele_search_term_" + locus_id + "'>";
+
+      html += "<option title='loading' value='loading'>Loading...</option>";
+
+      html += "</select>";
+      html += "<button class='btn btn-primary' name='remove_selected_locus' data-id='" + locus_id + "' data-name='" + locus_name + "'><span class='glyphicon glyphicon-remove'></span></button>";
+      html += "</span>";
+      html += "</div></div>";
+      html += "</div>";
+      html += "</div></div></div>";
+
+      jQuery("#selected_loci").append(html);
+      _load_alleles(locus_id, locus_name);
+
+      // Update Locus Selected Allele
+      jQuery('#allele_search_term_' + locus_id).change(function() {
+        let allele_id = jQuery('#allele_search_term_' + locus_id + ' option:selected').attr('value');
+        let allele_name = jQuery('#allele_search_term_' + locus_id + ' option:selected').text();
+        selected_loci[locus_name] = {
+            locus_id: locus_id,
+            locus_name: locus_name,
+            allele_id: allele_id,
+            allele_name: allele_name
+          }
+      });
+    });
+
+    // Remove Selected Locus
+    jQuery(document).on('click', 'button[name="remove_selected_locus"]', function() {
+      var locus_id = jQuery(this).data('id');
+      var locus_name = jQuery(this).data('name');
+      jQuery("#selected_locus_" + locus_id).remove();
+      delete selected_loci[locus_name];
+    });
+
 });
 
-function _load_stock_search_results(stock_type, editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array){
+// Load Alleles and populate select menu for specified locus
+function _load_alleles(locus_id, locus_name) {
+  jQuery.ajax({
+    url: '/ajax/locus/autocomplete?term=' + locus_name + '&mode=allele_info',
+    success: function(response) {
+      let html = "";
+      for ( let i = 0; i < response.length; i++ ) {
+        let d = response[i].split("Allele: ")[1].split("|");
+        html += "<option title='" + d[0] + "' value='" + d[2] + "'>" + d[0] + "</option>";
+        if ( i === 0 ) {
+          selected_loci[locus_name] = {
+            locus_id: locus_id,
+            locus_name: locus_name,
+            allele_id: d[2],
+            allele_name: d[0]
+          }
+        }
+      }
+      jQuery("#allele_search_term_" + locus_id).html(html);
+    },
+    error: function(response) {
+      alert("ERROR: Could not load locus alleles");
+      console.log(response);
+    }
+  });
+}
+
+
+
+
+function _load_stock_search_results(stock_type, editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci){
     console.log(stock_type);
     console.log("Making AJAX request with editable stockprop "+JSON.stringify(editable_stockprops_search));
     stock_table = jQuery('#stock_search_results').DataTable({
@@ -514,6 +632,7 @@ function _load_stock_search_results(stock_type, editable_stockprops_search, stoc
               d.editable_stockprop_values = JSON.stringify(editable_stockprops_search);
               d.extra_stockprop_columns_view = JSON.stringify(stockprop_extra_columns_view);
               d.stockprop_extra_columns_view_array = JSON.stringify(stockprop_extra_columns_view_array);
+              d.selected_loci = JSON.stringify(Object.values(selected_loci));
             }
         }
     });
