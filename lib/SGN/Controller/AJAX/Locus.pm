@@ -79,7 +79,22 @@ sub autocomplete_GET : Args(0) {
         while (my ($locus_symbol, $locus_name, $locus_id) = $sth->fetchrow_array ) {
             push @results , "$locus_name|$locus_symbol|$locus_id" ;
         }
-    } else {
+    } 
+    elsif ($mode eq "allele_info") {
+        my $q =  "SELECT  locus_symbol, locus_name, allele_symbol, allele_name, allele_id, is_default
+                  FROM locus JOIN allele USING (locus_id)
+                  WHERE (locus_name ilike '%$term%' OR  locus_symbol ilike '%$term%')
+                  AND locus.obsolete = 'f' AND allele.obsolete='f' ";
+        if ($common_name_id)  { $q .= " AND common_name_id = $common_name_id "; }
+        my $sth = $c->dbc->dbh->prepare($q);
+        $sth->execute;
+        while (my ($locus_symbol, $locus_name, $allele_symbol, $allele_name, $allele_id, $is_default) = $sth->fetchrow_array ) {
+            my $allele_data = "Allele: $allele_name|$allele_symbol|$allele_id";
+            no warnings 'uninitialized';
+            push @results , "$locus_name ($locus_symbol) $allele_data";
+        }
+    }
+    else {
         my $q =  "SELECT  locus_symbol, locus_name, allele_symbol, is_default
                   FROM locus JOIN allele USING (locus_id)
                   WHERE (locus_name ilike '%$term%' OR  locus_symbol ilike '%$term%')
