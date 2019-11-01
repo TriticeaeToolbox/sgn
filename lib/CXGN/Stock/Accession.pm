@@ -221,6 +221,13 @@ has 'introgression_end_position_bp' => (
     builder  => '_retrieve_introgression_end_position_bp',
 );
 
+has 'pedigree' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+    lazy => 1,
+    builder => '_retrieve_pedigree'
+);
+
 sub BUILD {
     my $self = shift;
 
@@ -366,6 +373,11 @@ sub _retrieve_introgression_end_position_bp {
     $self->introgression_end_position_bp($self->_retrieve_stockprop('introgression_end_position_bp'));
 }
 
+sub _retrieve_pedigree {
+    my $self = shift;
+    $self->pedigree($self->_retrieve_stockprop('pedigree'));
+}
+
 =head2 store()
 
  Usage:        my $stock_id = $accession->store();
@@ -469,6 +481,9 @@ sub store {
     }
     if ($self->introgression_end_position_bp){
         $self->_store_stockprop('introgression_end_position_bp', $self->introgression_end_position_bp);
+    }
+    if ($self->pedigree){
+        $self->_store_stockprop('pedigree', $self->pedigree);
     }
 
     print STDERR "Saving returned ID $id.\n";
