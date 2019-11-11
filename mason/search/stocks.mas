@@ -592,8 +592,19 @@ function _load_alleles(locus_id, locus_name) {
     url: '/ajax/locus/autocomplete?term=' + locus_name + '&mode=allele_info',
     success: function(response) {
       let html = "";
+
+      // Parse responses to find exactly matching loci
+      let matches = [];
       for ( let i = 0; i < response.length; i++ ) {
-        let d = response[i].split("Allele: ")[1].split("|");
+        let l = response[i].split(" ")[0];
+        if ( l.toLowerCase() === locus_name.toLowerCase() ) {
+          matches.push(response[i]);
+        }
+      }
+
+      // Parse matches into select options
+      for ( let i = 0; i < matches.length; i++ ) {
+        let d = matches[i].split("Allele: ")[1].split("|");
         html += "<option title='" + d[0] + "' value='" + d[2] + "'>" + d[0] + "</option>";
         if ( i === 0 ) {
           selected_loci[locus_name] = {
@@ -604,6 +615,7 @@ function _load_alleles(locus_id, locus_name) {
           }
         }
       }
+
       jQuery("#allele_search_term_" + locus_id).html(html);
     },
     error: function(response) {
