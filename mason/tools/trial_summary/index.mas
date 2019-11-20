@@ -1,0 +1,167 @@
+<%args> 
+
+</%args>
+
+<& '/page/page_title.mas', title => "Summarize trials" &>
+
+<& /util/import_css.mas, paths => ['tools/trial_summary.css'] &>
+
+<& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'CXGN.List', 'CXGN.Login','brapi.BrAPI'] &>
+
+<style>
+</style>
+
+<div class="row">
+  <center class = "col-md-offset-2 col-md-8">
+    <form class="ts-form">
+      <div class="form-group">
+        <label for="trials_list_select">Choose a list of trials:</label>
+        <div id="trials_list_select_container">
+          <select disabled class="form-control input-sm" id="trials_list_select">
+            <option selected="selected">Loading...</option>
+          </select>
+        </div>
+        <img hidden id="trials-loading-spinner" src="/img/wheel.gif" alt="loading">
+      </div>
+      <div class="form-group">
+        <label>Select traits to summarize:</label>
+        <select disabled multiple class="form-control input-sm" id="trait_select" size="15">
+          <option selected="selected" value=""> </option>
+        </select>
+      </div>
+      <img hidden id="results-loading-spinner" src="/img/wheel.gif" alt="loading">
+    </form>
+  </center>
+</div>
+
+<div class="row">
+  <center class="col-md-offset-2 col-md-8">
+    <div class="btn btn-primary btn-large" id="summarize">Summarize</div>
+  </center>
+</div>
+
+
+<script>
+
+(function() {
+  'use strict';
+  var list;
+
+  $(document).ready(function(){
+    if (isLoggedIn()) {
+      list = new CXGN.List();
+      var select_html = list.listSelect('trials', ['trials'], ' ', undefined, undefined);
+      $('#trials_list_select_container').html(select_html);
+      $('#trials_list_select').change(call_change);
+      $("#summarize").attr("disabled", true);
+      $("#summarize").on("click", summarize);      
+    }
+    else {
+      $('#trials_list_select').html('<option selected="selected">You must be logged in to use lists.</option>');
+    }
+  })
+
+  function call_change(){
+    $("#trials-loading-spinner").show();
+    $("#trait_select").attr("disabled", true);
+    $("#summarize").attr("disabled", true);
+    var trial_list_id = $('#trials_list_select').val();
+    if (trial_list_id === "") {
+      $("#trials-loading-spinner").hide();
+      return;
+    }
+    setTimeout(function(){ //use setTimeout to pull sync call list.getListData out of event listener thread.
+      var item_data = list.getListData(trial_list_id);
+      var ids = list.transform2Ids(trial_list_id, item_data);
+
+      BrAPI("/brapi/v1")
+        .phenotypes_search({
+            "studyDbIds" : ids,
+            "pageSize" : 10000000})
+        .all(createSComp);
+    },1);
+  }
+
+  function createSComp(data){
+
+      let traits = getSortedTraits(data);
+      $("#trait_select option").remove();
+      for ( let i = 0; i < traits.length; i++ ) {
+        $("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
+      }
+      $("#trials-loading-spinner").hide();
+      $("#trait_select").attr("disabled",false);
+      $("#trait_select").change(function() {
+        if ( $("#trait_select").children("option:selected").length > 0 ) {
+          $("#summarize").attr("disabled", false);
+        }
+        else {
+          $("#summarize").attr("disabled", true);
+        }
+      });
+
+  }
+
+  function summarize() {
+    let url = "/tools/trial/summary/results";
+    url += "?trials_list=" + $('#trials_list_select').val();
+    let selected_traits = $("#trait_select").children("option:selected");
+    for ( let i = 0; i < selected_traits.length; i++ ) {
+      url += "&trait_id=" + $(selected_traits[i]).val();
+    }
+    window.location = url;
+  }
+
+
+  /**
+   * Get a list of unique traits from the phenotype data,
+   * sorted by their observation count
+   * @param  {Object[]} data  Phenotype data from BrAPI
+   * @return {Object[]}       Array of trait properties (name, observation count, id)
+   */
+  function getSortedTraits(data) {
+    let traits = {};
+    let total = 0;
+
+    // Get all traits from the phenotype data
+    for ( let i = 0; i < data.length; i++ ) {
+      let observations = data[i].observations;
+      if ( observations ) {
+        total++;
+        for ( let j = 0; j < observations.length; j++ ) {
+          let observation = observations[j];
+          let name = observation.observationVariableName;
+          let id = observation.observationVariableDbId;
+          if ( name && id && !traits.hasOwnProperty(name) ) {
+            traits[name] = {name: name, id: id, count: 1};
+          }
+          else if ( name && id ) {
+            traits[name].count = traits[name].count + 1;
+          }
+        }
+      }
+    }
+
+    // Sort traits by observation count
+    let sorted = sortProperties(traits);
+    return sorted;
+  }
+
+  /**
+   * Sort the traits object into an array sorted by trait observation count
+   * @param  {Object} obj Object to sort
+   * @return {Array}      Array of sorted trait obejcts
+   */
+  function sortProperties(obj, sort_key="count") {
+    var sortable=[];
+    for(var key in obj)
+      if(obj.hasOwnProperty(key))
+        sortable.push(obj[key]);
+    sortable.sort(function(a, b) {
+      return b[sort_key]-a[sort_key];
+    });
+    return sortable;
+  }
+}());
+
+</script>
