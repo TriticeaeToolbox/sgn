@@ -234,3 +234,18 @@ summaryTrait <- function(trait, oneCol){
   trialMeans <- mean(data$value, na.rm=TRUE)
   return(list(trialNames=levels(data$trial), trialMeans=trialMeans))
 }
+
+
+
+
+
+# Parse R CMD BATCH args
+args=(commandArgs(TRUE))
+if ( length(args) != 2 ) {
+  print("ERROR: Incorrect arguments provided")
+} else {
+  for(i in 1:length(args)) {
+    eval(parse(text=args[[i]]))
+  }
+  summarizeTrialsAndTraits(src, out)
+}

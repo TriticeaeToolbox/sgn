@@ -1,5 +1,5 @@
 <%args> 
-  $trials_list => undef;
+  $trials_list_id => undef;
   @trait_ids => ();
 </%args>
 
@@ -16,11 +16,21 @@
 <style>
 </style>
 
-<div class="loading">
+<div class="tsr-loading">
   <p>
     Generating Summary Tables...
   </p>
   <img id="results-loading-spinner" src="/img/wheel.gif" alt="loading">
+</div>
+
+<div class="tsr-error">
+  <div class="alert">
+    <strong>Error!</strong> <span id="error-text"></span>
+  </div>
+</div>
+
+<div class="tsr-results">
+  <pre><code><span id="results"></span></code></pre>
 </div>
 
 
@@ -29,18 +39,69 @@
 (function() {
   'use strict';
 
-  var trial_list_id = <% $trials_list %>;
+  var trials_list_id = <% $trials_list_id %>;
   var trait_ids = <% encode_json(\@trait_ids) %>;
 
   $(document).ready(function(){
-    requestSummaryInformation(trial_list_id, trait_ids);
+    $(".tsr-error").hide();
+    $(".tsr-results").hide();
+    $(".tsr-loading").show();
+    requestSummaryInformation(trials_list_id, trait_ids);
   });
 
 
-  function requestSummaryInformation(trial_list_id, trait_ids) {
+  /**
+   * Request trial summary information for the specified trials and traits
+   * @param  {string} trials_list_id Trials List ID
+   * @param  {string[]} trait_ids    Array of Trait IDs
+   */
+  function requestSummaryInformation(trials_list_id, trait_ids) {
     console.log("REQUESTING SUMMARY INFO:");
-    console.log(trial_list_id);
-    console.log(trait_ids);
+
+    // Make AJAX request for summary info
+    let url = "/ajax/analyze/trial_trait_summary";
+    url += "?trials_list_id=" + trials_list_id;
+    for ( let i = 0; i < trait_ids.length; i++ ) {
+      url += "&trait_id=" + trait_ids[i];
+    }
+    jQuery.ajax({ 
+      url: url,
+      contentType: "application/json",
+      success: function(response) { 
+        if ( response.error ) {
+          error(response.error);
+        }
+        else {
+          display(response);
+        }
+      },
+      error: function(response) { 
+        error("Could not generate trial summary tables due to a server error.  Please try again later.");
+      }
+    });
+
+  }
+
+  /**
+   * Display an error message
+   * @param  {string} message Error Message
+   */
+  function error(message) {
+    $(".tsr-loading").hide();
+    $(".tsr-results").hide();
+    $("#error-text").html(message);
+    $(".tsr-error").show();
+  }
+
+  function display(response) {
+    console.log("DISPLAY RESPONSE");
+    $(".tsr-loading").hide();
+    $(".tsr-error").hide();
+
+    console.log(response);
+    $("#results").html(JSON.stringify(response, null, 2));
+
+    $(".tsr-results").show();
   }
   
 }());

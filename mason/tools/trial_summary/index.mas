@@ -77,6 +77,7 @@
       BrAPI("/brapi/v1")
         .phenotypes_search({
             "studyDbIds" : ids,
+            "observationLevel": "plot",
             "pageSize" : 10000000})
         .all(createSComp);
     },1);
@@ -104,7 +105,7 @@
 
   function summarize() {
     let url = "/tools/trial/summary/results";
-    url += "?trials_list=" + $('#trials_list_select').val();
+    url += "?trials_list_id=" + $('#trials_list_select').val();
     let selected_traits = $("#trait_select").children("option:selected");
     for ( let i = 0; i < selected_traits.length; i++ ) {
       url += "&trait_id=" + $(selected_traits[i]).val();
