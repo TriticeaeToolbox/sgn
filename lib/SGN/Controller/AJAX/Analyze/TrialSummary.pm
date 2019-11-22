@@ -29,6 +29,7 @@ __PACKAGE__->config(
 #   trait_id = each of the Trait IDs to include in the summary
 #
 # Returns:
+#   A JSON response with overall lsmeans and trait summaries
 #
 sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(0) {
   my $self = shift;
@@ -73,10 +74,25 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
   # Run the R script
   system("R CMD BATCH --no-save --no-restore '--args src=\"$src_file\" out=\"$out_dir\"' \"" . $c->config->{basepath} . "/R/summarize_trials_lsm.R\" \"$out_dir/output.txt\"");
 
-  # Get the output files
+  # Read overall lsmeans results
+  my %overall_results;
+  $overall_results{'lsmeans'} = $self->csv_to_JSON($out_dir . "/lsmeans.csv");
+  $overall_results{'lsmeans_metadata'} = $self->csv_to_JSON($out_dir . "/lsmeans.metadata.csv");
+
+  # Read individual trait results
+  my %trait_results;
+  foreach my $trait (@{$overall_results{'lsmeans_metadata'}}) {
+    my $trait_name = $trait->{'trait_name'};
+    my %t;
+    $t{'results'} = $self->csv_to_JSON($out_dir . "/" . $trait_name . ".csv");
+    $t{'metadata'} = $self->csv_to_JSON($out_dir . "/" . $trait_name . ".metadata.csv");
+    $trait_results{$trait_name} = \%t;
+  }
+
+  # Return the Results
   $c->stash->{rest} = {
-    lsmeans => $self->csv_to_JSON($out_dir . "/lsmeans.csv"),
-    lsmeans_metadata => $self->csv_to_JSON($out_dir . "/lsmeans.metadata.csv")
+    overall => \%overall_results,
+    traits => \%trait_results
   };
 
   return;
@@ -183,6 +199,17 @@ sub write_rows_to_tempfile {
 }
 
 
+#
+# Read a CSV file and convert the contents to JSON
+# Note: this assumes the file has a header row
+#
+# Params:
+#   path = file path to CSV file
+#
+# Returns:
+#   an Array of hashes where each hash is a row 
+#   and the hash keys are the header names and the 
+#   hash values are the cell contents
 sub csv_to_JSON {
   my $self = shift;
   my $path = shift;
