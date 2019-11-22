@@ -98,17 +98,12 @@
    * @param  {Object} response Response from AJAX call
    */
   function display(response) {
-    console.log("DISPLAY RESPONSE");
-    console.log(response);
-
-    $(".tsr-loading").hide();
-    $(".tsr-error").hide();
 
     // Parse response
     let trait_info = response.overall.lsmeans_metadata;
     let lsmeans_results = response.overall.lsmeans;
     let trait_results = response.traits;
-    let trials = Object.keys(trait_results[trait_info[0].trait_name].results[0]).filter(function(e) { return e !== 'accession'}).sort();
+    let trials = Object.keys(trait_results[trait_info[0].trait_code].results[0]).filter(function(e) { return e !== 'accession'}).sort();
 
     // Init LS Means Table
     let html = "<h3>LS Means</h3>";
@@ -116,7 +111,7 @@
     html += "<thead><tr>";
     html += "<th>Accession</th>";
     for ( let i = 0; i < trait_info.length; i++ ) {
-      html += "<th>" + trait_info[i].trait_id + "</th>";
+      html += "<th>" + trait_info[i].trait_name + "</th>";
     }
     html += "</tr></thead>";
 
@@ -139,11 +134,11 @@
 
     // Init Each Trait Table
     for ( let i = 0; i < trait_info.length; i++ ) {
-      let results = trait_results[trait_info[i].trait_name].results;
+      let results = trait_results[trait_info[i].trait_code].results;
 
       html += "<br /><br />";
-      html += "<h3>Trait " + trait_info[i].trait_id + "</h3>";
-      html += "<table id='table-" + trait_info[i].trait_name + "' class='tsr-table table table-hover table-striped table-bordered'>";
+      html += "<h3>" + trait_info[i].trait_name + "</h3>";
+      html += "<table id='table-" + trait_info[i].trait_code + "' class='tsr-table table table-hover table-striped table-bordered' width='100%'>";
       html += "<thead><tr>";
       html += "<th>Accession</th>";
       for ( let j = 0; j < trials.length; j++ ) {
@@ -166,6 +161,8 @@
 
     // Add HTML
     $("#results").html(html);
+    $(".tsr-loading").hide();
+    $(".tsr-error").hide();
     $(".tsr-results").show();
 
     // Setup LS Means Columns
@@ -184,7 +181,9 @@
     let table = $("#table-overall").DataTable({
       data: lsmeans_results,
       columns: lsmeans_columns,
-      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+      lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+      buttons: ['copy', {extend: 'csv', title: 'LSMeans'}, {extend: 'print', title: 'LSMeans'}],
+      dom: 'Bfrtip'
     });
 
 
@@ -204,8 +203,8 @@
       }
 
       // Setup Trait Table Properties
-      let trait_table = $("#table-" + trait_info[i].trait_name).DataTable({
-        data: trait_results[trait_info[i].trait_name].results.slice(0, -1),
+      let trait_table = $("#table-" + trait_info[i].trait_code).DataTable({
+        data: trait_results[trait_info[i].trait_code].results.slice(0, -1),
         columns: trait_columns,
         scrollX: 600,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]

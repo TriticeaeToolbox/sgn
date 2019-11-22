@@ -65,8 +65,17 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
   my @data = $phenotypes_search->search();
   my $results = $data[0];
 
+  # Get Trait Display Names
+  my %trait_info;
+  foreach my $trait_id (@trait_ids) {
+    my $cvterm = $schema->resultset('Cv::Cvterm')->find({
+      'me.cvterm_id' => $trait_id
+    });
+    $trait_info{$trait_id} = $cvterm->name;
+  }
+
   # Parse the phenotype results into a 2D array of rows
-  my $rows = plot_data_to_rows($results, \@trait_ids);
+  my $rows = plot_data_to_rows($results, \%trait_info);
 
   # Write the rows to a CSV tempfile
   my ($src_file, $out_dir) = $self->write_rows_to_tempfile($c, $rows);
@@ -82,11 +91,11 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
   # Read individual trait results
   my %trait_results;
   foreach my $trait (@{$overall_results{'lsmeans_metadata'}}) {
-    my $trait_name = $trait->{'trait_name'};
+    my $trait_code = $trait->{'trait_code'};
     my %t;
-    $t{'results'} = $self->csv_to_JSON($out_dir . "/" . $trait_name . ".csv");
-    $t{'metadata'} = $self->csv_to_JSON($out_dir . "/" . $trait_name . ".metadata.csv");
-    $trait_results{$trait_name} = \%t;
+    $t{'results'} = $self->csv_to_JSON($out_dir . "/" . $trait_code . ".csv");
+    $t{'metadata'} = $self->csv_to_JSON($out_dir . "/" . $trait_code . ".metadata.csv");
+    $trait_results{$trait_code} = \%t;
   }
 
   # Return the Results
@@ -106,13 +115,13 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
 #
 # Params:
 #   $results = results from phenotype search
-#   $trait_ids = arrayref to list of trait ids
+#   $trait_info = hashref to hash of trait ids to trait names
 #
 # Returns: a 2D array of plot data from the phenotype search
 #
 sub plot_data_to_rows {
   my $results = shift;
-  my $trait_ids = shift;
+  my $trait_info = shift;
 
   # Set up csv data with headers
   my @rows = ();
@@ -126,7 +135,7 @@ sub plot_data_to_rows {
     my $observations = $plot->{observations};
 
     # Add each trait value to the row
-    foreach my $trait_id (@$trait_ids) {
+    foreach my $trait_id (keys %{$trait_info}) {
       
       # Start array for current row
       my @r = ();
@@ -134,7 +143,7 @@ sub plot_data_to_rows {
 
       foreach my $observation (@$observations) {
         if ( $observation->{trait_id} == $trait_id ) {
-          push(@r, $trait_id);
+          push(@r, $trait_info->{$trait_id});
           push(@r, $trial);
           push(@r, $accession);
           push(@r, $observation->{value});
@@ -142,7 +151,7 @@ sub plot_data_to_rows {
         }
       }
       if ( $f == 0 ) {
-        push(@r, $trait_id);
+        push(@r, $trait_info->{$trait_id});
         push(@r, $trial);
         push(@r, $accession);
         push(@r, "");
