@@ -18,7 +18,7 @@
 #
 # Params:
 #   src = filepath to source data in csv format:
-#     trait = breedbase trait id
+#     trait = breedbase trait name
 #     trial = trial code / name
 #     accession = accession name
 #     value = trait value
@@ -71,7 +71,7 @@ generateLSMeansTable <- function(data, tableReportParams) {
 
   # Setup the LS Means and metadata tables
   lsmeans <- data.frame(accession=sorted_accessions)
-  lsmeans_metadata <- data.frame(trait_name=character(), trait_id=character(), lsd=numeric(), hsd=numeric())
+  lsmeans_metadata <- data.frame(trait_code=character(), trait_name=character(), lsd=numeric(), hsd=numeric())
   
   # Parse each trait result
   lsmeans_traits <- c()
@@ -92,11 +92,12 @@ generateLSMeansTable <- function(data, tableReportParams) {
     }
 
     # Add the trait means to the table
-    trait_name <- paste0("trait_", i)
+    trait_code <- paste0("trait_", i)
+    trait_name <- traits[i]
     lsmeans[[trait_name]] <- lsmeans_trait
 
     # Build the metadata table
-    md_row <- data.frame(trait_name = trait_name, trait_id = traits[i], lsd = lsd, hsd = hsd)
+    md_row <- data.frame(trait_code = trait_code, trait_name = trait_name, lsd = lsd, hsd = hsd)
     lsmeans_metadata <- rbind(lsmeans_metadata, md_row)
   }
 
@@ -134,7 +135,8 @@ generateTraitSummaries <- function(data, tableReportParams) {
 
   # Parse each trait
   for ( i in c(1:ncol(tableReportParams)) ) {
-    trait_name <- paste0("trait_", i)
+    trait_code <- paste0("trait_", i)
+    trait_name <- traits[i]
     trials <- tableReportParams[,i]$trialNames
     trialMeans <- tableReportParams[,i]$trialMeans
     traitData <- tableReportParams[,i]$fitLM$model
@@ -143,7 +145,7 @@ generateTraitSummaries <- function(data, tableReportParams) {
 
     # Setup trait summary and metadata tables
     trait_summary <- data.frame(accession=c(sorted_accessions, "Trial Mean"))
-    trait_summary_metadata <- data.frame(trait_name = trait_name, trait_id = traits[i], lsd = lsd, hsd = hsd)
+    trait_summary_metadata <- data.frame(trait_code = trait_code, trait_name = trait_name, lsd = lsd, hsd = hsd)
 
     # Parse each trial
     for ( j in c(1:length(trials)) ) {
@@ -164,7 +166,7 @@ generateTraitSummaries <- function(data, tableReportParams) {
     }
 
     # Add to list of trait summary info
-    trait_summary_info[[trait_name]] <- list(
+    trait_summary_info[[trait_code]] <- list(
       table = trait_summary,
       metadata = trait_summary_metadata
     )
