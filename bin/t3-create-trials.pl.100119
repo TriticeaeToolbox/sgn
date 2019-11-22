@@ -33,7 +33,6 @@ use Bio::Chado::Schema;
 use CXGN::Metadata::Schema;
 use CXGN::Phenome::Schema;
 use CXGN::DB::InsertDBH;
-use Data::Dumper;
 use CXGN::Trial;
 use CXGN::Trial::TrialCreate;
 use CXGN::UploadFile;
@@ -64,7 +63,7 @@ my $dbh = CXGN::DB::Connection->new( { dbhost=>$dbhost,
 );
 
 # from sgn_local.conf
-my $archive_path = '/home/production/archive/';
+my $archive_path = '/home/production/t3-transfer/';
 my $localtime = "";
 
 print STDERR "Connecting to database...\n";
@@ -201,7 +200,7 @@ if (my @row = $h->fetchrow_array) {
         return;
     }
     $md5 = $uploader->get_md5($archived_filename_with_path);
-    #unlink $upload_tempfile;
+    unlink $upload_tempfile;
 
     $localtime = localtime();
     print STDERR "Check 3: $localtime\n";
@@ -237,8 +236,6 @@ if (my @row = $h->fetchrow_array) {
 
     $localtime = localtime();
     print STDERR "Check 4: $localtime\n";
-
-    #print STDERR Dumper $parsed_data;
 
     my $save;
     my $transaction_error;

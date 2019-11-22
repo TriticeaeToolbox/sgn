@@ -148,6 +148,7 @@ if (my @row = $h->fetchrow_array) {
         user_id => $user_id,
         user_role => 'curator'
     });
+    print STDERR "Using $filename_layout in $subdirectory\n";
     $archived_filename_with_path = $uploader->archive();
     if (!$archived_filename_with_path) {
         print STDERR "Could not save file $upload_original_name in archive\n";
