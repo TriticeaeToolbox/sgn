@@ -7,8 +7,18 @@
     max-width: 400px;
     margin: 200px auto;
     text-align: center;
+    display: none;
 }
 .tsr-loading p {
     font-weight: bold;
     color: #666;
+}
+
+.tsr-table > tfoot, .tsr-table > thead {
+    background-color: #ccc;
+    font-weight: bold;
+}
+
+.tsr-table > tfoot {
+    width: 100% !important;
 }

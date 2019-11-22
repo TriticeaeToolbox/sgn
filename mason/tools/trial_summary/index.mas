@@ -54,7 +54,7 @@
       $('#trials_list_select_container').html(select_html);
       $('#trials_list_select').change(call_change);
       $("#summarize").attr("disabled", true);
-      $("#summarize").on("click", summarize);      
+      $("#summarize").on("click", summarize);
     }
     else {
       $('#trials_list_select').html('<option selected="selected">You must be logged in to use lists.</option>');

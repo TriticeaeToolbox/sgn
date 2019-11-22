@@ -17,7 +17,6 @@ sub trial_summary_input :Path('/tools/trial/summary/list') Args(0) {
 	   return;
     }
     $c->stash->{template} = '/tools/trial_summary/index.mas';
-
 }
 
 sub trial_summary_results :Path('/tools/trial/summary/results') Args(0) {
