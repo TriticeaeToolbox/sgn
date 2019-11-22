@@ -183,7 +183,7 @@
       columns: lsmeans_columns,
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
       buttons: ['copy', {extend: 'csv', title: 'LSMeans'}, {extend: 'print', title: 'LSMeans'}],
-      dom: 'Bfrtip'
+      dom: "lBfrtip"
     });
 
 
@@ -207,7 +207,9 @@
         data: trait_results[trait_info[i].trait_code].results.slice(0, -1),
         columns: trait_columns,
         scrollX: 600,
-        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]]
+        lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+        buttons: ['copy', {extend: 'csv', title: trait_info[i].trait_name}, {extend: 'print', title: trait_info[i].trait_name}],
+        dom: "lBfrtip"
       });
 
     }

@@ -22,3 +22,9 @@
 .tsr-table > tfoot {
     width: 100% !important;
 }
+
+.dt-buttons {
+    padding-left: 50px;
+    margin-top: -5px;
+    padding-bottom: 5px;
+}
