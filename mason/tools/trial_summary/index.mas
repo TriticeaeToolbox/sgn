@@ -25,14 +25,17 @@
       </div>
       <div class="form-group">
         <label>Select traits to summarize:</label>
-        <select disabled multiple class="form-control input-sm" id="trait_select" size="15">
+        <select disabled multiple class="form-control input-sm" id="trait_select" size="10">
           <option selected="selected" value=""> </option>
         </select>
       </div>
-      <img hidden id="results-loading-spinner" src="/img/wheel.gif" alt="loading">
+      <p><strong>Note:</strong> Only traits that are observed across all Trials are 
+      available to summarize.</p>
     </form>
   </center>
 </div>
+
+<br />
 
 <div class="row">
   <center class="col-md-offset-2 col-md-8">
