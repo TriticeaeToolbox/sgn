@@ -197,7 +197,7 @@
         trait_columns.push({
           data: function(row, type, val, meta) {
             let rtn = row[trials[j]];
-            return parseFloat(rtn).toFixed(2)
+            return rtn === "NA" ? "--" : parseFloat(rtn).toFixed(2);
           }
         });
       }
