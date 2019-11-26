@@ -52,6 +52,12 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
   my $trial_id_hash = $t->transform($schema, $trial_t, \@trial_list);
   my @trial_ids = @{$trial_id_hash->{transform}};
 
+  # Check for more than one trials in the trial list
+  if ( scalar @trial_ids <= 1 ) {
+    $c->stash->{rest} = { error => "The Trial List must contain at least 2 Trials"};
+    return;
+  }
+
   # Get phenotype plot data for the matching Trials and Traits
   my $phenotypes_search = CXGN::Phenotypes::SearchFactory->instantiate(
     'MaterializedViewTable',
