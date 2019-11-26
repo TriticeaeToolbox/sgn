@@ -9,6 +9,10 @@
 <& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'CXGN.List', 'CXGN.Login','brapi.BrAPI'] &>
 
 <style>
+  .form-group p {
+    text-align: left;
+    padding: 5px 0 10px 0;
+  }
 </style>
 
 <div class="row">
@@ -21,6 +25,7 @@
             <option selected="selected">Loading...</option>
           </select>
         </div>
+        <p><strong>Note:</strong> The list must contain at least 2 trials.</p>
         <img hidden id="trials-loading-spinner" src="/img/wheel.gif" alt="loading">
       </div>
       <div class="form-group">
@@ -28,9 +33,9 @@
         <select disabled multiple class="form-control input-sm" id="trait_select" size="10">
           <option selected="selected" value=""> </option>
         </select>
+        <p><strong>Note:</strong> Only traits that are observed across all Trials are 
+        available to summarize.</p>
       </div>
-      <p><strong>Note:</strong> Only traits that are observed across all Trials are 
-      available to summarize.</p>
     </form>
   </center>
 </div>
