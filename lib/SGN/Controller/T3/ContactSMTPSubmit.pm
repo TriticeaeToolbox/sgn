@@ -14,7 +14,7 @@ Nicolas Morales <nm529@cornell.edu>
 
 =cut
 
-package SGN::Controller::AJAX::Contact;
+package SGN::Controller::T3::ContactSMTPSubmit;
 
 use Moose;
 use Data::Dumper;
@@ -44,7 +44,7 @@ sub submit_contact_form_POST : Args(0) {
     my $contact_to = $c->config->{contact_email};
     my $smtp_server = $c->config->{smtp_server};
     my $smtp_port = $c->config->{smtp_port};
-    my $smtp_user = $c->config->{smtp_user};
+    my $smtp_user = $c->config->{smtp_login};
     my $smtp_pass = $c->config->{smtp_pass};
     my $smtp_from = $c->config->{smtp_from};
 
