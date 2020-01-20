@@ -1,0 +1,21 @@
+<%args>
+$type => ''
+$q => ''
+</%args>
+
+<& /page/page_title.mas, title=>"External Link" &>
+
+<div class="well" style="max-width: 500px; margin: auto">
+    <p style="text-align: center"><strong>ERROR:</strong> We could not find a link to the requested resource</p>
+    <p><strong>Type:</strong> <% $type %></p>
+    <p><strong>Query:</strong> <% $q %></p>
+</div>
+
+<br />
+
+<p>You can try finding the resource on the following pages:</p>
+<ul>
+    <li>The <a href="/breeders/search">Search Wizard</a></li>
+    <li>The Quick Search in the toolbar on the top of this page</li>
+    <li>One of <a href="/search">these search pages</a></li>
+</ul>
