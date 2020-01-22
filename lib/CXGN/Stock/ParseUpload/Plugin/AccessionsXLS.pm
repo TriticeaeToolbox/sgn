@@ -66,7 +66,7 @@ sub _validate_with_plugin {
     if ($worksheet->get_cell(0,4)) {
         $synonyms_head  = $worksheet->get_cell(0,4)->value();
     }
-    my @allowed_stockprops_head = ('location_code(s)','ploidy_level(s)','genome_structure(s)','variety(s)','donor(s)','donor_institute(s)','donor_PUI(s)','country_of_origin(s)','state(s)','institute_code(s)','institute_name(s)','biological_status_of_accession_code(s)','notes(s)','accession_number(s)','PUI(s)','seed_source(s)','type_of_germplasm_storage_code(s)','acquisition_date(s)','transgenic','introgression_parent','introgression_backcross_parent','introgression_map_version','introgression_chromosome','introgression_start_position_bp','introgression_end_position_bp');
+    my @allowed_stockprops_head = ('location_code(s)','ploidy_level(s)','genome_structure(s)','variety(s)','donor(s)','donor_institute(s)','donor_PUI(s)','country_of_origin(s)','state(s)','institute_code(s)','institute_name(s)','biological_status_of_accession_code(s)','notes(s)','accession_number(s)','PUI(s)','seed_source(s)','type_of_germplasm_storage_code(s)','acquisition_date(s)','transgenic','introgression_parent','introgression_backcross_parent','introgression_map_version','introgression_chromosome','introgression_start_position_bp','introgression_end_position_bp','purdy_pedigree','filial_generation');
     my %allowed_stockprops_head = map { $_ => 1 } @allowed_stockprops_head;
     for my $i (5..$col_max){
         my $stockprops_head;
@@ -313,6 +313,14 @@ sub _parse_with_plugin {
             $stockprop_cvterm_name = 'introgression_end_position_bp';
             $internal_ref_name = 'introgression_end_position_bp';
         }
+        if ($stockprops_head eq 'purdy_pedigree') {
+            $stockprop_cvterm_name = 'purdy pedigree';
+            $internal_ref_name = 'purdyPedigree';
+        }
+        if ($stockprops_head eq 'filial_generation') {
+            $stockprop_cvterm_name = 'filial generation';
+            $internal_ref_name = 'filialGeneration';
+        } 
         $col_name_map{$i} = [$stockprop_cvterm_name, $internal_ref_name];
     }
 
