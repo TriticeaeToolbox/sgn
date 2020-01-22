@@ -221,11 +221,11 @@ has 'introgression_end_position_bp' => (
     builder  => '_retrieve_introgression_end_position_bp',
 );
 
-has 'pedigree' => (
+has 'purdyPedigree' => (
     isa => 'Maybe[Str]',
     is => 'rw',
     lazy => 1,
-    builder => '_retrieve_pedigree'
+    builder => '_retrieve_purdyPedigree'
 );
 
 has 'filialGeneration' => (
@@ -380,9 +380,9 @@ sub _retrieve_introgression_end_position_bp {
     $self->introgression_end_position_bp($self->_retrieve_stockprop('introgression_end_position_bp'));
 }
 
-sub _retrieve_pedigree {
+sub _retrieve_purdyPedigree {
     my $self = shift;
-    $self->pedigree($self->_retrieve_stockprop('pedigree'));
+    $self->purdyPedigree($self->_retrieve_stockprop('purdy pedigree'));
 }
 
 sub _retrieve_filialGeneration {
@@ -494,8 +494,8 @@ sub store {
     if ($self->introgression_end_position_bp){
         $self->_store_stockprop('introgression_end_position_bp', $self->introgression_end_position_bp);
     }
-    if ($self->pedigree){
-        $self->_store_stockprop('pedigree', $self->pedigree);
+    if ($self->purdyPedigree){
+        $self->_store_stockprop('purdy pedigree', $self->purdyPedigree);
     }
     if ($self->filialGeneration){
         $self->_store_stockprop('filial generation', $self->filialGeneration);

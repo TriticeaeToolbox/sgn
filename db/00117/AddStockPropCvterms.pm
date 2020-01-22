@@ -14,7 +14,7 @@ see the perldoc of parent class for more details.
 
 =head1 DESCRIPTION
 
-This patch adds the pedigree and filial generation cvterms into the stock_property cv.
+This patch adds the purdy pedigree and filial generation cvterms into the stock_property cv.
 This subclass uses L<Moose>. The parent class uses L<MooseX::Runnable>
 
 =head1 AUTHOR
@@ -40,7 +40,7 @@ extends 'CXGN::Metadata::Dbpatch';
 
 
 has '+description' => ( default => <<'' );
-This patch will create cvterms called pedigree and filial generation in the stock_property cv
+This patch will create cvterms called purdy pedigree and filial generation in the stock_property cv
 
 has '+prereq' => (
     default => sub {
@@ -61,8 +61,8 @@ sub patch {
 
     my $coderef = sub {
 
-        my $pedigree_cvterm = $schema->resultset("Cv::Cvterm")->create_with({
-            name => 'pedigree',
+        my $purdy_pedigree_cvterm = $schema->resultset("Cv::Cvterm")->create_with({
+            name => 'purdy pedigree',
             cv   => 'stock_property',
         });
 

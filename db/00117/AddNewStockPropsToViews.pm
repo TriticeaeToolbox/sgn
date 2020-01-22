@@ -95,7 +95,7 @@ sub patch {
     my $introgression_chromosome_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'introgression_chromosome', 'stock_property')->cvterm_id();
     my $introgression_start_position_bp_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'introgression_start_position_bp', 'stock_property')->cvterm_id();
     my $introgression_end_position_bp_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'introgression_end_position_bp', 'stock_property')->cvterm_id();
-    my $pedigree_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'pedigree', 'stock_property')->cvterm_id();
+    my $purdy_pedigree_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'purdy pedigree', 'stock_property')->cvterm_id();
     my $filial_generation_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'filial generation', 'stock_property')->cvterm_id();
 
     $self->dbh->do(<<EOSQL);
@@ -154,7 +154,7 @@ FROM crosstab(
     (''$introgression_chromosome_cvterm_id''),
     (''$introgression_start_position_bp_cvterm_id''),
     (''$introgression_end_position_bp_cvterm_id''),
-    (''$pedigree_cvterm_id''),
+    (''$purdy_pedigree_cvterm_id''),
     (''$filial_generation_cvterm_id'') 
   ) AS t (type_id);'
 )
@@ -207,7 +207,7 @@ AS (stock_id int,
     "introgression_chromosome" jsonb,
     "introgression_start_position_bp" jsonb,
     "introgression_end_position_bp" jsonb,
-    "pedigree" jsonb,
+    "purdy pedigree" jsonb,
     "filial generation" jsonb
 );
 CREATE UNIQUE INDEX materialized_stockprop_stock_idx ON public.materialized_stockprop(stock_id) WITH (fillfactor=100);
