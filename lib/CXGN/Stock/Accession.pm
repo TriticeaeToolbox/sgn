@@ -228,6 +228,13 @@ has 'pedigree' => (
     builder => '_retrieve_pedigree'
 );
 
+has 'filialGeneration' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+    lazy => 1,
+    builder => '_retrieve_filialGeneration'
+);
+
 sub BUILD {
     my $self = shift;
 
@@ -378,6 +385,11 @@ sub _retrieve_pedigree {
     $self->pedigree($self->_retrieve_stockprop('pedigree'));
 }
 
+sub _retrieve_filialGeneration {
+    my $self = shift;
+    $self->filialGeneration($self->_retrieve_stockprop('filial generation'));
+}
+
 =head2 store()
 
  Usage:        my $stock_id = $accession->store();
@@ -484,6 +496,9 @@ sub store {
     }
     if ($self->pedigree){
         $self->_store_stockprop('pedigree', $self->pedigree);
+    }
+    if ($self->filialGeneration){
+        $self->_store_stockprop('filial generation', $self->filialGeneration);
     }
 
     print STDERR "Saving returned ID $id.\n";

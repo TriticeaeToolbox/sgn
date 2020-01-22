@@ -3,18 +3,18 @@
 
 =head1 NAME
 
-AddPedigreeCvterm.pm
+AddStockPropCvterms.pm
 
 =head1 SYNOPSIS
 
-mx-run AddPedigreeCvterm [options] -H hostname -D dbname -u username [-F]
+mx-run AddStockPropCvterms [options] -H hostname -D dbname -u username [-F]
 
 this is a subclass of L<CXGN::Metadata::Dbpatch>
 see the perldoc of parent class for more details.
 
 =head1 DESCRIPTION
 
-This patch adds the cvterm pedigree into the stock_property cv. This cvterm can be used to add a Purdy pedigree string to an Accession.
+This patch adds the pedigree and filial generation cvterms into the stock_property cv.
 This subclass uses L<Moose>. The parent class uses L<MooseX::Runnable>
 
 =head1 AUTHOR
@@ -31,7 +31,7 @@ it under the same terms as Perl itself.
 =cut
 
 
-package AddPedigreeCvterm;
+package AddStockPropCvterms;
 
 use Moose;
 use Bio::Chado::Schema;
@@ -40,7 +40,7 @@ extends 'CXGN::Metadata::Dbpatch';
 
 
 has '+description' => ( default => <<'' );
-This patch will create a cvterm called pedigree in the stock_property cv
+This patch will create cvterms called pedigree and filial generation in the stock_property cv
 
 has '+prereq' => (
     default => sub {
@@ -61,8 +61,13 @@ sub patch {
 
     my $coderef = sub {
 
-        my $cvterm = $schema->resultset("Cv::Cvterm")->create_with({
+        my $pedigree_cvterm = $schema->resultset("Cv::Cvterm")->create_with({
             name => 'pedigree',
+            cv   => 'stock_property',
+        });
+
+        my $filial_generation_cvterm = $schema->resultset("Cv::Cvterm")->create_with({
+            name => 'filial generation',
             cv   => 'stock_property',
         });
 

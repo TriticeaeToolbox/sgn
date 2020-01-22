@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-AddPedigreeToStockPropViews.pm
+AddNewStockPropsToViews.pm
 
 =head1 SYNOPSIS
 
-mx-run AddPedigreeToStockPropViews [options] -H hostname -D dbname -u username [-F]
+mx-run AddNewStockPropsToViews [options] -H hostname -D dbname -u username [-F]
 
 this is a subclass of L<CXGN::Metadata::Dbpatch>
 see the perldoc of parent class for more details.
@@ -29,7 +29,7 @@ it under the same terms as Perl itself.
 =cut
 
 
-package AddPedigreeToStockPropViews;
+package AddNewStockPropsToViews;
 
 use Moose;
 use SGN::Model::Cvterm;
@@ -96,6 +96,7 @@ sub patch {
     my $introgression_start_position_bp_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'introgression_start_position_bp', 'stock_property')->cvterm_id();
     my $introgression_end_position_bp_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'introgression_end_position_bp', 'stock_property')->cvterm_id();
     my $pedigree_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'pedigree', 'stock_property')->cvterm_id();
+    my $filial_generation_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'filial generation', 'stock_property')->cvterm_id();
 
     $self->dbh->do(<<EOSQL);
 --do your SQL here
@@ -153,7 +154,9 @@ FROM crosstab(
     (''$introgression_chromosome_cvterm_id''),
     (''$introgression_start_position_bp_cvterm_id''),
     (''$introgression_end_position_bp_cvterm_id''),
-    (''$pedigree_cvterm_id'') ) AS t (type_id);'
+    (''$pedigree_cvterm_id''),
+    (''$filial_generation_cvterm_id'') 
+  ) AS t (type_id);'
 )
 AS (stock_id int,
     "uniquename" text,
@@ -204,7 +207,8 @@ AS (stock_id int,
     "introgression_chromosome" jsonb,
     "introgression_start_position_bp" jsonb,
     "introgression_end_position_bp" jsonb,
-    "pedigree" jsonb
+    "pedigree" jsonb,
+    "filial generation" jsonb
 );
 CREATE UNIQUE INDEX materialized_stockprop_stock_idx ON public.materialized_stockprop(stock_id) WITH (fillfactor=100);
 ALTER MATERIALIZED VIEW public.materialized_stockprop OWNER TO web_usr;
