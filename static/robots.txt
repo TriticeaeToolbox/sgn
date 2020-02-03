@@ -10,5 +10,5 @@ Disallow: /phenome/population.pl
 Disallow: /qtl/download/
 Disallow: /solgs/
 Disallow: /stock/*/datatables/
-Disallow: /stock/*/genotypes/`
+Disallow: /stock/*/genotypes
 Crawl-delay: 30
