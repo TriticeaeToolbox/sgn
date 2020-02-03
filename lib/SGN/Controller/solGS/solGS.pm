@@ -424,6 +424,7 @@ sub search_traits : Path('/solgs/search/traits/') Args(1) {
 
 sub show_search_result_traits : Path('/solgs/search/result/traits') Args(1) {
     my ($self, $c, $query) = @_;
+    $query = decodeURIComponent($query);
    
     my $traits = $c->model('solGS::solGS')->search_trait($query);
     my $result    = $c->model('solGS::solGS')->trait_details($traits);
