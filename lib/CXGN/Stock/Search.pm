@@ -432,6 +432,12 @@ sub search {
         }
     }
 
+    foreach (@crop_name_array){
+        if ($_){
+            push @{$and_conditions->{ 'lower(organism.common_name)' }}, { -like  => lc($_) } ;
+        }
+    }
+
     # Get Stock IDs of stock with matching loci allele values
     if ( @selected_loci ) {
         my @stock_ids;
@@ -457,11 +463,7 @@ sub search {
         }
         $and_conditions->{'me.stock_id'} = { '-in' => \@stock_ids };
     }
-    foreach (@crop_name_array){
-        if ($_){
-            push @{$and_conditions->{ 'lower(organism.common_name)' }}, { -like  => lc($_) } ;
-        }
-    }
+    
 
     my @stockprop_filtered_stock_ids;
     my $using_stockprop_filter;

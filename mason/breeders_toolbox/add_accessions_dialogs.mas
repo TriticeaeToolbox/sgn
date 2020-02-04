@@ -203,6 +203,12 @@ $editable_stock_props => {}
 % if (exists($editable_stock_props->{'introgression_end_position_bp'})){
                                 <td>introgression_end_position_bp</td>
 % }
+% if (exists($editable_stock_props->{'purdy pedigree'})){
+                                <td>purdy_pedigree</td>
+% }
+% if (exists($editable_stock_props->{'filial generation'})){
+                                <td>filial_generation</td>
+% }
                             </tr>
                         </tbody>
                     </table>
@@ -291,6 +297,12 @@ $editable_stock_props => {}
 % }
 % if (exists($editable_stock_props->{'introgression_end_position_bp'})){
                     <li>introgression_start_position_bp (the end position of the introgression in base pairs)</li>
+% }
+% if (exists($editable_stock_props->{'purdy pedigree'})){
+                    <li>purdy_pedigree (the purdy pedigree string)</li>
+% }
+% if (exists($editable_stock_props->{'filial generation'})){
+                    <li>filial_generation (the filial generation number)</li>
 % }
                     </ul>
                 </div>
