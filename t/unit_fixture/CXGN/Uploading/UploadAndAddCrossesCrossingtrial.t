@@ -32,19 +32,19 @@ is($response->{'metadata'}->{'status'}->[2]->{'message'}, 'Login Successfull');
 my $sgn_session_id = $response->{access_token};
 print STDERR $sgn_session_id."\n";
 
-$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial', 'crossingtrial_program_name' => 'test' ,
+$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial', 'crossingtrial_program_id' => 134 ,
     'crossingtrial_location' => 'test_location', 'year' => '2017', 'project_description' => 'test description' ]);
 
 $response = decode_json $mech->content;
 is($response->{'success'}, '1');
 
-$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial2', 'crossingtrial_program_name' => 'test' ,
+$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial2', 'crossingtrial_program_id' => 134 ,
     'crossingtrial_location' => 'test_location', 'year' => '2018', 'project_description' => 'test description2' ]);
 
 $response = decode_json $mech->content;
 is($response->{'success'}, '1');
 
-$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial_deletion', 'crossingtrial_program_name' => 'test' ,
+$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial_deletion', 'crossingtrial_program_id' => 134 ,
     'crossingtrial_location' => 'test_location', 'year' => '2019', 'project_description' => 'test deletion' ]);
 
 $response = decode_json $mech->content;
@@ -205,9 +205,24 @@ my $UG120002_id = $schema->resultset('Stock::Stock')->find({name =>'UG120002'})-
 $mech->post_ok("http://localhost:3010/ajax/breeders/trial/$crossing_trial_id/crosses_and_details_in_trial");
 $response = decode_json $mech->content;
 
-is_deeply($response, {'data'=> [
-    [qq{<a href = "/cross/$test_add_cross_id">test_add_cross</a>}, 'UG120001xUG120002', 'biparental', qq{<a href = "/stock/$UG120001_id/view">UG120001</a>}, qq{<a href = "/stock/$UG120002_id/view">UG120002</a>}, qq{<a href = "/stock/$female_plot_id/view">KASESE_TP2013_842</a>}, qq{<a href = "/stock/$male_plot_id/view">KASESE_TP2013_1591</a>}, qq{<a href = "/stock//view"></a>}, qq{<a href = "/stock//view"></a>}]
-]}, 'crosses in a trial');
+is_deeply($response, {'data'=> [{
+        cross_id => $test_add_cross_id,
+        cross_name => 'test_add_cross',
+        cross_combination => 'UG120001xUG120002',
+        cross_type => 'biparental',
+        female_parent_id => $UG120001_id,
+        female_parent_name => 'UG120001',
+        male_parent_id => $UG120002_id,
+        male_parent_name => 'UG120002',
+        female_plot_id => $female_plot_id,
+        female_plot_name => 'KASESE_TP2013_842',
+        male_plot_id => $male_plot_id,
+        male_plot_name => 'KASESE_TP2013_1591',
+        female_plant_id => undef,
+        female_plant_name => undef,
+        male_plant_id => undef,
+        male_plant_name => undef
+}]}, 'crosses in a trial');
 
 # test uploading progenies
 my $offspring_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "offspring_of", "stock_relationship")->cvterm_id();

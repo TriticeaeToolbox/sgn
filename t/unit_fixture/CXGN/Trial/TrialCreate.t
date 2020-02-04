@@ -33,7 +33,7 @@ ok(my $accession_cvterm = $chado_schema->resultset("Cv::Cvterm")
    ->create_with({
        name   => 'accession',
        cv     => 'stock_type',
-      
+
 		 }));
 my @stock_names;
 for (my $i = 1; $i <= 10; $i++) {
@@ -92,7 +92,7 @@ ok(my $trial_create = CXGN::Trial::TrialCreate->new({
     chado_schema => $chado_schema,
     dbh => $dbh,
     user_name => "johndoe", #not implemented
-    design => $design,	
+    design => $design,
     program => "test",
     trial_year => "2015",
     trial_description => "test description",
@@ -145,7 +145,7 @@ ok(my $trial_create = CXGN::Trial::TrialCreate->new({
     chado_schema => $chado_schema,
     dbh => $dbh,
     user_name => "johndoe", #not implemented
-    design => $design,	
+    design => $design,
     program => "test",
     trial_year => "2015",
     trial_description => "test description",
@@ -181,20 +181,20 @@ foreach my $acc (@$accession_names) {
 
 # layout for genotyping experiment
 # use data structure returned by brapi call for GDF:
-# plates:[ { 'project_id' : 'project x', 
+# plates:[ { 'project_id' : 'project x',
 #            'plate_name' : 'required',
 #            'plate_format': 'Plate_96' | 'tubes',
 #            'sample_type' : 'DNA' | 'RNA' | 'Tissue'
 #            'samples':[
 # {
-#    		'name': 'sample_name1', 
+#    		'name': 'sample_name1',
 #     		'well': 'optional'
 #               'concentration:
-#'              'volume': 
-#               'taxomony_id' : 
-#               'tissue_type' : 
+#'              'volume':
+#               'taxomony_id' :
+#               'tissue_type' :
 #               }
-# ] 
+# ]
 
 my $plate_info = {
     elements => \@genotyping_stock_names,
@@ -331,7 +331,7 @@ ok($genotyping_trial_create = CXGN::Trial::TrialCreate->new({
     genotyping_plate_format => $plate_info->{plate_format},
     genotyping_plate_sample_type => $plate_info->{sample_type},
 }), "create genotyping plate");
-                                   
+
 my $save = $genotyping_trial_create->save_trial();
 ok($save->{'trial_id'}, "save genotyping plate");
 
@@ -349,12 +349,12 @@ ok(my $genotyping_trial_layout = CXGN::Trial::TrialLayout->new({
 ok(my $genotyping_accession_names = $genotyping_trial_layout->get_accession_names(), "retrieve accession names3");
 my %genotyping_stocks = map { $_ => 1 } @genotyping_stock_names;
 $genotyping_stocks{'BLANK'} = 1;
-foreach my $acc (@$genotyping_accession_names) { 
+foreach my $acc (@$genotyping_accession_names) {
     ok(exists($genotyping_stocks{$acc->{accession_name}}), "check existence of accession names $acc->{accession_name}");
 }
 
 #create westcott trial design_type
-
+=begin
 my @stock_names_westcott;
 for (my $i = 1; $i <= 100; $i++) {
     push(@stock_names_westcott, "test_stock_for_westcott_trial".$i);
@@ -386,7 +386,7 @@ ok(my $trial_create = CXGN::Trial::TrialCreate->new({
     chado_schema => $chado_schema,
     dbh => $dbh,
     user_name => "johndoe", #not implemented
-    design => $design,	
+    design => $design,
     program => "test",
     trial_year => "2015",
     trial_description => "test description",
@@ -424,6 +424,8 @@ for (my $i=0; $i<scalar(@stock_names_westcott); $i++){
     }
 }
 ok(scalar(@accessions) == 100, "check accession names");
+=end
+=cut
 
 #create splitplot trial design_type
 
@@ -459,7 +461,7 @@ ok(my $trial_create = CXGN::Trial::TrialCreate->new({
     chado_schema => $chado_schema,
     dbh => $dbh,
     user_name => "johndoe", #not implemented
-    design => $design,	
+    design => $design,
     program => "test",
     trial_year => "2015",
     trial_description => "test description",

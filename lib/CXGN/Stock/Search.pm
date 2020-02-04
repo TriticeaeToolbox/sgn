@@ -15,6 +15,7 @@ my $stock_search = CXGN::Stock::Search->new({
     uniquename_list=>\@uniquename_list,
     genus_list=>\@genus_list,
     species_list=>\@species_list,
+    crop_name_list=>\@crop_name_list,
     stock_id_list=>\@stock_id_list,
     organism_id=>$organism_id,
     stock_type_id=>$stock_type_id,
@@ -123,6 +124,11 @@ has 'genus_list' => (
 );
 
 has 'species_list' => (
+    isa => 'ArrayRef[Str]|Undef',
+    is => 'rw',
+);
+
+has 'crop_name_list' => (
     isa => 'ArrayRef[Str]|Undef',
     is => 'rw',
 );
@@ -264,6 +270,7 @@ sub search {
     my @program_id_array = $self->breeding_program_id_list ? @{$self->breeding_program_id_list} : ();
     my @genus_array = $self->genus_list ? @{$self->genus_list} : ();
     my @species_array = $self->species_list ? @{$self->species_list} : ();
+    my @crop_name_array = $self->crop_name_list ? @{$self->crop_name_list} : ();
     my @stock_ids_array = $self->stock_id_list ? @{$self->stock_id_list} : ();
     my $limit = $self->limit;
     my $offset = $self->offset;
@@ -288,7 +295,7 @@ sub search {
     }
 
     my $stock_synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'stock_synonym', 'stock_property')->cvterm_id();
-    
+
     if ($any_name) {
 	$or_conditions = [
 	    { 'me.name'          => {'ilike' => $start.$any_name.$end} },
@@ -449,6 +456,11 @@ sub search {
             }
         }
         $and_conditions->{'me.stock_id'} = { '-in' => \@stock_ids };
+    }
+    foreach (@crop_name_array){
+        if ($_){
+            push @{$and_conditions->{ 'lower(organism.common_name)' }}, { -like  => lc($_) } ;
+        }
     }
 
     my @stockprop_filtered_stock_ids;

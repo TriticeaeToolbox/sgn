@@ -9,12 +9,13 @@ Allows scripts to send emails to the development team.
 
 =head1 FUNCTIONS
 
-=cut 
+=cut
 
 package CXGN::Contact;
 use strict;
 
 use Mail::Sendmail;
+use Email::Send::SMTP::Gmail;
 
 use CXGN::Apache::Request;
 use CXGN::Tools::Text;
@@ -76,48 +77,62 @@ sub send_email {
     print STDERR "$subject\n\n$body";
     if ( $vhost_conf->get_conf('production_server') ) {
         if ( $vhost_conf->get_conf('disable_emails') ) {
-            print STDERR
-"CXGN::Contact: Configured as production server, but not configured to send emails; no email sent from $mailfrom to $mailto.\n";
+            print STDERR "CXGN::Contact: Configured as production server, but not configured to send emails; no email sent from $mailfrom to $mailto.\n";
         }
         else {
-            my %mail = (
-                To      => $mailto,
-                From    => $mailfrom,
-                Subject => $subject,
-                Body    => $body,
-            );
-            $mail{'Reply-To'} = $replyto;
-
-            # Use External STMP server, if smtp config values are found
             my $smtp_server = $vhost_conf->get_conf('smtp_server');
+            my $smtp_layer = $vhost_conf->get_conf('smtp_layer');
             my $smtp_port = $vhost_conf->get_conf('smtp_port');
-            my $smtp_user = $vhost_conf->get_conf('smtp_user');
+            my $smtp_login = $vhost_conf->get_conf('smtp_login');
             my $smtp_pass = $vhost_conf->get_conf('smtp_pass');
-            if ( $smtp_server and $smtp_port and $smtp_user and $smtp_pass ) {
-                my $smtp_from = $vhost_conf->get_conf('smtp_from');
-                if ( $smtp_from ) {
-                    $mail{'From'} = $smtp_from;
-                }
-                $mail{'server'} = $smtp_server . ":" . $smtp_port;
-                $mail{'auth'} = {
-                    user => $smtp_user,
-                    password => $smtp_pass,
-                    method => 'DIGEST-MD5 CRAM-MD5 PLAIN LOGIN'
-                };
-            }
+            my $smtp_auth = $vhost_conf->get_conf('smtp_auth');
+            my $smtp_from = $vhost_conf->get_conf('smtp_from') || $mailfrom;
 
-            if ( sendmail(%mail) ) {
-                print STDERR
-"CXGN::Contact: Email notification sent from $mailfrom to $mailto.\n";
-            }
-            else {
-                print STDERR "CXGN::Contact: UNABLE TO SEND EMAIL NOTIFICATION\n";
+            # If SMTP config values are found use external SMTP server
+            if ( $smtp_server and $smtp_login and $smtp_pass ) {
+
+              my ($mail,$error) = Email::Send::SMTP::Gmail->new(
+                  -smtp  => $smtp_server,
+                  -layer => $smtp_layer,
+                  -port  => $smtp_port,
+                  -login => $smtp_login,
+                  -pass  => $smtp_pass,
+                  -auth  => $smtp_auth
+              );
+
+              if ($mail == -1) {
+                print STDERR "CXGN::Contact: SMTP error: $error\n";
+              };
+
+              $mail->send(
+                  -from       => $smtp_from,
+                  -to         => $mailto,
+                  -subject    => $subject,
+                  -body       => $body
+              );
+
+            } else {
+
+              my %mail = (
+                  To      => $mailto,
+                  From    => $mailfrom,
+                  Subject => $subject,
+                  Body    => $body,
+              );
+              $mail{'Reply-To'} = $replyto;
+
+              if ( sendmail(%mail) ) {
+                  print STDERR "CXGN::Contact: Email notification sent from $mailfrom to $mailto.\n";
+              }
+              else {
+                  print STDERR "CXGN::Contact: UNABLE TO SEND EMAIL NOTIFICATION\n";
+              }
+
             }
         }
     }
     else {
-        print STDERR
-"CXGN::Contact: Not configured as production server; no email sent from $mailfrom to $mailto.\n";
+        print STDERR "CXGN::Contact: Not configured as production server; no email sent from $mailfrom to $mailto.\n";
     }
 }
 
@@ -131,4 +146,3 @@ john binns - John Binns <zombieite@gmail.com>
 ###
 1;#do not remove
 ###
-

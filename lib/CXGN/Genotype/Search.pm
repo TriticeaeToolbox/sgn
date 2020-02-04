@@ -53,6 +53,11 @@ use CXGN::Trial;
 use JSON;
 use CXGN::Stock::Accession;
 use CXGN::Genotype::Protocol;
+use Cache::File;
+use Digest::MD5 qw | md5_hex |;
+use File::Slurp qw | write_file |;
+use File::Temp qw | tempfile |;
+use File::Copy;
 
 has 'bcs_schema' => ( isa => 'Bio::Chado::Schema',
     is => 'rw',
@@ -90,7 +95,7 @@ has 'genotype_data_project_list' => (
 );
 
 has 'chromosome_list' => (
-    isa => 'ArrayRef[Int]|Undef',
+    isa => 'ArrayRef[Int]|ArrayRef[Str]|Undef',
     is => 'ro',
 );
 
@@ -131,6 +136,23 @@ has 'return_only_first_genotypeprop_for_stock' => (
     isa => 'Bool',
     is => 'ro',
     default => 0
+);
+
+# When using the get_cached_file_dosage_matrix or get_cached_file_VCF functions, need the following three keys.
+has 'cache_root' => (
+    isa => 'Str',
+    is => 'rw',
+);
+
+has 'cache' => (
+    isa => 'Cache::File',
+    is => 'rw',
+);
+
+has 'cache_expiry' => (
+    isa => 'Int',
+    is => 'rw',
+    default => 0, # never expires?
 );
 
 has '_iterator_query_handle' => (
@@ -208,6 +230,23 @@ has 'offset' => (
 =head2 get_genotype_info
 
 returns: an array with genotype information
+
+=cut
+
+=head2 get_genotype_info()
+
+Function for getting genotype data iteratively.
+Should be used like:
+
+my $genotype_search = CXGN::Genotype::Search->new({
+    bcs_schema=>$schema,
+    etc...
+});
+my ($count, $genotype_data) = $genotype_search->get_genotype_info();
+
+If you want to get results iteratively, use the init and iterator function defined below instead. Iterative retrieval minimizes memory load.
+
+If you just want to get a file with the genotype result in a dosage matrix or VCF file, use get_cached_file_dosage_matrix or get_cached_file_VCF functions instead.
 
 =cut
 
@@ -364,7 +403,7 @@ sub get_genotype_info {
         $limit_clause
         $offset_clause;";
 
-    print STDERR Dumper $q;
+    #print STDERR Dumper $q;
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute();
 
@@ -440,8 +479,8 @@ sub get_genotype_info {
 
         my $chromosome_where = '';
         if ($chromosome_list && scalar(@$chromosome_list)>0) {
-            my $chromosome_list_sql = join ',', @$chromosome_list;
-            $chromosome_where = " AND (s.value->>'chrom')::int IN ($chromosome_list_sql)";
+            my $chromosome_list_sql = '\'' . join('\', \'', @$chromosome_list) . '\'';
+            $chromosome_where = " AND (s.value->>'chrom')::text IN ($chromosome_list_sql)";
         }
         my $start_position_where = '';
         if (defined($start_position)) {
@@ -455,7 +494,7 @@ sub get_genotype_info {
         my $protocolprop_q = "SELECT nd_protocol_id, s.key $protocolprop_hash_select_sql
             FROM nd_protocolprop, jsonb_each(nd_protocolprop.value) as s
             WHERE $protocolprop_where_markers_sql $chromosome_where $start_position_where $end_position_where;";
-        #print STDERR Dumper $protocolprop_q;
+
         my $protocolprop_h = $schema->storage->dbh()->prepare($protocolprop_q);
         $protocolprop_h->execute();
         while (my ($protocol_id, $marker_name, @protocolprop_info_return) = $protocolprop_h->fetchrow_array()) {
@@ -503,13 +542,12 @@ sub get_genotype_info {
     foreach (@$genotypeprop_hash_select){
         push @genotypeprop_hash_select_arr, "s.value->>'$_'";
     }
-    my $filtered_markers_string = "'". join ("','", keys %filtered_markers) ."'";
     if (scalar(@found_genotypeprop_ids)>0) {
         my $genotypeprop_id_sql = join ("," , @found_genotypeprop_ids);
         my $genotypeprop_hash_select_sql = scalar(@genotypeprop_hash_select_arr) > 0 ? ', '.join ',', @genotypeprop_hash_select_arr : '';
 
         my $filtered_markers_sql = '';
-        if (scalar(keys %filtered_markers) >0) {
+        if (scalar(keys %filtered_markers) >0 && scalar(keys %filtered_markers) < 10000) {
             $filtered_markers_sql = " AND s.key IN ('". join ("','", keys %filtered_markers) ."')";
         }
 
@@ -542,6 +580,24 @@ sub get_genotype_info {
     #print STDERR Dumper \@data;
     return ($total_count, \@data);
 }
+
+=head2 init_genotype_iterator()
+
+Function for initiating genotype search query and then used to get genotype data iteratively. Iterative search retrieval minimizes memory usage.
+Should be used like:
+
+my $genotype_search = CXGN::Genotype::Search->new({
+    bcs_schema=>$schema,
+    etc...
+});
+$genotype_search->init_genotype_iterator();
+while (my ($count, $genotype_data) = $genotype_search->get_next_genotype_info) {
+    #Do something with genotype data
+}
+
+If you just want to get a file with the genotype result in a dosage matrix or VCF file, use get_cached_file_dosage_matrix or get_cached_file_VCF functions instead.
+
+=cut
 
 sub init_genotype_iterator {
     my $self = shift;
@@ -709,8 +765,28 @@ sub init_genotype_iterator {
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute();
     $self->_iterator_query_handle($h);
+    my $rows = $h->rows();
+    print STDERR "init_genotype_iterator: generated $rows rows.\n";
+    return $rows;
 }
 
+=head2 get_next_genotype_info()
+
+Function for getting genotype data iteratively. Iterative search retrieval minimizes memory usage.
+Should be used like:
+
+my $genotype_search = CXGN::Genotype::Search->new({
+    bcs_schema=>$schema,
+    ...etc
+});
+$genotype_search->init_genotype_iterator();
+while (my ($count, $genotype_data) = $genotype_search->get_next_genotype_info) {
+    #Do something with genotype data
+}
+
+If you just want to get a file with the genotype result in a dosage matrix or VCF file, use get_cached_file_dosage_matrix or get_cached_file_VCF instead.
+
+=cut
 
 sub get_next_genotype_info {
     my $self = shift;
@@ -745,7 +821,6 @@ sub get_next_genotype_info {
 
     my $total_count = 0;
     my @genotypeprop_array;
-    my %genotypeprop_hash;
     my %protocolprop_hash;
     if (my ($stock_id, $genotypeprop_id, $igd_number_json, $protocol_id, $protocol_name, $stock_name, $stock_type_id, $stock_type_name, $genotype_id, $genotype_uniquename, $genotype_description, $project_id, $project_name, $project_description, $accession_id, $accession_uniquename, $full_count) = $h->fetchrow_array()) {
         my $igd_number_hash = $igd_number_json ? decode_json $igd_number_json : undef;
@@ -765,7 +840,7 @@ sub get_next_genotype_info {
 
         my $stock_object = CXGN::Stock::Accession->new({schema=>$self->bcs_schema, stock_id=>$germplasmDbId});
 
-        my %genotypeprop_info = {
+        my %genotypeprop_info = (
             markerProfileDbId => $genotypeprop_id,
             germplasmDbId => $germplasmDbId,
             germplasmName => $germplasmName,
@@ -783,7 +858,7 @@ sub get_next_genotype_info {
             genotypingDataProjectName => $project_name,
             genotypingDataProjectDescription => $project_description,
             igd_number => $igd_number,
-        };
+        );
 #        my @found_protocolprop_ids = keys %protocolprop_hash;
         my @protocolprop_marker_hash_select_arr;
         foreach (@$protocolprop_marker_hash_select){
@@ -808,8 +883,8 @@ sub get_next_genotype_info {
 
             my $chromosome_where = '';
             if ($chromosome_list && scalar(@$chromosome_list)>0) {
-                my $chromosome_list_sql = join ',', @$chromosome_list;
-                $chromosome_where = " AND (s.value->>'chrom')::int IN ($chromosome_list_sql)";
+                my $chromosome_list_sql = '\'' . join('\', \'', @$chromosome_list) . '\'';
+                $chromosome_where = " AND (s.value->>'chrom')::text IN ($chromosome_list_sql)";
             }
             my $start_position_where = '';
             if (defined($start_position)) {
@@ -874,13 +949,13 @@ sub get_next_genotype_info {
         foreach (@$genotypeprop_hash_select){
             push @genotypeprop_hash_select_arr, "s.value->>'$_'";
         }
-        my $filtered_markers_string = "'". join ("','", keys %filtered_markers) ."'";
         if (defined($genotypeprop_id)) {
     #        my $genotypeprop_id_sql = join ("," , @found_genotypeprop_ids);
             my $genotypeprop_hash_select_sql = scalar(@genotypeprop_hash_select_arr) > 0 ? ', '.join ',', @genotypeprop_hash_select_arr : '';
 
             my $filtered_markers_sql = '';
-            if (scalar(keys %filtered_markers) >0) {
+            # If filtered markers by providing a location range or chromosome these markers will be in %filered_markers, but we dont want to use this SQL if there are too many markers (>10000) )
+            if (scalar(keys %filtered_markers) >0 && scalar(keys %filtered_markers) < 10000) {
                 $filtered_markers_sql = " AND s.key IN ('". join ("','", keys %filtered_markers) ."')";
             }
 
@@ -891,21 +966,21 @@ sub get_next_genotype_info {
             $genotypeprop_h->execute($genotypeprop_id);
             while (my ($marker_name, @genotypeprop_info_return) = $genotypeprop_h->fetchrow_array()) {
                 for my $s (0 .. scalar(@genotypeprop_hash_select_arr)-1){
-                    $genotypeprop_hash{$genotypeprop_id}->{selected_genotype_hash}->{$marker_name}->{$genotypeprop_hash_select->[$s]} = $genotypeprop_info_return[$s];
+                    $genotypeprop_info{selected_genotype_hash}->{$marker_name}->{$genotypeprop_hash_select->[$s]} = $genotypeprop_info_return[$s];
                 }
             }
 
         }
-        my $info = $genotypeprop_hash{$genotypeprop_id};
-        my $selected_marker_info = $selected_protocol_marker_info{$info->{analysisMethodDbId}} ? $selected_protocol_marker_info{$info->{analysisMethodDbId}} : {};
-        my $selected_protocol_info = $selected_protocol_top_key_info{$info->{analysisMethodDbId}} ? $selected_protocol_top_key_info{$info->{analysisMethodDbId}} : {};
+        my $selected_marker_info = $selected_protocol_marker_info{$genotypeprop_info{analysisMethodDbId}} ? $selected_protocol_marker_info{$genotypeprop_info{analysisMethodDbId}} : {};
+        my $selected_protocol_info = $selected_protocol_top_key_info{$genotypeprop_info{analysisMethodDbId}} ? $selected_protocol_top_key_info{$genotypeprop_info{analysisMethodDbId}} : {};
         my @all_protocol_marker_names = keys %$selected_marker_info;
         $selected_protocol_info->{markers} = $selected_marker_info;
-        $info->{resultCount} = scalar(keys %{$info->{selected_genotype_hash}});
-        $info->{all_protocol_marker_names} = \@all_protocol_marker_names;
-        $info->{selected_protocol_hash} = $selected_protocol_info;
-        $info->{germplasmDbId} = $germplasmDbId;
-        return ($full_count, $info);
+        $genotypeprop_info{resultCount} = scalar(keys %{$genotypeprop_info{selected_genotype_hash}});
+        $genotypeprop_info{all_protocol_marker_names} = \@all_protocol_marker_names;
+        $genotypeprop_info{selected_protocol_hash} = $selected_protocol_info;
+        $genotypeprop_info{germplasmDbId} = $germplasmDbId;
+        $genotypeprop_info{germplasmName} = $germplasmName;
+        return ($full_count, \%genotypeprop_info);
 
     }
 
@@ -913,5 +988,490 @@ sub get_next_genotype_info {
     return;
 }
 
+sub key {
+    my $self = shift;
+    my $datatype = shift;
+
+    #print STDERR Dumper($self->_get_dataref());
+    my $json = JSON->new();
+    #preserve order of hash keys to get same text
+    $json = $json->canonical();
+    my $accessions = $json->encode( $self->accession_list() || [] );
+    my $tissues = $json->encode( $self->tissue_sample_list() || [] );
+    my $trials = $json->encode( $self->trial_list() || [] );
+    my $protocols = $json->encode( $self->protocol_id_list() || [] );
+    my $markerprofiles = $json->encode( $self->markerprofile_id_list() || [] );
+    my $genotypedataprojects = $json->encode( $self->genotype_data_project_list() || [] );
+    my $markernames = $json->encode( $self->marker_name_list() || [] );
+    my $genotypeprophash = $json->encode( $self->genotypeprop_hash_select() || [] );
+    my $protocolprophash = $json->encode( $self->protocolprop_top_key_select() || [] );
+    my $protocolpropmarkerhash = $json->encode( $self->protocolprop_marker_hash_select() || [] );
+    my $chromosomes = $json->encode( $self->chromosome_list() || [] );
+    my $start = $self->start_position() || '' ;
+    my $end = $self->end_position() || '';
+    my $key = md5_hex($accessions.$tissues.$trials.$protocols.$markerprofiles.$genotypedataprojects.$markernames.$genotypeprophash.$protocolprophash.$protocolpropmarkerhash.$chromosomes.$start.$end.$self->return_only_first_genotypeprop_for_stock().$self->limit().$self->offset()."_$datatype");
+    return $key;
+}
+
+=head2 get_cached_file_search_json()
+
+Function for getting the file handle for the genotype search result from cache. Will write the cached file if it does not exist.
+Returns the genotype result in a line-by-line json format.
+Uses the file iterator to write the cached file, so that it uses little memory.
+
+First line in file has all marker objects, while subsequent lines have markerprofiles for each sample
+
+=cut
+
+sub get_cached_file_search_json {
+    my $self = shift;
+    my $c = shift;
+    my $metadata_only = shift;
+    my $protocol_ids = $self->protocol_id_list;
+
+    my $metadata_only_string = $metadata_only ? "metadata_only" : "all_data";
+    my $key = $self->key("get_cached_file_search_json_".$metadata_only_string);
+    $self->cache( Cache::File->new( cache_root => $self->cache_root() ));
+
+    my $file_handle;
+    if ($self->cache()->exists($key)) {
+        $file_handle = $self->cache()->handle($key);
+    }
+    else {
+        # Set the temp dir and temp output file
+        my $tmp_output_dir = $c->config->{cluster_shared_tempdir}."/tmp_genotype_download_json";
+        mkdir $tmp_output_dir if ! -d $tmp_output_dir;
+        my ($tmp_fh, $tempfile) = tempfile(
+            "wizard_download_XXXXX",
+            DIR=> $tmp_output_dir,
+        );
+
+        my @all_marker_objects;
+        foreach (@$protocol_ids) {
+            my $protocol = CXGN::Genotype::Protocol->new({
+                bcs_schema => $self->bcs_schema,
+                nd_protocol_id => $_,
+                chromosome_list=>$self->chromosome_list,
+                start_position=>$self->start_position,
+                end_position=>$self->end_position
+            });
+            my $markers = $protocol->markers;
+            push @all_marker_objects, values %$markers;
+        }
+
+        #VCF should be sorted by chromosome and position
+        no warnings 'uninitialized';
+        @all_marker_objects = sort { $a->{chrom} <=> $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
+
+        $self->init_genotype_iterator();
+        my $counter = 0;
+        while (my $geno = $self->get_next_genotype_info) {
+
+            # OLD GENOTYPING PROTCOLS DID NOT HAVE ND_PROTOCOLPROP INFO...
+            if (scalar(@all_marker_objects) == 0) {
+                foreach my $o (sort genosort keys %{$geno->{selected_genotype_hash}}) {
+                    push @all_marker_objects, {name => $o};
+                }
+            }
+
+            if ($metadata_only) {
+                @all_marker_objects = [];
+                delete $geno->{selected_genotype_hash};
+                delete $geno->{selected_protocol_hash};
+                delete $geno->{all_protocol_marker_names};
+            }
+
+            my $genotype_string = encode_json $geno;
+            $genotype_string .= "\n";
+            if ($counter == 0) {
+                my $marker_string = encode_json \@all_marker_objects;
+                $marker_string .= "\n";
+                write_file($tempfile, {append => 1}, $marker_string);
+            }
+            write_file($tempfile, {append => 1}, $genotype_string);
+            $counter++;
+        }
+        close $tempfile;
+
+        open my $out_copy, '<', $tempfile or die "Can't open output file: $!";
+
+        $self->cache()->set($key, '');
+        $file_handle = $self->cache()->handle($key);
+        copy($out_copy, $file_handle);
+
+        close $out_copy;
+        $file_handle = $self->cache()->handle($key);
+    }
+    return $file_handle;
+}
+
+=head2 get_cached_file_dosage_matrix()
+
+Function for getting the file handle for the genotype search result from cache. Will write the cached file if it does not exist.
+Returns the genotype result as a dosage matrix format.
+Uses the file iterator to write the cached file, so that it uses little memory.
+
+=cut
+
+sub get_cached_file_dosage_matrix {
+    my $self = shift;
+    my $c = shift;
+    my $protocol_ids = $self->protocol_id_list;
+    my $key = $self->key("get_cached_file_dosage_matrix");
+    $self->cache( Cache::File->new( cache_root => $self->cache_root() ));
+
+    my $file_handle;
+    if ($self->cache()->exists($key)) {
+        $file_handle = $self->cache()->handle($key);
+    }
+    else {
+        # Set the temp dir and temp output file
+        my $tmp_output_dir = $c->config->{cluster_shared_tempdir}."/tmp_genotype_download_dosage_matrix";
+        mkdir $tmp_output_dir if ! -d $tmp_output_dir;
+        my ($tmp_fh, $tempfile) = tempfile(
+            "wizard_download_XXXXX",
+            DIR=> $tmp_output_dir,
+        );
+
+        my @all_marker_objects;
+        foreach (@$protocol_ids) {
+            my $protocol = CXGN::Genotype::Protocol->new({
+                bcs_schema => $self->bcs_schema,
+                nd_protocol_id => $_,
+                chromosome_list=>$self->chromosome_list,
+                start_position=>$self->start_position,
+                end_position=>$self->end_position
+            });
+            my $markers = $protocol->markers;
+            push @all_marker_objects, values %$markers;
+        }
+
+        #VCF should be sorted by chromosome and position
+        no warnings 'uninitialized';
+        @all_marker_objects = sort { $a->{chrom} <=> $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
+
+        $self->init_genotype_iterator();
+        my $counter = 0;
+        while (my $geno = $self->get_next_genotype_info) {
+
+            # OLD GENOTYPING PROTCOLS DID NOT HAVE ND_PROTOCOLPROP INFO...
+            if (scalar(@all_marker_objects) == 0) {
+                foreach my $o (sort genosort keys %{$geno->{selected_genotype_hash}}) {
+                    push @all_marker_objects, {name => $o};
+                }
+            }
+
+            my $genotype_string = "";
+            if ($counter == 0) {
+                $genotype_string .= "Marker\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $m->{name} . "\t";
+                }
+                $genotype_string .= "\n";
+            }
+            my $genotype_id = $geno->{germplasmName};
+            my $genotype_data_string = "";
+            foreach my $m (@all_marker_objects) {
+                my $current_genotype = $geno->{selected_genotype_hash}->{$m->{name}}->{DS};
+                $genotype_data_string .= $current_genotype."\t";
+            }
+
+            $genotype_string .= $genotype_id."\t".$genotype_data_string."\n";
+
+            write_file($tempfile, {append => 1}, $genotype_string);
+            $counter++;
+        }
+
+        my $transpose_tempfile = $tempfile . "_transpose";
+
+        my $cmd = CXGN::Tools::Run->new(
+            {
+                backend => $c->config->{backend},
+                submit_host => $c->config->{cluster_host},
+                temp_base => $c->config->{cluster_shared_tempdir} . "/tmp_genotype_download_dosage_matrix",
+                queue => $c->config->{'web_cluster_queue'},
+                do_cleanup => 0,
+                out_file => $transpose_tempfile,
+    #            out_file => $transpose_tempfile,
+                # don't block and wait if the cluster looks full
+                max_cluster_jobs => 1_000_000_000,
+            }
+        );
+
+        # Do the transposition job on the cluster
+        $cmd->run_cluster(
+                "perl ",
+                $c->config->{basepath} . "/bin/transpose_matrix.pl",
+                $tempfile,
+        );
+        $cmd->is_cluster(1);
+        $cmd->wait;
+
+        open my $out_copy, '<', $transpose_tempfile or die "Can't open output file: $!";
+
+        $self->cache()->set($key, '');
+        $file_handle = $self->cache()->handle($key);
+        copy($out_copy, $file_handle);
+
+        close $out_copy;
+        $file_handle = $self->cache()->handle($key);
+    }
+    return $file_handle;
+}
+
+sub get_cached_file_VCF {
+    my $self = shift;
+    my $c = shift;
+    my $key = $self->key("get_cached_file_VCF");
+    $self->cache( Cache::File->new( cache_root => $self->cache_root() ));
+    my $protocol_ids = $self->protocol_id_list;
+
+    my $file_handle;
+    if ($self->cache()->exists($key)) {
+        $file_handle = $self->cache()->handle($key);
+    }
+    else {
+        # Set the temp dir and temp output file
+        my $tmp_output_dir = $c->config->{cluster_shared_tempdir}."/tmp_genotype_download_VCF";
+        mkdir $tmp_output_dir if ! -d $tmp_output_dir;
+        my ($tmp_fh, $tempfile) = tempfile(
+            "wizard_download_XXXXX",
+            DIR=> $tmp_output_dir,
+        );
+
+        my $time = DateTime->now();
+        my $timestamp = $time->ymd()."_".$time->hms();
+
+        my @all_protocol_info_lines = ("##INFO=<ID=VCFDownload, Description='VCFv4.2 FILE GENERATED BY BREEDBASE AT ".$timestamp."'>");
+
+        #Get all marker information for the protocol(s) requested. this is important if they are requesting subsets of markers or if they are querying more than one protocol at once. Also important for ordering VCF output. Old genotypes did not have protocolprop marker info so markers are taken from first genotypeprop return below.
+        my @all_marker_objects;
+        my %unique_germplasm;
+        foreach (@$protocol_ids) {
+            my $protocol = CXGN::Genotype::Protocol->new({
+                bcs_schema => $self->bcs_schema,
+                nd_protocol_id => $_,
+                chromosome_list=>$self->chromosome_list,
+                start_position=>$self->start_position,
+                end_position=>$self->end_position
+            });
+            my $markers = $protocol->markers;
+            push @all_protocol_info_lines, @{$protocol->header_information_lines};
+            push @all_marker_objects, values %$markers;
+        }
+
+        #VCF should be sorted by chromosome and position
+        no warnings 'uninitialized';
+        @all_marker_objects = sort { $a->{chrom} <=> $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
+
+        $self->init_genotype_iterator();
+        my $counter = 0;
+        while (my $geno = $self->get_next_genotype_info) {
+
+            # OLD GENOTYPING PROTCOLS DID NOT HAVE ND_PROTOCOLPROP INFO...
+            if (scalar(@all_marker_objects) == 0) {
+                foreach my $o (sort genosort keys %{$geno->{selected_genotype_hash}}) {
+                    push @all_marker_objects, {name => $o};
+                }
+            }
+
+            $unique_germplasm{$geno->{germplasmDbId}}++;
+
+            my $genotype_string = "";
+            if ($counter == 0) {
+                $genotype_string .= "#CHROM\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{chrom} . " \t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "POS\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{pos} . " \t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "ID\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $m->{name} . "\t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "REF\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{ref} . "\t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "ALT\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{alt} . "\t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "QUAL\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{qual} . "\t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "FILTER\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{filter} . "\t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "INFO\t";
+                foreach my $m (@all_marker_objects) {
+                    $genotype_string .= $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{info} . "\t";
+                }
+                $genotype_string .= "\n";
+                $genotype_string .= "FORMAT\t";
+                foreach my $m (@all_marker_objects) {
+                    my $format = $m->{format};
+                    my @format_array;
+                    #In case of old genotyping protocols where there was no protocolprop marker info
+                    if (!$format) {
+                        my $first_g = $geno->{selected_genotype_hash}->{$m->{name}};
+                        foreach my $k (sort keys %$first_g) {
+                            if (defined($first_g->{$k})) {
+                                push @format_array, $k;
+                            }
+                        }
+                    } else {
+                        @format_array = split ':', $format;
+                    }
+
+                    if (scalar(@format_array) > 1) { #ONLY ADD NT FOR NOT OLD GENOTYPING PROTOCOLS
+                        my %format_check = map {$_ => 1} @format_array;
+                        if (!exists($format_check{'NT'})) {
+                            push @format_array, 'NT';
+                        }
+                        if (!exists($format_check{'DS'})) {
+                            push @format_array, 'DS';
+                        }
+                    }
+                    $format = join ':', @format_array;
+                    $genotype_string .= $format . "\t";
+                    $geno->{selected_protocol_hash}->{markers}->{$m->{name}}->{format} = $format;
+                    $m->{format} = $format;
+                }
+                $genotype_string .= "\n";
+            }
+            my $genotype_id = $geno->{germplasmName};
+            my $genotype_data_string = "";
+            foreach my $m (@all_marker_objects) {
+                my @current_geno = ();
+                my $name = $m->{name};
+                my $format = $m->{format};
+                my @format;
+
+                #In case of old genotyping protocols where there was no protocolprop marker info
+                if (!$format) {
+                    my $first_g = $geno->{selected_genotype_hash}->{$name};
+                    foreach my $k (sort keys %$first_g) {
+                        if (defined($first_g->{$k})) {
+                            push @format, $k;
+                        }
+                    }
+                } else {
+                    @format = split ':', $format;
+                }
+
+                foreach my $format_key (@format) {
+                    push @current_geno, $geno->{selected_genotype_hash}->{$m->{name}}->{$format_key};
+                }
+                my $current_g = join ':', @current_geno;
+                $genotype_data_string .= $current_g."\t";
+            }
+            $genotype_string .= $genotype_id."\t".$genotype_data_string."\n";
+
+            write_file($tempfile, {append => 1}, $genotype_string);
+            $counter++;
+        }
+
+        my $transpose_tempfile = $tempfile . "_transpose";
+
+        my $cmd = CXGN::Tools::Run->new(
+            {
+                backend => $c->config->{backend},
+                submit_host => $c->config->{cluster_host},
+                temp_base => $c->config->{cluster_shared_tempdir} . "/tmp_genotype_download_VCF",
+                queue => $c->config->{'web_cluster_queue'},
+                do_cleanup => 0,
+                out_file => $transpose_tempfile,
+    #            out_file => $transpose_tempfile,
+                # don't block and wait if the cluster looks full
+                max_cluster_jobs => 1_000_000_000,
+            }
+        );
+
+        # Do the transposition job on the cluster
+        $cmd->run_cluster(
+                "perl ",
+                $c->config->{basepath} . "/bin/transpose_matrix.pl",
+                $tempfile,
+        );
+        $cmd->is_cluster(1);
+        $cmd->wait;
+
+        my $transpose_tempfile_hdr = $tempfile . "_transpose_hdr";
+
+        open my $in,  '<',  $transpose_tempfile or die "Can't read input file: $!";
+        open my $out, '>', $transpose_tempfile_hdr or die "Can't write output file: $!";
+
+        #Get synonyms of the accessions
+        my $stocklookup = CXGN::Stock::StockLookup->new({schema => $self->bcs_schema});
+        my @accession_ids = keys %unique_germplasm;
+        my $synonym_hash = $stocklookup->get_stock_synonyms('stock_id', 'accession', \@accession_ids);
+        my $synonym_string = "## Synonyms of accessions: ";
+        while( my( $uniquename, $synonym_list ) = each %{$synonym_hash}){
+            if(scalar(@{$synonym_list})>0){
+                if(not length($synonym_string)<1){
+                    $synonym_string.=" ";
+                }
+                $synonym_string.=$uniquename."=(";
+                $synonym_string.= (join ", ", @{$synonym_list}).")";
+            }
+        }
+        push @all_protocol_info_lines, $synonym_string;
+
+        my $vcf_header = join "\n", @all_protocol_info_lines;
+        $vcf_header .= "\n";
+
+        print $out $vcf_header;
+
+        while( <$in> )
+            {
+            print $out $_;
+            }
+        close $in;
+        close $out;
+
+        open my $out_copy, '<', $transpose_tempfile_hdr or die "Can't open output file: $!";
+
+        $self->cache()->set($key, '');
+        $file_handle = $self->cache()->handle($key);
+        copy($out_copy, $file_handle);
+
+        close $out_copy;
+        $file_handle = $self->cache()->handle($key);
+    }
+    return $file_handle;
+}
+
+sub genosort {
+    my ($a_chr, $a_pos, $b_chr, $b_pos);
+    if ($a =~ m/S(\d+)\_(.*)/) {
+        $a_chr = $1;
+        $a_pos = $2;
+    }
+    if ($b =~ m/S(\d+)\_(.*)/) {
+        $b_chr = $1;
+        $b_pos = $2;
+    }
+
+    if ($a_chr && $b_chr) {
+        if ($a_chr == $b_chr) {
+            return $a_pos <=> $b_pos;
+        }
+        return $a_chr <=> $b_chr;
+    } else {
+        return -1;
+    }
+}
 
 1;
