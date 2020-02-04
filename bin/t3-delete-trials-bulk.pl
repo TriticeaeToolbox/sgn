@@ -16,7 +16,7 @@ my $dbhost = 'breedbase_db';
 my $dbname = 'cxgn_triticum';
 my $dbuser = "postgres";
 
-my $dbpass = $opt_p
+my $dbpass = $opt_p;
 
 my $dbh = CXGN::DB::Connection->new( { dbhost=>$dbhost,
 	dbname=>$dbname,
