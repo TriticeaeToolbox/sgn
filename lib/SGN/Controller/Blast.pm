@@ -61,7 +61,9 @@ sub index :Path('/tools/blast/') :Args(0) {
     my @dbs_AoA;
 
     foreach my $db (@blast_dbs) {
-      push @dbs_AoA, [ $db->blast_db_id(), $db->title(), $db->type() ];
+      if (($c->user()) || ($db->title() !~ /private/)) {
+          push @dbs_AoA, [ $db->blast_db_id(), $db->title(), $db->type() ];
+      }
     }
 
     my @arr = sort {$a->[1] cmp $b->[1]} @dbs_AoA;
