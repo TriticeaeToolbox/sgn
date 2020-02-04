@@ -101,11 +101,14 @@ $file = "accessions.tsv";
 #type_id 76506 = stock_synonym
 #type_id 76533 = is a control
 #type_id 85453 = purdy pedigree
+#type_id 84978 = sgn allele_id
 #type_id 76658 = note
 #
 my @institute_code;
 my @institute_name;
 my @species_list;
+my $allele_id;
+my @allele_code;
 
 open($fh, ">", $file) or die("Can't open $file\n");
 print STDERR "creating accession file\n";
@@ -116,6 +119,28 @@ while(@row = $sth->fetchrow_array) {
    $stock_id = $row[0];
    $institute_code[$row[0]] = $row[1];
 }
+$q = "SELECT stock_id, value from stockprop where type_id = 84978";
+$sth = $dbh->prepare($q);
+$sth->execute();
+while(@row = $sth->fetchrow_array) {
+   $stock_id = $row[0];
+   $allele_id = $row[1];
+   $allele_code[$row[0]] = $row[1];
+}
+
+my $allele_symbol;
+my $allele_name;
+my @allele_list;
+$q = "SELECT allele_id, allele_symbol, allele_name from phenome.allele";
+$sth = $dbh->prepare($q);
+$sth->execute();
+while(@row = $sth->fetchrow_array) {
+   $allele_id = $row[0];
+   $allele_symbol = $row[1];
+   $allele_name = $row[1];
+   $allele_list[$row[0]] = "$allele_symbol $allele_name";
+}
+
 $q = "SELECT stock_id, value from stockprop where type_id = 76595";
 $sth = $dbh->prepare($q);
 $sth->execute();
