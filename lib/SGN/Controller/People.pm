@@ -5,6 +5,8 @@ use Moose;
 
 use URI::FromHash 'uri';
 use CXGN::Login;
+use CXGN::People;
+use CXGN::People::Login;
 use CXGN::People::Person;
 use Data::Dumper;
 use CXGN::Phenome::Population;
@@ -154,6 +156,47 @@ sub people_top_level : Path('/solpeople/profile') Args(1) {
     $c->stash->{template} = '/people/profile.mas';
 
 
+}
+
+
+# Code migrated from /cgi-bin/solpeople/account-confirm.pl
+sub people_confirm : Path('/solpeople/confirm') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $username = $c->req->param('username');
+    my $confirm_code = $c->req->param('confirm');
+    my $dbh = $c->dbc->dbh;
+
+    my $sp = CXGN::People::Login->get_login( $dbh, $username );
+    my $success = 1;
+    my $message = "";
+    
+    # Confirmation Failures
+    if ( !$sp || !$sp->get_sp_person_id() ) {
+        $success = 0;
+        $message =  "Username \"$username\" was not found.";
+    }
+    elsif ( !$sp->get_confirm_code() ) {
+        $success = 0;
+        $message = "No confirmation is required for user <b>$username</b>. This account has already been confirmed.";
+    }
+    elsif ( $sp->get_confirm_code() ne $confirm_code ) {
+        $success = 0;
+        $message = "Confirmation code is not valid!";
+    }
+
+    # Perform the Confirmation
+    if ( $success == 1 ) {
+        $sp->set_disabled(undef);
+        $sp->set_confirm_code(undef);
+        $sp->set_private_email( $sp->get_pending_email() );
+        $sp->store();
+    }
+
+    $c->stash->{username} = $username;
+    $c->stash->{success} = $success;
+    $c->stash->{message} = $message;
+    $c->stash->{template} = '/people/confirm.mas';
 }
 
 1;
