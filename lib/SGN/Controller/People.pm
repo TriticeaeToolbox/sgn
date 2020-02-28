@@ -167,9 +167,13 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
     my $confirm_code = $c->req->param('confirm');
     my $dbh = $c->dbc->dbh;
 
+    # Get the Person by username
     my $sp = CXGN::People::Login->get_login( $dbh, $username );
+
+    # Confirmation status information
     my $success = 1;
     my $message = "";
+    my $user_auto_submitter = 0;
     
     # Confirmation Failures
     if ( !$sp || !$sp->get_sp_person_id() ) {
@@ -191,11 +195,20 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
         $sp->set_confirm_code(undef);
         $sp->set_private_email( $sp->get_pending_email() );
         $sp->store();
+
+        # Automatically set the user as a submitter
+        if ( $c->config->{user_auto_submitter} == 1 ) {
+            $sp->add_role('submitter');
+            if ( $sp->has_role('submitter') ) {
+                $user_auto_submitter = 1;
+            }
+        }
     }
 
     $c->stash->{username} = $username;
     $c->stash->{success} = $success;
     $c->stash->{message} = $message;
+    $c->stash->{user_auto_submitter} = $user_auto_submitter;
     $c->stash->{template} = '/people/confirm.mas';
 }
 

@@ -2,6 +2,7 @@
     $username => undef
     $success => 0
     $message => "Account confirmation was not successful"
+    $user_auto_submitter => 0
 </%args>
 
 
@@ -25,6 +26,14 @@
     
     <h1>Account Confirmation Successful</h1>
     <p>The account for user <em><% $username %></em> has been verified.</p>
+
+% if ( $user_auto_submitter == 1 ) {
+    <p>
+        Your account has been granted <strong>submitter</strong> status and will be 
+        able to add data to the database.
+    </p>
+% }
+
     <p>You can now login to continue using the site.</p>
     <br />
     <button id="login-button" type="button" class="btn btn-primary    btn-block">
