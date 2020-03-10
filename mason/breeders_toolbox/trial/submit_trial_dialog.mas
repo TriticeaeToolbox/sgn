@@ -11,7 +11,7 @@ $location
     max-width: 600px;
     margin: 50px auto 0 auto;
   }
-  #submit_trial_dialog_working {
+  #submit_trial_dialog_working, #submit_trial_dialog_status {
     max-width: 400px;
     margin: 200px auto 0 auto;
   }
@@ -56,6 +56,22 @@ $location
   </div>
 </div>
 
+<div class="modal fade" id="submit_trial_dialog_status" role="dialog" aria-labelledby="submit_trial_dialog_status_title">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content ui-front">
+      <div class="modal-header text-center">
+        <h4 class="modal-title" id="submit_trial_dialog_status_title"></h4>
+      </div>
+      <div class="modal-body" id="trial_details_edit_body">
+        <p id="submit_trial_dialog_status_details"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="submit_trial_dialog_status_close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <script type="text/javascript">
   jQuery("#submit_trial_dialog_cancel").click(function() {
@@ -65,5 +81,48 @@ $location
   jQuery("#submit_trial_dialog_submit").click(function() {
     jQuery('#submit_trial_dialog').modal("hide");
     jQuery("#submit_trial_dialog_working").modal({backdrop: 'static', keyboard: false, show: true});
+    submit();
   });
+
+
+  function submit() {
+    jQuery.ajax({
+        url: "/ajax/submit/trial",
+        type: "POST",
+        data: {
+          trial_id: <% $trial %>,
+          comments: jQuery("#submit_trial_comments").val()
+        },
+        success: function(data, status, jqXHR) {
+          if ( data && data.status && data.message) {
+            submit_finished(data.status, data.message);
+          }
+          else {
+            console.log("SUBMIT REQUEST - MISSING RESPONSE DATA");
+            console.log(data);
+            submit_general_error();
+          }
+        },
+        error: function (jqXHR, status, err) {
+          console.log("SUBMIT REQUEST ERROR:");
+          console.log(err);
+          submit_general_error();     
+        }
+    });
+  }
+
+  function submit_general_error() {
+    submit_finished("error", "The server did not return a valid response.  Please try again later and contact us if this problem persists.");
+  }
+
+  function submit_finished(status, message) {
+    var title = status === 'success' ? 'Trial Submitted' : 'Trial Submission Error';
+    var details = status === 'success' ? 'Trial <strong><% $trial_name %></strong> has been successfully submitted to the curators.  Once approved, this trial will be available on the production website.' : message;
+
+    jQuery("#submit_trial_dialog_status_title").html(title);
+    jQuery("#submit_trial_dialog_status_details").html(details);
+
+    jQuery('#submit_trial_dialog_working').modal("hide");
+    jQuery('#submit_trial_dialog_status').modal("show");
+  }
 </script>
