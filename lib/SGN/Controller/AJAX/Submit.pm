@@ -48,6 +48,11 @@ sub submit_trial_data_POST : Args(0) {
         $self->submit_error($c, undef, "Trial Submissions are not enabled");
     }
 
+    # User must be logged in
+    if ( !$user ) {
+        $self->submit_error($c, undef, "You must be logged in to submit a trial");
+    }
+
     # Trial ID is required
     if ( !$trial_id || $trial_id eq "" ) {
         $self->submit_error($c, undef, "Trial ID is required");
@@ -67,10 +72,12 @@ sub submit_trial_data_POST : Args(0) {
 
     # SUBMISSION FILE
     my $sub_file = $dir . "/submission.txt";
-    my $sub_contents = "Comments: $comments\n";
+    my $sub_contents = "Name: " . $user->get_first_name() . " " . $user->get_last_name() . "\n";
+    $sub_contents .= "Username: " . $user->get_username() . "\n";
+    $sub_contents .= "Email: " . $user->get_private_email() . "\n";
+    $sub_contents .= "Comments: $comments\n";
     $self->write_text_file($sub_file, $sub_contents);
-
-    # TODO: Add user infor to submission file
+    
 
     # BREEDING PROGRAM
     my $bp_file = $dir . "/breeding_program.txt";
@@ -81,7 +88,8 @@ sub submit_trial_data_POST : Args(0) {
     if ( @$bps > 1 ) {
         $self->submit_error($c, $dir, "Trial has more than 1 breeding program");
     }
-    my $bp_contents = "Name: " . $bps->[0]->[1] . "\nDescription: " . $bps->[0]->[2] . "\n";
+    my $bp_contents = "Name: " . $bps->[0]->[1] . "\n";
+    $bp_contents .= "Description: " . $bps->[0]->[2] . "\n";
     $self->write_text_file($bp_file, $bp_contents);
 
 
