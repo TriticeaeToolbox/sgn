@@ -14,7 +14,13 @@ __PACKAGE__->config(
 );
 
 
-
+#
+# SUBMIT AN ENTIRE TRIAL FOR CURATION
+# Query/Body Params:
+#   trial_id = Phenotype Trial ID
+#   comments = Comments for curators
+# This will generate the upload templates to submit the trial to a production website
+# 
 sub submit_trial_data : Path('/ajax/submit/trial') : ActionClass('REST') { }
 
 sub submit_trial_data_GET : Args(0) {
@@ -31,16 +37,20 @@ sub submit_trial_data_POST : Args(0) {
     my $user = $c->user();
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
     my $submission_dir = $c->config->{submission_path};
+    my $allow_trial_submissions = $c->config->{allow_trial_submissions};
 
     print STDERR "\n\n\n\n========> SUBMIT TRIAL DATA <========\n";
     print STDERR "Trial ID: $trial_id\n";
     print STDERR "Comments: $comments\n";
 
-    # Trial ID is required!
+    # Trial Submissions have to be enabled
+    if ( !$allow_trial_submissions ) {
+        $self->submit_error($c, undef, "Trial Submissions are not enabled");
+    }
+
+    # Trial ID is required
     if ( !$trial_id || $trial_id eq "" ) {
-        my %result = (status => "error", message => "Trial ID is required");
-        $c->stash->{rest} = \%result;
-        $c->detach();
+        $self->submit_error($c, undef, "Trial ID is required");
     }
 
     # Get Trial by ID
@@ -89,9 +99,20 @@ sub submit_trial_data_POST : Args(0) {
 
 
 
+##
+## PRIVATE FUNCTIONS
+## 
 
 
-
+# 
+# SUBMIT ERROR
+# Delete the submission directory and return an error message when the 
+# trial submission fails
+# Arguments:
+#   c = catalyst context
+#   dir = submission directory
+#   message = error message to return
+#
 sub submit_error :Private {
     my $self = shift;
     my $c = shift;
@@ -105,6 +126,13 @@ sub submit_error :Private {
 }
 
 
+#
+# WRITE TEXT FILE
+# Write the contents to a text file
+# Arguments:
+#   file = file path
+#   contents = file contents
+#
 sub write_text_file :Private {
     my $self = shift;
     my $file = shift;
