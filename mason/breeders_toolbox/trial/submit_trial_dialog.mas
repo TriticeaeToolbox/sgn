@@ -50,7 +50,7 @@ $location
         <h4 class="modal-title" id="submit_trial_dialog_title">Working...</h4>
       </div>
       <div class="modal-body" id="trial_details_edit_body">
-        <p>Submitting Trial <strong><% $trial_name %></strong> to database curators...</p>
+        <p>Submitting Trial <strong><% $trial_name %></strong> to database curators (this may take a minute)...</p>
       </div>
     </div>
   </div>

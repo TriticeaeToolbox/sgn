@@ -4,6 +4,7 @@ use Moose;
 use CXGN::Trial;
 use CXGN::BreedersToolbox::Projects;
 use CXGN::Stock::Accession;
+use CXGN::Trial::TrialLayoutDownload;
 use Spreadsheet::WriteExcel;
 
 use JSON;
@@ -82,6 +83,7 @@ sub submit_trial_data_POST : Args(0) {
     $self->write_location_file($c, $dir, $trial);
     $self->write_trial_details_file($c, $dir, $trial);
     $self->write_accessions_file($c, $dir, $trial);
+    $self->write_trial_layout_and_observations_files($c, $dir, $trial);
 
     # Return success
     $c->stash->{rest} = {status => "success", message => "Trial submitted"};
@@ -172,12 +174,10 @@ sub write_trial_details_file :Private {
     my $dir = shift;
     my $trial = shift;
     
-    my $bps = $trial->get_breeding_programs();
-    
     my $details_file = $dir . "/trial_details.txt";
     my $details_contents = "Trial ID: " . $trial->get_trial_id() . "\n";
     $details_contents .= "Trial Name: " . $trial->get_name() . "\n";
-    $details_contents .= "Breeding Program: " . $bps->[0]->[1] . "\n";
+    $details_contents .= "Breeding Program: " . $trial->get_breeding_programs()->[0]->[1] . "\n";
     $details_contents .= "Trial Location: " . $trial->get_location()->[1] . "\n";
     $details_contents .= "Year: " . $trial->get_year() . "\n";
     $details_contents .= "Stock Type: " . $trial->get_trial_stock_type() . "\n";
@@ -199,7 +199,7 @@ sub write_accessions_file :Private {
     my $dir = shift;
     my $trial = shift;
 
-    # TODO: Only add supported stock props
+    # TODO: Only add supported/enabled stock props
 
     my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     
@@ -248,6 +248,109 @@ sub write_accessions_file :Private {
         push(@accession_rows, \@r);
     }
     $self->write_excel_file($accessions_file, \@accession_headers, \@accession_rows);
+}
+
+sub write_trial_layout_and_observations_files :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $trial = shift;
+
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    # Trial Plot-level data
+    my $trait_offset = 11;
+    my $trial_layout_download = CXGN::Trial::TrialLayoutDownload->new({
+        schema => $schema,
+        trial_id => $trial->get_trial_id(),
+        data_level => 'plots',
+        selected_columns => {
+            "plot_name" => 1,
+            "accession_name" => 1,
+            "plot_number" => 1,
+            "block_number" => 1,
+            "is_a_control" => 1,
+            "rep_number" => 1,
+            "range_number" => 1,
+            "row_number" => 1,
+            "col_number" => 1,
+            "seedlot_name" => 1,
+            "num_seed_per_plot" => 1
+        }
+    });
+    my $output = $trial_layout_download->get_layout_output()->{output};
+    my $tld_header = shift @$output;
+    my @traits = @$tld_header[$trait_offset .. @$tld_header-1];
+
+    # Trial layout file info
+    my $trial_layout_file = $dir . "/trial_layout.xls";
+    my @trial_layout_headers = ("trial_name", "breeding_program", "location", "year", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
+    my @trial_layout_rows = ();
+    my $bps = $trial->get_breeding_programs();
+
+    # Trial observations file info
+    my $trial_observations_file = $dir . "/trial_observations.xls";
+    my @trial_observations_headers = ("observationunit_name", @traits);
+    my @trial_observations_rows = ();
+
+    # Get trial-level properties
+    my $trial_name = $trial->get_name();
+    my $breeding_program = $trial->get_breeding_programs()->[0]->[1];
+    my $location = $trial->get_location()->[1];
+    my $year = $trial->get_year();
+    my $design_type = $trial->get_design_type();
+    my $description = $trial->get_description();
+    my $trial_type = $trial->get_project_type()->[1];
+    my $plot_width = $trial->get_plot_width();
+    my $plot_length = $trial->get_plot_length();
+    my $field_size = $trial->get_field_size();
+    my $planting_date = $trial->get_planting_date();
+    my $harvest_date = $trial->get_harvest_date();
+
+    # Parse the trial plots
+    foreach my $p (@$output) {
+        
+        # layout row
+        my @lr = (
+            $trial_name,
+            $breeding_program,
+            $location,
+            $year,
+            $design_type,
+            $description,
+            $trial_type,
+            $plot_width,
+            $plot_length,
+            $field_size,
+            $planting_date,
+            $harvest_date,
+            $p->[0],
+            $p->[1],
+            $p->[2],
+            $p->[3],
+            $p->[4],
+            $p->[5],
+            $p->[6],
+            $p->[7],
+            $p->[8],
+            $p->[9],
+            $p->[10]
+        );
+        push(@trial_layout_rows, \@lr);
+
+        # observations row
+        my @or = (
+            $p->[0]
+        );
+        for ( my $i = 0; $i <= $#traits; $i++ ) {
+            my $v = $p->[$i+$trait_offset];
+            push(@or, $v);
+        }
+        push(@trial_observations_rows, \@or);
+
+    }
+    $self->write_excel_file($trial_layout_file, \@trial_layout_headers, \@trial_layout_rows);
+    $self->write_excel_file($trial_observations_file, \@trial_observations_headers, \@trial_observations_rows);
 }
 
 
