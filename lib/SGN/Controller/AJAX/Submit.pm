@@ -3,6 +3,7 @@ package SGN::Controller::AJAX::Submit;
 use Moose;
 use CXGN::Trial;
 use CXGN::BreedersToolbox::Projects;
+use CXGN::Stock::Accession;
 use Spreadsheet::WriteExcel;
 
 use JSON;
@@ -75,17 +76,44 @@ sub submit_trial_data_POST : Args(0) {
     }
     print STDERR "==> Writing Trial $trial_id templates to: $dir\n";
 
+    # Write Individual Files
+    $self->write_submission_file($c, $dir, $user, $comments);
+    $self->write_breeding_program_file($c, $dir, $trial);
+    $self->write_location_file($c, $dir, $schema, $trial);
+    $self->write_trial_details_file($c, $dir, $trial);
+    $self->write_accessions_file($c, $dir, $schema, $trial);
 
-    # SUBMISSION FILE
+    # Return success
+    $c->stash->{rest} = {status => "success", message => "Trial submitted"};
+}
+
+
+
+##
+## INDIVIDUAL FILE FUNCTIONS
+##
+
+sub write_submission_file :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $user = shift;
+    my $comments = shift;
+
     my $sub_file = $dir . "/submission.txt";
     my $sub_contents = "Name: " . $user->get_first_name() . " " . $user->get_last_name() . "\n";
     $sub_contents .= "Username: " . $user->get_username() . "\n";
     $sub_contents .= "Email: " . $user->get_private_email() . "\n";
     $sub_contents .= "Comments: $comments\n";
     $self->write_text_file($sub_file, $sub_contents);
-    
+}
 
-    # BREEDING PROGRAM
+sub write_breeding_program_file :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $trial = shift;
+
     my $bp_file = $dir . "/breeding_program.txt";
     my $bps = $trial->get_breeding_programs();
     if ( !$bps || @$bps eq 0 ) {
@@ -94,20 +122,27 @@ sub submit_trial_data_POST : Args(0) {
     my $bp_contents = "Name: " . $bps->[0]->[1] . "\n";
     $bp_contents .= "Description: " . $bps->[0]->[2] . "\n";
     $self->write_text_file($bp_file, $bp_contents);
+}
 
+sub write_location_file :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $schema = shift;
+    my $trial = shift;
 
-    # LOCATION
     my $location_file = $dir . "/locations.xls";
     my $location = $trial->get_location();
     if ( !$location || @$location eq 0 ) {
         $self->submit_error($c, $dir, "Trial does not have a location assigned to it");
     }
     my $location_id = $location->[0];
+    
     my $btp = CXGN::BreedersToolbox::Projects->new( { schema => $schema });
     my $locations_json = $btp->get_location_geojson();
     my $locations = decode_json ($locations_json);
     my $location_properties;
-    use Data::Dumper;
+
     foreach my $l ( @$locations ) { 
         my $p = $l->{properties};
         if ( $p->{Id} eq $location_id ) {
@@ -127,11 +162,18 @@ sub submit_trial_data_POST : Args(0) {
         $location_properties->{Altitude}
     ]);
     $self->write_excel_file($location_file, \@location_headers, \@location_info);
+}
 
-
-    # TRIAL DETAILS
+sub write_trial_details_file :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $trial = shift;
+    
+    my $bps = $trial->get_breeding_programs();
+    
     my $details_file = $dir . "/trial_details.txt";
-    my $details_contents = "Trial ID: $trial_id\n";
+    my $details_contents = "Trial ID: " . $trial->get_trial_id() . "\n";
     $details_contents .= "Trial Name: " . $trial->get_name() . "\n";
     $details_contents .= "Breeding Program: " . $bps->[0]->[1] . "\n";
     $details_contents .= "Trial Location: " . $trial->get_location()->[1] . "\n";
@@ -147,15 +189,62 @@ sub submit_trial_data_POST : Args(0) {
     $details_contents .= "Trial will be genotyped: " . $trial->get_field_trial_is_planned_to_be_genotyped() . "\n";
     $details_contents .= "Trial will be crossed: " . $trial->get_field_trial_is_planned_to_cross() . "\n";
     $self->write_text_file($details_file, $details_contents);
-
-
-
-    use Data::Dumper;
-
-    # Return success
-    $c->stash->{rest} = {status => "success", message => "Trial submitted"};
 }
 
+sub write_accessions_file :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $schema = shift;
+    my $trial = shift;
+
+    # TODO: Only add supported stock props
+    
+    my $accessions_file = $dir . "/accessions.xls";
+    my $accession_info = $trial->get_accessions();
+    my @accession_headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
+    my @accession_rows = ();
+    foreach my $ai ( @$accession_info ) {
+        my $stock_id = $ai->{stock_id};
+        my $a = new CXGN::Stock::Accession( { schema => $schema, stock_id => $stock_id} );
+        my @r = (
+            $a->uniquename(),
+            "...species...",
+            $a->population_name(),
+            $a->organization_name(),
+            $a->synonyms(),
+            $a->locationCode(),
+            $a->ploidyLevel(),
+            $a->genomeStructure(),
+            $a->variety(),
+            $a->donors(),
+            $a->_retrieve_stockprop('donor institute'),
+            $a->_retrieve_stockprop('donor PUI'),
+            $a->countryOfOriginCode(),
+            $a->state(),
+            $a->instituteCode(),
+            $a->instituteName(),
+            $a->biologicalStatusOfAccessionCode(),
+            $a->notes(),
+            $a->accessionNumber(),
+            $a->germplasmPUI(),
+            $a->germplasmSeedSource(),
+            $a->typeOfGermplasmStorageCode(),
+            $a->acquisitionDate(),
+            $a->transgenic(),
+            $a->introgression_parent(),
+            $a->introgression_backcross_parent(),
+            $a->introgression_map_version(),
+            $a->introgression_chromosome(),
+            $a->introgression_start_position_bp(),
+            $a->introgression_end_position_bp(),
+            $a->purdyPedigree(),
+            $a->filialGeneration()
+        );
+        push(@accession_rows, \@r);
+    }
+    $self->write_excel_file($accessions_file, \@accession_headers, \@accession_rows);
+}
 
 
 
