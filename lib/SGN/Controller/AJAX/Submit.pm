@@ -77,11 +77,11 @@ sub submit_trial_data_POST : Args(0) {
     print STDERR "==> Writing Trial $trial_id templates to: $dir\n";
 
     # Write Individual Files
-    $self->write_submission_file($c, $dir, $user, $comments);
+    $self->write_submission_file($c, $dir, $comments);
     $self->write_breeding_program_file($c, $dir, $trial);
-    $self->write_location_file($c, $dir, $schema, $trial);
+    $self->write_location_file($c, $dir, $trial);
     $self->write_trial_details_file($c, $dir, $trial);
-    $self->write_accessions_file($c, $dir, $schema, $trial);
+    $self->write_accessions_file($c, $dir, $trial);
 
     # Return success
     $c->stash->{rest} = {status => "success", message => "Trial submitted"};
@@ -97,8 +97,9 @@ sub write_submission_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
-    my $user = shift;
     my $comments = shift;
+
+    my $user = $c->user();
 
     my $sub_file = $dir . "/submission.txt";
     my $sub_contents = "Name: " . $user->get_first_name() . " " . $user->get_last_name() . "\n";
@@ -128,8 +129,9 @@ sub write_location_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
-    my $schema = shift;
     my $trial = shift;
+
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
     my $location_file = $dir . "/locations.xls";
     my $location = $trial->get_location();
@@ -195,21 +197,23 @@ sub write_accessions_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
-    my $schema = shift;
     my $trial = shift;
 
     # TODO: Only add supported stock props
+
+    my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     
     my $accessions_file = $dir . "/accessions.xls";
-    my $accession_info = $trial->get_accessions();
     my @accession_headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
     my @accession_rows = ();
+
+    my $accession_info = $trial->get_accessions();
     foreach my $ai ( @$accession_info ) {
         my $stock_id = $ai->{stock_id};
-        my $a = new CXGN::Stock::Accession( { schema => $schema, stock_id => $stock_id} );
+        my $a = new CXGN::Stock::Accession({ schema => $schema, stock_id => $stock_id});
         my @r = (
             $a->uniquename(),
-            "...species...",
+            $a->get_species(),
             $a->population_name(),
             $a->organization_name(),
             $a->synonyms(),
