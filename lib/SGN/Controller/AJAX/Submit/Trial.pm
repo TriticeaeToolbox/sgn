@@ -43,9 +43,9 @@ sub submit_trial_data_POST : Args(0) {
 
     my $user = $c->user();
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
-    my $submission_dir = $c->config->{submission_path};
     my $allow_trial_submissions = $c->config->{allow_trial_submissions};
-    my $submission_contact_email = $c->config->{submission_contact_email};
+    my $submission_path = $c->config->{submission_path};
+    my $submission_email = $c->config->{submission_email};
     my $main_production_site_url = $c->config->{main_production_site_url};
 
     # Trial Submissions have to be enabled
@@ -74,7 +74,7 @@ sub submit_trial_data_POST : Args(0) {
 
     # Set file directory
     my $ts = strftime "%Y%m%d_%H%M%S", localtime;
-    my $dir = $submission_dir . "/" . $user->get_object()->get_sp_person_id(). '/' . $ts . "_" . $trial_id;
+    my $dir = $submission_path . "/" . $user->get_object()->get_sp_person_id(). '/' . $ts . "_" . $trial_id;
     unless (-d $dir) {
         mkpath($dir) or die "Couldn't mkdir $dir: $!";
     }
@@ -89,7 +89,7 @@ sub submit_trial_data_POST : Args(0) {
     $self->write_trial_layout_and_observations_files($c, $dir, $trial);
 
     # Send email notification
-    if ( $submission_contact_email ) {
+    if ( $submission_email ) {
         my $subject = "[Trial Submission] " . $trial->get_name();
 
         my $body = "TRIAL SUBMISSION\n";
@@ -103,7 +103,7 @@ sub submit_trial_data_POST : Args(0) {
         $body .= "Site: " . $main_production_site_url . "\n";
         $body .= "Directory: " . $dir . "\n";
 
-        CXGN::Contact::send_email($subject, $body, $submission_contact_email, $user->get_private_email());
+        CXGN::Contact::send_email($subject, $body, $submission_email, $user->get_private_email());
     }
 
     # Return success
