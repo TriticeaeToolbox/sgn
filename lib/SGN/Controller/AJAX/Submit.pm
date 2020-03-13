@@ -5,6 +5,7 @@ use CXGN::Trial;
 use CXGN::BreedersToolbox::Projects;
 use CXGN::Stock::Accession;
 use CXGN::Trial::TrialLayoutDownload;
+use CXGN::Contact;
 use Spreadsheet::WriteExcel;
 
 use JSON;
@@ -44,6 +45,8 @@ sub submit_trial_data_POST : Args(0) {
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
     my $submission_dir = $c->config->{submission_path};
     my $allow_trial_submissions = $c->config->{allow_trial_submissions};
+    my $submission_contact_email = $c->config->{submission_contact_email};
+    my $main_production_site_url = $c->config->{main_production_site_url};
 
     # Trial Submissions have to be enabled
     if ( !$allow_trial_submissions ) {
@@ -84,6 +87,24 @@ sub submit_trial_data_POST : Args(0) {
     $self->write_trial_details_file($c, $dir, $trial);
     $self->write_accessions_file($c, $dir, $trial);
     $self->write_trial_layout_and_observations_files($c, $dir, $trial);
+
+    # Send email notification
+    if ( $submission_contact_email ) {
+        my $subject = "[Trial Submission] " . $trial->get_name();
+
+        my $body = "TRIAL SUBMISSION\n";
+        $body .= "================\n\n";
+        $body .= "Phenotyping trial " . $trial->get_name() . " has been submitted.\n\n";
+        if ( $comments ) {
+            $body .= $comments . "\n\n";
+        }
+        $body .= "Trial: " . $trial->get_name() . " (" . $trial_id . ")\n";
+        $body .= "User: " . $user->get_first_name() . " " . $user->get_last_name() . " <" . $user->get_private_email() . ">\n";
+        $body .= "Site: " . $main_production_site_url . "\n";
+        $body .= "Directory: " . $dir . "\n";
+
+        CXGN::Contact::send_email($subject, $body, $submission_contact_email, $user->get_private_email());
+    }
 
     # Return success
     $c->stash->{rest} = {status => "success", message => "Trial submitted"};
