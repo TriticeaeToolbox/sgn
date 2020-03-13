@@ -1,4 +1,4 @@
-package SGN::Controller::AJAX::Submit;
+package SGN::Controller::AJAX::Submit::Trial;
 
 use Moose;
 use CXGN::Trial;
@@ -94,7 +94,7 @@ sub submit_trial_data_POST : Args(0) {
 
         my $body = "TRIAL SUBMISSION\n";
         $body .= "================\n\n";
-        $body .= "Phenotyping trial " . $trial->get_name() . " has been submitted.\n\n";
+        $body .= "Phenotyping trial " . $trial->get_name() . " has been submitted for curation.\n\n";
         if ( $comments ) {
             $body .= $comments . "\n\n";
         }
