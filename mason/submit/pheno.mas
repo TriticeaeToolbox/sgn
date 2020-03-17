@@ -1,0 +1,184 @@
+<%args>
+    @data_types => ("Breeding Program", "Locations", "Accessions", "Trials", "Phenotype Observations", "Multiple Files")
+</%args>
+
+
+<style>
+    div.submission-form {
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 0 10px 5px 10px;
+        margin: 25px 0;
+    }
+    div.submission-form h3 {
+        margin: 15px 0 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    div.data-type-group {
+        display: none;
+    }
+
+    a.btn {
+        color: #fff;
+    }
+    .btn:hover {
+        background-color: #286090 !important;
+        color: #fff !important;
+    }
+</style>
+
+
+<& /page/page_title.mas, title=>"Phenotype Data Submission" &>
+
+
+<p>
+    Submit your upload templates here when you are ready to have your data published on T3.  For more 
+    information on generating the upload templates for each data type, visit the 
+    <a href='https://wheat-sandbox.triticeaetoolbox.org/help/phenotype_upload_workflow'>
+        Phenotype Upload Workflow
+    </a>
+    instructions.
+</p>
+
+
+
+<div class="submission-form">
+    <form name="submission-form">
+
+        <h3>Submitter Information</h3>
+
+        <!-- Name -->
+        <div class="row form-group">
+            <label class="col-sm-2 control-label">Name*: </label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" value="" name="name"></input>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="row form-group">
+            <label class="col-sm-2 control-label">Email*: </label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" value="" name="email"></input>
+            </div>
+        </div>
+
+
+        <h3>Data Type</h3>
+
+
+        <!-- Data Type -->
+        <div class="row form-group">
+            <label class="col-sm-2 control-label"></label>
+            <div class="col-sm-10">
+                <select id="data-type" class="form-control">
+                    <option value="">---- SELECT DATA TYPE ----</option>
+% foreach my $data_type (@data_types) {
+                    <option value="<% $data_type %>"><% $data_type %></option>
+% }
+                </select>
+            </div>
+        </div>
+
+
+        <!-- Breeding Program -->
+        <div id="breeding-program-group" class="data-type-group">
+            <h3>Breeding Program Information</h3>
+
+            <!-- Breeding Program Name -->
+            <div class="row form-group">
+                <label class="col-sm-2 control-label">Name*: </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" value="" name="breeding-program-name"></input>
+                </div>
+            </div>
+
+            <!-- Breeding Program Description -->
+            <div class="row form-group">
+                <label class="col-sm-2 control-label">Description*: </label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" value="" name="breeding-program-description"></input>
+                </div>
+            </div>
+
+        </div>
+
+
+        <!-- Locations -->
+        <div id="locations-group" class="data-type-group">
+            <h3>Location Upload Template</h3>
+            <p>Upload an Excel (.xls) file containing location information for any new or modified locations</p>
+
+            <input type="file" class="form-control" id="locations-file" name="locations-file" accept=".xls">
+        </div>
+
+
+        <!-- Accessions -->
+        <div id="accessions-group" class="data-type-group">
+            <h3>Accession Upload Template</h3>
+            <p>Upload an Excel (.xls) file containing accession information for any new or modified accessions</p>
+
+            <input type="file" class="form-control" id="accessions-file" name="accessions-file" accept=".xls">
+        </div>
+
+
+        <!-- Trials -->
+        <div id="trials-group" class="data-type-group">
+            <h3>Trial Upload Template(s)</h3>
+            <p>
+                Upload one or more trial templates (Excel (.xls) files) that contain the trial metadata and plot 
+                layout information for each new trial.  If you designed the trial interactively on the website, 
+                the trial templates used for submission can be downloaded from the Trial Detail page of each new 
+                trial by clicking the <strong>Export Trial Details</strong> button.  If you generated a 
+                multi-trial upload template, that file can be submitted here.
+            </p>
+            <input type="file" class="form-control" id="trials-file" name="accessions-file" accept=".xls" multiple>
+        </div>
+
+
+        <!-- Phenotype Observations -->
+        <div id="phenotype-observations-group" class="data-type-group">
+            <h3>Phenotype Observations Template(s)</h3>
+            <p>
+                Upload one or more phenotyping spreadsheets (Excel (.xls) files) or exported Android fieldbook 
+                files that contain phenotype observations for one or more trials.
+            </p>
+            <input type="file" class="form-control" id="phenotype-observations-file" name="phenotype-observations-file" accept=".xls" multiple>
+        </div>
+
+
+        <!-- Multiple Files -->
+        <div id="multiple-files-group" class="data-type-group">
+            <h3>Multiple Files</h3>
+            <p>Here you can upload multiple files of various data types at once</p>
+            <input type="file" class="form-control" id="multiple-files-file" name="multiple-files-file" multiple>
+        </div>
+
+
+        <!-- Comments -->
+        <h3>Comments</h3>
+
+        <p><em>Optional</em> - Provide any additional comments about the data you are submitting.</p>
+
+        <textarea class="form-control" id="comments" name="comments" rows="4"></textarea>
+
+
+        <br /><br />
+
+        <a id="submit" href="#" class="btn btn-primary btn-large btn-block">Submit</a>
+
+    </form>
+</div>
+
+
+
+<script type="text/javascript">
+    $("#data-type").change(function() {
+        let type = $("#data-type").val();
+        let el = type.toLowerCase().replace(" ", "-") + "-group";
+        $(".data-type-group").hide();
+        $("#" + el).show();
+    });
+</script>
