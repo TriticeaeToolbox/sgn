@@ -83,6 +83,7 @@ sub submit_trial_file_POST : Args(0) {
             $self->submit_error($c, "Upload file(s) not specified");
         }
     }
+    $uploads = [ $uploads ]   if ref($uploads) ne 'ARRAY';
 
     # Set directory path
     my $ts = strftime "%Y%m%d_%H%M%S", localtime;
