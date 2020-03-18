@@ -9,6 +9,13 @@ sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     my $self = shift;
     my $c = shift;
 
+    my $allow_file_submissions = $c->config->{allow_file_submissions};
+    if ( !$allow_file_submissions ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>File Submissions Not Enabled</strong></p><p>File submissions are not allowed on this server.</p>";
+        return;
+    }
+
     my $user = $c->user();
     if ( $user ) {
         $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
