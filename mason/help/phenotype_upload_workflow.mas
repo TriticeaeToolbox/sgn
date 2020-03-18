@@ -351,6 +351,8 @@ $user_roles => 'unknown'
 <div class="section section-submit">
     <h2>Submission</h2>
 
+    <p>There are two options for submitting your trial data to the production site:</p>
+
     <ul>
         <li>
             <p><strong>Option A - Using the Sandbox:</strong> If your trial has been successully added to the Sandbox, 

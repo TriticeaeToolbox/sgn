@@ -1,5 +1,7 @@
 <%args>
-    @data_types => ("Breeding Program", "Locations", "Accessions", "Trials", "Phenotype Observations", "Multiple Files")
+    $name => "",
+    $email => "",
+    @data_types => ("Locations", "Accessions", "Trials", "Phenotype Observations", "Multiple Files")
 </%args>
 
 
@@ -45,7 +47,7 @@
 
 
 <div class="submission-form">
-    <form name="submission-form">
+    <form id="submission-form">
 
         <h3>Submitter Information</h3>
 
@@ -53,7 +55,7 @@
         <div class="row form-group">
             <label class="col-sm-2 control-label">Name*: </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" value="" name="name"></input>
+                <input id="name" type="text" class="form-control" value="<% $name %>" name="name"></input>
             </div>
         </div>
 
@@ -61,7 +63,7 @@
         <div class="row form-group">
             <label class="col-sm-2 control-label">Email*: </label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" value="" name="email"></input>
+                <input id="email" type="text" class="form-control" value="<% $email %>" name="email"></input>
             </div>
         </div>
 
@@ -73,7 +75,7 @@
         <div class="row form-group">
             <label class="col-sm-2 control-label"></label>
             <div class="col-sm-10">
-                <select id="data-type" class="form-control">
+                <select id="data-type" class="form-control" name="data-type">
                     <option value="">---- SELECT DATA TYPE ----</option>
 % foreach my $data_type (@data_types) {
                     <option value="<% $data_type %>"><% $data_type %></option>
@@ -83,35 +85,12 @@
         </div>
 
 
-        <!-- Breeding Program -->
-        <div id="breeding-program-group" class="data-type-group">
-            <h3>Breeding Program Information</h3>
-
-            <!-- Breeding Program Name -->
-            <div class="row form-group">
-                <label class="col-sm-2 control-label">Name*: </label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" value="" name="breeding-program-name"></input>
-                </div>
-            </div>
-
-            <!-- Breeding Program Description -->
-            <div class="row form-group">
-                <label class="col-sm-2 control-label">Description*: </label>
-                <div class="col-sm-10">
-                    <input type="text" class="form-control" value="" name="breeding-program-description"></input>
-                </div>
-            </div>
-
-        </div>
-
-
         <!-- Locations -->
         <div id="locations-group" class="data-type-group">
             <h3>Location Upload Template</h3>
             <p>Upload an Excel (.xls) file containing location information for any new or modified locations</p>
 
-            <input type="file" class="form-control" id="locations-file" name="locations-file" accept=".xls">
+            <input id="locations-file" type="file" class="form-control" name="locations-file" accept=".xls">
         </div>
 
 
@@ -120,7 +99,7 @@
             <h3>Accession Upload Template</h3>
             <p>Upload an Excel (.xls) file containing accession information for any new or modified accessions</p>
 
-            <input type="file" class="form-control" id="accessions-file" name="accessions-file" accept=".xls">
+            <input id="accessions-file" type="file" class="form-control" name="accessions-file" accept=".xls">
         </div>
 
 
@@ -134,7 +113,7 @@
                 trial by clicking the <strong>Export Trial Details</strong> button.  If you generated a 
                 multi-trial upload template, that file can be submitted here.
             </p>
-            <input type="file" class="form-control" id="trials-file" name="accessions-file" accept=".xls" multiple>
+            <input id="trials-file" type="file" class="form-control" name="trials-file" accept=".xls" multiple>
         </div>
 
 
@@ -145,7 +124,7 @@
                 Upload one or more phenotyping spreadsheets (Excel (.xls) files) or exported Android fieldbook 
                 files that contain phenotype observations for one or more trials.
             </p>
-            <input type="file" class="form-control" id="phenotype-observations-file" name="phenotype-observations-file" accept=".xls" multiple>
+            <input id="phenotype-observations-file" type="file" class="form-control" name="phenotype-observations-file" accept=".xls" multiple>
         </div>
 
 
@@ -153,7 +132,7 @@
         <div id="multiple-files-group" class="data-type-group">
             <h3>Multiple Files</h3>
             <p>Here you can upload multiple files of various data types at once</p>
-            <input type="file" class="form-control" id="multiple-files-file" name="multiple-files-file" multiple>
+            <input id="multiple-files-file" type="file" class="form-control" name="multiple-files-file" multiple>
         </div>
 
 
@@ -162,12 +141,12 @@
 
         <p><em>Optional</em> - Provide any additional comments about the data you are submitting.</p>
 
-        <textarea class="form-control" id="comments" name="comments" rows="4"></textarea>
+        <textarea id="comments" class="form-control" name="comments" rows="4"></textarea>
 
 
         <br /><br />
 
-        <a id="submit" href="#" class="btn btn-primary btn-large btn-block">Submit</a>
+        <button id="submit" type="button" class="btn btn-primary btn-large btn-block">Submit</button>
 
     </form>
 </div>
@@ -175,10 +154,106 @@
 
 
 <script type="text/javascript">
+
+    /**
+     * Listen for changes in the data type and display the 
+     * proper data type group
+     */
     $("#data-type").change(function() {
         let type = $("#data-type").val();
         let el = type.toLowerCase().replace(" ", "-") + "-group";
         $(".data-type-group").hide();
         $("#" + el).show();
     });
+
+    /**
+     * Submit the form to the AJAX controller
+     */
+    $("#submit").click(function() {
+        $("#submit").prop("disabled", true);
+
+        var form = document.getElementById('submission-form');
+        var formData = new FormData(form);
+        
+        // Check the form
+        if ( !checkForm() ) {
+            $("#submit").removeAttr("disabled");
+            return;
+        }
+
+        // Submit the form
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.readyState === xhr.DONE) {
+                $("#submit").removeAttr("disabled");
+                if (xhr.status === 200) {
+                    try {
+                        var resp = JSON.parse(xhr.response);
+                        if ( resp && resp.status && resp.status === "success" ) {
+                            alert("File(s) submitted. Thank you!");
+                            return;
+                        }
+                        else if ( resp && resp.status && resp.status === "error" ) {
+                            alert("File not submitted: " + resp.message);
+                            return;
+                        }
+                    } catch (exception) {}
+                }
+                alert("There was an error submitting the file.  Please try again later and contact us if the problem persists.");
+            }
+        };
+        xhr.open('POST', '/ajax/submit/file', true);
+        xhr.send(formData);
+    });
+
+
+    /**
+     * Check for required form entries
+     * @return {boolean} true if form passed validation
+     */
+    function checkForm() {
+        if ( !$("#name").val() ) {
+            alert("Please enter your name first");
+            return false;
+        }
+        if ( !$("#email").val() ) {
+            alert("Please enter your email so we can reach you if we have any questions");
+            return false;
+        }
+        if ( !$("#data-type").val() ) {
+            alert("Please select a data type first");
+            return false;
+        }
+        if ( $("#data-type").val() === "Locations" ) {
+            if ( !$("#locations-file").val() ) {
+                alert("Please provide the locations file");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Accessions" ) {
+            if ( !$("#accessions-file").val() ) {
+                alert("Please provide the accessions file");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Trials" ) {
+            if ( !$("#trials-file").val() ) {
+                alert("Please provide the trials file(s)");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Phenotype Observations" ) {
+            if ( !$("#phenotype-observations-file").val() ) {
+                alert("Please provide the phenotype observations file(s)");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Multiple Files" ) {
+            if ( !$("#multiple-files-file").val() ) {
+                alert("Please provide the upload file(s)");
+                return false;
+            }
+        }
+        return true;
+    }
 </script>

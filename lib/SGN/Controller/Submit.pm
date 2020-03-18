@@ -9,6 +9,12 @@ sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     my $self = shift;
     my $c = shift;
 
+    my $user = $c->user();
+    if ( $user ) {
+        $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
+        $c->stash->{email} = $user->get_private_email();
+    }
+
     $c->stash->{template} = '/submit/pheno.mas';
 }
 
