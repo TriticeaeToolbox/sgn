@@ -74,7 +74,9 @@ sub submit_trial_data_POST : Args(0) {
 
     # Set file directory
     my $ts = strftime "%Y%m%d_%H%M%S", localtime;
-    my $dir = $submission_path . "/" . $user->get_object()->get_sp_person_id(). '/' . $ts . "_" . $trial_id;
+    my $user_id = $user->get_object()->get_sp_person_id();
+    my $trial_dir = $ts . "_" . $trial_id;
+    my $dir = $submission_path . "/" . $user_id . '/' . $trial_dir;
     unless (-d $dir) {
         mkpath($dir) or die "Couldn't mkdir $dir: $!";
     }
@@ -102,6 +104,7 @@ sub submit_trial_data_POST : Args(0) {
         $body .= "User: " . $user->get_first_name() . " " . $user->get_last_name() . " <" . $user->get_private_email() . ">\n";
         $body .= "Site: " . $main_production_site_url . "\n";
         $body .= "Directory: " . $dir . "\n";
+        $body .= "View Files: " . $main_production_site_url . "/submit/view/" . $user_id . "/" . $trial_dir;
 
         CXGN::Contact::send_email($subject, $body, $submission_email, $user->get_private_email());
     }

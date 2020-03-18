@@ -1,0 +1,60 @@
+<%args>
+$user_id => undef,
+$sub_dir => undef,
+$dir => undef,
+$files => undef
+</%args>
+
+<style>
+    p {
+        font-size: 16px;
+    }
+
+    a.btn-primary {
+        color: #fff;
+    }
+    a.btn-primary:hover {
+        color: #fff;
+        background-color: #286090;
+    }
+
+    li.file {
+        display: block;
+        margin-top: 15px;
+    }
+    li.file:before {
+        content: "\e022";
+        font-family: 'Glyphicons Halflings';
+        font-size: 16px;
+        float: left;
+        margin-top: 4px;
+        margin-left: -22px;
+        color: #ccc;
+    }
+</style>
+
+<& /page/page_title.mas, title=>"View Submission Files" &>
+
+<br /><br />
+
+<h2>Directory:</h2>
+<p><% $dir %></p>
+
+<br />
+
+<h2>Files:</h2>
+<ul id='files'>
+% foreach my $file (@$files) {
+    <li class='file'>
+        <p>
+            <% $file %>&nbsp;&nbsp;
+            <a href='/submit/view/<% $user_id %>/<% $sub_dir %>/<% $file %>' class='btn btn-primary'>
+                <span class='glyphicon glyphicon-save'></span>
+            </a>
+        </p>
+    </li>
+% }
+</ul>
+
+
+<br /><br />
