@@ -1,4 +1,10 @@
 #!/usr/bin/perl -w
+
+#DEPRECATED
+#####################
+# The confirmation email will now point users to /solpeople/confirm in the People Catalyst Controller
+#####################
+
 use strict;
 use warnings;
 

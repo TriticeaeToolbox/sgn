@@ -1,0 +1,259 @@
+<%args>
+    $name => "",
+    $email => "",
+    @data_types => ("Locations", "Accessions", "Trials", "Phenotype Observations", "Multiple Files")
+</%args>
+
+
+<style>
+    div.submission-form {
+        background-color: #eee;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        padding: 0 10px 5px 10px;
+        margin: 25px 0;
+    }
+    div.submission-form h3 {
+        margin: 15px 0 15px 0;
+        border-bottom: 1px solid #ccc;
+    }
+
+    div.data-type-group {
+        display: none;
+    }
+
+    a.btn {
+        color: #fff;
+    }
+    .btn:hover {
+        background-color: #286090 !important;
+        color: #fff !important;
+    }
+</style>
+
+
+<& /page/page_title.mas, title=>"Phenotype Data Submission" &>
+
+
+<p>
+    Submit your upload templates here when you are ready to have your data published on T3.  For more 
+    information on generating the upload templates for each data type, visit the 
+    <a href='https://wheat-sandbox.triticeaetoolbox.org/help/phenotype_upload_workflow'>
+        Phenotype Upload Workflow
+    </a>
+    instructions.
+</p>
+
+
+
+<div class="submission-form">
+    <form id="submission-form">
+
+        <h3>Submitter Information</h3>
+
+        <!-- Name -->
+        <div class="row form-group">
+            <label class="col-sm-2 control-label">Name*: </label>
+            <div class="col-sm-10">
+                <input id="name" type="text" class="form-control" value="<% $name %>" name="name"></input>
+            </div>
+        </div>
+
+        <!-- Email -->
+        <div class="row form-group">
+            <label class="col-sm-2 control-label">Email*: </label>
+            <div class="col-sm-10">
+                <input id="email" type="text" class="form-control" value="<% $email %>" name="email"></input>
+            </div>
+        </div>
+
+
+        <h3>Data Type</h3>
+
+
+        <!-- Data Type -->
+        <div class="row form-group">
+            <label class="col-sm-2 control-label"></label>
+            <div class="col-sm-10">
+                <select id="data-type" class="form-control" name="data-type">
+                    <option value="">---- SELECT DATA TYPE ----</option>
+% foreach my $data_type (@data_types) {
+                    <option value="<% $data_type %>"><% $data_type %></option>
+% }
+                </select>
+            </div>
+        </div>
+
+
+        <!-- Locations -->
+        <div id="locations-group" class="data-type-group">
+            <h3>Location Upload Template</h3>
+            <p>Upload an Excel (.xls) file containing location information for any new or modified locations</p>
+
+            <input id="locations-file" type="file" class="form-control" name="locations-file" accept=".xls">
+        </div>
+
+
+        <!-- Accessions -->
+        <div id="accessions-group" class="data-type-group">
+            <h3>Accession Upload Template</h3>
+            <p>Upload an Excel (.xls) file containing accession information for any new or modified accessions</p>
+
+            <input id="accessions-file" type="file" class="form-control" name="accessions-file" accept=".xls">
+        </div>
+
+
+        <!-- Trials -->
+        <div id="trials-group" class="data-type-group">
+            <h3>Trial Upload Template(s)</h3>
+            <p>
+                Upload one or more trial templates (Excel (.xls) files) that contain the trial metadata and plot 
+                layout information for each new trial.  If you designed the trial interactively on the website, 
+                the trial templates used for submission can be downloaded from the Trial Detail page of each new 
+                trial by clicking the <strong>Export Trial Details</strong> button.  If you generated a 
+                multi-trial upload template, that file can be submitted here.
+            </p>
+            <input id="trials-file" type="file" class="form-control" name="trials-file" accept=".xls" multiple>
+        </div>
+
+
+        <!-- Phenotype Observations -->
+        <div id="phenotype-observations-group" class="data-type-group">
+            <h3>Phenotype Observations Template(s)</h3>
+            <p>
+                Upload one or more phenotyping spreadsheets (Excel (.xls) files) or exported Android fieldbook 
+                files that contain phenotype observations for one or more trials.
+            </p>
+            <input id="phenotype-observations-file" type="file" class="form-control" name="phenotype-observations-file" accept=".xls" multiple>
+        </div>
+
+
+        <!-- Multiple Files -->
+        <div id="multiple-files-group" class="data-type-group">
+            <h3>Multiple Files</h3>
+            <p>Here you can upload multiple files of various data types at once</p>
+            <input id="multiple-files-file" type="file" class="form-control" name="multiple-files-file" multiple>
+        </div>
+
+
+        <!-- Comments -->
+        <h3>Comments</h3>
+
+        <p><em>Optional</em> - Provide any additional comments about the data you are submitting.</p>
+
+        <textarea id="comments" class="form-control" name="comments" rows="4"></textarea>
+
+
+        <br /><br />
+
+        <button id="submit" type="button" class="btn btn-primary btn-large btn-block">Submit</button>
+
+    </form>
+</div>
+
+
+
+<script type="text/javascript">
+
+    /**
+     * Listen for changes in the data type and display the 
+     * proper data type group
+     */
+    $("#data-type").change(function() {
+        let type = $("#data-type").val();
+        let el = type.toLowerCase().replace(" ", "-") + "-group";
+        $(".data-type-group").hide();
+        $("#" + el).show();
+    });
+
+    /**
+     * Submit the form to the AJAX controller
+     */
+    $("#submit").click(function() {
+        $("#submit").prop("disabled", true);
+
+        var form = document.getElementById('submission-form');
+        var formData = new FormData(form);
+        
+        // Check the form
+        if ( !checkForm() ) {
+            $("#submit").removeAttr("disabled");
+            return;
+        }
+
+        // Submit the form
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.readyState === xhr.DONE) {
+                $("#submit").removeAttr("disabled");
+                if (xhr.status === 200) {
+                    try {
+                        var resp = JSON.parse(xhr.response);
+                        if ( resp && resp.status && resp.status === "success" ) {
+                            alert("File(s) submitted. Thank you!");
+                            return;
+                        }
+                        else if ( resp && resp.status && resp.status === "error" ) {
+                            alert("File not submitted: " + resp.message);
+                            return;
+                        }
+                    } catch (exception) {}
+                }
+                alert("There was an error submitting the file.  Please try again later and contact us if the problem persists.");
+            }
+        };
+        xhr.open('POST', '/ajax/submit/file', true);
+        xhr.send(formData);
+    });
+
+
+    /**
+     * Check for required form entries
+     * @return {boolean} true if form passed validation
+     */
+    function checkForm() {
+        if ( !$("#name").val() ) {
+            alert("Please enter your name first");
+            return false;
+        }
+        if ( !$("#email").val() ) {
+            alert("Please enter your email so we can reach you if we have any questions");
+            return false;
+        }
+        if ( !$("#data-type").val() ) {
+            alert("Please select a data type first");
+            return false;
+        }
+        if ( $("#data-type").val() === "Locations" ) {
+            if ( !$("#locations-file").val() ) {
+                alert("Please provide the locations file");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Accessions" ) {
+            if ( !$("#accessions-file").val() ) {
+                alert("Please provide the accessions file");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Trials" ) {
+            if ( !$("#trials-file").val() ) {
+                alert("Please provide the trials file(s)");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Phenotype Observations" ) {
+            if ( !$("#phenotype-observations-file").val() ) {
+                alert("Please provide the phenotype observations file(s)");
+                return false;
+            }
+        }
+        if ( $("#data-type").val() === "Multiple Files" ) {
+            if ( !$("#multiple-files-file").val() ) {
+                alert("Please provide the upload file(s)");
+                return false;
+            }
+        }
+        return true;
+    }
+</script>

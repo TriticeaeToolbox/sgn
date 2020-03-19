@@ -35,4 +35,20 @@ sub help_section : Path('/help') Args(1) {
     }
 }
 
+
+sub phenotype_upload_workflow : Path('/help/phenotype_upload_workflow') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    my $user_roles_str = "not logged in";
+    if ( $c->user() ) {
+        my %hash   = map { $_ => 1 } $c->user->roles();
+        my @unique_user_roles = keys %hash;
+        $user_roles_str = join(", ", @unique_user_roles);
+    }
+
+    $c->stash->{user_roles} = $user_roles_str;
+    $c->stash->{template} = '/help/phenotype_upload_workflow.mas';
+}
+
 1;

@@ -151,7 +151,7 @@ This message is sent to confirm the email address for community user
 Please click (or cut and paste into your browser) the following link to
 confirm your account and email address:
 
-$host/solpeople/account-confirm.pl?username=$username&confirm=$confirm_code
+$host/solpeople/confirm?username=$username&confirm=$confirm_code
 
 Thank you,
 $project_name Team

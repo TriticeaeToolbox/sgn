@@ -40,6 +40,8 @@ sub trial_init : Chained('/') PathPart('breeders/trial') CaptureArgs(1) {
 	return;
     }
     $c->stash->{trial} = $trial;
+
+    $c->stash->{allow_trial_submissions} = $c->config->{allow_trial_submissions};
 }
 
 sub old_trial_url : Path('/breeders_toolbox/trial') Args(1) {

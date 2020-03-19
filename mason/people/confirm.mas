@@ -1,0 +1,63 @@
+<%args>
+    $username => undef
+    $success => 0
+    $message => "Account confirmation was not successful"
+    $user_auto_submitter => 0
+</%args>
+
+
+<style>
+    .well {
+        margin: 50px auto;
+        max-width: 600px;
+    }
+    h1 {
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 15px;
+    }
+</style>
+
+
+
+<div class="well">
+
+<!-- Confirmation Success -->
+% if ( $success == 1 ) {
+    
+    <h1>Account Confirmation Successful</h1>
+    <p>The account for user <em><% $username %></em> has been verified.</p>
+
+% if ( $user_auto_submitter == 1 ) {
+    <p>
+        Your account has been granted <strong>submitter</strong> status and will be 
+        able to add data to the database.
+    </p>
+% }
+
+    <p>You can now login to continue using the site.</p>
+    <br />
+    <button id="login-button" type="button" class="btn btn-primary    btn-block">
+        <span class="glyphicon glyphicon-user"></span>&nbsp;Login
+    </button>
+
+
+<!-- Confirmation Error -->
+% } else {
+
+    <h1>Account Confirmation Failed</h1>
+    <p>The account for user <em><% $username %></em> could <strong>not</strong> be verified.</p>
+    <p><code><% $message %></code></p>
+
+% }
+
+</div>
+
+
+
+<script type="text/javascript">
+    $( document ).ready(function() {
+        $("#login-button").on("click", function() {
+            window.location = "/user/login?goto_url=%2F"
+        });
+    });
+</script>
