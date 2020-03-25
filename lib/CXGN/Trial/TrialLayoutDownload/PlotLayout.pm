@@ -56,7 +56,7 @@ sub retrieve {
     my @output;
     my $trial_stock_type = $self->trial_stock_type();
 
-    my @possible_cols = ('plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','pedigree','location_name','trial_name','year','synonyms','tier','plot_geo_json');
+    my @possible_cols = ('plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','pedigree','purdy_pedigree','location_name','trial_name','year','synonyms','tier','plot_geo_json');
 
     my @header;
     foreach (@possible_cols){
@@ -112,6 +112,9 @@ sub retrieve {
                     push @$line, join ',', @{$accession->synonyms}
                 } elsif ($_ eq 'pedigree'){
                     push @$line, $pedigree_strings->{$design_info->{"accession_name"}};
+                } elsif ($_ eq 'purdy_pedigree'){
+                    my $accession = CXGN::Stock::Accession->new({schema=>$schema, stock_id=>$design_info->{"accession_id"}});
+                    push @$line, $accession->purdyPedigree;
                 } else {
                     push @$line, $design_info->{$_};
                 }
