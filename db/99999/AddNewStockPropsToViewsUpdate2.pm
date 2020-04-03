@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-UpdatedAddNewStockPropsToViews.pm
+AddNewStockPropsToViewsUpdate2.pm
 
 =head1 SYNOPSIS
 
-mx-run UpdatedAddNewStockPropsToViews [options] -H hostname -D dbname -u username [-F]
+mx-run AddNewStockPropsToViewsUpdate2 [options] -H hostname -D dbname -u username [-F]
 
 this is a subclass of L<CXGN::Metadata::Dbpatch>
 see the perldoc of parent class for more details.
@@ -29,7 +29,7 @@ it under the same terms as Perl itself.
 =cut
 
 
-package UpdatedAddNewStockPropsToViews;
+package AddNewStockPropsToViewsUpdate2;
 
 use Moose;
 use SGN::Model::Cvterm;
@@ -86,6 +86,7 @@ sub patch {
     my $entry_number_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'entry number', 'stock_property')->cvterm_id();
     my $acquisition_date_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'acquisition date', 'stock_property')->cvterm_id();
     my $current_count_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'current_count', 'stock_property')->cvterm_id();
+    my $current_weight_gram_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'current_weight_gram', 'stock_property')->cvterm_id();
     my $crossing_metadata_json_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'crossing_metadata_json', 'stock_property')->cvterm_id();
     my $ploidy_level_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'ploidy_level', 'stock_property')->cvterm_id();
     my $genome_structure_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'genome_structure', 'stock_property')->cvterm_id();
@@ -105,7 +106,6 @@ sub patch {
     my $tissue_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'tissue_type', 'stock_property')->cvterm_id();
     my $ncbi_taxonomy_id_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'ncbi_taxonomy_id', 'stock_property')->cvterm_id();
 
-
     $self->dbh->do(<<EOSQL);
 --do your SQL here
 
@@ -116,7 +116,7 @@ DROP MATERIALIZED VIEW IF EXISTS public.materialized_stockprop CASCADE;
 CREATE MATERIALIZED VIEW public.materialized_stockprop AS
 SELECT *
 FROM crosstab(
-  'SELECT stockprop.stock_id, stock.uniquename, stock.type_id, stock_cvterm.name, stock.organism_id, stockprop.type_id, jsonb_object_agg(stockprop.value, ''RANK'' || stockprop.rank) FROM stockprop JOIN stock USING(stock_id) JOIN cvterm as stock_cvterm ON (stock_cvterm.cvterm_id=stock.type_id) GROUP BY (stockprop.stock_id, stock.uniquename, stock.type_id, stock_cvterm.name, stock.organism_id, stockprop.type_id) ORDER by stockprop.stock_id ASC',
+  'SELECT stockprop.stock_id, stock.uniquename, stock.type_id, stock_cvterm.name, stock.organism_id, stockprop.type_id, jsonb_object_agg(stockprop.value, ''RANK'' || stockprop.rank) FROM public.stockprop JOIN public.stock USING(stock_id) JOIN public.cvterm as stock_cvterm ON (stock_cvterm.cvterm_id=stock.type_id) GROUP BY (stockprop.stock_id, stock.uniquename, stock.type_id, stock_cvterm.name, stock.organism_id, stockprop.type_id) ORDER by stockprop.stock_id ASC',
   'SELECT type_id FROM (VALUES
     (''$block_cvterm_id''),
     (''$col_number_cvterm_id''),
@@ -153,6 +153,7 @@ FROM crosstab(
     (''$entry_number_cvterm_id''),
     (''$acquisition_date_cvterm_id''),
     (''$current_count_cvterm_id''),
+    (''$current_weight_gram_cvterm_id''),
     (''$crossing_metadata_json_cvterm_id''),
     (''$ploidy_level_cvterm_id''),
     (''$genome_structure_cvterm_id''),
@@ -170,8 +171,7 @@ FROM crosstab(
     (''$extraction_cvterm_id''),
     (''$dna_person_cvterm_id''),
     (''$tissue_type_cvterm_id''),
-    (''$ncbi_taxonomy_id_cvterm_id'') 
-  ) AS t (type_id);'
+    (''$ncbi_taxonomy_id_cvterm_id'')) AS t (type_id);'
 )
 AS (stock_id int,
     "uniquename" text,
@@ -213,6 +213,7 @@ AS (stock_id int,
     "entry number" jsonb,
     "acquisition date" jsonb,
     "current_count" jsonb,
+    "current_weight_gram" jsonb,
     "crossing_metadata_jsonb" jsonb,
     "ploidy_level" jsonb,
     "genome_structure" jsonb,
@@ -223,7 +224,7 @@ AS (stock_id int,
     "introgression_start_position_bp" jsonb,
     "introgression_end_position_bp" jsonb,
     "purdy pedigree" jsonb,
-    "filial generation" jsonb,
+    "filial generation" jsonb,    
     "is_blank" jsonb,
     "concentration" jsonb,
     "volume" jsonb,
@@ -252,7 +253,6 @@ EOSQL
 
 print "You're done!\n";
 }
-
 
 ####
 1; #
