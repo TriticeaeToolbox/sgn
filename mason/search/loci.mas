@@ -225,7 +225,7 @@ function loadFilterOntology() {
 function buildFilterSelect(onto) {
   let options = _buildFilterSelectTerm(onto, 0, [{
     value: '',
-    title: '--SELECT ONTOLOGY TERM--',
+    title: '',
     disabled: false
   }]);
   let html = "<select id='filter-ontology-select' class='form-control'>";
