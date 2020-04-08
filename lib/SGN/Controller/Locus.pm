@@ -43,10 +43,33 @@ sub locus_search : Path('/search/locus') Args(0) {
 	$index++;
     }
     my $lg_names_ref =  CXGN::Phenome::Locus::LinkageGroup::get_all_lgs( $c->dbc->dbh );
+    
+    # Get filter ontology info, if set in the config
+    my $loci_filter_onto = $c->config->{loci_filter_onto};
+    my $filter_onto_accession = undef;
+    my $filter_onto_name = undef;
+    if ( $loci_filter_onto ) {
+        my ($db_name, $accession) = split ":", $loci_filter_onto;
+        my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+        my $db = $schema->resultset('General::Db')->search({ name => uc($db_name) })->first();
+        if ( $db ) {
+            my $dbxref = $db->find_related('dbxrefs', { accession => $accession });
+            if ( $dbxref ) {
+                my $cvterm = $dbxref->cvterm;
+                if ( $cvterm ) {
+                    $filter_onto_accession = $loci_filter_onto;
+                    $filter_onto_name = $cvterm->name;
+                }
+            }
+        }
+    }
+
     $c->stash(
 	template       => '/search/loci.mas',
 	organism_ref   => \@organism_ref,
 	lg_names_ref   => $lg_names_ref,
+    filter_onto_accession => $filter_onto_accession,
+    filter_onto_name      => $filter_onto_name
 	);
 }
 
