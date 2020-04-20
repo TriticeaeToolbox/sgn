@@ -90,7 +90,12 @@ sub top_10 {
 
 sub abbreviate_term {
     my ($self, $term) = @_;
- 
+
+    $term =~ s/\// /g;
+    $term =~ s/-/_/g; 
+    $term =~ s/\%/percent/g;
+    $term =~ s/\((\w+)\)//g;
+
     my @words = split(/\s/, $term);
     
     my $acronym;
