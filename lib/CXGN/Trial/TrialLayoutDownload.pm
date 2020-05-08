@@ -7,7 +7,7 @@ CXGN::Trial::TrialLayoutDownload
 =head1 SYNOPSIS
 
 Module to format layout info for trial based on which columns user wants to see. Selected columns can be:
-- for plot level layout: 'plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','pedigree','purdy_pedigree','location_name','trial_name','year','synonyms','tier','plot_geo_json'
+- for plot level layout: 'plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','pedigree','purdy_pedigree','filial_generation',location_name','trial_name','year','synonyms','tier','plot_geo_json'
 - for plant level layout: 'plant_name','plant_id','subplot_name','subplot_id','plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','range_number','rep_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','subplot_number','plant_number','pedigree','location_name','trial_name','year','synonyms','tier','plot_geo_json'
 - for subplot level layout:
 'subplot_name','subplot_id','plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','subplot_number','pedigree','location_name','trial_name','year','synonyms','tier','plot_geo_json'
