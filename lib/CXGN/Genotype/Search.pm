@@ -60,6 +60,7 @@ use CXGN::Trial;
 use JSON;
 use CXGN::Stock::Accession;
 use CXGN::Genotype::Protocol;
+use CXGN::Genotype::ComputeHybridGenotype;
 use Cache::File;
 use Digest::MD5 qw | md5_hex |;
 use File::Slurp qw | write_file |;
@@ -176,6 +177,12 @@ has 'forbid_cache' => (
     default => 0
 );
 
+has 'prevent_transpose' => (
+    isa => 'Bool',
+    is => 'ro',
+    default => 0
+);
+
 has '_iterator_query_handle' => (
     isa => 'Ref',
     is => 'rw'
@@ -183,7 +190,8 @@ has '_iterator_query_handle' => (
 
 has '_filtered_markers' => (
     isa => 'HashRef',
-    is => 'rw'
+    is => 'rw',
+    default => sub {{}}
 );
 
 has '_snp_genotyping_cvterm_id' => (
@@ -780,8 +788,9 @@ sub init_genotype_iterator {
         my $search_vals_sql = "'".join ("','" , @$marker_name_list)."'";
         push @where_clause, "nd_protocolprop.value->'marker_names' \\?& array[$search_vals_sql]";
 
-        %filtered_markers = map {$_ => 1} @$marker_name_list;
-        $self->_filtered_markers(\%filtered_markers);
+        foreach (@$marker_name_list) {
+            $self->_filtered_markers()->{$_}++;
+        }
     }
     if ($marker_search_hash_list && scalar(@$marker_search_hash_list)>0) {
         foreach (@$marker_search_hash_list){
@@ -1108,7 +1117,8 @@ sub key {
     my $chromosomes = $json->encode( $self->chromosome_list() || [] );
     my $start = $self->start_position() || '' ;
     my $end = $self->end_position() || '';
-    my $key = md5_hex($accessions.$tissues.$trials.$protocols.$markerprofiles.$genotypedataprojects.$markernames.$genotypeprophash.$protocolprophash.$protocolpropmarkerhash.$chromosomes.$start.$end.$self->return_only_first_genotypeprop_for_stock().$self->limit().$self->offset()."_$datatype");
+    my $prevent_transpose = $self->prevent_transpose() || '';
+    my $key = md5_hex($accessions.$tissues.$trials.$protocols.$markerprofiles.$genotypedataprojects.$markernames.$genotypeprophash.$protocolprophash.$protocolpropmarkerhash.$chromosomes.$start.$end.$self->return_only_first_genotypeprop_for_stock().$prevent_transpose.$self->limit().$self->offset()."_$datatype");
     return $key;
 }
 
@@ -1153,10 +1163,15 @@ sub get_cached_file_search_json {
                 nd_protocol_id => $_,
                 chromosome_list=>$self->chromosome_list,
                 start_position=>$self->start_position,
-                end_position=>$self->end_position
+                end_position=>$self->end_position,
+                marker_name_list=>$self->marker_name_list
             });
             my $markers = $protocol->markers;
             push @all_marker_objects, values %$markers;
+        }
+
+        foreach (@all_marker_objects) {
+            $self->_filtered_markers()->{$_->{name}}++;
         }
 
         $self->init_genotype_iterator();
@@ -1253,12 +1268,16 @@ sub get_cached_file_dosage_matrix {
                 nd_protocol_id => $_,
                 chromosome_list=>$self->chromosome_list,
                 start_position=>$self->start_position,
-                end_position=>$self->end_position
+                end_position=>$self->end_position,
+                marker_name_list=>$self->marker_name_list
             });
             my $markers = $protocol->markers;
             push @all_marker_objects, values %$markers;
         }
 
+        foreach (@all_marker_objects) {
+            $self->_filtered_markers()->{$_->{name}}++;
+        }
         $self->init_genotype_iterator();
 
         #VCF should be sorted by chromosome and position
@@ -1314,16 +1333,22 @@ sub get_cached_file_dosage_matrix {
             }
         );
 
-        # Do the transposition job on the cluster
-        $cmd->run_cluster(
-                "perl ",
-                $basepath_config."/bin/transpose_matrix.pl",
-                $tempfile,
-        );
-        $cmd->is_cluster(1);
-        $cmd->wait;
+        my $out_copy;
+        if ($self->prevent_transpose()) {
+            open $out_copy, '<', $tempfile or die "Can't open output file: $!";
+        }
+        else {
+            # Do the transposition job on the cluster
+            $cmd->run_cluster(
+                    "perl ",
+                    $basepath_config."/bin/transpose_matrix.pl",
+                    $tempfile,
+            );
+            $cmd->is_cluster(1);
+            $cmd->wait;
 
-        open my $out_copy, '<', $transpose_tempfile or die "Can't open output file: $!";
+            open $out_copy, '<', $transpose_tempfile or die "Can't open output file: $!";
+        }
 
         if (!$self->forbid_cache()) {
             $self->cache()->set($key, '');
@@ -1365,10 +1390,7 @@ sub get_cached_file_dosage_matrix_compute_from_parents {
     }
     my $protocol_id = $protocol_ids->[0];
 
-    my %filtered_markers = map {$_ => 1} @$marker_name_list;
-    $self->_filtered_markers(\%filtered_markers);
-
-    my $key = $self->key("get_cached_file_dosage_matrix_compute_from_parents");
+    my $key = $self->key("get_cached_file_dosage_matrix_compute_from_parents_v01");
     $self->cache( Cache::File->new( cache_root => $cache_root_dir ));
 
     my $file_handle;
@@ -1417,10 +1439,15 @@ sub get_cached_file_dosage_matrix_compute_from_parents {
             nd_protocol_id => $protocol_id,
             chromosome_list=>$self->chromosome_list,
             start_position=>$self->start_position,
-            end_position=>$self->end_position
+            end_position=>$self->end_position,
+            marker_name_list=>$self->marker_name_list
         });
         my $markers = $protocol->markers;
         my @all_marker_objects = values %$markers;
+
+        foreach (@all_marker_objects) {
+            $self->_filtered_markers()->{$_->{name}}++;
+        }
 
         no warnings 'uninitialized';
         @all_marker_objects = sort { $a->{chrom} <=> $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
@@ -1457,27 +1484,14 @@ sub get_cached_file_dosage_matrix_compute_from_parents {
                 $genotype_string .= "\n";
             }
 
-            my $genotype_data_string = "";
-            foreach my $m (@all_marker_objects) {
-                my $current_genotype = '';
-                # If both parents are genotyped, calculate progeny genotype as a sum of parent dosage
-                if ($genotypes->[0] && $genotypes->[1]) {
-                    my $parent1_genotype = $genotypes->[0]->{selected_genotype_hash};
-                    my $parent2_genotype = $genotypes->[1]->{selected_genotype_hash};
-                    my $p1 = $parent1_genotype->{$m->{name}}->{DS} ne 'NA' ? $parent1_genotype->{$m->{name}}->{DS} : 0;
-                    my $p2 = $parent2_genotype->{$m->{name}}->{DS} ne 'NA' ? $parent2_genotype->{$m->{name}}->{DS} : 0;
-                    $current_genotype = ceil(($p1 + $p2)/2);
-                }
-                # If one parent is genotyped, use that
-                elsif ($genotypes->[0]) {
-                    my $parent1_genotype = $genotypes->[0]->{selected_genotype_hash};
-                    my $p1 = $parent1_genotype->{$m->{name}}->{DS} ne 'NA' ? $parent1_genotype->{$m->{name}}->{DS} : 0;
-                    $current_genotype = ceil($p1/2);
-                }
-                $genotype_data_string .= $current_genotype."\t";
-            }
+            my $geno = CXGN::Genotype::ComputeHybridGenotype->new({
+                parental_genotypes=>$genotypes,
+                marker_objects=>\@all_marker_objects
+            });
+            my $progeny_genotype = $geno->get_hybrid_genotype();
+            my $genotype_string_scores = join "\t", @$progeny_genotype;
 
-            $genotype_string .= $accession_stock_id."\t".$genotype_data_string."\n";
+            $genotype_string .= $accession_stock_id."\t".$genotype_string_scores."\n";
             write_file($tempfile, {append => 1}, $genotype_string);
             $counter++;
         }
@@ -1498,16 +1512,22 @@ sub get_cached_file_dosage_matrix_compute_from_parents {
             }
         );
 
-        # Do the transposition job on the cluster
-        $cmd->run_cluster(
-                "perl ",
-                $basepath_config."/bin/transpose_matrix.pl",
-                $tempfile,
-        );
-        $cmd->is_cluster(1);
-        $cmd->wait;
+        my $out_copy;
+        if ($self->prevent_transpose()) {
+            open $out_copy, '<', $tempfile or die "Can't open output file: $!";
+        }
+        else {
+            # Do the transposition job on the cluster
+            $cmd->run_cluster(
+                    "perl ",
+                    $basepath_config."/bin/transpose_matrix.pl",
+                    $tempfile,
+            );
+            $cmd->is_cluster(1);
+            $cmd->wait;
 
-        open my $out_copy, '<', $transpose_tempfile or die "Can't open output file: $!";
+            open $out_copy, '<', $transpose_tempfile or die "Can't open output file: $!";
+        }
 
         if (!$self->forbid_cache()) {
             $self->cache()->set($key, '');
@@ -1563,11 +1583,16 @@ sub get_cached_file_VCF {
                 nd_protocol_id => $_,
                 chromosome_list=>$self->chromosome_list,
                 start_position=>$self->start_position,
-                end_position=>$self->end_position
+                end_position=>$self->end_position,
+                marker_name_list=>$self->marker_name_list
             });
             my $markers = $protocol->markers;
             push @all_protocol_info_lines, @{$protocol->header_information_lines};
             push @all_marker_objects, values %$markers;
+        }
+
+        foreach (@all_marker_objects) {
+            $self->_filtered_markers()->{$_->{name}}++;
         }
 
         $self->init_genotype_iterator();
@@ -1796,10 +1821,7 @@ sub get_cached_file_VCF_compute_from_parents {
     }
     my $protocol_id = $protocol_ids->[0];
 
-    my %filtered_markers = map {$_ => 1} @$marker_name_list;
-    $self->_filtered_markers(\%filtered_markers);
-
-    my $key = $self->key("get_cached_file_VCF_compute_from_parents");
+    my $key = $self->key("get_cached_file_VCF_compute_from_parents_v01");
     $self->cache( Cache::File->new( cache_root => $cache_root_dir ));
 
     my $file_handle;
@@ -1853,11 +1875,16 @@ sub get_cached_file_VCF_compute_from_parents {
             nd_protocol_id => $protocol_id,
             chromosome_list=>$self->chromosome_list,
             start_position=>$self->start_position,
-            end_position=>$self->end_position
+            end_position=>$self->end_position,
+            marker_name_list=>$self->marker_name_list
         });
         my $markers = $protocol->markers;
         my @all_marker_objects = values %$markers;
         push @all_protocol_info_lines, @{$protocol->header_information_lines};
+
+        foreach (@all_marker_objects) {
+            $self->_filtered_markers()->{$_->{name}}++;
+        }
 
         no warnings 'uninitialized';
         @all_marker_objects = sort { $a->{chrom} <=> $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
@@ -1941,26 +1968,15 @@ sub get_cached_file_VCF_compute_from_parents {
                     $genotype_string .= "\n";
                 }
                 my $genotype_id = $geno->{germplasmName};
-                my $genotype_data_string = "";
-                foreach my $m (@all_marker_objects) {
-                    my $current_g = '';
-                    # If both parents are genotyped, calculate progeny genotype as a sum of parent dosage
-                    if ($genotypes->[0] && $genotypes->[1]) {
-                        my $parent1_genotype = $genotypes->[0]->{selected_genotype_hash};
-                        my $parent2_genotype = $genotypes->[1]->{selected_genotype_hash};
-                        my $p1 = $parent1_genotype->{$m->{name}}->{DS} ne 'NA' ? $parent1_genotype->{$m->{name}}->{DS} : 0;
-                        my $p2 = $parent2_genotype->{$m->{name}}->{DS} ne 'NA' ? $parent2_genotype->{$m->{name}}->{DS} : 0;
-                        $current_g = ceil(($p1 + $p2)/2);
-                    }
-                    # If one parent is genotyped, use that
-                    elsif ($genotypes->[0]) {
-                        my $parent1_genotype = $genotypes->[0]->{selected_genotype_hash};
-                        my $p1 = $parent1_genotype->{$m->{name}}->{DS} ne 'NA' ? $parent1_genotype->{$m->{name}}->{DS} : 0;
-                        $current_g = ceil($p1/2);
-                    }
-                    $genotype_data_string .= $current_g."\t";
-                }
-                $genotype_string .= $genotype_id."\t".$genotype_data_string."\n";
+
+                my $geno = CXGN::Genotype::ComputeHybridGenotype->new({
+                    parental_genotypes=>$genotypes,
+                    marker_objects=>\@all_marker_objects
+                });
+                my $progeny_genotype = $geno->get_hybrid_genotype();
+                my $genotype_string_scores = join "\t", @$progeny_genotype;
+
+                $genotype_string .= $genotype_id."\t".$genotype_string_scores."\n";
 
                 write_file($tempfile, {append => 1}, $genotype_string);
                 $counter++;
