@@ -1,7 +1,9 @@
 
 <%args>
 $organism_ref => undef
-$lg_names_ref       => undef
+$lg_names_ref => undef
+$filter_onto_accession => undef
+$filter_onto_name => undef
 </%args>
 
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables' ] &>
@@ -64,6 +66,13 @@ my $advanced_search=  info_table_html(
         <% $any_name_select %>
       </div>
     </div>
+% if ( $filter_onto_accession ) {
+    <div class="form-group">
+      <label class="col-sm-3 control-label">Filter by category:</label>
+      <div id="filter-ontology" class="col-sm-9">
+      </div>
+    </div>
+% }
     <div class="container-fluid" align="center">
       <br/>
       <ul class="list-inline" >
@@ -184,9 +193,160 @@ jQuery(document).ready(function () {
              jQuery('#advanced_search_div').hide();
        }
    } );
- 
-  
+
+% if ( $filter_onto_accession ) {
+   loadFilterOntology();
+% }
     
 });
+
+
+/**
+ * Load the Genes/Loci filter ontology
+ * and build the select box
+ */
+function loadFilterOntology() {
+  getOntologyChildren(
+    {
+      accession: "<% $filter_onto_accession %>",
+      name: "<% $filter_onto_name %>"
+    }, 
+    function(onto) {
+      buildFilterSelect(onto);
+    }
+  );
+}
+
+
+/**
+ * Build the filter select box with the processed ontology
+ * @param  {Object} onto Processed filter ontology
+ */
+function buildFilterSelect(onto) {
+  let options = _buildFilterSelectTerm(onto, 0, [{
+    value: '',
+    title: '',
+    disabled: false
+  }]);
+  let html = "<select id='filter-ontology-select' class='form-control'>";
+  for ( let i = 0; i < options.length; i++ ) {
+    html += "<option value='" + options[i].value + "'";
+    if ( options[i].disabled ) html += " disabled";
+    html += ">" + options[i].title + "</option>";
+  }
+  html += "</select>";
+
+  jQuery("#filter-ontology").html(html);
+  jQuery("#filter-ontology").change(onFilterSelectChange)
+}
+
+
+function onFilterSelectChange() {
+  let accession = jQuery("#filter-ontology option:selected").val();
+  jQuery("#ontology_term").val(accession);
+}
+
+
+
+/**
+ * Build the select options for the specified term
+ * @param  {Object}  term    Ontology term
+ * @param  {int}     level   Level of the term in the term heirarchy
+ * @param  {Obect[]} options Already processed options
+ * @return {[type]}          Processed options with the current term added
+ */
+function _buildFilterSelectTerm(term, level, options) {
+  let value = term.accession;
+  let title = "";
+  for ( let i = 0; i < level; i++ ) {
+    title += "&nbsp;&nbsp;";
+  }
+  title += term.name;
+  let has_children = term.children && term.children.length > 0;
+
+  let option = {
+    value: value,
+    title: title,
+    disabled: has_children
+  };
+
+  options.push(option);
+
+  if ( has_children ) {
+    for ( let i = 0; i < term.children.length; i++ ) {
+      _buildFilterSelectTerm(term.children[i], level+1, options);
+    }
+  }
+
+  return options;
+}
+
+
+/**
+ * Recursively get all of the children ontology terms of the 
+ * specified parent term and add the children as the 'children' 
+ * property to the parent term
+ * @param  {Object}   term     Parent Ontology Term
+ * @param  {Function} callback Callback function(term)
+ */
+function getOntologyChildren(term, callback) {
+  jQuery.ajax({
+    url: "/ajax/onto/children?node=" + term.accession,
+    success: function(results) {
+      if ( results && Array.isArray(results) && results.length > 0 ) {
+        let children = [];
+        _processChild(results, 0, term, children, callback);
+      }
+      else {
+        callback(term);
+      }
+    }
+  });
+}
+
+/**
+ * Start processing an ontology child term
+ * @param  {Object[]} results  List of children terms
+ * @param  {int}      count    Index of current child to process
+ * @param  {Object}   parent   Parent term
+ * @param  {Object[]} children Array of processed children
+ * @param  {Function} callback Final callback function(term)
+ */
+function _processChild(results, count, parent, children, callback) {
+  
+  // Set the child properties
+  let child = {
+    accession: results[count].accession,
+    name: results[count].cvterm_name
+  };
+
+  // Get the children of the child, if it has children
+  if ( results[count].has_children ) {
+    getOntologyChildren(child, function(term) {
+      children.push(term);
+      _finish();
+    });
+  }
+
+  // Finish processing the child
+  else {
+    children.push(child);
+    _finish();
+  }
+
+  /**
+   * Finish processing the child: process the next child
+   * or return to the callback with the parent term
+   */
+  function _finish(term) {
+    if ( count < results.length-1 ) {
+      _processChild(results, count+1, parent, children, callback);
+    }
+    else {
+      parent.children = children;
+      return callback(parent);
+    }
+  }
+}
   
 </script>

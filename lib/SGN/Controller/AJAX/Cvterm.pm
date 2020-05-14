@@ -231,10 +231,10 @@ sub get_annotated_loci :Chained('/cvterm/get_cvterm') :PathPart('datatables/anno
              JOIN phenome.locus_dbxref USING (dbxref_id )
              JOIN phenome.locus USING (locus_id)
              JOIN sgn.common_name USING (common_name_id)
-             WHERE (cvtermpath.object_id = ?) AND locus_dbxref.obsolete = 'f' AND locus.obsolete = 'f' AND pathdistance > 0";
+             WHERE (cvtermpath.object_id = ? OR cvtermpath.subject_id = ?) AND locus_dbxref.obsolete = 'f' AND locus.obsolete = 'f' AND pathdistance > 0";
 
     my $sth = $c->dbc->dbh->prepare($q);
-    $sth->execute($cvterm_id);
+    $sth->execute($cvterm_id, $cvterm_id);
     my @data;
     while ( my ($locus_id, $locus_name, $locus_symbol, $common_name) = $sth->fetchrow_array ) {
         my $link = qq|<a href="/locus/$locus_id/view">$locus_symbol</a> |;

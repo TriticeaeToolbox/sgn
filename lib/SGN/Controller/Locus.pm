@@ -43,10 +43,33 @@ sub locus_search : Path('/search/locus') Args(0) {
 	$index++;
     }
     my $lg_names_ref =  CXGN::Phenome::Locus::LinkageGroup::get_all_lgs( $c->dbc->dbh );
+    
+    # Get filter ontology info, if set in the config
+    my $loci_filter_onto = $c->config->{loci_filter_onto};
+    my $filter_onto_accession = undef;
+    my $filter_onto_name = undef;
+    if ( $loci_filter_onto ) {
+        my ($db_name, $accession) = split ":", $loci_filter_onto;
+        my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+        my $db = $schema->resultset('General::Db')->search({ name => uc($db_name) })->first();
+        if ( $db ) {
+            my $dbxref = $db->find_related('dbxrefs', { accession => $accession });
+            if ( $dbxref ) {
+                my $cvterm = $dbxref->cvterm;
+                if ( $cvterm ) {
+                    $filter_onto_accession = $loci_filter_onto;
+                    $filter_onto_name = $cvterm->name;
+                }
+            }
+        }
+    }
+
     $c->stash(
 	template       => '/search/loci.mas',
 	organism_ref   => \@organism_ref,
 	lg_names_ref   => $lg_names_ref,
+    filter_onto_accession => $filter_onto_accession,
+    filter_onto_name      => $filter_onto_name
 	);
 }
 
@@ -93,22 +116,22 @@ sub view_by_name : Path('/locus/view/') Args(0) {
     my $locus_id = undef;
     my $locus = undef;
     if ($symbol && $species) { 
-	$locus = $c->stash->{locus} = CXGN::Phenome::Locus->new_with_symbol_and_species($c->dbc->dbh, $symbol, $species);
+        $locus = $c->stash->{locus} = CXGN::Phenome::Locus->new_with_symbol_and_species($c->dbc->dbh, $symbol, $species);
     }
 
-    if ($locusname) { 
-	$locus = $c->stash->{locus} = CXGN::Phenome::Locus->new_with_locusname($c->dbc->dbh, $locusname);
+    if ($locusname) {
+        $locus = $c->stash->{locus} = CXGN::Phenome::Locus->new_with_locusname($c->dbc->dbh, $locusname);
     }
     
-    if (defined($locus->get_locus_id())) { 
-	my $locus_id = $locus->get_locus_id();
-	$c->stash->{locus} = $locus;
-	$c->detach("/locus/view/", [ $locus_id] );    #("/locus/$locus_id/view");    
+    if (defined($locus) && defined($locus->get_locus_id())) { 
+        $locus_id = $locus->get_locus_id();
+        my $url = "/locus/$locus_id/view";
+        $c->res->redirect($url, 301);
     }
     else { 
-	$c->stash->{template} = 'generic_message.mas';
-	$c->stash->{message} = "No locus was found for the identifier provided ($symbol $locusname $species).";
-	# forward to search page ?
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "No locus was found for the identifier provided ($symbol $locusname $species).";
+        # forward to search page ?
     }
 
 
