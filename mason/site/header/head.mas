@@ -19,11 +19,11 @@
     '/css/bootstrap3-xl-class.css',
     '/css/bootstrap-select.min.css'
   ] &>
-  
+
   <!-- <link rel="stylesheet" href="/documents/inc/colorbox/colorbox.css" type="text/css" /> -->
   <!-- <link rel="stylesheet" type="text/css" href="/css/dataTables.bootstrap.min.css"> -->
 
-<script language="javascript" type="text/javascript"> 
+<script language="javascript" type="text/javascript">
    JSAN = {};
    JSAN.use = function() {};
    MochiKit = {__export__: false};

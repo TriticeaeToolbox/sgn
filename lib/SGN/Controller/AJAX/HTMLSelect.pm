@@ -403,14 +403,14 @@ sub get_label_data_source_select : Path('/ajax/html/select/label_data_sources') 
     my $p = CXGN::BreedersToolbox::Projects->new( { schema => $c->dbic_schema("Bio::Chado::Schema") } );
     my $projects = $p->get_breeding_programs();
 
-    my (@field_trials, @crossing_trials, @genotyping_trials) = [];
+    my (@field_trials, @crossing_experiments, @genotyping_trials) = [];
     foreach my $project (@$projects) {
-      my ($field_trials, $crossing_trials, $genotyping_trials) = $p->get_trials_by_breeding_program($project->[0]);
+      my ($field_trials, $crossing_experiments, $genotyping_trials) = $p->get_trials_by_breeding_program($project->[0]);
       foreach (@$field_trials) {
           push @field_trials, $_;
       }
-      foreach (@$crossing_trials) {
-          push @crossing_trials, $_;
+      foreach (@$crossing_experiments) {
+          push @crossing_experiments, $_;
       }
       foreach (@$genotyping_trials) {
           push @genotyping_trials, $_;
@@ -428,6 +428,11 @@ sub get_label_data_source_select : Path('/ajax/html/select/label_data_sources') 
     foreach my $trial (@genotyping_trials) {
         push @choices, $trial;
     }
+    push @choices, '__Crossing Experiments';
+    @crossing_experiments = sort { $a->[1] cmp $b->[1] } @crossing_experiments;
+    foreach my $crossing_experiment (@crossing_experiments) {
+         push @choices, $crossing_experiment;
+    }
     push @choices, '__Lists';
     foreach my $item (@$lists) {
         push @choices, [@$item[0], @$item[1]];
@@ -436,12 +441,7 @@ sub get_label_data_source_select : Path('/ajax/html/select/label_data_sources') 
     foreach my $item (@$public_lists) {
         push @choices, [@$item[0], @$item[1]];
     }
-    # push @choices, '__Crossing Trials';
-    # @crossing_trials = sort { $a->[1] cmp $b->[1] } @crossing_trials;
-    # foreach my $trial (@crossing_trials) {
-    #     push @choices, $trial;
-    # }
-    #
+
     print STDERR "Choices are:\n".Dumper(@choices);
 
     if ($default) { unshift @choices, [ '', $default ]; }
@@ -697,13 +697,35 @@ sub get_trained_keras_cnn_models : Path('/ajax/html/select/trained_keras_cnn_mod
     my $c = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
-    my $trained_keras_cnn_model_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'trained_keras_cnn_model', 'protocol_type')->cvterm_id();
+    my $keras_cnn_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'trained_keras_cnn_model', 'protocol_type')->cvterm_id();
+    my $keras_cnn_trait_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'trained_keras_cnn_model_trait', 'protocol_property')->cvterm_id();
+    my $keras_cnn_model_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'trained_keras_cnn_model_type', 'protocol_property')->cvterm_id();
 
+    my $model_q = "SELECT nd_protocol.nd_protocol_id, nd_protocol.name, nd_protocol.description, trained_trait.value, model_type.value
+        FROM nd_protocol
+        JOIN nd_protocolprop AS trained_trait ON(nd_protocol.nd_protocol_id=trained_trait.nd_protocol_id AND trained_trait.type_id=$keras_cnn_trait_cvterm_id)
+        JOIN nd_protocolprop AS model_type ON(nd_protocol.nd_protocol_id=model_type.nd_protocol_id AND model_type.type_id=$keras_cnn_model_type_cvterm_id)
+        WHERE nd_protocol.type_id=$keras_cnn_cvterm_id;";
+    my $model_h = $schema->storage->dbh()->prepare($model_q);
+    $model_h->execute();
     my @keras_cnn_models;
-    my $q = "SELECT nd_protocol_id, name, description FROM nd_protocol WHERE type_id=$trained_keras_cnn_model_cvterm_id;";
-    my $h = $schema->storage->dbh()->prepare($q);
-    $h->execute();
-    while (my ($nd_protocol_id, $name, $description) = $h->fetchrow_array()) {
+    while (my ($nd_protocol_id, $name, $description, $trained_trait, $model_type) = $model_h->fetchrow_array()) {
+        my $trained_trait_hash = decode_json $trained_trait;
+        my $model_type_hash = decode_json $model_type;
+        my $trait_id = $trained_trait_hash->{variable_id};
+        my $trained_trait_name = $trained_trait_hash->{variable_name};
+        my $aux_trait_ids = $trained_trait_hash->{aux_trait_ids} ? $trained_trait_hash->{aux_trait_ids} : [];
+        $model_type = $model_type_hash->{value};
+        my $trained_image_type = $model_type_hash->{image_type};
+
+        my @aux_trait_names;
+        if (scalar(@$aux_trait_ids)>0) {
+            foreach (@$aux_trait_ids) {
+                my $aux_trait_name = SGN::Model::Cvterm::get_trait_from_cvterm_id($schema, $_, 'extended');
+                push @aux_trait_names, $aux_trait_name;
+            }
+            $name .= " Aux Traits:".join(",", @aux_trait_names);
+        }
         push @keras_cnn_models, [$nd_protocol_id, $name];
     }
 
@@ -1278,6 +1300,28 @@ sub get_micasense_aligned_raw_images_grid : Path('/ajax/html/select/micasense_al
         $saved_micasense_stacks = decode_json $saved_micasense_stacks_json->value();
     }
 
+    my $manual_plot_polygon_template_partial = SGN::Model::Cvterm->get_cvterm_row($schema, 'drone_run_band_plot_polygons_partial', 'project_property')->cvterm_id();
+    my $q = "SELECT value FROM projectprop WHERE project_id=? AND type_id=$manual_plot_polygon_template_partial;";
+    my $h = $schema->storage->dbh->prepare($q);
+    $h->execute($drone_run_project_id);
+
+    my @result;
+    my %unique_image_polygons;
+    while (my ($value) = $h->fetchrow_array()) {
+        if ($value) {
+            my $partial_templates = decode_json $value;
+            foreach my $t (@$partial_templates) {
+                my $nir_image_id = $t->{image_id};
+                my $polygon = $t->{stock_polygon};
+                my $template_name = $t->{template_name};
+                push @{$unique_image_polygons{$nir_image_id}}, {
+                    template_name => $template_name,
+                    stock_polygon => $polygon
+                };
+            }
+        }
+    }
+
     my %gps_images;
     my %longitudes;
     my %latitudes;
@@ -1292,9 +1336,21 @@ sub get_micasense_aligned_raw_images_grid : Path('/ajax/html/select/micasense_al
         foreach (@$image_ids_array) {
             push @stack_image_ids, $_->{image_id};
         }
+        my $nir_image_id = $nir_image->{image_id};
+        my @template_strings;
+        my @polygons;
+        if ($unique_image_polygons{$nir_image_id}) {
+            foreach (@{$unique_image_polygons{$nir_image_id}}) {
+                push @polygons, $_->{stock_polygon};
+                push @template_strings, $_->{template_name};
+            }
+        }
+        my $template_string = join ',', @template_strings;
         push @{$gps_images{$latitude}->{$longitude}}, {
-            nir_image_id => $nir_image->{image_id},
-            image_ids => \@stack_image_ids
+            nir_image_id => $nir_image_id,
+            image_ids => \@stack_image_ids,
+            template_names => $template_string,
+            polygons => \@polygons
         };
     }
     # print STDERR Dumper \%longitudes;
@@ -1311,7 +1367,10 @@ sub get_micasense_aligned_raw_images_grid : Path('/ajax/html/select/micasense_al
             $html .= "<td>";
             if ($gps_images{$lat}->{$lon}) {
                 foreach my $img_id_info (@{$gps_images{$lat}->{$lon}}) {
-                    $html .= "<span class='glyphicon glyphicon-picture' name='".$name."' data-image_id='".$img_id_info->{nir_image_id}."' data-image_ids='".encode_json($img_id_info->{image_ids})."' ></span>";
+                    $html .= "<span class='glyphicon glyphicon-picture' name='".$name."' data-image_id='".$img_id_info->{nir_image_id}."' data-image_ids='".encode_json($img_id_info->{image_ids})."' data-polygons='".uri_encode(encode_json($img_id_info->{polygons}))."' ></span>";
+                    if ($img_id_info->{template_names}) {
+                        $html .= "Templates: ".$img_id_info->{template_names};
+                    }
                 }
             }
             $html .= "</td>";
