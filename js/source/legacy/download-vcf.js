@@ -19,6 +19,11 @@ function select_chrom() {
     });
 }
 
+function output_file(filename, trial) {
+    url = php_self + "?function=download&filename=" + filename + "&trial=" + trial;
+    window.open(url)
+}
+
 function save() {
     var url = php_self + "?function=save";
     jQuery.get(url, function( data ) {

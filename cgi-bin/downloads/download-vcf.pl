@@ -1,5 +1,5 @@
-
 use strict;
+use warnings;
 
 my $cgi = new CGI;
 
@@ -59,12 +59,31 @@ print "</table>\n";
 
 print "<div id=\"step2\">";
 
+} elsif ($function eq "valid") {
+    print "content-type: text/csv \n\n";
+    print "Id,Trial\n";
+    print "80,2019_hapmap\n";
+    print "80,1kEC_genotype01222019\n";
+    print "81,2017_WheatCAP\n";
+} elsif ($function eq "download") {
+    my $filename = $cgi->param('filename');
+    my $trial = $cgi->param('trial') . ".tsv";
+    open(IN, $filename);
+    print "Content-type: application/vnd.ms-excel\n";
+    print "Content-Disposition: attachment; filename=\"$trial\"\n";
+    while (<IN>) {
+	print "$_";
+    }
+    close(IN);
 } else {
     my $trial = $cgi->param('trial'); 
     my $chrom = $cgi->param('chrom');
     my $file = "/home/production/genotype_files/" . $trial . ".vcf.gz";
     my $unique_str = int(rand(10000000));
     my $dir = "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org/download_" . $unique_str;
+    if ( !-d "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org") {
+	mkdir "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org";
+    }
     if ($chrom =~ /([a-z]*[A-Z0-9]+)/) {
         $chrom = $1;
     } else {
@@ -74,35 +93,54 @@ print "<div id=\"step2\">";
     unless(mkdir $dir) {
         die "Unable to create $dir\n";
     }
-    my $filename1 = $dir . "/genotype.vcf";
+    my $filename1 = $dir . "/" . $trial . ".vcf";
     my $filename2 = $dir . "/proc_error.txt";
+    my $filename3 = $trial . ".vcf";
 
     my $cmd = "tabix -h $file $chrom:$start-$stop > $filename1 2> $filename2";
     #print "$cmd<br>\n";
     system($cmd);
 
+    my $count = 0;
+    my $errorLog = "";
     if (-e $filename2) {
         open(IN, $filename2);
         while (<IN>) {
-            print $_;
+            $errorLog .= $_;
         }
         close(IN);
     }
-    my $count = 0;
-    if (-e $filename1) {
-        open(IN, $filename1);
-        while (<IN>) {
-            if (!/^#/) {
-                $count++;
+    if ($errorLog ne "") {
+        print "Content-type: text/plain\n";
+        print "Content-Disposition: attachment; filename=\"$trial\"\n";
+        print "$errorLog\n";
+    } elsif ($function eq "queryDownload") {
+        print "Content-type: application/vnd.ms-excel\n";
+        print "Content-Disposition: attachment; filename=\"$filename3\"\n";
+        if (-e $filename1) {
+            open(IN, $filename1);
+            while (<IN>) {
+              print "$_";
             }
         }
         close(IN);
-    }
-    if ($count > 0) {
-        print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:window.open('$filename1')\">";
     } else {
-        print "Error: no results from $chrom:$start-$stop<br>\n";
-        print "$cmd\n";
+      if (-e $filename1) {
+          open(IN, $filename1);
+          while (<IN>) {
+              if (!/^#/) {
+                  $count++;
+              }
+          }
+          close(IN);
+      }
+      if ($count > 0) {
+          #print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:window.open('$filename1')\">";
+          print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\">";
+      } else {
+          print "Error: no results from $chrom:$start-$stop<br>\n";
+          print "$cmd\n";
+      }
     }
 }
 

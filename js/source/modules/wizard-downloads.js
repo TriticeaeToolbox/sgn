@@ -1,4 +1,4 @@
-import "../legacy/d3/d3v4Min.js";
+import "../legacy/d3/d3v5Min.js";
 import "../legacy/CXGN/Dataset.js";
 
 /**
@@ -17,6 +17,18 @@ export function WizardDownloads(main_id,wizard){
   var catagories = [];
   var selections = {};
   var operations = {};
+
+  var vcfdata = d3.dsv(",", "/downloads/download-vcf.pl?function=valid", function(d) {
+    return {
+      id: d.Id,
+      trial: d.Trial
+    };
+  }).then(function(data) {
+    console.log(data[0].id);
+    console.log(data[0].trial);
+    return data;
+  });
+
   wizard.on_change((c,s,o)=>{
     catagories = c;
     selections = s;
@@ -51,8 +63,16 @@ export function WizardDownloads(main_id,wizard){
         var download_format = d3.select(".wizard-download-genotypes-format").node().value;
         var compute_from_parents = d3.select(".wizard-download-genotypes-parents-compute").property("checked");
         var marker_set_list_id = d3.select(".wizard-download-genotypes-marker-set-list-id").node().value;
-        var url = document.location.origin+`/breeders/download_gbs_action/?ids=${accession_ids.join(",")}&protocol_id=${protocol_id}&format=accession_ids&chromosome_number=${chromosome_number}&start_position=${start_position}&end_position=${end_position}&trial_ids=${trial_ids.join(",")}&download_format=${download_format}&compute_from_parents=${compute_from_parents}&marker_set_list_id=${marker_set_list_id}`;
-        window.open(url,'_blank');
+        var url = "";
+        vcfdata.then(function(data) {
+          if (data[0].id == protocol_id) {
+            var trial_name = data[0].trial;
+            url = document.location.origin+`/downloads/download-vcf.pl?function=queryDownload&trial=${trial_name}&chrom=${chromosome_number}&start=${start_position}&stop=${end_position}`;
+          } else {
+            url = document.location.origin+`/breeders/download_gbs_action/?ids=${accession_ids.join(",")}&protocol_id=${protocol_id}&format=accession_ids&chromosome_number=${chromosome_number}&start_position=${start_position}&end_position=${end_position}&trial_ids=${trial_ids.join(",")}&download_format=${download_format}&compute_from_parents=${compute_from_parents}&marker_set_list_id=${marker_set_list_id}`;
+          }
+          window.open(url,"_blank");
+        });
       });
     main.selectAll(".wizard-download-genetic-relationship-matrix")
       .attr("disabled",!!accessions.length&&protocols.length<=1?null:true)
