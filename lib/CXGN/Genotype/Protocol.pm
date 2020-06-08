@@ -106,7 +106,7 @@ has 'create_date' => (
 #Filtering KEYS
 
 has 'chromosome_list' => (
-    isa => 'ArrayRef[Int]|Undef',
+    isa => 'ArrayRef[Int]|ArrayRef[Str]|Undef',
     is => 'ro',
 );
 
@@ -117,6 +117,11 @@ has 'start_position' => (
 
 has 'end_position' => (
     isa => 'Int|Undef',
+    is => 'ro',
+);
+
+has 'marker_name_list' => (
+    isa => 'ArrayRef[Str]|Undef',
     is => 'ro',
 );
 
@@ -162,14 +167,15 @@ sub _retrieve_nd_protocolprop_markers {
     my $chromosome_list = $self->chromosome_list;
     my $start_position = $self->start_position;
     my $end_position = $self->end_position;
+    my $marker_name_list = $self->marker_name_list;
 
     my $geno_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'genotyping_experiment', 'experiment_type')->cvterm_id();
     my $protocol_vcf_details_markers_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'vcf_map_details_markers', 'protocol_property')->cvterm_id();
 
     my $chromosome_where = '';
     if ($chromosome_list && scalar(@$chromosome_list)>0) {
-        my $chromosome_list_sql = join ',', @$chromosome_list;
-        $chromosome_where = " AND (s.value->>'chrom')::int IN ($chromosome_list_sql)";
+        my $chromosome_list_sql = '\'' . join('\', \'', @$chromosome_list) . '\'';
+        $chromosome_where = " AND (s.value->>'chrom')::text IN ($chromosome_list_sql)";
     }
     my $start_position_where = '';
     if (defined($start_position)) {
@@ -179,10 +185,15 @@ sub _retrieve_nd_protocolprop_markers {
     if (defined($end_position)) {
         $end_position_where = " AND (s.value->>'pos')::int <= $end_position";
     }
+    my $marker_name_list_where = '';
+    if ($marker_name_list && scalar(@$marker_name_list)>0) {
+        my $search_vals_sql = '\''.join ('\', \'' , @$marker_name_list).'\'';
+        $marker_name_list_where = "AND (s.value->>'name')::text IN ($search_vals_sql)";
+    }
 
     my $protocolprop_q = "SELECT nd_protocol_id, s.key, s.value
         FROM nd_protocolprop, jsonb_each(nd_protocolprop.value) as s
-        WHERE nd_protocol_id = ? and type_id = $protocol_vcf_details_markers_cvterm_id $chromosome_where $start_position_where $end_position_where;";
+        WHERE nd_protocol_id = ? and type_id = $protocol_vcf_details_markers_cvterm_id $chromosome_where $start_position_where $end_position_where $marker_name_list_where;";
 
     my $h = $schema->storage->dbh()->prepare($protocolprop_q);
     $h->execute($self->nd_protocol_id);
@@ -211,6 +222,7 @@ sub _retrieve_nd_protocolprop_markers_array {
 
 #class method
 sub list {
+    print STDERR "Protocol list search\n";
     my $schema = shift;
     my $protocol_list = shift;
     my $accession_list = shift;
@@ -225,9 +237,10 @@ sub list {
     my $vcf_map_details_markers_array_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'vcf_map_details_markers_array', 'protocol_property')->cvterm_id();
     my $accession_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
     my $tissue_sample_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'tissue_sample', 'stock_type')->cvterm_id();
+    my $nd_protocol_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'genotyping_experiment', 'experiment_type')->cvterm_id();
 
     #push @where_clause, "nd_protocolprop.type_id = $vcf_map_details_cvterm_id";
-
+    push @where_clause, "nd_protocol.type_id = $nd_protocol_type_id";
     if ($protocol_list && scalar(@$protocol_list)>0) {
         my $protocol_sql = join ("," , @$protocol_list);
         push @where_clause, "nd_protocol.nd_protocol_id in ($protocol_sql)";
@@ -308,16 +321,19 @@ sub list {
 
 #class method
 sub list_simple {
+    print STDERR "Protocol list simple search\n";
     my $schema = shift;
     my @where_clause;
 
     my $vcf_map_details_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'vcf_map_details', 'protocol_property')->cvterm_id();
     my $vcf_map_details_markers_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'vcf_map_details_markers', 'protocol_property')->cvterm_id();
     my $vcf_map_details_markers_array_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'vcf_map_details_markers_array', 'protocol_property')->cvterm_id();
+    my $nd_protocol_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'genotyping_experiment', 'experiment_type')->cvterm_id();
 
     my $q = "SELECT nd_protocol.nd_protocol_id, nd_protocol.name, nd_protocol.description, nd_protocol.create_date, nd_protocolprop.value->>'header_information_lines', nd_protocolprop.value->>'reference_genome_name', nd_protocolprop.value->>'species_name', nd_protocolprop.value->>'sample_observation_unit_type_name', jsonb_array_length(nd_protocolprop.value->'marker_names')
         FROM nd_protocol
         LEFT JOIN nd_protocolprop ON(nd_protocolprop.nd_protocol_id = nd_protocol.nd_protocol_id AND nd_protocolprop.type_id=$vcf_map_details_cvterm_id)
+        WHERE nd_protocol.type_id = $nd_protocol_type_id
         ORDER BY nd_protocol.nd_protocol_id ASC;";
 
     my $h = $schema->storage->dbh()->prepare($q);

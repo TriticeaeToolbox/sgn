@@ -11,6 +11,10 @@ use CXGN::Trial;
 use CXGN::Pedigree::AddCrossingtrial;
 use CXGN::Pedigree::AddCrosses;
 use CXGN::Pedigree::AddCrossInfo;
+use CXGN::Pedigree::AddProgeniesExistingAccessions;
+use CXGN::Pedigree::AddPedigrees;
+use Bio::GeneticRelationships::Individual;
+use Bio::GeneticRelationships::Pedigree;
 use CXGN::Cross;
 use LWP::UserAgent;
 
@@ -32,19 +36,19 @@ is($response->{'metadata'}->{'status'}->[2]->{'message'}, 'Login Successfull');
 my $sgn_session_id = $response->{access_token};
 print STDERR $sgn_session_id."\n";
 
-$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial', 'crossingtrial_program_name' => 'test' ,
+$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial', 'crossingtrial_program_id' => 134 ,
     'crossingtrial_location' => 'test_location', 'year' => '2017', 'project_description' => 'test description' ]);
 
 $response = decode_json $mech->content;
 is($response->{'success'}, '1');
 
-$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial2', 'crossingtrial_program_name' => 'test' ,
+$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial2', 'crossingtrial_program_id' => 134 ,
     'crossingtrial_location' => 'test_location', 'year' => '2018', 'project_description' => 'test description2' ]);
 
 $response = decode_json $mech->content;
 is($response->{'success'}, '1');
 
-$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial_deletion', 'crossingtrial_program_name' => 'test' ,
+$mech->post_ok('http://localhost:3010/ajax/cross/add_crossingtrial', [ 'crossingtrial_name' => 'test_crossingtrial_deletion', 'crossingtrial_program_id' => 134 ,
     'crossingtrial_location' => 'test_location', 'year' => '2019', 'project_description' => 'test deletion' ]);
 
 $response = decode_json $mech->content;
@@ -205,11 +209,26 @@ my $UG120002_id = $schema->resultset('Stock::Stock')->find({name =>'UG120002'})-
 $mech->post_ok("http://localhost:3010/ajax/breeders/trial/$crossing_trial_id/crosses_and_details_in_trial");
 $response = decode_json $mech->content;
 
-is_deeply($response, {'data'=> [
-    [qq{<a href = "/cross/$test_add_cross_id">test_add_cross</a>}, 'UG120001xUG120002', 'biparental', qq{<a href = "/stock/$UG120001_id/view">UG120001</a>}, qq{<a href = "/stock/$UG120002_id/view">UG120002</a>}, qq{<a href = "/stock/$female_plot_id/view">KASESE_TP2013_842</a>}, qq{<a href = "/stock/$male_plot_id/view">KASESE_TP2013_1591</a>}, qq{<a href = "/stock//view"></a>}, qq{<a href = "/stock//view"></a>}]
-]}, 'crosses in a trial');
+is_deeply($response, {'data'=> [{
+        cross_id => $test_add_cross_id,
+        cross_name => 'test_add_cross',
+        cross_combination => 'UG120001xUG120002',
+        cross_type => 'biparental',
+        female_parent_id => $UG120001_id,
+        female_parent_name => 'UG120001',
+        male_parent_id => $UG120002_id,
+        male_parent_name => 'UG120002',
+        female_plot_id => $female_plot_id,
+        female_plot_name => 'KASESE_TP2013_842',
+        male_plot_id => $male_plot_id,
+        male_plot_name => 'KASESE_TP2013_1591',
+        female_plant_id => undef,
+        female_plant_name => undef,
+        male_plant_id => undef,
+        male_plant_name => undef
+}]}, 'crosses in a trial');
 
-# test uploading progenies
+# test uploading 6 progenies with new accessions
 my $offspring_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "offspring_of", "stock_relationship")->cvterm_id();
 my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "accession", "stock_type")->cvterm_id();
 
@@ -224,7 +243,7 @@ $response = $ua->post(
     'http://localhost:3010/ajax/cross/upload_progenies',
     Content_Type => 'form-data',
     Content => [
-        progenies_upload_file => [ $file, 'update_progenies.xls', Content_Type => 'application/vnd.ms-excel', ],
+        progenies_new_upload_file => [ $file, 'update_progenies.xls', Content_Type => 'application/vnd.ms-excel', ],
         "sgn_session_id" => $sgn_session_id
     ]
 );
@@ -242,6 +261,117 @@ is($after_add_progenies_stock, $before_add_progenies_stock + 6);
 is($after_add_progenies_accession, $before_add_progenies_accession + 6);
 is($after_add_progenies_relationship_all, $before_add_progenies_relationship_all + 18);
 is($after_add_progenies_offspring, $before_add_progenies_offspring + 6);
+
+
+#validate uploading 4 progenies using existing accessions (without previously stored pedigrees)
+$file = $f->config->{basepath}."/t/data/cross/update_progenies_existing_accessions.xls";
+$ua = LWP::UserAgent->new;
+$response = $ua->post(
+    'http://localhost:3010/ajax/cross/validate_upload_existing_progenies',
+    Content_Type => 'form-data',
+    Content => [
+        progenies_exist_upload_file => [ $file, 'update_progenies_existing_accessions.xls', Content_Type => 'application/vnd.ms-excel', ],
+        "sgn_session_id" => $sgn_session_id
+    ]
+);
+
+ok($response->is_success);
+$message = $response->decoded_content;
+$message_hash = decode_json $message;
+my %response_hash = %$message_hash;
+my $message1 = $response_hash{'error_string'};
+my $message2 = $response_hash{'existing_pedigrees'};
+ok($message1 eq '');
+ok($message2 eq '');
+
+
+#test storing 4 progenies using existing accessions (without previously stored pedigrees)
+my $cross_name = 'test_add_cross';
+my @existing_accessions = qw(XG120015 XG120021 XG120068 XG120073);
+my $overwrite_pedigrees = 'true';
+my $adding_progenies = CXGN::Pedigree::AddProgeniesExistingAccessions->new({
+    chado_schema => $schema,
+    cross_name => $cross_name,
+    progeny_names => \@existing_accessions,
+});
+
+ok(my $return = $adding_progenies->add_progenies_existing_accessions($overwrite_pedigrees));
+ok(!exists($return->{error}));
+
+my $after_add_progenies_exist_stock = $schema->resultset("Stock::Stock")->search({})->count();
+my $after_add_progenies_exist_accession = $schema->resultset("Stock::Stock")->search({type_id => $accession_type_id})->count();
+my $after_add_progenies_exist_relationship_all = $schema->resultset("Stock::StockRelationship")->search({})->count();
+my $after_add_progenies_exist_offspring = $schema->resultset("Stock::StockRelationship")->search({type_id => $offspring_type_id})->count();
+
+is($after_add_progenies_exist_stock, $after_add_progenies_stock);
+is($after_add_progenies_exist_accession, $after_add_progenies_accession);
+is($after_add_progenies_exist_relationship_all, $after_add_progenies_relationship_all + 12);
+is($after_add_progenies_exist_offspring, $after_add_progenies_offspring + 4);
+
+
+#validate uploading 2 progenies using existing accessions (accessions have previously stored pedigrees)
+#adding pedigrees for testing
+my $female_parent = Bio::GeneticRelationships::Individual->new(name => 'TestAccession1');
+my $male_parent = Bio::GeneticRelationships::Individual->new(name => 'TestAccession2');
+my $pedigree1 = Bio::GeneticRelationships::Pedigree->new(name => 'TestAccession3', cross_type => 'biparental');
+$pedigree1->set_female_parent($female_parent);
+$pedigree1->set_male_parent($male_parent);
+
+my $pedigree2 = Bio::GeneticRelationships::Pedigree->new(name => 'TestAccession4', cross_type => 'biparental');
+$pedigree2->set_female_parent($female_parent);
+$pedigree2->set_male_parent($male_parent);
+
+my @pedigrees = ($pedigree1, $pedigree2);
+my $add_pedigrees = CXGN::Pedigree::AddPedigrees->new(schema => $schema, pedigrees => \@pedigrees);
+my $pedigree_return = $add_pedigrees->add_pedigrees();
+
+my $after_add_pedigrees_relationship_all = $schema->resultset("Stock::StockRelationship")->search({})->count();
+
+
+$file = $f->config->{basepath}."/t/data/cross/update_progenies_overwrite_pedigrees.xls";
+$ua = LWP::UserAgent->new;
+$response = $ua->post(
+    'http://localhost:3010/ajax/cross/validate_upload_existing_progenies',
+    Content_Type => 'form-data',
+    Content => [
+        progenies_exist_upload_file => [ $file, 'update_progenies_overwrite_pedigrees.xls', Content_Type => 'application/vnd.ms-excel', ],
+        "sgn_session_id" => $sgn_session_id
+    ]
+);
+
+ok($response->is_success);
+$message = $response->decoded_content;
+$message_hash = decode_json $message;
+%response_hash = %$message_hash;
+my $message3 = $response_hash{'error_string'};
+my $message4 = $response_hash{'existing_pedigrees'};
+ok($message3 eq '');
+ok($message4 ne '');
+
+
+#test storing 2 progenies using existing accessions (accessions have previously stored pedigrees)
+$cross_name = 'test_add_cross';
+@existing_accessions = qw(TestAccession3 TestAccession4);
+$overwrite_pedigrees = 'true';
+$adding_progenies = CXGN::Pedigree::AddProgeniesExistingAccessions->new({
+    chado_schema => $schema,
+    cross_name => $cross_name,
+    progeny_names => \@existing_accessions,
+});
+
+ok($return = $adding_progenies->add_progenies_existing_accessions($overwrite_pedigrees));
+ok(!exists($return->{error}));
+
+my $after_add_progenies_overwrite_stock = $schema->resultset("Stock::Stock")->search({})->count();
+my $after_add_progenies_overwrite_accession = $schema->resultset("Stock::Stock")->search({type_id => $accession_type_id})->count();
+my $after_add_progenies_overwrite_relationship_all = $schema->resultset("Stock::StockRelationship")->search({})->count();
+my $after_add_progenies_overwrite_offspring = $schema->resultset("Stock::StockRelationship")->search({type_id => $offspring_type_id})->count();
+
+is($after_add_progenies_overwrite_stock, $after_add_progenies_exist_stock);
+is($after_add_progenies_overwrite_accession, $after_add_progenies_exist_accession);
+is($after_add_progenies_overwrite_relationship_all, $after_add_pedigrees_relationship_all + 2);
+is($after_add_progenies_overwrite_offspring, $after_add_progenies_exist_offspring + 2);
+
 
 # test updating cross info by uploading
 my $before_updating_info_stocks = $schema->resultset("Stock::Stock")->search({})->count();
@@ -368,14 +498,14 @@ my $after_delete_all_crosses_in_experiment = $schema->resultset("NaturalDiversit
 my $after_delete_all_crosses_in_experiment_stock = $schema->resultset("NaturalDiversity::NdExperimentStock")->search({})->count();
 my $stocks_after_delete_all_crosses = $schema->resultset("Stock::Stock")->search({})->count();
 
-is($after_delete_all_crosses_crosses, $before_adding_cross);
-is($after_delete_all_crosses_in_experiment, $before_adding_cross_in_experiment);
+is($after_delete_all_crosses_crosses, $before_adding_cross + 1); #one cross cannot be deleted because progenies have associated data
+is($after_delete_all_crosses_in_experiment, $before_adding_cross_in_experiment + 1); #one cross cannot be deleted because progenies have associated data
 
 # nd_experiment_stock has 38 more rows after adding plants for testing uploading crosses with plant info
-is($after_delete_all_crosses_in_experiment_stock, $before_adding_cross_in_experiment_stock + 38);
+is($after_delete_all_crosses_in_experiment_stock, $before_adding_cross_in_experiment_stock + 39);
 
-# stock table has 42 more rows after adding 4 family names and 38 plants
-is($stocks_after_delete_all_crosses, $before_adding_stocks + 42);
+# stock table has 42 more rows after adding 4 family names and 38 plants, one cross with two new accessions cannot be deleted
+is($stocks_after_delete_all_crosses, $before_adding_stocks + 45);
 
 # remove added crossing trials after test so that they don't affect downstream tests
 $crossing_trial_rs->delete();

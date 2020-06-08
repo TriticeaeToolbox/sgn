@@ -2,7 +2,7 @@ package CXGN::Trial::TrialCreate;
 
 =head1 NAME
 
-CXGN::Trial::TrialCreate - Module to create an entirely new trial based on a specified design. For field_layout experiments and genotyping_layout experiments. 
+CXGN::Trial::TrialCreate - Module to create an entirely new trial based on a specified design. For field_layout experiments and genotyping_layout experiments.
 
 Will do the following:
 1) Create a new project entry in Project table based on trial and description supplied to object. If there is a project with the name already saved, it will return an error and do nothing.
@@ -157,7 +157,10 @@ has 'trial_has_subplot_entries' => (isa => 'Int', is => 'rw', predicate => 'has_
 has 'field_size' => (isa => 'Num', is => 'rw', predicate => 'has_field_size', required => 0);
 has 'plot_width' => (isa => 'Num', is => 'rw', predicate => 'has_plot_width', required => 0);
 has 'plot_length' => (isa => 'Num', is => 'rw', predicate => 'has_plot_length', required => 0);
+has 'planting_date' => (isa => 'Str', is => 'rw', predicate => 'has_planting_date', required => 0);
+has 'harvest_date' => (isa => 'Str', is => 'rw', predicate => 'has_harvest_date', required => 0);
 has 'operator' => (isa => 'Str', is => 'rw', predicate => 'has_operator', required => 1);
+has 'trial_stock_type' => (isa => 'Str', is => 'rw', predicate => 'has_trial_stock_type', required => 0, default => 'accession');
 
 #Trial linkage when saving a field trial
 has 'field_trial_is_planned_to_cross' => (isa => 'Str', is => 'rw', predicate => 'has_field_trial_is_planned_to_cross', required => 0);
@@ -210,12 +213,12 @@ sub save_trial {
 	my %design = %{$self->get_design()};
     my $trial_name = $self->get_trial_name();
     $trial_name =~ s/^\s+|\s+$//g; #trim whitespace from both ends
-    
+
 	if (!$trial_name) {
 		print STDERR "Trial not saved: Can't create trial without a trial name\n";
 		return { error => "Trial not saved: Can't create trial without a trial name" };
 	}
-    
+
     if ($self->trial_name_already_exists()) {
 		print STDERR "Can't create trial: Trial name already exists\n";
 		return { error => "Trial not saved: Trial name already exists" };
@@ -260,6 +263,7 @@ sub save_trial {
 	my $genotyping_plate_sample_type_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'genotyping_plate_sample_type', 'project_property');
 	my $genotyping_user_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'genotyping_user_id', 'nd_experiment_property');
 	my $genotyping_project_name_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'genotyping_project_name', 'nd_experiment_property');
+	my $trial_stock_type_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'trial_stock_type', 'project_property');
 
 	my $project = $chado_schema->resultset('Project::Project')
 	->create({
@@ -312,6 +316,12 @@ sub save_trial {
 	if ($self->get_trial_type){
 		$t->set_project_type($self->get_trial_type);
 	}
+	if ($self->get_planting_date){
+		$t->set_planting_date($self->get_planting_date);
+	}
+	if ($self->get_harvest_date){
+		$t->set_harvest_date($self->get_harvest_date);
+	}
 
 	#link to the project
 	$nd_experiment->find_or_create_related('nd_experiment_projects',{project_id => $project->project_id()});
@@ -356,6 +366,14 @@ sub save_trial {
 		});
 	}
 
+	if (!$self->get_is_genotyping) {
+        if ($self->has_trial_stock_type && $self->get_trial_stock_type){
+		    $project->create_projectprops({
+			    $trial_stock_type_cvterm->name() => $self->get_trial_stock_type
+		    });
+	    }
+    }
+
 	my $design_type = $self->get_design_type();
 	if ($design_type eq 'greenhouse') {
 		my $has_plants_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'project_has_plant_entries', 'project_property');
@@ -373,7 +391,8 @@ sub save_trial {
 		is_genotyping => $self->get_is_genotyping,
 		new_treatment_has_plant_entries => $self->get_trial_has_plant_entries,
 		new_treatment_has_subplot_entries => $self->get_trial_has_subplot_entries,
-		operator => $self->get_operator
+		operator => $self->get_operator,
+        trial_stock_type => $self->get_trial_stock_type
 	});
 	my $error;
 	my $validate_design_error = $trial_design_store->validate_design();

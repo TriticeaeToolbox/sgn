@@ -1,5 +1,5 @@
 package CXGN::Trial::TrialDesign;
- 
+
 =head1 NAME
 
 CXGN::Trial::TrialDesign - a module to create a trial design using the R CRAN package Agricolae.
@@ -91,9 +91,9 @@ has 'num_plants_per_plot' => (isa => 'Int',is => 'rw',predicate => 'has_num_plan
 
 has 'num_seed_per_plot' => (isa => 'Int',is => 'rw',predicate => 'has_num_seed_per_plot',clearer => 'clear_num_seed_per_plot');
 
-has 'replicated_accession_no' => (isa => 'Int',is => 'rw',predicate => 'has_replicated_accession_no',clearer => 'clear_replicated_accession_no');
+has 'replicated_stock_no' => (isa => 'Int',is => 'rw',predicate => 'has_replicated_stock_no',clearer => 'clear_replicated_stock_no');
 
-has 'unreplicated_accession_no' => (isa => 'Int',is => 'rw',predicate => 'has_unreplicated_accession_no',clearer => 'clear_unreplicated_accession_no');
+has 'unreplicated_stock_no' => (isa => 'Int',is => 'rw',predicate => 'has_unreplicated_stock_no',clearer => 'clear_unreplicated_stock_no');
 
 has 'num_of_replicated_times' => (isa => 'Int',is => 'rw',predicate => 'has_num_of_replicated_times',clearer => 'clear_num_of_replicated_times');
 
@@ -123,7 +123,7 @@ has 'randomization_method' => (isa => 'RandomizationMethodType', is => 'rw', def
 
 subtype 'DesignType',
   as 'Str',
-  where { $_ eq "CRD" || $_ eq "RCBD" || $_ eq "Alpha" || $_ eq "Lattice" || $_ eq "Augmented" || $_ eq "MAD" || $_ eq "genotyping_plate" || $_ eq "greenhouse" || $_ eq "p-rep" || $_ eq "splitplot" || $_ eq "westcott" || $_ eq "Analysis" },
+  where { $_ eq "CRD" || $_ eq "RCBD" || $_ eq "Alpha" || $_ eq "Lattice" || $_ eq "Augmented" || $_ eq "MAD" || $_ eq "genotyping_plate" || $_ eq "greenhouse" || $_ eq "p-rep" || $_ eq "splitplot" || $_ eq "Westcott" || $_ eq "Analysis" },
   message { "The string, $_, was not a valid design type" };
 
 has 'design_type' => (isa => 'DesignType', is => 'rw', predicate => 'has_design_type', clearer => 'clear_design_type');
@@ -131,7 +131,7 @@ has 'design_type' => (isa => 'DesignType', is => 'rw', predicate => 'has_design_
 
 sub get_design {
     my $self = shift;
-    print STDERR Dumper $self->{design};
+    #print STDERR Dumper $self->{design};
      return $self->{design};
 }
 
@@ -140,7 +140,7 @@ sub calculate_design {
     my $self = shift;
 
     my $design;
-    
+
     if ($self->has_design_type()) {
 	my $design_type = $self->get_design_type();
 	if ($design_type eq "p-rep") { $design_type="Prep"; }
@@ -148,7 +148,7 @@ sub calculate_design {
 	$self->load_plugin($design_type);
 	$design = $self->create_design();
     }
-    
+
     if ($design) {
 	$self->{design} = $design;
 	return 1;
@@ -156,7 +156,7 @@ sub calculate_design {
     else  {
 	return 0;
     }
-}    
+}
 
 sub isint{
   my $val = shift;
@@ -169,7 +169,7 @@ sub validate_field_colNumber {
   if (isint($colNum)){
     return $colNum;
   } else {
-      die "Choose a different row number for field map generation. The product of number of accessions and rep when divided by row number should give an integer\n";
+      die "Choose a different row number for field map generation. The product of number of stocks and rep when divided by row number should give an integer\n";
       return;
   }
 
@@ -196,7 +196,7 @@ sub _convert_plot_numbers {
         if ($self->has_plot_number_increment()){
           $plot_number = $first_plot_number + ($i * $self->get_plot_number_increment());
         }
-        
+
         my $cheking = ($rep_numbers[$i] * $rep_plot_count) / $rep_plot_count;
         #print STDERR Dumper($cheking);
         my $new_plot;
@@ -211,8 +211,8 @@ sub _convert_plot_numbers {
                 $plot_number = ($i * $self->get_plot_number_increment()) + $new_plot - (($cheking -1) * $rep_plot_count) + 1;
             }
         }
-        
-        
+
+
         else {
           $plot_number = $first_plot_number + $i;
         }

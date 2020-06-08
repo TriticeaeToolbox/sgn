@@ -97,7 +97,7 @@ sub validate {
             $validate_result{'error'} = "Request body is not valid. An observation object is missing required field \"observationVariableDbId\"";
             return \%validate_result;
         }
-        if (!$obs->{'value'}) {
+        if (!$obs->{'value'} && $obs->{'value'} != '0') {
             $validate_result{'error'} = "Request body is not valid. An observation object is missing required field \"value\"";
             return \%validate_result;
         }
@@ -130,7 +130,7 @@ sub parse {
         my $obs_db_id = $obs->{'observationDbId'} ? $obs->{'observationDbId'} : '';
         my $value = $obs->{'value'};
         my $trait_cvterm = SGN::Model::Cvterm->get_cvterm_row_from_trait_name($schema, "|".$variable_db_id);
-        my $trait_name = $trait_cvterm->name."|".$variable_db_id;
+        my $trait_name = $variable_db_id; #$trait_cvterm->name."|".$variable_db_id;
 
         my $unique_combo = $obsunit_db_id.$variable_db_id.$timestamp;
         if ($seen{$unique_combo}) {
@@ -214,8 +214,8 @@ sub parse {
     }
 
     foreach my $value (@values) {
-        if ($value eq '.' || ($value =~ m/[^a-zA-Z0-9,.\-\/\_]/ && $value ne '.')) {
-            $parse_result{'error'} = "Value $value is not valid. Trait values must be alphanumeric with no spaces";
+        if ($value eq '.' || ($value =~ m/[^a-zA-Z0-9,.\-\/\_:;\s]/ && $value ne '.')) {
+            $parse_result{'error'} = "Value $value is not valid. Trait values must be alphanumeric.";
             print STDERR "Invalid value: $value\n";
             return \%parse_result;
         }
