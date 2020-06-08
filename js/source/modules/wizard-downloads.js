@@ -33,7 +33,13 @@ export function WizardDownloads(main_id,wizard){
     catagories = c;
     selections = s;
     operations = o;
-    
+   
+    // map id to file
+    var vcfFile = "test";
+    //vcfFile[8123] = "2019_hapmap"; 
+    //vcfFile[8124] = "1kEC_genotype01222019";
+    //vcfFile[8125] = "2017_WheatCAP";
+
     // Genotype downloads
     var accessions = catagories.indexOf("accessions")!=-1?
       selections["accessions"]:
@@ -56,6 +62,7 @@ export function WizardDownloads(main_id,wizard){
         event.preventDefault();
         var accession_ids = accessions.map(d=>d.id);
         var trial_ids = (selections["trials"]||[]).map(d=>d.id);
+        var trial_id = trial_ids.length==1?trial_ids[0].id:'';
         var protocol_id = protocols.length==1?protocols[0].id:'';
         var chromosome_number = d3.select(".wizard-download-genotypes-chromosome-number").node().value;
         var start_position = d3.select(".wizard-download-genotypes-start-position").node().value;
@@ -64,9 +71,11 @@ export function WizardDownloads(main_id,wizard){
         var compute_from_parents = d3.select(".wizard-download-genotypes-parents-compute").property("checked");
         var marker_set_list_id = d3.select(".wizard-download-genotypes-marker-set-list-id").node().value;
         var url = "";
+
+        console.log(trial_ids);
         vcfdata.then(function(data) {
           if (data[0].id == protocol_id) {
-            var trial_name = data[0].trial;
+            var trial_name = vcfFile[trial_id];
             url = document.location.origin+`/downloads/download-vcf.pl?function=queryDownload&trial=${trial_name}&chrom=${chromosome_number}&start=${start_position}&stop=${end_position}`;
           } else {
             url = document.location.origin+`/breeders/download_gbs_action/?ids=${accession_ids.join(",")}&protocol_id=${protocol_id}&format=accession_ids&chromosome_number=${chromosome_number}&start_position=${start_position}&end_position=${end_position}&trial_ids=${trial_ids.join(",")}&download_format=${download_format}&compute_from_parents=${compute_from_parents}&marker_set_list_id=${marker_set_list_id}`;

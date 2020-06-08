@@ -62,9 +62,10 @@ print "<div id=\"step2\">";
 } elsif ($function eq "valid") {
     print "content-type: text/csv \n\n";
     print "Id,Trial\n";
-    print "80,2019_hapmap\n";
-    print "80,1kEC_genotype01222019\n";
-    print "81,2017_WheatCAP\n";
+    print "87,SeqCap_KSU_tabix\n";
+    print "8123,2019_hapmap\n";
+    print "8124,1kEC_genotype01222019\n";
+    print "8125,2017_WheatCAP\n";
 } elsif ($function eq "download") {
     my $filename = $cgi->param('filename');
     my $trial = $cgi->param('trial') . ".tsv";
