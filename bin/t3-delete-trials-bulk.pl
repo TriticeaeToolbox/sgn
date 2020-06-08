@@ -27,11 +27,21 @@ my $dbh = CXGN::DB::Connection->new( { dbhost=>$dbhost,
 	}	
 );
 
-my $filename = '/home/production/public/trial_list.txt';
-open(my $fh, $filename) or die "Could not open file '$filename'";
+my $dir;
+opendir($dir, "/home/production/public/upload_pheno") or die "Cannot open directory $dir";
+#my $filename = '/home/production/public/trials_to_delete.csv';
+#open(my $fh, $filename) or die "Could not open file '$filename'";
 
-while (my $trial_name = <$fh>) {
-    chomp $trial_name;
+my $trial_name;
+#while (my $trial_name = <$fh>) {
+while (readdir $dir) {
+    #my @fields = split ",", $line;
+    #my $trial_name = $fields[1];
+    #chomp $trial_name;
+    if (/([^\.]+)\.([a-z]+)/) {
+	$trial_name = $1;
+	$ext = $2;
+	if ($ext eq "xls") {
     my $q = "SELECT project_id from project where name = '$trial_name'";
     my $h = $dbh->prepare($q);
     $h->execute();
@@ -39,8 +49,10 @@ while (my $trial_name = <$fh>) {
     if ($trial_id) {
         $cmd = 'perl t3_delete_trials.pl -H breedbase_db -D cxgn_triticum -P ' . $dbpass . ' -U postgres -i ' . $trial_id . ' -b /home/production/archive';
 	print STDERR "$trial_name $cmd\n";
-       system($cmd);
+	system($cmd);
    } else {
        print STDERR "Trial name $trial_name not valid\n";
+   }
+   }
    }
 }

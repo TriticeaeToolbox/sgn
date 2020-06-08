@@ -98,10 +98,6 @@ elsif (!$opt_j && !$opt_h && (!$opt_H || !$opt_U || !$opt_D || !$opt_c || !$opt_
     pod2usage(-verbose => 2, -message => "Must provide options -H (hostname), -D (database name), -U (database username), -c VCF file type (transposedVCF or VCF), -i (input file), -r (archive path), -p (project name), -y (project year), -l (location name of project), -m (protocol name), -k (protocol description), -q (organism species), -u (database username), -f (reference genome name), -d (project description), -b (observation unit type name), -n (genotype facility name), -e (breeding program name), -B (temp file where SQL COPY is written. make sure this is a fresh file between loadings.)\n");
 }
 
-if ($opt_c eq 'transposedVCF') {
-    unlink($opt_B);
-    print STDERR "remove old $opt_B\n";
-}
 if ($opt_c ne 'transposedVCF' && $opt_c ne 'VCF') {
     die "Not a valid option c\n";
 }

@@ -132,13 +132,13 @@ my $metadata_file_type = "spreadsheet csv phenotype file";
 my $upload = $opt_i;
 my $data_level = $opt_d;
 my $filename_phenotype = "";
-if ($data_level eq "plant") {
+#if ($data_level eq "plant") {
     $filename_phenotype = $upload . $trial_name . "_results.xls";
-} elsif ($data_level eq "plot") {
+#} elsif ($data_level eq "plot") {
     $filename_phenotype = $upload . $trial_name . "_plot.xls";
-} else {
-    die "Illegal value $data_level\n";
-}
+#} else {
+#    die "Illegal value $data_level\n";
+#}
 print STDERR "using $filename_phenotype\n";
 
 my $time = DateTime->now();
