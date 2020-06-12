@@ -324,6 +324,13 @@ my $breeding_programs_select = simple_selectbox_html(
 
 </div>
 
+
+<style>
+  #submit_stock_search {
+    min-width: 150px
+  }
+</style>
+
 <script>
 
 var stock_table;
@@ -452,6 +459,8 @@ jQuery(document).ready(function () {
 
    jQuery('#submit_stock_search').click( function() {
         //stock_table.search("stock_search_results").draw();
+        jQuery("#submit_stock_search").attr('disabled', true);
+        jQuery("#submit_stock_search").html("Searching...")
         _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
    });
 
@@ -647,6 +656,10 @@ function _load_stock_search_results(stock_type, editable_stockprops_search, stoc
               d.extra_stockprop_columns_view = JSON.stringify(stockprop_extra_columns_view);
               d.stockprop_extra_columns_view_array = JSON.stringify(stockprop_extra_columns_view_array);
               d.selected_loci = JSON.stringify(Object.values(selected_loci));
+            },
+            'complete': function() {
+              jQuery("#submit_stock_search").attr('disabled', false);
+              jQuery("#submit_stock_search").html("Search");
             }
         }
     });
