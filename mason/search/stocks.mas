@@ -51,95 +51,196 @@ my $breeding_programs_select = simple_selectbox_html(
 
 </%perl>
 
-<&| /page/info_section.mas, title => 'Search', collapsible=>1, collapsed=>0 &>
+<div id="stock_search_form" class="well well-sm">
 
-  <div id="stock_search_form" class="well well-sm">
+  <&| /page/info_section.mas, title => 'Name Search', collapsible=>1, collapsed=>0 &>
 
-    <&| /page/info_section.mas, title => 'Name Search', collapsible=>1, collapsed=>0 &>
-
-    <div class="row">
-      <div class="col-sm-11">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Stock Name or Description: </label>
-          <div class="col-sm-9" >
-            <div class="form-group form-group-sm">
-              <div class="input-group">
-                <span class="input-group-btn" width="20%">
-                  <select class="form-control" id="any_name_matchtype" name="any_name_matchtype">
-                    <option title="contains" value="contains" selected="selected">contains</option>
-                    <option title="starts with" value="starts_with">starts with</option>
-                    <option title="ends with" value="ends_with">ends with</option>
-                    <option title="exactly" value="exactly">exactly</option>
-                  </select>
-                </span>
-                  <span class="input-group-btn">
-                  <input class="form-control" name="any_name" id="any_name" value="" size="30" type="text" placeholder="Type search here..."/>
-                </span>
-              </div>
+  <div class="row">
+    <div class="col-sm-11">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Stock Name or Description: </label>
+        <div class="col-sm-9" >
+          <div class="form-group form-group-sm">
+            <div class="input-group">
+              <span class="input-group-btn" width="20%">
+                <select class="form-control" id="any_name_matchtype" name="any_name_matchtype">
+                  <option title="contains" value="contains" selected="selected">contains</option>
+                  <option title="starts with" value="starts_with">starts with</option>
+                  <option title="ends with" value="ends_with">ends with</option>
+                  <option title="exactly" value="exactly">exactly</option>
+                </select>
+              </span>
+                <span class="input-group-btn">
+                <input class="form-control" name="any_name" id="any_name" value="" size="30" type="text" placeholder="Type search here..."/>
+              </span>
             </div>
-            <div class="form-group form-group-sm">
-              <label class="col-sm-3 control-label">Stock Type: </label>
-              <div class="col-sm-9" >
-                <% $stock_type_select %>
-              </div>
+          </div>
+          <div class="form-group form-group-sm">
+            <label class="col-sm-3 control-label">Stock Type: </label>
+            <div class="col-sm-9" >
+              <% $stock_type_select %>
             </div>
           </div>
         </div>
       </div>
     </div>
-    </&>
+  </div>
+  </&>
 
-    <&| /page/info_section.mas, title => 'Advanced Search', collapsible=>1, collapsed=>1 &>
+  <&| /page/info_section.mas, title => 'Advanced Search', collapsible=>1, collapsed=>1 &>
 
-    <&| /page/info_section.mas, title => 'Properties', collapsible=>1, collapsed=>1 &>
+  <&| /page/info_section.mas, title => 'Properties', collapsible=>1, collapsed=>1 &>
 
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Organism: </label>
-          <div class="col-sm-9" >
-            <% $organism_select %>
-          </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Organism: </label>
+        <div class="col-sm-9" >
+          <% $organism_select %>
         </div>
       </div>
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Stock Owner: </label>
-          <div class="col-sm-9" >
-            <input type="text" class="form-control" id="person" placeholder="Type to Autocomplete"/>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Stock Owner: </label>
+        <div class="col-sm-9" >
+          <input type="text" class="form-control" id="person" placeholder="Type to Autocomplete"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <br/>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-4 control-label">Organization: </label>
+        <div class="col-sm-8" >
+          <input type="text" class="form-control" id="organization" placeholder="Type to Autocomplete"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr>
+  <div class="row">
+    <div class="col-sm-11">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Search By Another Property: </label>
+        <div class="col-sm-9" >
+          <div class="form-group">
+            <div class="input-group">
+              <span class="input-group-btn">
+                <select class="form-control" id="editable_stockprop_search_term" name="editable_stockprop_search_term">
+%  foreach my $stockprop (@$editable_stock_props){
+                  <option title="<% $stockprop %>" value="<% $stockprop %>" ><% $stockprop %></option>
+%  }
+                </select>
+              </span>
+                <span class="input-group-btn">
+                  <button class="btn btn-primary btn-sm" id="editable_stockprop_search_add">Add</button>
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <br/>
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-4 control-label">Organization: </label>
-          <div class="col-sm-8" >
-            <input type="text" class="form-control" id="organization" placeholder="Type to Autocomplete"/>
-          </div>
+  </div>
+
+  <div id="editable_stockprop_search_div">
+  </div>
+
+  </&>
+  <&| /page/info_section.mas, title => 'Usage', collapsible=>1, collapsed=>1 &>
+
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Project Name: </label>
+        <div class="col-sm-9" >
+          <input type="text" class="form-control" id="project" placeholder="Type to Autocomplete"/>
         </div>
       </div>
     </div>
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Project Location: </label>
+        <div class="col-sm-9" >
+          <input type="text" class="form-control" id="location" placeholder="Type to Autocomplete"/>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Project Year: </label>
+        <div class="col-sm-9" >
+          <input type="text" class="form-control" id="year" placeholder="Type to Autocomplete"/>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Breeding Program: </label>
+        <div class="col-sm-9" >
+          <% $breeding_programs_select %>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <hr>
+  </&>
+  <&| /page/info_section.mas, title => 'Phenotypes', collapsible=>1, collapsed=>1 &>
+
+  <div class="row">
+      <div class="col-sm-6">
+        <div class="form-group form-group-sm">
+          <label class="col-sm-3 control-label">Trait: </label>
+          <div class="col-sm-9" >
+            <input type="text" class="form-control" id="trait" placeholder="Type to Autocomplete"/>
+          </div>
+        </div>
+      </div>
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Minimum Trait Value: </label>
+        <div class="col-sm-9" >
+          <input type="text" class="form-control" id="minimum_trait_value" />
+        </div>
+      </div>
+    </div>
+    </div>
+    <div class="row">
+    <div class="col-sm-6">
+      <div class="form-group form-group-sm">
+        <label class="col-sm-3 control-label">Maximum Trait Value: </label>
+        <div class="col-sm-9" >
+          <input type="text" class="form-control" id="maximum_trait_value" />
+        </div>
+      </div>
+    </div>
+  </div>
+  </&>
+
+  <&| /page/info_section.mas, title => 'Genotypes', collapsible=>1, collapsed=>1 &>
     <div class="row">
       <div class="col-sm-11">
         <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Search By Another Property: </label>
-          <div class="col-sm-9" >
+          <label class="col-sm-4 control-label"><br />Search By Locus Allele Value: </label>
+          <div class="col-sm-8">
+            <p><strong>Select Locus:</strong></p>
             <div class="form-group">
               <div class="input-group">
                 <span class="input-group-btn">
-                  <select class="form-control" id="editable_stockprop_search_term" name="editable_stockprop_search_term">
-%  foreach my $stockprop (@$editable_stock_props){
-                    <option title="<% $stockprop %>" value="<% $stockprop %>" ><% $stockprop %></option>
+                  <select class="form-control" id="locus_search_term">
+% foreach my $l (@$loci) {
+% my %locus = %$l;
+<option title="<% $locus{'name'} %>" value="<% $locus{'id'} %>" ><% $locus{'name'} %></option>
 %  }
                   </select>
                 </span>
-                  <span class="input-group-btn">
-                    <button class="btn btn-primary btn-sm" id="editable_stockprop_search_add">Add</button>
+                <span class="input-group-btn">
+                  <button class="btn btn-primary btn-sm" id="locus_search_add">Add</button>
                 </span>
               </div>
             </div>
@@ -147,126 +248,18 @@ my $breeding_programs_select = simple_selectbox_html(
         </div>
       </div>
     </div>
-
-    <div id="editable_stockprop_search_div">
+    <div id="selected_loci">
     </div>
-
-    </&>
-    <&| /page/info_section.mas, title => 'Usage', collapsible=>1, collapsed=>1 &>
-
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Project Name: </label>
-          <div class="col-sm-9" >
-            <input type="text" class="form-control" id="project" placeholder="Type to Autocomplete"/>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Project Location: </label>
-          <div class="col-sm-9" >
-            <input type="text" class="form-control" id="location" placeholder="Type to Autocomplete"/>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Project Year: </label>
-          <div class="col-sm-9" >
-            <input type="text" class="form-control" id="year" placeholder="Type to Autocomplete"/>
-          </div>
-        </div>
-      </div>
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Breeding Program: </label>
-          <div class="col-sm-9" >
-            <% $breeding_programs_select %>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    </&>
-    <&| /page/info_section.mas, title => 'Phenotypes', collapsible=>1, collapsed=>1 &>
-
-    <div class="row">
-        <div class="col-sm-6">
-          <div class="form-group form-group-sm">
-            <label class="col-sm-3 control-label">Trait: </label>
-            <div class="col-sm-9" >
-              <input type="text" class="form-control" id="trait" placeholder="Type to Autocomplete"/>
-            </div>
-          </div>
-        </div>
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Minimum Trait Value: </label>
-          <div class="col-sm-9" >
-            <input type="text" class="form-control" id="minimum_trait_value" />
-          </div>
-        </div>
-      </div>
-      </div>
-      <div class="row">
-      <div class="col-sm-6">
-        <div class="form-group form-group-sm">
-          <label class="col-sm-3 control-label">Maximum Trait Value: </label>
-          <div class="col-sm-9" >
-            <input type="text" class="form-control" id="maximum_trait_value" />
-          </div>
-        </div>
-      </div>
-    </div>
-    </&>
-
-    <&| /page/info_section.mas, title => 'Genotypes', collapsible=>1, collapsed=>1 &>
-      <div class="row">
-        <div class="col-sm-11">
-          <div class="form-group form-group-sm">
-            <label class="col-sm-4 control-label"><br />Search By Locus Allele Value: </label>
-            <div class="col-sm-8">
-              <p><strong>Select Locus:</strong></p>
-              <div class="form-group">
-                <div class="input-group">
-                  <span class="input-group-btn">
-                    <select class="form-control" id="locus_search_term">
-% foreach my $l (@$loci) {
-% my %locus = %$l;
-  <option title="<% $locus{'name'} %>" value="<% $locus{'id'} %>" ><% $locus{'name'} %></option>
-%  }
-                    </select>
-                  </span>
-                  <span class="input-group-btn">
-                    <button class="btn btn-primary btn-sm" id="locus_search_add">Add</button>
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div id="selected_loci">
-      </div>
-    </div>
-    </&>
-
-    </&> <!-- closes advanced search -->
-
-    <center>
-    <button class="btn btn-primary" id="submit_stock_search" />Search</button>
-    </center>
-    <br/><br/>
   </div>
-</&>
+  </&>
 
-<br />
+  </&> <!-- closes advanced search -->
 
-<&| /page/info_section.mas, title => 'Search Results', collapsible=>1, collapsed=>0 &>
+  <center>
+  <button class="btn btn-primary" id="submit_stock_search" />Search</button>
+  </center>
+  <br/><br/>
+</div>
 
 <div class="well well-sm">
 
@@ -325,8 +318,6 @@ my $breeding_programs_select = simple_selectbox_html(
     </div>
 
 </div>
-
-</&>
 
 <& /page/detail_page_2_col_section.mas, info_section_title => "<h4 style='display:inline'>Graphical Filtering on Phenotype Performance</h4>", info_section_subtitle => 'Graphically filter an accessions average performance for combinations of traits', icon_class => "glyphicon glyphicon-equalizer", info_section_id => "stocks_search_graphical_filtering" &>
 
