@@ -316,20 +316,20 @@ sub get_location_noaa_station_id {
 sub get_breeding_programs {
     my $self = shift;
 
+    my $breeding_program_trial_relationship_cvterm_id = $self->get_breeding_program_trial_relationship_cvterm_id(),
     my $breeding_program_cvterm_id = $self->get_breeding_program_cvterm_id();
 
-    my $trial_rs= $self->bcs_schema->resultset('Project::ProjectRelationship')->search( { 'subject_project_id' => $self->get_trial_id() } );
-
+    my $trial_rs= $self->bcs_schema->resultset('Project::ProjectRelationship')->search( { 'subject_project_id' => $self->get_trial_id(), 'type_id' => $breeding_program_trial_relationship_cvterm_id } );
     my $trial_row = $trial_rs -> first();
+
     my $rs;
     my @projects;
 
     if ($trial_row) {
-	$rs = $self->bcs_schema->resultset('Project::Project')->search( { 'me.project_id' => $trial_row->object_project_id(), 'projectprops.type_id'=>$breeding_program_cvterm_id }, { join => 'projectprops' }  );
-
-	while (my $row = $rs->next()) {
-	    push @projects, [ $row->project_id, $row->name, $row->description ];
-	}
+        $rs = $self->bcs_schema->resultset('Project::Project')->search( { 'me.project_id' => $trial_row->object_project_id(), 'projectprops.type_id'=>$breeding_program_cvterm_id }, { join => 'projectprops' }  );
+        while (my $row = $rs->next()) {
+            push @projects, [ $row->project_id, $row->name, $row->description ];
+        }
     }
     return  \@projects;
 }
