@@ -84,10 +84,15 @@ generateLSMeansTable <- function(data, tableReportParams) {
     # Get the means for each accession
     lsmeans_trait <- c()
     for ( accession in sorted_accessions ) {
-      for ( j in c(1:length(accessions)) ) {
-        if ( accessions[j] == accession ) {
-          lsmeans_trait <- c(lsmeans_trait, means[j])
+      if ( accession %in% accessions ) {
+        for ( j in c(1:length(accessions)) ) {
+          if ( accessions[j] == accession ) {
+            lsmeans_trait <- c(lsmeans_trait, means[j])
+          }
         }
+      }
+      else {
+        lsmeans_trait <- c(lsmeans_trait, NA)
       }
     }
 
