@@ -27,7 +27,7 @@
 summarizeTrialsAndTraits <- function(src, out) {
 
   # Read the data
-  data <- read.csv(src, stringsAsFactors = FALSE)
+  data <- read.csv(src, stringsAsFactors = TRUE)
 
   # Compute the LSMeans
   tableReportParams <- computeLSMeans(data)
@@ -67,7 +67,7 @@ generateLSMeansTable <- function(data, tableReportParams) {
 
   # Get traits and accessions from data
   traits <- unique(data$trait)
-  sorted_accessions <- sort(unique(data$accession))
+  sorted_accessions <- sort(unique(levels(data$accession)))
 
   # Setup the LS Means and metadata tables
   lsmeans <- data.frame(accession=sorted_accessions)
@@ -80,26 +80,45 @@ generateLSMeansTable <- function(data, tableReportParams) {
     means <- tableReportParams[,i]$lsmeans
     lsd <- tableReportParams[,i]$leastSigDiff
     hsd <- tableReportParams[,i]$tukeysHSD
+
+    # Set Trait Code and get Trait Name
+    trait_code <- paste0("trait_", i)
+    trait_name <- traits[i]
+
+    # Single trials won't have lsd and hsd...
+    if ( rlang::is_empty(lsd) ) {
+      lsd <- NA
+    }
+    if ( rlang::is_empty(hsd) ) {
+      hsd <- NA
+    }
     
     # Get the means for each accession
     lsmeans_trait <- c()
-    for ( accession in sorted_accessions ) {
-      if ( accession %in% accessions ) {
-        for ( j in c(1:length(accessions)) ) {
-          if ( accessions[j] == accession ) {
-            lsmeans_trait <- c(lsmeans_trait, means[j])
+    if ( !is.null(means) ) {
+      for ( accession in sorted_accessions ) {
+        if ( accession %in% accessions ) {
+          for ( j in c(1:length(accessions)) ) {
+            if ( accessions[j] == accession ) {
+              lsmeans_trait <- c(lsmeans_trait, means[j])
+            }
           }
         }
+        else {
+          lsmeans_trait <- c(lsmeans_trait, NA)
+        }
       }
-      else {
-        lsmeans_trait <- c(lsmeans_trait, NA)
+    }
+    else {
+      for ( accession in sorted_accessions ) {
+        acc_trait_data <- data[which(data$trait == trait_name & data$accession == accession),]
+        acc_trait_mean <- mean(acc_trait_data$value)
+        lsmeans_trait <- c(lsmeans_trait, acc_trait_mean)
       }
     }
 
     # Add the trait means to the table
-    trait_code <- paste0("trait_", i)
-    trait_name <- traits[i]
-    lsmeans[[trait_name]] <- lsmeans_trait
+    lsmeans[[trait_code]] <- lsmeans_trait
 
     # Build the metadata table
     md_row <- data.frame(trait_code = trait_code, trait_name = trait_name, lsd = lsd, hsd = hsd)
@@ -133,7 +152,7 @@ generateTraitSummaries <- function(data, tableReportParams) {
 
   # Get traits and accessions from data
   traits <- unique(data$trait)
-  sorted_accessions <- sort(unique(data$accession))
+  sorted_accessions <- sort(unique(levels(data$accession)))
 
   # List of trait summary info
   trait_summary_info <- list()
@@ -147,6 +166,20 @@ generateTraitSummaries <- function(data, tableReportParams) {
     traitData <- tableReportParams[,i]$fitLM$model
     lsd <- tableReportParams[,i]$leastSigDiff
     hsd <- tableReportParams[,i]$tukeysHSD
+
+    # Get trait data from original data if not provided by model (only one trial)
+    if ( is.null(traitData) ) {
+      traitData <- data[which(data$trait == trait_name),]
+      names(traitData)[which(names(traitData) == "accession")] = "lineName"
+    }
+
+    # Single trials won't have lsd and hsd...
+    if ( rlang::is_empty(lsd) ) {
+      lsd <- NA
+    }
+    if ( rlang::is_empty(hsd) ) {
+      hsd <- NA
+    }
 
     # Setup trait summary and metadata tables
     trait_summary <- data.frame(accession=c(sorted_accessions, "Trial Mean"))

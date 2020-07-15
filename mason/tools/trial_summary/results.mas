@@ -120,13 +120,21 @@
     html += "<tr>";
     html += "<td>LSD</td>";
     for ( let i = 0; i < trait_info.length; i++ ) {
-      html += "<td>" + parseFloat(trait_info[i].lsd).toFixed(2) + "</td>";
+      let value = "--";
+      if ( trait_info[i].lsd !== "NA" ) {
+        value = parseFloat(trait_info[i].lsd).toFixed(2);
+      }
+      html += "<td>" + value + "</td>";
     }
     html += "</tr>";
     html += "<tr>";
     html += "<td>HSD</td>";
     for ( let i = 0; i < trait_info.length; i++ ) {
-      html += "<td>" + parseFloat(trait_info[i].hsd).toFixed(2) + "</td>";
+      let value = "--";
+      if ( trait_info[i].lsd !== "NA" ) {
+        value = parseFloat(trait_info[i].hsd).toFixed(2);
+      }
+      html += "<td>" + value + "</td>";
     }
     html += "</tr>";
     html += "</tfoot>";
@@ -171,7 +179,7 @@
     for ( let i = 0; i < trait_info.length; i++ ) {
       lsmeans_columns.push({
         data: function(row, type, val, meta) {
-          let rtn = row[trait_info[i].trait_name];
+          let rtn = row[trait_info[i].trait_code];
           return parseFloat(rtn).toFixed(2)
         }
       });
