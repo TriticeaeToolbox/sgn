@@ -40,7 +40,7 @@ $dataset_id => undef
           <span class="wizard-loader glyphicon glyphicon-refresh" aria-hidden="true"></span>
           
           <div class="panel-heading">
-            <select class="wizard-type-select form-control input-sm form-inline">
+            <select class="wizard-type-select form-control input-sm form-inline" id="wizard-type-select-col1">
               <option value="" disabled selected>Select Column Type</option>
               <optgroup class="wizard-types-group" label="--------------------"></optgroup>
               <optgroup class="wizard-lists-group" label="Load Selection from List:"></optgroup>
@@ -431,6 +431,23 @@ $dataset_id => undef
 
   d3.select("#update_wizard_lists").on('click',function(){
     window.sWizard.reload_lists();
+  });
+
+
+  // On Page Ready: load a pre-defined list into the first column by id, if provided as `list` query param
+  jQuery(document).ready(function() {
+    let urlParams = new URLSearchParams(window.location.search);
+    if ( urlParams.has('list') ) {
+      let listId = urlParams.get('list');
+      let listValue = "__LIST__" + listId;
+      jQuery('#wizard-type-select-col1 option').each(function() {
+        let opt = jQuery(this);
+        if ( opt.val() == listValue ) {
+          jQuery("#wizard-type-select-col1").val(opt.val());
+          window.sWizard.wizard.initial_list(listId);
+        }
+      });
+    }
   });
 
 

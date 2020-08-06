@@ -610,7 +610,13 @@ export function Wizard(main_id,col_number){
      * @param  {Array.<string>} types list of types availible in the first column
      * @returns {this}  
      */
-    initial_types: function(types){set_inital_types(types); return wizard}
+    initial_types: function(types){set_inital_types(types); return wizard},
+
+    /**
+     * Populate the first column of the wizard with a pre-defined list
+     * @param {int} listID List ID to populate
+     */
+    initial_list: function(listID) { setColumnFromList(0, listID); return wizard}
   };
   return wizard
 }
