@@ -8,6 +8,18 @@ function update_side()
     });
 }
 
+function getChromFile() {
+    var gexp = document.getElementById("trial").value;
+    var start = document.getElementById("start").value;
+    var stop = document.getElementById("stop").value;
+    var url = php_self + "?function=readChrom&trial=" + gexp;
+    $(document).ready(function(){
+    jQuery.get(url, function( data ) {
+        jQuery("#step1").html( data );
+    });
+});
+}
+
 function select_chrom() {
     var gexp = document.getElementById("trial").value;
     var chrom = document.getElementById("chrom").value;
@@ -16,6 +28,8 @@ function select_chrom() {
     var url = php_self + "?function=query&trial=" + gexp + "&chrom=" + chrom + "&start=" + start + "&stop=" + stop;
     jQuery.get(url, function( data ) {
         jQuery("#step2").html( data );
+    }).fail(function() {
+	alert('Error slecting chrmosome');
     });
 }
 

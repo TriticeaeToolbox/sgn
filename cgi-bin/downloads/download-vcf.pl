@@ -1,3 +1,8 @@
+
+# allows download of large VCF files
+# input files should be gziped and indexed with tabix
+# also requires a file with valid index values
+
 use strict;
 use warnings;
 
@@ -35,22 +40,22 @@ my $option3 = "all_filtered_snps_allaccessions_allploidy_snpeff";
 my $option4 = "2019_hapmap";
 
 print "<table>";
-print "<tr><td>Genotype trial:<td><select id=trial>";
-print "<option value=$option1> 2019_Diversity_GBS</option>\n";
-print "<option value=$option2> 2019_Diversity_GBS filtered</option>\n";
+print "<tr><td>Genotype trial:<td><select id=trial onchange=\"getChromFile()\">";
+print "<option value=$option1>2019_Diversity_GBS</option>\n";
+print "<option value=$option2>2019_Diversity_GBS filtered</option>\n";
 print "<option value=$option3>2017_WheatCAP_UCD</option>\n";
 print "<option value=$option4>2019_HapMap</option>";
 print "</select>\n";
-print "<tr><td>Chromosome:<td><select id=chrom>";
+print "<tr><td>Chromosome:<td><div id=\"step1\"><select id=chrom>";
 print "<option>select</option>";
-my $file_chr = "1kEC_chromosomes.txt";
+my $file_chr = "/home/production/genotype_files/1kEC_genotype01222019.txt";
 open(IN, $file_chr);
 while (<IN>) {
     chomp;
     print "<option value=$_>$_</option>\n";
 }
 close(IN);
-print "</select>";
+print "</select></div>";
 print "<tr><td>Start:<td><input type=\"text\" id=\"start\" value=\"$start\"><td>$min\n";
 print "<tr><td>Stop:<td><input type=\"text\" id=\"stop\" value=\"$stop\"><td>$max\n";
 print "<tr><td><input type=\"button\" value=\"Query\" onclick=\"select_chrom()\"/>";
@@ -76,6 +81,16 @@ print "<div id=\"step2\">";
 	print "$_";
     }
     close(IN);
+} elsif ($function eq "readChrom") {
+    my $file_chr = "/home/production/genotype_files/" . $cgi->param('trial') . ".txt";
+    open(IN, $file_chr) or print STDERR  "Error: $file_chr not found\n";
+    print "<select id=chrom>";
+    while (<IN>) {
+        chomp;
+        print "<option value=$_>$_</option>\n";
+    }
+    close(IN);
+    print "</select>";
 } else {
     my $trial = $cgi->param('trial'); 
     my $chrom = $cgi->param('chrom');
@@ -111,7 +126,16 @@ print "<div id=\"step2\">";
         }
         close(IN);
     }
-    if ($errorLog ne "") {
+    if (-e $filename1) {
+	open(IN, $filename1);
+        while (<IN>) {
+            if (!/^#/) {
+                $count++;
+            }
+        }
+        close(IN);
+    }
+    if (($errorLog ne "") && ($count != 0)) {
         print "Content-type: text/plain\n";
         print "Content-Disposition: attachment; filename=\"$trial\"\n";
         print "$errorLog\n";
@@ -126,23 +150,15 @@ print "<div id=\"step2\">";
         }
         close(IN);
     } else {
-      if (-e $filename1) {
-          open(IN, $filename1);
-          while (<IN>) {
-              if (!/^#/) {
-                  $count++;
-              }
-          }
-          close(IN);
-      }
       if ($count > 0) {
           #print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:window.open('$filename1')\">";
-          print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\">";
+          print "<br><input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\">";
       } else {
-          print "Error: no results from $chrom:$start-$stop<br>\n";
-          print "$cmd\n";
+          print "<br><input type=\"button\" value=\"Error: no results from $chrom:$start-$stop\">";
+	  #print "$cmd\n";
       }
     }
 }
+print "</div>";
 
 #$page->footer();
