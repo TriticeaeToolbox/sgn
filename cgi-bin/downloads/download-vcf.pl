@@ -31,8 +31,7 @@ if (!$function) {
 print "<h2>Download Genotype Data</h2>\n";
 print "This tool allows you to quickly download a portion of a genotype experiment.<br>\n";
 print "Select a genotype experiment, chromosome, and range.<br>\n";
-print "The output format is Variant Call Format (VCF) and can be viewed in TASSEL.<br>\n";
-print "<a href=genotyping/PassportData_160809.xlsx>Passport MetaData</a><br><br>\n";
+print "The output format is Variant Call Format (VCF) and can be viewed in TASSEL.<br><br>\n";
 
 my $option1 = "1kEC_genotype01222019";
 my $option2 = "1kEC_genotype01222019f";
@@ -83,6 +82,7 @@ print "<div id=\"step2\">";
     close(IN);
 } elsif ($function eq "readChrom") {
     my $file_chr = "/home/production/genotype_files/" . $cgi->param('trial') . ".txt";
+    my $file_pas = "/home/production/genotype_files/" . $cgi->param('trial') . ".passport.xlsx";
     open(IN, $file_chr) or print STDERR  "Error: $file_chr not found\n";
     print "<select id=chrom>";
     while (<IN>) {
@@ -91,6 +91,9 @@ print "<div id=\"step2\">";
     }
     close(IN);
     print "</select>";
+    if (-e $file_pas) {
+        print "<tr><td><input type=\"button\" value=\"Download Passport Data\" onclick\"javascript:output_file($file_pas)','$trial')\">";
+    }	
 } else {
     my $trial = $cgi->param('trial'); 
     my $chrom = $cgi->param('chrom');
