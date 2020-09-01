@@ -29,7 +29,7 @@ function select_chrom() {
     jQuery.get(url, function( data ) {
         jQuery("#step2").html( data );
     }).fail(function() {
-	alert('Error slecting chrmosome');
+	alert('Error: Please select chromosome');
     });
 }
 
