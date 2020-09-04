@@ -73,16 +73,15 @@ print "<div id=\"step2\">";
 } elsif ($function eq "download") {
     my $filename = $cgi->param('filename');
     my $trial = $cgi->param('trial') . ".tsv";
-    open(IN, $filename);
+    open(IN, $filename) or print STDERR "Error: $filename not found\n";;
     print "Content-type: application/vnd.ms-excel\n";
-    print "Content-Disposition: attachment; filename=\"$trial\"\n";
+    print "Content-Disposition: attachment; filename=\"$filename\"\n";
     while (<IN>) {
 	print "$_";
     }
     close(IN);
 } elsif ($function eq "readChrom") {
     my $file_chr = "/home/production/genotype_files/" . $cgi->param('trial') . ".txt";
-    my $file_pas = "/home/production/genotype_files/" . $cgi->param('trial') . ".passport.xlsx";
     open(IN, $file_chr) or print STDERR  "Error: $file_chr not found\n";
     print "<select id=chrom>";
     while (<IN>) {
@@ -91,13 +90,11 @@ print "<div id=\"step2\">";
     }
     close(IN);
     print "</select>";
-    if (-e $file_pas) {
-        print "<tr><td><input type=\"button\" value=\"Download Passport Data\" onclick\"javascript:output_file($file_pas)','$trial')\">";
-    }	
 } else {
     my $trial = $cgi->param('trial'); 
     my $chrom = $cgi->param('chrom');
     my $file = "/home/production/genotype_files/" . $trial . ".vcf.gz";
+    my $file_pas = "/home/production/genotype_files/" . $cgi->param('trial') . ".passport.xls";
     my $unique_str = int(rand(10000000));
     my $dir = "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org/download_" . $unique_str;
     if ( !-d "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org") {
@@ -155,11 +152,15 @@ print "<div id=\"step2\">";
     } else {
       if ($count > 0) {
           #print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:window.open('$filename1')\">";
-          print "<br><input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\">";
+          print "<br><input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\"><br>";
       } else {
-          print "<br><input type=\"button\" value=\"Error: no results from $chrom:$start-$stop\">";
+          print "<br><input type=\"button\" value=\"Error: no results from $chrom:$start-$stop\"><br>";
 	  #print "$cmd\n";
       }
+      if (-e $file_pas) {
+        print "<br><input type=\"button\" value=\"Download Passport Data\" onclick=\"javascript:output_file('$file_pas','PassportData.xls')\">";
+      }
+
     }
 }
 print "</div>";
