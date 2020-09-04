@@ -17,6 +17,7 @@ function getChromFile() {
     jQuery.get(url, function( data ) {
         jQuery("#step1").html( data );
     });
+    document.getElementById('step2').innerHTML = "";
 });
 }
 
