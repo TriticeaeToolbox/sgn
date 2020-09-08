@@ -277,7 +277,7 @@ sub get_gwas {
     my @all_marker_objects = values %$markers;
 
     no warnings 'uninitialized';
-    @all_marker_objects = sort { $a->{chrom} <=> $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
+    @all_marker_objects = sort { $a->{chrom} cmp $b->{chrom} || $a->{pos} <=> $b->{pos} || $a->{name} cmp $b->{name} } @all_marker_objects;
 
     my @individuals_stock_ids;
     my @all_individual_accessions_stock_ids;
