@@ -77,7 +77,7 @@ my $advanced_search=  info_table_html(
       <br/>
       <ul class="list-inline" >
         <li style="padding-bottom:5px"><button class="btn btn-primary" id="submit_locus_search" />Search</button></li>
-	<li style="padding-bottom:5px"><a class="btn btn-info" href="/locus/0/new/" style="color:#fff" >Submit New Locus</a></li>
+	<!-- <li style="padding-bottom:5px"><a class="btn btn-info" href="/locus/0/new/" style="color:#fff" >Submit New Locus</a></li> -->
 	<li style="padding-bottom:5px"><input class="btn btn-default" type="button" value="Advanced Search Options" id="show_advanced_search" /></li>
       </ul>
     </div>
@@ -140,6 +140,10 @@ jQuery(document).ready(function () {
      'ordering'  : false,
      'processing': true,
      'serverSide': true,
+     'drawCallback': function() {
+        jQuery("#submit_locus_search").html("Search");
+        jQuery("#submit_locus_search").prop("disabled", false);
+     },
      'ajax': { 'url':  '/ajax/search/loci',
                'data': function(d) { 
                   d.any_name  = jQuery('#any_name').val();
@@ -159,22 +163,25 @@ jQuery(document).ready(function () {
 
 
    jQuery('#submit_locus_search').click( function() { 
-         var common_name  = jQuery('#common_name').val(); 
-         var phenotype    = jQuery('#phenotype').val(); 
-         var linkage      = jQuery('#locus_linkage_group').val(); 
-         var ontology     = jQuery('#ontology_term').val(); 
-         var editor       = jQuery('#locus_editor').val(); 
-         var genbank      = jQuery('#genbank_accession').val();
-         var has_sequence     = jQuery('#has_sequence').is(':checked');
-         var has_marker       = jQuery('#has_marker').is(':checked'); 
-         var has_annotation   = jQuery('#has_annotation').is(':checked'); 
+        jQuery("#submit_locus_search").html("Searching...");
+        jQuery("#submit_locus_search").prop("disabled", true);
+
+        var common_name  = jQuery('#common_name').val(); 
+        var phenotype    = jQuery('#phenotype').val(); 
+        var linkage      = jQuery('#locus_linkage_group').val(); 
+        var ontology     = jQuery('#ontology_term').val(); 
+        var editor       = jQuery('#locus_editor').val(); 
+        var genbank      = jQuery('#genbank_accession').val();
+        var has_sequence     = jQuery('#has_sequence').is(':checked');
+        var has_marker       = jQuery('#has_marker').is(':checked'); 
+        var has_annotation   = jQuery('#has_annotation').is(':checked'); 
        
-         if (  phenotype.trim().length  || common_name.length || ontology.trim().length || editor.trim().length || genbank.trim().length || has_sequence || has_marker || has_annotation ) {
-             jQuery('#advanced_search_div').show();
-         } else {
-             jQuery('#advanced_search_div').hide()
-         }
-         table.search("locus_search_results").draw();
+        //  if (  phenotype.trim().length  || common_name.length || ontology.trim().length || editor.trim().length || genbank.trim().length || has_sequence || has_marker || has_annotation ) {
+        //      jQuery('#advanced_search_div').show();
+        //  } else {
+        //      jQuery('#advanced_search_div').hide()
+        //  }
+        table.search("locus_search_results").draw();
    });
   
    jQuery('#locus_search_form').keypress( function( e ) {
@@ -195,24 +202,53 @@ jQuery(document).ready(function () {
    } );
 
 % if ( $filter_onto_accession ) {
-   loadFilterOntology();
+    loadFilterOntology(function() {
+      const filter = new URLSearchParams(window.location.search).get('filter');
+      if ( filter ) {
+        selectFilterCategory(filter);
+      }
+    });
 % }
     
 });
 
 
 /**
- * Load the Genes/Loci filter ontology
- * and build the select box
+ * Select a pre-defined category in the filter ontology
+ * and start the search
+ * @param {string} filter The name of the filter category
  */
-function loadFilterOntology() {
+function selectFilterCategory(filter) {
+  jQuery('#filter-ontology-select option[value="' + filter + '"]').prop("selected", true);
+  onFilterSelectChange();
+}
+
+
+
+/**
+ * Filter Select change listener
+ * Update the ontology term with the selected category accession
+ */
+function onFilterSelectChange() {
+  let accession = jQuery("#filter-ontology option:selected").val();
+  jQuery("#ontology_term").val(accession);
+  jQuery('#submit_locus_search').click();
+}
+
+
+
+/**
+ * Load the Genes/Loci filter ontology and build the select box
+ * @param {Function} callback Callback function()
+ */
+function loadFilterOntology(callback) {
   getOntologyChildren(
     {
       accession: "<% $filter_onto_accession %>",
       name: "<% $filter_onto_name %>"
     }, 
     function(onto) {
-      buildFilterSelect(onto);
+      buildFilterSelect(onto, callback);
     }
   );
 }
@@ -221,13 +257,10 @@ function loadFilterOntology() {
 /**
  * Build the filter select box with the processed ontology
  * @param  {Object} onto Processed filter ontology
+ * @param {Function} callback Callback function()
  */
-function buildFilterSelect(onto) {
-  let options = _buildFilterSelectTerm(onto, 0, [{
-    value: '',
-    title: '',
-    disabled: false
-  }]);
+function buildFilterSelect(onto, callback) {
+  let options = _buildFilterSelectTerm(onto, 0, []);
   let html = "<select id='filter-ontology-select' class='form-control'>";
   for ( let i = 0; i < options.length; i++ ) {
     html += "<option value='" + options[i].value + "'";
@@ -238,12 +271,7 @@ function buildFilterSelect(onto) {
 
   jQuery("#filter-ontology").html(html);
   jQuery("#filter-ontology").change(onFilterSelectChange)
-}
-
-
-function onFilterSelectChange() {
-  let accession = jQuery("#filter-ontology option:selected").val();
-  jQuery("#ontology_term").val(accession);
+  return callback();
 }
 
 
@@ -256,18 +284,27 @@ function onFilterSelectChange() {
  * @return {[type]}          Processed options with the current term added
  */
 function _buildFilterSelectTerm(term, level, options) {
-  let value = term.accession;
-  let title = "";
-  for ( let i = 0; i < level; i++ ) {
-    title += "&nbsp;&nbsp;";
+  let value, title;
+
+  if ( level === 0 ) {
+    value = term.accession;
+    title = "--SELECT FILTER CATEGORY--";
   }
-  title += term.name;
+  else {
+    value = term.accession;
+    title = "";
+    for ( let i = 0; i < level; i++ ) {
+      title += "&nbsp;&nbsp;";
+    }
+    title += term.name;
+  }
+  
   let has_children = term.children && term.children.length > 0;
 
   let option = {
     value: value,
     title: title,
-    disabled: has_children
+    disabled: false
   };
 
   options.push(option);
