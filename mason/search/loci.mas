@@ -44,7 +44,7 @@ my $advanced_search=  info_table_html(
 	
       'Phenotype'  => qq|<input class="form-control" type="text" id="phenotype" size="30" /><a href="/search/phenotypes"> [Advanced SGN phenotype search]</a>|,
       'Ontology term' => qq|<input class="form-control" type="text" id="ontology_term" placeholder="Term name or ID: e.g. 'carotenoid' or 'PO:0007010'"/>
-             <!--<br /><span class="ghosted">(Term name or ID: e.g. 'carotenoid' or 'PO:0007010')</span>-->|,
+             <input type="checkbox" id="ontology_term_include_children" />&nbsp;Include children of this ontology term|,
       'Genbank ID' =>qq|<input class="form-control" type="text" id="genbank_accession" placeholder="Accession or GI: e.g. 'EF091820' or '118185006'"/>
              <!--<br /><span class="ghosted">(Accession or GI: e.g. 'EF091820' or '118185006')</span>-->|,   
       __border   =>1,
@@ -152,6 +152,7 @@ jQuery(document).ready(function () {
                   d.phenotype  = jQuery('#phenotype').val(); 
                   d.linkage_group  = jQuery('#locus_linkage_group').val(); 
                   d.ontology_term  = jQuery('#ontology_term').val(); 
+                  d.ontology_term_include_children = jQuery('#ontology_term_include_children').is(':checked');
                   d.locus_editor  = jQuery('#locus_editor').val(); 
                   d.genbank_accession  = jQuery('#genbank_accession').val();
                   d.has_sequence  = jQuery('#has_sequence').is(':checked');
@@ -166,15 +167,15 @@ jQuery(document).ready(function () {
         jQuery("#submit_locus_search").html("Searching...");
         jQuery("#submit_locus_search").prop("disabled", true);
 
-        var common_name  = jQuery('#common_name').val(); 
-        var phenotype    = jQuery('#phenotype').val(); 
-        var linkage      = jQuery('#locus_linkage_group').val(); 
-        var ontology     = jQuery('#ontology_term').val(); 
-        var editor       = jQuery('#locus_editor').val(); 
-        var genbank      = jQuery('#genbank_accession').val();
-        var has_sequence     = jQuery('#has_sequence').is(':checked');
-        var has_marker       = jQuery('#has_marker').is(':checked'); 
-        var has_annotation   = jQuery('#has_annotation').is(':checked'); 
+        // var common_name  = jQuery('#common_name').val(); 
+        // var phenotype    = jQuery('#phenotype').val(); 
+        // var linkage      = jQuery('#locus_linkage_group').val(); 
+        // var ontology     = jQuery('#ontology_term').val(); 
+        // var editor       = jQuery('#locus_editor').val(); 
+        // var genbank      = jQuery('#genbank_accession').val();
+        // var has_sequence     = jQuery('#has_sequence').is(':checked');
+        // var has_marker       = jQuery('#has_marker').is(':checked'); 
+        // var has_annotation   = jQuery('#has_annotation').is(':checked'); 
        
         //  if (  phenotype.trim().length  || common_name.length || ontology.trim().length || editor.trim().length || genbank.trim().length || has_sequence || has_marker || has_annotation ) {
         //      jQuery('#advanced_search_div').show();
@@ -232,6 +233,7 @@ function selectFilterCategory(filter) {
 function onFilterSelectChange() {
   let accession = jQuery("#filter-ontology option:selected").val();
   jQuery("#ontology_term").val(accession);
+  jQuery("#ontology_term_include_children").prop("checked", ( accession && accession !== "" ));
   jQuery('#submit_locus_search').click();
 }
 
@@ -287,7 +289,7 @@ function _buildFilterSelectTerm(term, level, options) {
   let value, title;
 
   if ( level === 0 ) {
-    value = term.accession;
+    value = "";
     title = "--SELECT FILTER CATEGORY--";
   }
   else {

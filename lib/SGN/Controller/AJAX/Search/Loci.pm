@@ -82,23 +82,52 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
     }
 
     if (exists($params->{ontology_term} ) && $params->{ontology_term} ) {
-	my ($db_name, $accession) = split ':' , $params->{ontology_term } ; #this only applies if search input is in XX:NNNNNNN format
-	my $o_rs = $c->dbic_schema("Bio::Chado::Schema")->resultset("Cv::Cvterm")->search(
-	    [
-	     {
-		 'me.name' => { 'ilike' => '%'.$params->{ontology_term}.'%' },
-		 'db.name'     => { -in => ['PO', 'GO', 'SP'] }
-	     },
-	     {
-		 'dbxref.accession' =>  { 'ilike' => '%'.$accession.'%' },
-		 'db.name'          =>  $db_name
-	     }
-	     ],
-	    {
-		join => { 'dbxref' => 'db' }
-	    } 
+		my ($db_name, $accession) = split ':' , $params->{ontology_term } ; #this only applies if search input is in XX:NNNNNNN format
+		my $include_children = $params->{ontology_term_include_children} eq 'true';
+		
+		# Get cvterm info of matching accession
+		my $o_rs = $c->dbic_schema("Bio::Chado::Schema")->resultset("Cv::Cvterm")->search(
+	    	[
+	     		{
+					'me.name' => { 'ilike' => '%'.$params->{ontology_term}.'%' },
+					'db.name'     => { -in => ['PO', 'GO', 'SP'] }
+	     		},
+	     		{
+		 			'dbxref.accession' =>  { 'ilike' => '%'.$accession.'%' },
+		 			'db.name'          =>  $db_name
+	    		}
+	     	],
+	    	{
+				join => { 'dbxref' => 'db' }
+	    	} 
 	    );
-	$and_conditions->{'locus_dbxrefs.dbxref_id'} = {  -in  => $o_rs->get_column('dbxref_id')->as_query };
+		my @rows = $o_rs->all;
+
+		# Parse the intial rows for dbxref_ids
+		my @dbxref_ids = ();
+		foreach my $row (@rows) {
+			push @dbxref_ids, $row->get_column('dbxref_id');
+		}
+
+		# Get children of intial db / accession
+		if ( $include_children ) {
+
+			# Get cvterm of initial DB / accession
+			my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+			my $db = $schema->resultset('General::Db')->search({ name => uc($db_name)} )->first();
+			my $dbxref = $db->find_related('dbxrefs', { accession => $accession });
+			my $cvterm = $dbxref->cvterm;
+
+			# Get all children of initial cvterm
+			my $c_rs = $cvterm->recursive_children();
+
+			# Parse the children dbxref_ids
+			while ( my $c_row = $c_rs->next() ) {
+				push @dbxref_ids, $c_row->get_column('dbxref_id');
+			}
+		}
+
+		$and_conditions->{'locus_dbxrefs.dbxref_id'} = { -in => \@dbxref_ids };
     }
 	    
     if (exists($params->{genbank_accession} ) && $params->{genbank_accession} ) {
