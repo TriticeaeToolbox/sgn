@@ -94,8 +94,13 @@ $page->footer();
     print "</select>\n";
 } elsif ($function eq "getVEP") {
     my $protocol = $cgi->param('prot');
-    my $file = $protocol . ".html";
-    print "<a href=\"/static_content/files/$file\" target=\"_blank\">VEP stats</a>";
+    my $webFile = $protocol . ".html";
+    my $osFile = "/home/production/cxgn/triticum/static_content/files/$protocol" . ".html";
+    if (-e $osFile) {
+        print "<a href=\"/static_content/files/$webFile\" target=\"_blank\">VEP stats</a>";
+    } else {
+	print "no VEP analysis";
+    }
 } else {
     my $protocolprop_marker_hash_select = ['name', 'chrom', 'pos', 'alt', 'ref']; #THESE ARE THE KEYS IN THE MARKERS OBJECT IN THE PROTOCOLPROP OBJECT
     my $dbh = CXGN::DB::Connection->new();
@@ -199,8 +204,10 @@ $page->footer();
                     $feature_list .= "<br>$feature";
                 }
 	    }
-	    if ($feature_list ne "") {
-	        print "$feature_list\n";
+	    if ($feature_list eq "") {
+		print "<td><td>\n";
+	    } else {
+	        print "$feature_list<td><td>\n";
             }
         } else {
             print "$vep_list[1]<td>$vep_list[2]<td>$vep_list[3]\n";	
