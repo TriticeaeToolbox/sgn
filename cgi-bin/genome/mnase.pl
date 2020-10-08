@@ -37,7 +37,7 @@ if (!$start) {
 }
 my $stop = $cgi->param('stop');
 if (!$stop) {
-    $stop = 10000000;
+    $stop = 1000000;
 }
 my $min = "";
 my $max = "";
@@ -87,7 +87,7 @@ $page->footer();
     print "<select id=chrom>";
     while (my ($chrom) = $chrom_q->fetchrow_array()) {
 	# we only want chromosomes 1A, 1B, ... because these are the only ones that map to MNase and VEP
-	if ($chrom =~ /\d\w$/) {
+	if ($chrom =~ /\d[ABD]$/) {
 	    print "<option value=$chrom>$chrom</option>";
 	}
     }
@@ -116,6 +116,8 @@ $page->footer();
     my $score;
     my $feature;
     my $feature_list;
+    my $linkGene;
+    my $linkJB;
     my @vep_list;
     my $countF;
     my $protocol = $cgi->param('prot');
@@ -142,7 +144,7 @@ $page->footer();
     $q = "select score from genomic.mnase_mrf where chrom = ? and (start <= ?) and (stop > ?)";
     my $mrf_q = $dbh->prepare($q) or die $dbh->errstr;
 
-    $q = "select name from feature, featureloc where feature.feature_id = featureloc.feature_id and (? between fmin and fmax) and type_id = 75352 and name like '$geneSearch%'";
+    $q = "select name from feature, featureloc where feature.feature_id = featureloc.feature_id and type_id = 75352 and (fmin <= ?) and (fmax > ?)";
     my $feature_q = $dbh->prepare($q) or die $dbh->errstr;
 
     $q = "select gene, feature, consequence, impact from genomic.vep_annotations where marker_name = ?";
@@ -152,7 +154,7 @@ $page->footer();
     print "<style type=\"text/css\">";
     print "td { padding: 0 35px 0 35px; }";
     print "</style>";
-    print "<table id=\"mnase\" class=\"display\"><thead><tr><th>marker<th>chromosome<th>position<th>score<th>MSF/MRF<th>gene<th>consequence<th>impact\n";
+    print "<table id=\"mnase\" class=\"display\"><thead><tr><th>marker<th>chromosome<th>position<th>score<th>MSF/MRF<th>Gene Ensembl JBrowse<th>consequence<th>impact\n";
     print "<tbody>";
     while (my ($marker_name, @protocolprop_info_return) = $marker_q->fetchrow_array()) {
     	$count++;
@@ -162,18 +164,18 @@ $page->footer();
 	$chrom = $protocolprop_info_return[1];
 	$pos = $protocolprop_info_return[2];
 	$dns_q->execute($chromM,$pos, $pos);
-	if ($score = $dns_q->fetchrow_array()) {
+	if (($score) = $dns_q->fetchrow_array()) {
 	    $score = sprintf("%.2f", $score);
 	    print "<tr><td>$name<td>$chrom<td>$pos<td>$score<td>";
 	} else {
 	    print "<tr><td>$name<td>$chrom<td>$pos<td>not found<td>";
 	}
 	$msf_q->execute($chromM,$pos, $pos);
-	if ($score = $msf_q->fetchrow_array()) {
+	if (($score) = $msf_q->fetchrow_array()) {
 	    print "Sensitive";
 	}
 	$mrf_q->execute($chromM,$pos, $pos);
-        if ($score = $mrf_q->fetchrow_array()) {
+        if (($score) = $mrf_q->fetchrow_array()) {
             print "Resistant";
         }
 
@@ -181,22 +183,27 @@ $page->footer();
 	$vep_q->execute($name);
 	while (my ($gene, $feature, $consequence, $impact) = $vep_q->fetchrow_array()) {
 	    $countF = @vep_list;
+	    if ($feature =~ /\w/) {
+		$linkGene = "<a href=\"https://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=$feature\" target=\"_blank\"><img src=\"/static/img/ep.png\" style=\"width:20px;height:20px;\"></a>";
+		$linkJB = "<a href=\"https://wheat.pw.usda.gov/jb/?data=/ggds/whe-iwgsc2018&loc=$gene\" target=\"_blank\"><img src=\"/static/img/jb.ico\" style=\"width:20px;height:20px;\"></a>";
+	    } else {
+		$linkGene = "";
+		$linkJB = "";
+            }
 	    if ($countF == 0) {
-		$vep_list[1] = "$feature <a href=\"https://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=$feature\" target=\"_blank\"> Ensembl</a> 
-		    <a href=\"https://wheat.pw.usda.gov/jb/?data=/ggds/whe-iwgsc2018&loc=$gene\" target=\"_blank\"> JBrowse</a>";
+		$vep_list[1] = "$feature $linkGene $linkJB";
 		$vep_list[2] = "$consequence";
 		$vep_list[3] = "$impact";
 	    } else {
-                $vep_list[1] .= "<br>$feature <a href=\"https://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=$feature\" target=\"_blank\"> Ensembl</a> 
-		    <a href=\"https://wheat.pw.usda.gov/jb/?data=/ggds/whe-iwgsc2018&loc=$gene\" target=\"_blank\"> JBrowse</a>";
+                $vep_list[1] .= "<br>$feature $linkGene $linkJB";
 		$vep_list[2] .= "<br>$consequence";
 		$vep_list[3] .= "<br>$impact";
 	    }
         }
 	$countF = @vep_list;
         if ($countF == 0) {
-	    $feature_q->execute($pos);
-            while ($feature = $feature_q->fetchrow_array()) {
+	    $feature_q->execute($pos, $pos);
+            while (($feature) = $feature_q->fetchrow_array()) {
 		$countF = @vep_list;
                 if ($countF == 0) {
                     $feature_list = $feature;
@@ -212,8 +219,14 @@ $page->footer();
         } else {
             print "$vep_list[1]<td>$vep_list[2]<td>$vep_list[3]\n";	
 	}
+	if ($count > 100) {
+	    last;
+	}
     }
     print "</tbody></table>";
+    if ($count > 100) {
+        print "output limited to 100 markers\n";
+    }
     print <<HTML;
     <script type="text/javascript">
     jQuery(document).ready(function() {
