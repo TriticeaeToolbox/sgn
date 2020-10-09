@@ -136,29 +136,28 @@ sub plot_data_to_rows {
 
     # Add each trait value to the row
     foreach my $trait_id (keys %{$trait_info}) {
-      
-      # Start array for current row
-      my @r = ();
-      my $f = 0;
 
+      # Parse each observation into an array of row values
+      my $f = 0;
       foreach my $observation (@$observations) {
+        my @r = ();
         if ( $observation->{trait_id} == $trait_id ) {
           push(@r, $trait_info->{$trait_id});
           push(@r, $trial);
           push(@r, $accession);
           push(@r, $observation->{value});
+          push(@rows, \@r);
           $f = 1;
         }
       }
       if ( $f == 0 ) {
+        my @r = ();
         push(@r, $trait_info->{$trait_id});
         push(@r, $trial);
         push(@r, $accession);
         push(@r, "");
+        push(@rows, \@r);
       }
-
-      # Add Row to Array of rows
-      push(@rows, \@r);
 
     }
   }
