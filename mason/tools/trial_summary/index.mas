@@ -13,10 +13,15 @@
     text-align: left;
     padding: 5px 0 10px 0;
   }
+  #trait_select_loading {
+    display: none;
+    float: right;
+    margin-top: -10px;
+  }
 </style>
 
 <div class="row">
-  <center class = "col-md-offset-2 col-md-8">
+  <div class="col-md-offset-2 col-md-8">
     <form class="ts-form">
       <div class="form-group">
         <label for="trials_list_select">Choose a list of trials:</label>
@@ -25,214 +30,153 @@
             <option selected="selected">Loading...</option>
           </select>
         </div>
-        <img hidden id="trials-loading-spinner" src="/img/wheel.gif" alt="loading">
+        
       </div>
       <div class="form-group">
         <label>Select traits to summarize:</label>
+        <div id="trait_select_loading">
+          <img id="trials-loading-spinner" src="/img/wheel.gif" alt="loading">
+        </div>
         <select disabled multiple class="form-control input-sm" id="trait_select" size="10">
           <option selected="selected" value=""> </option>
         </select>
-        <p><strong>Note:</strong> Only traits that are observed across all Trials are 
-        available to summarize.</p>
+        <input type="checkbox" id="traits_all_checkbox" name="traits_all_checkbox" />
+        <label for="traits_all_checkbox">Only display traits observed in <strong>ALL</strong> of the trials</label>
       </div>
     </form>
-  </center>
+  </div>
 </div>
 
 <br />
 
 <div class="row">
-  <center class="col-md-offset-2 col-md-8">
+  <div class="col-md-offset-2 col-md-8" style="text-align: center">
     <div class="btn btn-primary btn-large" id="summarize">Summarize</div>
-  </center>
+  </div>
 </div>
+
+<br /><br />
 
 
 <script>
 
-(function() {
-  'use strict';
+  // CXGN::List
   var list;
 
-  $(document).ready(function(){
+  /**
+   * On Page Load: 
+   *   get the lists of trials
+   *   populate the trials list selectbox
+   *   set listeners
+   */
+  jQuery(document).ready(function(){
     if (isLoggedIn()) {
 
       // Get lists of Trials and set select menu
       list = new CXGN.List();
       var select_html = list.listSelect('trials', ['trials'], ' ', undefined, undefined);
-      $('#trials_list_select_container').html(select_html);
-      $('#trials_list_select').change(call_change);
+      jQuery('#trials_list_select_container').html(select_html);
+      
+      // Update Traits Listeners
+      jQuery("#trials_list_select").change(update_traits);
+      jQuery("#traits_all_checkbox").change(update_traits);
 
-      // Set Summarize listener
-      $("#summarize").attr("disabled", true);
-      $("#summarize").on("click", summarize);
+      // Set Summarize Button listener
+      jQuery("#summarize").attr("disabled", true);
+      jQuery("#summarize").on("click", summarize);
 
     }
     else {
-      $('#trials_list_select').html('<option selected="selected">You must be logged in to use lists.</option>');
+      jQuery('#trials_list_select').html('<option selected="selected">You must be logged in to use lists.</option>');
     }
-  })
+  });
 
   /**
-   * Listener for trial selection change
+   * Listener for trial selection and all traits change
+   * Get the list of traits observed in the selected trial(s)
    */
-  function call_change(){
+  function update_traits() {
 
     // Indicate loading and disable summarize button
-    $("#trials-loading-spinner").show();
-    $("#trait_select").attr("disabled", true);
-    $("#summarize").attr("disabled", true);
+    jQuery("#trait_select_loading").show();
+    jQuery("#trait_select").attr("disabled", true);
+    jQuery("#summarize").attr("disabled", true);
+    jQuery("#traits_all_checkbox").attr("disabled", true);
 
     // Get Trial List ID
-    var trial_list_id = $('#trials_list_select').val();
-    if (trial_list_id === "") {
-      $("#trials-loading-spinner").hide();
+    var trials_list_id = jQuery('#trials_list_select').val();
+    if ( trials_list_id === "" ) {
+      jQuery("#trait_select_loading").hide();
       return;
     }
 
-    // Get phenotype data for Trials in selected List
-    setTimeout(function(){ //use setTimeout to pull sync call list.getListData out of event listener thread.
-      var item_data = list.getListData(trial_list_id);
-      var ids = list.transform2Ids(trial_list_id, item_data);
+    // Get the 'all' traits selection
+    var all_traits = jQuery("#traits_all_checkbox").is(':checked');
 
-      BrAPI("/brapi/v1")
-        .phenotypes_search({
-            "studyDbIds" : ids,
-            "observationLevel": "plot",
-            "pageSize" : 10000000})
-        .all(createSComp);
-    },1);
+    // Get the Traits that are observed in the selected trials
+    let url = "/ajax/analyze/traits_by_trials_list";
+    url += "?trials_list_id=" + trials_list_id;
+    if ( all_traits ) {
+      url += "&all=1";
+    }
 
+    // Make AJAX request to get traits
+    jQuery.ajax({ 
+      url: url,
+      contentType: "application/json",
+      success: function(response) { 
+        if ( response.error ) {
+          error(response.error);
+        }
+        else {
+          display_traits(response);
+        }
+      },
+      error: function(response) { 
+        error("Could not get trait(s) for the selected trial(s).  Please try again later.");
+      }
+    });
   }
 
   /**
-   * Parse the phenotype data
-   * - Get traits that are observed in ALL trials
+   * Populate the select box with the provided traits
+   * @param {Array} traits Array of Trait objects {id, name}
    */
-  function createSComp(data){
+  function display_traits(traits) {
+    jQuery("#trait_select option").remove();
+    for ( let i = 0; i < traits.length; i++ ) {
+      jQuery("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
+    }
 
-    // Get Traits that are common in all trials
-    let traits = getCommonTraits(data);
-
-      $("#trait_select option").remove();
-      for ( let i = 0; i < traits.length; i++ ) {
-        $("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
-      }
-      $("#trials-loading-spinner").hide();
-      $("#trait_select").attr("disabled",false);
-      $("#trait_select").change(function() {
-        if ( $("#trait_select").children("option:selected").length > 0 ) {
-          $("#summarize").attr("disabled", false);
-        }
-        else {
-          $("#summarize").attr("disabled", true);
-        }
-      });
-
+    jQuery("#trait_select_loading").hide();
+    jQuery("#trait_select").attr("disabled", false);
+    jQuery("#summarize").attr("disabled", false);
+    jQuery("#traits_all_checkbox").attr("disabled", false);
   }
 
+
+  /**
+   * Start the Trial Summary Analysis
+   */
   function summarize() {
     let url = "/tools/trial/summary/results";
-    url += "?trials_list_id=" + $('#trials_list_select').val();
-    let selected_traits = $("#trait_select").children("option:selected");
+    url += "?trials_list_id=" + jQuery('#trials_list_select').val();
+    let selected_traits = jQuery("#trait_select").children("option:selected");
     for ( let i = 0; i < selected_traits.length; i++ ) {
-      url += "&trait_id=" + $(selected_traits[i]).val();
+      url += "&trait_id=" + jQuery(selected_traits[i]).val();
     }
     window.location = url;
   }
 
-
   /**
-   * Get a list of unique traits from the phenotype data
-   * that are observed across all trials
-   * @param  {Object[]} data  Phenotype data from BrAPI
-   * @return {Object[]}       Array of trait properties (name, observation count, id)
+   * Display an error message
    */
-  function getCommonTraits(data) {
-    let traits = {};
-    let trials = {};
-    let total = 0;
-
-    // Parse each plot of phenotype data
-    for ( let i = 0; i < data.length; i++ ) {
-
-      // Parse the plot's observations
-      let observations = data[i].observations;
-      if ( observations ) {
-        total++;
-
-        // Parse each observation
-        for ( let j = 0; j < observations.length; j++ ) {
-          let observation = observations[j];
-          let name = observation.observationVariableName;
-          let id = observation.observationVariableDbId;
-          let trial = data[i].studyName;
-
-          if ( name && id ) {
-
-            // Add Trait information
-            if ( !traits.hasOwnProperty(name) ) {
-              traits[name] = {name: name, id: id, count: 1};
-            }
-            else {
-              traits[name].count = traits[name].count + 1;
-            }
-
-            // Add Trial information
-            if ( !trials.hasOwnProperty(trial) ) {
-              trials[trial] = [name];
-            }
-            else if ( !trials[trial].includes(name) ) {
-              trials[trial].push(name);
-            }
-
-          }
-        }
-      }
-    }
-
-    // Sort traits by observation count
-    let sorted = sortProperties(traits);
-
-    // Get common traits
-    let common = [];
-    for ( var trait in traits ) {
-      if ( traits.hasOwnProperty(trait) ) {
-        let c = true;
-        for ( var trial in trials ) {
-          if ( trials.hasOwnProperty(trial) ) {
-            if ( !trials[trial].includes(trait) ) {
-              c = false;
-            }
-          }
-        }
-        if ( c ) {
-          common.push(traits[trait]);
-        }
-      }
-    }
-
-    // Return the common traits
-    return common;
-
+  function error(msg) {
+    alert(msg);
+    jQuery("#trait_select_loading").hide();
+    jQuery("#trait_select").attr("disabled", false);
+    jQuery("#summarize").attr("disabled", false);
+    jQuery("#traits_all_checkbox").attr("disabled", false);
   }
-
-  /**
-   * Sort the traits object into an array sorted by trait observation count
-   * @param  {Object} obj Object to sort
-   * @return {Array}      Array of sorted trait obejcts
-   */
-  function sortProperties(obj, sort_key="count") {
-    var sortable=[];
-    for(var key in obj)
-      if(obj.hasOwnProperty(key))
-        sortable.push(obj[key]);
-    sortable.sort(function(a, b) {
-      return b[sort_key]-a[sort_key];
-    });
-    return sortable;
-  }
-
-}());
 
 </script>

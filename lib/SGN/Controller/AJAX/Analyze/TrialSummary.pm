@@ -10,6 +10,7 @@ use Data::Dumper;
 use SGN::Controller::AJAX::List;
 use CXGN::List::Transform;
 use CXGN::Phenotypes::SearchFactory;
+use CXGN::BreederSearch;
 
 BEGIN { extends 'Catalyst::Controller::REST'; };
 
@@ -18,6 +19,63 @@ __PACKAGE__->config(
     stash_key => 'rest',
     map       => { 'application/json' => 'JSON', 'text/html' => 'JSON' },
     );
+
+
+#
+# AJAX CONTROLLER: /ajax/analyze/traits_by_trials_list
+#
+# Get the traits that are observed in the specified list of trials
+#
+# Query Params:
+#   trials_list_id = List ID for a list of trials
+#   all = set to 1 to only include traits observed in ALL of the trials
+#         optional - default is to include traits observed in ANY of the trials
+#
+# Returns:
+#   A JSON response with the list of traits (IDs and names) in the specified trials
+#
+sub get_traits_by_trial_list : Path('/ajax/analyze/traits_by_trials_list') Args(0) {
+  my $self = shift;
+  my $c = shift;
+
+  # Get Query Params
+  my $trials_list_id = $c->req->param("trials_list_id");
+  my $all = $c->req->param("all") eq "1" ? 1 : 0;
+
+  # Get Trial IDs from the Trial List ID
+  my $trial_ids = trial_list_id_to_trial_ids($c, $trials_list_id);
+
+  # Get the Traits from the Trials
+  my $dbh = $c->dbc->dbh();
+  my $bs = CXGN::BreederSearch->new({ dbh=>$dbh });
+  my $criteria_list = ['trials', 'traits'];
+  my $dataref = {
+    'traits' => {
+      'trials' => join(",", @{$trial_ids})
+    }
+  };
+  my $queryref = {
+    'traits' => {
+      'trials' => $all
+    }
+  };
+  my $results_ref = $bs->metadata_query($criteria_list, $dataref, $queryref);
+  my $traits = $results_ref->{results};
+
+  # Parse Traits into return hash
+  my @rtn = ();
+  foreach my $trait (@$traits) {
+    my $t = {
+      'id' => $trait->[0],
+      'name' => $trait->[1]
+    };
+    push(@rtn, $t);
+  }
+
+  # Return the Results
+  $c->stash->{rest} = \@rtn;
+  return;
+}
 
 #
 # AJAX CONTROLLER: /ajax/analyze/trial_trait_summary
@@ -34,23 +92,14 @@ __PACKAGE__->config(
 sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(0) {
   my $self = shift;
   my $c = shift;
+  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
   
+  # Get Query Params
   my $trials_list_id = $c->req->param("trials_list_id");
   my @trait_ids = $c->req->param("trait_id");
-  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
-
-  # Get List Info
-  my $trial_data;
-  if ($trials_list_id) {
-    $trial_data = SGN::Controller::AJAX::List->retrieve_list($c, $trials_list_id);
-  }
-
-  # Get Trial IDs
-  my @trial_list = map { $_->[1] } @$trial_data;
-  my $t = CXGN::List::Transform->new();
-  my $trial_t = $t->can_transform("trials", "trial_ids");
-  my $trial_id_hash = $t->transform($schema, $trial_t, \@trial_list);
-  my @trial_ids = @{$trial_id_hash->{transform}};
+  
+  # Get Trial IDs from List
+  my $trial_ids = trial_list_id_to_trial_ids($c, $trials_list_id);
 
   # Get phenotype plot data for the matching Trials and Traits
   my $phenotypes_search = CXGN::Phenotypes::SearchFactory->instantiate(
@@ -59,7 +108,7 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
       bcs_schema=>$schema,
       data_level=>"plot",
       trait_list=>\@trait_ids,
-      trial_list=>\@trial_ids
+      trial_list=>$trial_ids
     }
   );
   my @data = $phenotypes_search->search();
@@ -218,6 +267,7 @@ sub write_rows_to_tempfile {
 #   an Array of hashes where each hash is a row 
 #   and the hash keys are the header names and the 
 #   hash values are the cell contents
+#
 sub csv_to_JSON {
   my $self = shift;
   my $path = shift;
@@ -249,6 +299,37 @@ sub csv_to_JSON {
   }
 
   return(\@rows);
+}
+
+#
+# Get the Trial IDs of the Trials in the specified List
+#
+# Params:
+#   c = Catalyst reference
+#   trials_list_id = List ID of Trials List
+#
+# Returns:
+#   an Array of Trial IDs of Trials in the specified List
+#
+sub trial_list_id_to_trial_ids {
+  my $c = shift;
+  my $trials_list_id = shift;
+  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
+
+  # Get List Info
+  my $trial_data;
+  if ($trials_list_id) {
+    $trial_data = SGN::Controller::AJAX::List->retrieve_list($c, $trials_list_id);
+  }
+
+  # Get Trial IDs
+  my @trial_list = map { $_->[1] } @$trial_data;
+  my $t = CXGN::List::Transform->new();
+  my $trial_t = $t->can_transform("trials", "trial_ids");
+  my $trial_id_hash = $t->transform($schema, $trial_t, \@trial_list);
+  my @trial_ids = @{$trial_id_hash->{transform}};
+
+  return(\@trial_ids);
 }
 
 1;
