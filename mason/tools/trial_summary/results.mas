@@ -9,12 +9,9 @@
 
 <& '/page/page_title.mas', title => "Trial Summary" &>
 
-<& /util/import_css.mas, paths => ['tools/trial_summary.css'] &>
+<& '/util/import_css.mas', paths => ['tools/trial_summary.css'] &>
 
 <& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'jquery.dataTables-buttons-min', 'buttons.bootstrap-min', 'buttons.html5-min', 'buttons.print-min'] &>
-
-<style>
-</style>
 
 <div class="tsr-loading">
   <p>

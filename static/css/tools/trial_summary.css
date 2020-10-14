@@ -3,6 +3,12 @@
     margin: auto;
 }
 
+#trait_select_loading {
+    display: none;
+    float: right;
+    margin-top: -10px;
+}
+
 .tsr-loading, .tsr-error {
     max-width: 400px;
     margin: 200px auto;

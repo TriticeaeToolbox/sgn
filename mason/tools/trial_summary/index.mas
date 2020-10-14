@@ -4,21 +4,9 @@
 
 <& '/page/page_title.mas', title => "Summarize trials" &>
 
-<& /util/import_css.mas, paths => ['tools/trial_summary.css'] &>
+<& '/util/import_css.mas', paths => ['tools/trial_summary.css'] &>
 
 <& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'CXGN.List', 'CXGN.Login','brapi.BrAPI'] &>
-
-<style>
-  .form-group p {
-    text-align: left;
-    padding: 5px 0 10px 0;
-  }
-  #trait_select_loading {
-    display: none;
-    float: right;
-    margin-top: -10px;
-  }
-</style>
 
 <div class="row">
   <div class="col-md-offset-2 col-md-8">
@@ -153,7 +141,6 @@
     jQuery("#summarize").attr("disabled", false);
     jQuery("#traits_all_checkbox").attr("disabled", false);
   }
-
 
   /**
    * Start the Trial Summary Analysis
