@@ -1,12 +1,3 @@
-<%args> 
-  $trials_list_id => undef;
-  @trait_ids => ();
-</%args>
-
-<%perl>
-  use JSON;
-</%perl>
-
 <& '/page/page_title.mas', title => "Trial Summary" &>
 
 <& '/util/import_css.mas', paths => ['tools/trial_summary.css'] &>
@@ -33,16 +24,21 @@
 
 <script>
 
-(function() {
-  'use strict';
+  // Get query params
+  const urlParams = new URLSearchParams(window.location.search);
+  const trials_list_id = urlParams.get('trials_list_id');
+  const trait_ids = urlParams.getAll('trait_id');
 
-  var trials_list_id = <% $trials_list_id %>;
-  var trait_ids = <% encode_json(\@trait_ids) %>;
 
-  $(document).ready(function(){
-    $(".tsr-error").hide();
-    $(".tsr-results").hide();
-    $(".tsr-loading").show();
+  /**
+   * On Page Load:
+   *  set element display
+   *  request summary info
+   */
+  jQuery(document).ready(function(){
+    jQuery(".tsr-error").hide();
+    jQuery(".tsr-results").hide();
+    jQuery(".tsr-loading").show();
     requestSummaryInformation(trials_list_id, trait_ids);
   });
 
@@ -54,12 +50,22 @@
    */
   function requestSummaryInformation(trials_list_id, trait_ids) {
 
+    // Check parameters before making request
+    if ( !trials_list_id || trials_list_id === "" ) {
+      return error("The trials list id must be specified!");
+    }
+    if ( !trait_ids || trait_ids.length === 0 ) {
+      return error("One or more trait ids must be specified!");
+    }
+
+    // Build URL for AJAX request
     let url = "/ajax/analyze/trial_trait_summary";
     url += "?trials_list_id=" + trials_list_id;
     for ( let i = 0; i < trait_ids.length; i++ ) {
       url += "&trait_id=" + trait_ids[i];
     }
 
+    // Make AJAX request for summary info
     jQuery.ajax({ 
       url: url,
       contentType: "application/json",
@@ -83,10 +89,10 @@
    * @param  {string} message Error Message
    */
   function error(message) {
-    $(".tsr-loading").hide();
-    $(".tsr-results").hide();
-    $("#error-text").html(message);
-    $(".tsr-error").show();
+    jQuery(".tsr-loading").hide();
+    jQuery(".tsr-results").hide();
+    jQuery("#error-text").html(message);
+    jQuery(".tsr-error").show();
   }
 
 
@@ -165,10 +171,10 @@
 
 
     // Add HTML
-    $("#results").html(html);
-    $(".tsr-loading").hide();
-    $(".tsr-error").hide();
-    $(".tsr-results").show();
+    jQuery("#results").html(html);
+    jQuery(".tsr-loading").hide();
+    jQuery(".tsr-error").hide();
+    jQuery(".tsr-results").show();
 
     // Setup LS Means Columns
     let lsmeans_columns = [];
@@ -177,13 +183,13 @@
       lsmeans_columns.push({
         data: function(row, type, val, meta) {
           let rtn = row[trait_info[i].trait_code];
-          return parseFloat(rtn).toFixed(2)
+          return rtn === "NA" ? "--" : parseFloat(rtn).toFixed(2);
         }
       });
     }
 
     // Setup LS Means Table Properties
-    let table = $("#table-overall").DataTable({
+    let table = jQuery("#table-overall").DataTable({
       data: lsmeans_results,
       columns: lsmeans_columns,
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
@@ -202,13 +208,14 @@
         trait_columns.push({
           data: function(row, type, val, meta) {
             let rtn = row[trials[j]];
+            console.log(rtn);
             return rtn === "NA" ? "--" : parseFloat(rtn).toFixed(2);
           }
         });
       }
 
       // Setup Trait Table Properties
-      let trait_table = $("#table-" + trait_info[i].trait_code).DataTable({
+      let trait_table = jQuery("#table-" + trait_info[i].trait_code).DataTable({
         data: trait_results[trait_info[i].trait_code].results.slice(0, -1),
         columns: trait_columns,
         scrollX: 600,
@@ -220,7 +227,4 @@
     }
 
   }
-  
-}());
-
 </script>

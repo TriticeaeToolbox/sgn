@@ -77,6 +77,7 @@ sub get_traits_by_trial_list : Path('/ajax/analyze/traits_by_trials_list') Args(
   return;
 }
 
+
 #
 # AJAX CONTROLLER: /ajax/analyze/trial_trait_summary
 # 
