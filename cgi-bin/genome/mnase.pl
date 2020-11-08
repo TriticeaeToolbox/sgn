@@ -154,7 +154,7 @@ $page->footer();
     print "<style type=\"text/css\">";
     print "td { padding: 0 35px 0 35px; }";
     print "</style>";
-    print "<table id=\"mnase\" class=\"display\"><thead><tr><th>marker<th>chromosome<th>position<th>score<th>MSF/MRF<th>Gene Ensembl JBrowse<th>consequence<th>impact\n";
+    print "<table id=\"mnase\" class=\"display\"><thead><tr><th>marker<th>chromosome<th>position<th>score<th>MSF/MRF<th>Gene<th>consequence<th>impact<th>Ensembl JBrowse\n";
     print "<tbody>";
     while (my ($marker_name, @protocolprop_info_return) = $marker_q->fetchrow_array()) {
     	$count++;
@@ -184,20 +184,22 @@ $page->footer();
 	while (my ($gene, $feature, $consequence, $impact) = $vep_q->fetchrow_array()) {
 	    $countF = @vep_list;
 	    if ($feature =~ /\w/) {
-		$linkGene = "<a href=\"https://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=$feature\" target=\"_blank\"><img src=\"/static/img/ep.png\" style=\"width:20px;height:20px;\"></a>";
-		$linkJB = "<a href=\"https://wheat.pw.usda.gov/jb/?data=/ggds/whe-iwgsc2018&loc=$gene\" target=\"_blank\"><img src=\"/static/img/jb.ico\" style=\"width:20px;height:20px;\"></a>";
+		$linkGene = "<a href=\"https://plants.ensembl.org/Triticum_aestivum/Gene/Variation_Gene/Table?g=$feature\" target=\"_blank\"><img src=\"/static/img/ep.png\" style=\"width:20px;height:20px;\"></a>";
+		$linkJB = "<a href=\"https://wheat.pw.usda.gov/jb/?data=/ggds/whe-iwgsc2018&loc=$gene\" target=\"_blank\"><img src=\"/static/img/GG-logo.png\" style=\"width:20px;height:20px;\"></a>";
 	    } else {
 		$linkGene = "";
 		$linkJB = "";
             }
 	    if ($countF == 0) {
-		$vep_list[1] = "$feature $linkGene $linkJB";
+		$vep_list[1] = "$feature";
 		$vep_list[2] = "$consequence";
 		$vep_list[3] = "$impact";
+		$vep_list[4] = "$linkGene $linkJB";
 	    } else {
-                $vep_list[1] .= "<br>$feature $linkGene $linkJB";
+                $vep_list[1] .= "<br>$feature";
 		$vep_list[2] .= "<br>$consequence";
 		$vep_list[3] .= "<br>$impact";
+		$vep_list[4] .= "<br>$linkGene $linkJB";
 	    }
         }
 	$countF = @vep_list;
@@ -217,7 +219,7 @@ $page->footer();
 	        print "$feature_list<td><td>\n";
             }
         } else {
-            print "$vep_list[1]<td>$vep_list[2]<td>$vep_list[3]\n";	
+            print "$vep_list[1]<td>$vep_list[2]<td>$vep_list[3]<td>$vep_list[4]\n";	
 	}
 	if ($count > 100) {
 	    last;

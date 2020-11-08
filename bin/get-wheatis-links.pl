@@ -225,7 +225,7 @@ print STDERR "creating gene file\n";
 
 my $locus_id;
 my $locus_symbol;
-$q = "SELECT locus_id, locus_name, locus_symbol, description, linkage_group from phenome.locus";
+$q = "SELECT locus_id, locus_name, locus_symbol, description, linkage_group from phenome.locus where sp_person_id is NULL";
 $sth = $dbh->prepare($q);
 $sth->execute();
 while(@row = $sth->fetchrow_array) {
