@@ -9,7 +9,7 @@ use Storable qw | nstore retrieve |;
 use List::Util qw/sum/;
 use Bio::SeqIO;
 use CXGN::Tools::Text qw/ sanitize_string /;
-#use SGN::Schema;
+use URI::FromHash 'uri';
 use CXGN::Blast;
 use CXGN::Blast::SeqQuery;
 
@@ -25,6 +25,12 @@ sub AUTO {
 sub index :Path('/tools/blast/') :Args(0) { 
   my $self = shift;
   my $c = shift;
+
+  if (!$c->user()) {
+      # redirect to login page
+      $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+      return;
+  }
 
   my $db_id = $c->req->param('db_id');
 
