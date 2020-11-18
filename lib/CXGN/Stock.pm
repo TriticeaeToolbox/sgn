@@ -1492,9 +1492,11 @@ sub _new_metadata_id {
 
 =head2 merge()
 
- Usage:         $s->merge(221, 1);
+ Usage:         $s->merge(221, 1, output.log);
  Desc:          merges stock $s with stock_id 221. Optional delete boolean
                 parameter indicates whether other stock should be deleted.
+                Optional output log file path can be provided to write 
+                merge details to a log file.
  Ret:
  Args:
  Side Effects:
@@ -1506,13 +1508,20 @@ sub merge {
     my $self = shift;
     my $other_stock_id = shift;
     my $delete_other_stock = shift;
+    my $output_log = shift;
 
-    if ($other_stock_id == $self->stock_id()) {
-	print STDERR "Trying to merge stock into itself ($other_stock_id) Skipping...\n";
-	return;
+    if ( defined($output_log) ) {
+	    open(OUTPUT_LOG_FH, '>>', $output_log) or die $!;
+        print OUTPUT_LOG_FH "[INFO] Good Stock ID=" . $self->stock_id() . "\n";
+        print OUTPUT_LOG_FH "[INFO] Bad Stock ID=" . $other_stock_id . "\n";
     }
 
-
+    if ($other_stock_id == $self->stock_id()) {
+	    print STDERR "Trying to merge stock into itself ($other_stock_id) Skipping...\n";
+        print OUTPUT_LOG_FH "[WARN] Skipping " . $self->name . " - merging stock into itself\n" if defined($output_log);
+        close(OUTPUT_LOG_FH) if defined($output_log);
+	    return;
+    }
 
     my $stockprop_count=0;
     my $subject_rel_count=0;
@@ -1533,113 +1542,146 @@ sub merge {
     #
     my $sprs = $schema->resultset("Stock::Stockprop")->search( { stock_id => $other_stock_id });
     while (my $row = $sprs->next()) {
-      if ($delete_other_stock && ($row->type_id() eq $pui_cvterm_id)) {
-          # Do not save PUIs of stocks that will be deleted
-          next;
+
+        # Do not save PUIs of stocks that will be deleted
+        if ($delete_other_stock && ($row->type_id() eq $pui_cvterm_id)) {
+            next;
         }
-	# check if this stockprop already exists for this stock; save only if not
-	#
-	my $thissprs = $schema->resultset("Stock::Stockprop")->search(
-	    {
-		stock_id => $self->stock_id(),
-		type_id => $row->type_id(),
-		value => $row->value()
+	
+        # check if any of this stockprop type exists for this stock
+        my $anysprs = $schema->resultset("Stock::Stockprop")->search({
+            stock_id => $self->stock_id(),
+            type_id => $row->type_id(),
 	    });
+        my $any_count = $anysprs->count();
 
-	if ($thissprs->count() == 0) {
-	    my $value = $row->value();
-	    my $type_id = $row->type_id();
+        # check if this stockprop type and value exists for this stock (save if not)
+	    my $existingsprs = $schema->resultset("Stock::Stockprop")->search({
+            stock_id => $self->stock_id(),
+            type_id => $row->type_id(),
+            value => $row->value()
+	    });
+        my $existing_count = $existingsprs->count();
 
-	    my $rank_rs = $schema->resultset("Stock::Stockprop")->search( { stock_id => $self->stock_id(), type_id => $type_id });
+        if ($existing_count == 0) {
+            my $value = $row->value();
+            my $type_id = $row->type_id();
+            my $name = $self->schema()->resultset("Cv::Cvterm")->find({ cvterm_id=>$type_id })->name();
 
-	    my $rank;
-	    if ($rank_rs->count() > 0) {
-		$rank = $rank_rs->get_column("rank")->max();
-	    }
+            my $rank_rs = $schema->resultset("Stock::Stockprop")->search( { stock_id => $self->stock_id(), type_id => $type_id });
+            my $rank;
+            if ($rank_rs->count() > 0) {
+                $rank = $rank_rs->get_column("rank")->max();
+            }
 
-	    $rank++;
-	    $row->rank($rank);
-	    $row->stock_id($self->stock_id());
+            $rank++;
+            $row->rank($rank);
+            $row->stock_id($self->stock_id());
 
-	    $row->update();
+            $row->update();
 
-	    print STDERR "MERGED stockprop_id ".$row->stockprop_id." for stock $other_stock_id type_id $type_id value $value into stock ".$self->stock_id()."\n";
-	    $stockprop_count++;
-	}
+            print STDERR "MERGED stockprop_id ".$row->stockprop_id." for stock $other_stock_id type_id $type_id value $value into stock ".$self->stock_id()."\n";
+            if ( $any_count == 0 ) {
+                print OUTPUT_LOG_FH "[STOCKPROP-ADD] Adding missing stockprop: type=$type_id, name=$name, value=$value\n" if defined($output_log);            
+            }
+            else {
+                print OUTPUT_LOG_FH "[STOCKPROP-APPEND] Appending additional stockprop: type=$type_id, name=$name, value=$value\n" if defined($output_log);
+            }
+            $stockprop_count++;
+        }
+
     }
+
+    # add bad stock name as synonym of good stock
+    #
+    my $other_stock = $self->schema()->resultset("Stock::Stock")->find({ stock_id => $other_stock_id });
+    my $other_stock_name = $other_stock->uniquename();
+    my $synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'stock_synonym', 'stock_property')->cvterm_id();
+
+    # Check if the "bad" name already exists as a synonym
+    my $synsprs = $schema->resultset("Stock::Stockprop")->search({
+        stock_id => $self->stock_id(),
+        type_id => $synonym_cvterm_id,
+        value => $other_stock_name
+    });
+    if ( $synsprs->count() == 0 ) {
+        $self->_store_stockprop('stock_synonym', $other_stock_name);
+        print OUTPUT_LOG_FH "[SYNONYM-ADD] Adding/Appending synonym stockprop: type=$synonym_cvterm_id, name=stock_synonym, value=$other_stock_name\n" if defined($output_log);
+    }
+
 
     # move subject relationships
     #
     my $ssrs = $schema->resultset("Stock::StockRelationship")->search( { subject_id => $other_stock_id });
-
     while (my $row = $ssrs->next()) {
+        my $this_subject_rel_rs = $schema->resultset("Stock::StockRelationship")->search({
+            subject_id => $self->stock_id(), 
+            object_id => $row->object_id, 
+            type_id => $row->type_id()
+        });
 
-	my $this_subject_rel_rs = $schema->resultset("Stock::StockRelationship")->search( { subject_id => $self->stock_id(), object_id => $row->object_id, type_id => $row->type_id() });
+        if ($this_subject_rel_rs->count() == 0) { # this stock does not have the relationship
+            # get the max rank
+            my $rank_rs = $schema->resultset("Stock::StockRelationship")->search({
+                subject_id => $self->stock_id(), 
+                type_id => $row->type_id()
+            });
+            my $rank = 0;
+            if ($rank_rs->count() > 0) {
+                $rank = $rank_rs->get_column("rank")->max();
+            }
+            $rank++;
+            $row->rank($rank);
+            $row->subject_id($self->stock_id());
+            $row->update();
+            print STDERR "Moving subject relationships from stock $other_stock_id to stock ".$self->stock_id()."\n";
+            $subject_rel_count++;
 
-	if ($this_subject_rel_rs->count() == 0) { # this stock does not have the relationship
-	    # get the max rank
-	    my $rank_rs = $schema->resultset("Stock::StockRelationship")->search( { subject_id => $self->stock_id(), type_id => $row->type_id() });
-	    my $rank = 0;
-	    if ($rank_rs->count() > 0) {
-		$rank = $rank_rs->get_column("rank")->max();
-	    }
-	    $rank++;
-	    $row->rank($rank);
-	    $row->subject_id($self->stock_id());
-	    $row->update();
-	    print STDERR "Moving subject relationships from stock $other_stock_id to stock ".$self->stock_id()."\n";
-	    $subject_rel_count++;
-	}
+            print OUTPUT_LOG_FH "[SUBJREL-MOVE] Moving subject relationship: type=" . $row->type_id() . ", object=" . $row->object_id . "\n" if defined($output_log);
+        }
     }
 
     # move object relationships
     #
-
-    # TO DO: do not move parents if target already has parents.
-    #
-    # my $female_parent_id = SGN::Model::Cvterm->get_cvterm_row($self->get_schema, 'stock_type', 'female_parent')->cvterm_id();
-    # my $male_parent_id   = SGN::Model::Cvterm->get_cvterm_row($self->get_schema, 'stock_type', 'male_parent')->cvterm_id();
-
-    # my $female_parent_rs = $schema->resultset("Stock::StockRelationship")->search( { object_id => $other_stock_id, type_id => $female_parent_id });
-    # my $male_parent_rs   = $schema->resultset("Stock::StockRelationship")->search( { object_id => $other_stock_id, type_id => $male_parent_id });
-
-    # if ($female_parent_rs->count() > 0) {
-    # 	print STDERR "The target $stock_id already had a female parent... not moving any other objects.\n";
-    # 	return;
-    # }
-    # if ($male_parent_rs ->count() > 0) {
-    # 	print STDERR "The target $stock_id already had a male parent... not moving any other objects.\n";
-    # 	return;
-    # }
-
-
     my $osrs = $schema->resultset("Stock::StockRelationship")->search( { object_id => $other_stock_id });
     while (my $row = $osrs->next()) {
-	my $this_object_rel_rs = $schema->resultset("Stock::StockRelationship")->search( { object_id => $self->stock_id, subject_id => $row->subject_id(), type_id => $row->type_id() });
+        my $this_object_rel_rs = $schema->resultset("Stock::StockRelationship")->search({
+            object_id => $self->stock_id, 
+            subject_id => $row->subject_id(), 
+            type_id => $row->type_id()
+        });
 
-	if ($this_object_rel_rs->count() == 0) {
-	    my $rank_rs = $schema->resultset("Stock::StockRelationship")->search( { object_id => $self->stock_id(), type_id => $row->type_id() });
-	    my $rank = 0;
-	    if ($rank_rs->count() > 0) {
-		$rank = $rank_rs->get_column("rank")->max();
-	    }
-	    $rank++;
-	    $row->rank($rank);
-	    $row->object_id($self->stock_id());
-	    $row->update();
-	    print STDERR "Moving object relationships from stock $other_stock_id to stock ".$self->stock_id()."\n";
-	    $object_rel_count++;
-	}
+        if ($this_object_rel_rs->count() == 0) {
+            my $rank_rs = $schema->resultset("Stock::StockRelationship")->search({
+                object_id => $self->stock_id(), 
+                type_id => $row->type_id()
+            });
+            my $rank = 0;
+            if ($rank_rs->count() > 0) {
+                $rank = $rank_rs->get_column("rank")->max();
+            }
+            $rank++;
+            $row->rank($rank);
+            $row->object_id($self->stock_id());
+            $row->update();
+            print STDERR "Moving object relationships from stock $other_stock_id to stock ".$self->stock_id()."\n";
+            $object_rel_count++;
+            
+            print OUTPUT_LOG_FH "[OBJREL-MOVE] Moving object relationship: type=" . $row->type_id() . ", subject=" . $row->subject_id() . "\n" if defined($output_log);
+        }
     }
 
     # move experiment_stock
     #
     my $esrs = $schema->resultset("NaturalDiversity::NdExperimentStock")->search( { stock_id => $other_stock_id });
     while (my $row = $esrs->next()) {
-	$row->stock_id($self->stock_id());
-	$row->update();
-	print STDERR "Moving experiments for stock $other_stock_id to stock ".$self->stock_id()."\n";
-	$experiment_stock_count++;
+        $row->stock_id($self->stock_id());
+        $row->update();
+        print STDERR "Moving experiments for stock $other_stock_id to stock ".$self->stock_id()."\n";
+        $experiment_stock_count++;
+    }
+    if ( $experiment_stock_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[NDEXP-MOVE] Moving $experiment_stock_count ND Experiments to stock " . $self->stock_id() . "\n";
     }
 
     # move stock_cvterm relationships
@@ -1649,11 +1691,16 @@ sub merge {
     # move stock_dbxref
     #
     my $sdrs = $schema->resultset("Stock::StockDbxref")->search( { stock_id => $other_stock_id });
-    while (my $row = $sdrs->next()) {
-	$row->stock_id($self->stock_id());
-	$row->update();
-	$stock_dbxref_count++;
+        while (my $row = $sdrs->next()) {
+        $row->stock_id($self->stock_id());
+        $row->update();
+        $stock_dbxref_count++;
     }
+    if ( $stock_dbxref_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[DBXREF-MOVE] Moving $stock_dbxref_count DBXRefs to stock " . $self->stock_id() . "\n";
+    }
+
+
 
     # move sgn.pcr_exp_accession relationships
     #
@@ -1663,87 +1710,104 @@ sub merge {
     #
 
 
-
     # move stock_genotype relationships
     #
 
 
+
     my $phenome_schema = CXGN::Phenome::Schema->connect(
-	sub { $self->schema()->storage()->dbh() }, { on_connect_do => [ 'SET search_path TO phenome, public, sgn'], limit_dialect => 'LimitOffset' }
+	    sub { $self->schema()->storage()->dbh() }, 
+        { on_connect_do => [ 'SET search_path TO phenome, public, sgn'], limit_dialect => 'LimitOffset' }
 	);
 
     # move phenome.stock_allele relationships
     #
     my $sars = $phenome_schema->resultset("StockAllele")->search( { stock_id => $other_stock_id });
     while (my $row = $sars->next()) {
-	$row->stock_id($self->stock_id());
-	$row->update();
-	print STDERR "Moving stock alleles from stock $other_stock_id to stock ".$self->stock_id()."\n";
-	$stock_allele_count++;
+        $row->stock_id($self->stock_id());
+        $row->update();
+        print STDERR "Moving stock alleles from stock $other_stock_id to stock ".$self->stock_id()."\n";
+        $stock_allele_count++;
+    }
+    if ( $stock_allele_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[ALLELE-MOVE] Moving $stock_allele_count Locus Alleles to stock " . $self->stock_id() . "\n";
     }
 
     # move image relationships
     #
     my $irs = $phenome_schema->resultset("StockImage")->search( { stock_id => $other_stock_id });
     while (my $row = $irs->next()) {
-
-	my $this_rs = $phenome_schema->resultset("StockImage")->search( { stock_id => $self->stock_id(), image_id => $row->image_id() } );
-	if ($this_rs->count() == 0) {
-	    $row->stock_id($self->stock_id());
-	    $row->update();
-	    print STDERR "Moving image ".$row->image_id()." from stock $other_stock_id to stock ".$self->stock_id()."\n";
-	    $image_count++;
-	}
-	else {
-	    print STDERR "Removing stock_image entry...\n";
-	    $row->delete(); # there is no cascade delete on image relationships, so we need to remove dangling relationships.
-	}
+        my $this_rs = $phenome_schema->resultset("StockImage")->search( { stock_id => $self->stock_id(), image_id => $row->image_id() } );
+        if ($this_rs->count() == 0) {
+            $row->stock_id($self->stock_id());
+            $row->update();
+            print STDERR "Moving image ".$row->image_id()." from stock $other_stock_id to stock ".$self->stock_id()."\n";
+            $image_count++;
+        }
+        else {
+            print STDERR "Removing stock_image entry...\n";
+            $row->delete(); # there is no cascade delete on image relationships, so we need to remove dangling relationships.
+        }
+    }
+    if ( $image_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[IMAGE-MOVE] Moving $image_count Images to stock " . $self->stock_id() . "\n";
     }
 
     # move stock owners
     #
     my $sors = $phenome_schema->resultset("StockOwner")->search( { stock_id => $other_stock_id });
     while (my $row = $sors->next()) {
-
-	my $this_rs = $phenome_schema->resultset("StockOwner")->search( { stock_id => $self->stock_id(), sp_person_id => $row->sp_person_id() });
-	if ($this_rs->count() == 0) {
-	    $row->stock_id($self->stock_id());
-	    $row->update();
-	    print STDERR "Moved stock_owner ".$row->sp_person_id()." of stock $other_stock_id to stock ".$self->stock_id()."\n";
-	    $stock_owner_count++;
-	}
-	else {
-	    print STDERR "(Deleting stock owner entry for stock $other_stock_id, owner ".$row->sp_person_id()."\n";
-	    $row->delete(); # see comment for move image relationships
-	}
+        my $this_rs = $phenome_schema->resultset("StockOwner")->search( { stock_id => $self->stock_id(), sp_person_id => $row->sp_person_id() });
+        if ($this_rs->count() == 0) {
+            $row->stock_id($self->stock_id());
+            $row->update();
+            print STDERR "Moved stock_owner ".$row->sp_person_id()." of stock $other_stock_id to stock ".$self->stock_id()."\n";
+            $stock_owner_count++;
+        }
+        else {
+            print STDERR "(Deleting stock owner entry for stock $other_stock_id, owner ".$row->sp_person_id()."\n";
+            $row->delete(); # see comment for move image relationships
+        }
     }
+    if ( $stock_owner_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[OWNER-MOVE] Moving $stock_owner_count Owners to stock " . $self->stock_id() . "\n";
+    }
+    
 
     # move map parents
     #
     my $sgn_schema = SGN::Schema->connect(
-	sub { $self->schema()->storage()->dbh() }, { limit_dialect => 'LimitOffset' }
+	    sub { $self->schema()->storage()->dbh() }, 
+        { limit_dialect => 'LimitOffset' }
 	);
 
     my $mrs1 = $sgn_schema->resultset("Map")->search( { parent_1 => $other_stock_id });
     while (my $row = $mrs1->next()) {
-	$row->parent_1($self->stock_id());
-	$row->update();
-	print STDERR "Move map parent_1 $other_stock_id to ".$self->stock_id()."\n";
-	$parent_1_count++;
+        $row->parent_1($self->stock_id());
+        $row->update();
+        print STDERR "Move map parent_1 $other_stock_id to ".$self->stock_id()."\n";
+        $parent_1_count++;
+    }
+    if ( $parent_1_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[MAPPARENT-MOVE] Moving $parent_1_count Map Parent 1 to stock " . $self->stock_id() . "\n";
     }
 
     my $mrs2 = $sgn_schema->resultset("Map")->search( { parent_2 => $other_stock_id });
     while (my $row = $mrs2->next()) {
-	$row->parent_2($self->stock_id());
-	$row->update();
-	print STDERR "Move map parent_2 $other_stock_id to ".$self->stock_id()."\n";
-	$parent_2_count++;
+        $row->parent_2($self->stock_id());
+        $row->update();
+        print STDERR "Move map parent_2 $other_stock_id to ".$self->stock_id()."\n";
+        $parent_2_count++;
+    }
+    if ( $parent_2_count > 0 && defined($output_log) ) {
+        print OUTPUT_LOG_FH "[MAPPARENT-MOVE] Moving $parent_2_count Map Parent 2 to stock " . $self->stock_id() . "\n";
     }
 
     if ($delete_other_stock) {
-	my $row = $self->schema()->resultset("Stock::Stock")->find( { stock_id => $other_stock_id });
-	$row->delete();
-	$other_stock_deleted = 'YES';
+        my $row = $self->schema()->resultset("Stock::Stock")->find( { stock_id => $other_stock_id });
+        $row->delete();
+        $other_stock_deleted = 'YES';
+        print OUTPUT_LOG_FH "[DELETE] Deleting Bad Stock #$other_stock_id\n" if defined($output_log);
     }
 
 
@@ -1763,6 +1827,7 @@ sub merge {
     Other stock deleted: $other_stock_deleted.
 COUNTS
 
+    close(OUTPUT_LOG_FH) if defined($output_log);
 }
 
 =head2 delete
