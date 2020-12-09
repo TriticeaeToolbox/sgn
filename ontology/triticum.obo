@@ -7095,7 +7095,7 @@ relationship: variable_of CO_321:0500246
 
 [Term]
 id: CO_321:0501170
-name: Agrinomic Merit - 1-9 Agronomic Merit Rating
+name: Agronomic Merit - 1-9 Agronomic Merit Rating
 namespace: wheat_trait
 def: "TRAIT: A computed metric based on the the weighted values of resistance to various diseases and lodging. METHOD: Computation of the agronomic merit score based on the weighted scores of resistance to various diseases and lodging SCALE: 1-9 Agronomic Merit Rating (1= Low agronomic merit score, 2= , 3= , 4= , 5= , 6=, 7= , 8= , 9= High agronomic merit score)" []
 synonym: "AgrMerit_1_9" EXACT []
