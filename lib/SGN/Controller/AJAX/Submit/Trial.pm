@@ -88,7 +88,8 @@ sub submit_trial_data_POST : Args(0) {
     $self->write_location_file($c, $dir, $trial);
     $self->write_trial_details_file($c, $dir, $trial);
     $self->write_accessions_file($c, $dir, $trial);
-    $self->write_trial_layout_and_observations_files($c, $dir, $trial);
+    $self->write_trial_layout_file($c, $dir, $trial);
+    $self->write_trial_observations_file($c, $dir, $trial);
 
     # Send email notification
     if ( $submission_email ) {
@@ -223,7 +224,7 @@ sub write_accessions_file :Private {
     my $dir = shift;
     my $trial = shift;
 
-    # TODO: Only add supported/enabled stock props
+    # TODO: Use separate accession download code
 
     my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     
@@ -274,7 +275,7 @@ sub write_accessions_file :Private {
     $self->write_excel_file($accessions_file, \@accession_headers, \@accession_rows);
 }
 
-sub write_trial_layout_and_observations_files :Private {
+sub write_trial_layout_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -283,7 +284,6 @@ sub write_trial_layout_and_observations_files :Private {
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
     # Trial Plot-level data
-    my $trait_offset = 11;
     my $trial_layout_download = CXGN::Trial::TrialLayoutDownload->new({
         schema => $schema,
         trial_id => $trial->get_trial_id(),
@@ -304,18 +304,12 @@ sub write_trial_layout_and_observations_files :Private {
     });
     my $output = $trial_layout_download->get_layout_output()->{output};
     my $tld_header = shift @$output;
-    my @traits = @$tld_header[$trait_offset .. @$tld_header-1];
 
     # Trial layout file info
     my $trial_layout_file = $dir . "/trial_layout.xls";
     my @trial_layout_headers = ("trial_name", "breeding_program", "location", "year", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
     my @trial_layout_rows = ();
     my $bps = $trial->get_breeding_programs();
-
-    # Trial observations file info
-    my $trial_observations_file = $dir . "/trial_observations.xls";
-    my @trial_observations_headers = ("observationunit_name", @traits);
-    my @trial_observations_rows = ();
 
     # Get trial-level properties
     my $trial_name = $trial->get_name();
@@ -362,19 +356,33 @@ sub write_trial_layout_and_observations_files :Private {
         );
         push(@trial_layout_rows, \@lr);
 
-        # observations row
-        my @or = (
-            $p->[0]
-        );
-        for ( my $i = 0; $i <= $#traits; $i++ ) {
-            my $v = $p->[$i+$trait_offset];
-            push(@or, $v);
-        }
-        push(@trial_observations_rows, \@or);
-
     }
+
     $self->write_excel_file($trial_layout_file, \@trial_layout_headers, \@trial_layout_rows);
-    $self->write_excel_file($trial_observations_file, \@trial_observations_headers, \@trial_observations_rows);
+}
+
+sub write_trial_observations_file :Private {
+    my $self = shift;
+    my $c = shift;
+    my $dir = shift;
+    my $trial = shift;
+
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    # Trial observations file info
+    my $trial_observations_file = $dir . "/trial_observations.xls";
+    my $plugin = 'TrialPhenotypeExcel';
+    my @trial_list = ( $trial->get_trial_id() );
+
+    # Create File
+    my $download = CXGN::Trial::Download->new({
+        bcs_schema => $schema,
+        trial_list => \@trial_list,
+        filename => $trial_observations_file,
+        format => $plugin,
+        data_level => "plot"
+    });
+    my $error = $download->download();
 }
 
 
