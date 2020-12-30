@@ -106,11 +106,26 @@ $page->footer();
     my $linkGene;
     my $linkJB;
     my $linkKN;
+    my $linkEP;
     my @vep_list;
     my $countF;
 
     my $chromM = $chrom;
-    my $q = "select marker_name, gene, population, trait, zvalue, qvalue, pvalue, description, chromosome from gwas_report where variable = ? and method = ?";
+
+    my $q = "select url from public.db where name = 'KnetMiner'";
+    my $sth = $dbh->prepare($q) or die $dbh->errstr;
+    $sth->execute();
+    my ($knet_url) = $sth->fetchrow_array();
+    $q = "select url from public.db where name = 'Ensembl'";
+    $sth = $dbh->prepare($q) or die $dbh->errstr;
+    $sth->execute();
+    my ($ensembl_url) = $sth->fetchrow_array();
+    $q = "select url from public.db where name = 'JBrowse'";
+    $sth = $dbh->prepare($q) or die $dbh->errstr;
+    $sth->execute();
+    my ($jbrowse_url) = $sth->fetchrow_array();
+
+    $q = "select marker_name, gene, population, trait, zvalue, qvalue, pvalue, description, chromosome from gwas_report where variable = ? and method = ?";
     my $marker_q = $dbh->prepare($q) or die $dbh->errstr;
 
     $q = "select name from feature, featureloc where feature.feature_id = featureloc.feature_id and type_id = 75352 and (fmin <= ?) and (fmax > ?)";
@@ -120,19 +135,32 @@ $page->footer();
     print "<table id=\"mnase\" class=\"display\"><thead><tr><th>marker<th>chrom<th>gene<th>population<th>description<th>zvalue<th>qvalue<th>pvalue<th>Ensembl JBrowse KnetMiner\n";
     print "<tbody>";
     while (my ($marker_name, $gene, $population, $trait, $zvalue, $qvalue, $pvalue, $description, $chrom) = $marker_q->fetchrow_array()) {
-        if ($gene =~ /\w/) {
- 	    $linkGene = "<a href=\"https://plants.ensembl.org/Triticum_aestivum/Gene/Summary?g=$gene\" target=\"_blank\"><img src=\"/static/img/ep.png\" style=\"width:20px;height:20px;\"></a>";
-	    $linkJB = "<a href=\"https://wheat.pw.usda.gov/jb/?data=/ggds/whe-iwgsc2018&loc=$gene\" target=\"_blank\"><img src=\"/static/img/GG-logo.png\" style=\"width:20px;height:20px;\"></a>";
-	    $linkKN = "<a href=\"https://knetminer.rothamsted.ac.uk/wheatknet/genepage?keyword=$trait&list=$gene\" target=\"_blank\"><img src=\"/static/img/kn.png\" style=\"width:20px;height:20px;\"></a>";
-        } else {
-	    $linkGene = "";
+        if ((defined $gene) && (defined $ensembl_url)) {
+ 	    $linkEP = "<a href=\"https://" . $ensembl_url . "?g=$gene\" target=\"_blank\"><img src=\"/static/img/ep.png\" style=\"width:20px;height:20px;\"></a>";
+	} else {
+	    $linkEP = "";
+	}
+	if (defined $jbrowse_url) {
+            if (defined $gene) {
+		$linkJB = "<a href=\"https://" . $jbrowse_url . "&loc=$gene\" target=\"_blank\"><img src=\"/static/img/GG-logo.png\" style=\"width:20px;height:20px;\"></a>";
+	    } else {
+	        $linkJB = "<a href=\"https://" . $jbrowse_url . "&loc=$marker_name\" target=\"_blank\"><img src=\"/static/img/GG-logo.png\" style=\"width:20px;height:20px;\"></a>";
+	    }
+	} else {
 	    $linkJB = "";
+        }
+	if ((defined $gene) && (defined $knet_url)) {
+	    $linkKN = "<a href=\"https://" . $knet_url . "?keyword=$trait&list=$gene\" target=\"_blank\"><img src=\"/static/img/kn.png\" style=\"width:20px;height:20px;\"></a>";
+        } else {
 	    $linkKN = "";
+	}
+	if (!defined $gene) {
+	    $gene = "";
 	}
 	$zvalue = sprintf("%.2f", $zvalue);
 	$qvalue = sprintf("%.1e", $qvalue);
 	$pvalue = sprintf("%.1e", $pvalue);
-	print "<tr><td>$marker_name<td>$chrom<td>$gene<td>$population<td>$description<td>$zvalue<td>$qvalue<td>$pvalue<td>$linkGene $linkJB $linkKN";
+	print "<tr><td>$marker_name<td>$chrom<td>$gene<td>$population<td>$description<td>$zvalue<td>$qvalue<td>$pvalue<td>$linkEP $linkJB $linkKN";
     }
     print "</tbody></table>";
     print <<HTML;
