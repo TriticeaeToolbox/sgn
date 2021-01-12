@@ -2,11 +2,11 @@
 
 =head1 NAME
 
-AddNewStockPropsToViewsUpdate2.pm
+AddNewStockPropsToViewsUpdate3.pm
 
 =head1 SYNOPSIS
 
-mx-run AddNewStockPropsToViewsUpdate2 [options] -H hostname -D dbname -u username [-F]
+mx-run AddNewStockPropsToViewsUpdate3 [options] -H hostname -D dbname -u username [-F]
 
 this is a subclass of L<CXGN::Metadata::Dbpatch>
 see the perldoc of parent class for more details.
@@ -29,7 +29,7 @@ it under the same terms as Perl itself.
 =cut
 
 
-package AddNewStockPropsToViewsUpdate2;
+package AddNewStockPropsToViewsUpdate3;
 
 use Moose;
 use SGN::Model::Cvterm;
@@ -51,6 +51,7 @@ sub patch {
 
     my $schema = Bio::Chado::Schema->connect( sub { $self->dbh->clone } );
     
+    # Now re-generate the materialized view (code lifted from db patch 00126)
     my $block_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'block', 'stock_property')->cvterm_id();
     my $col_number_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'col_number', 'stock_property')->cvterm_id();
     my $igd_synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'igd_synonym', 'stock_property')->cvterm_id();
@@ -105,6 +106,7 @@ sub patch {
     my $dna_person_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'dna_person', 'stock_property')->cvterm_id();
     my $tissue_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'tissue_type', 'stock_property')->cvterm_id();
     my $ncbi_taxonomy_id_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'ncbi_taxonomy_id', 'stock_property')->cvterm_id();
+    my $seedlot_quality_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'seedlot_quality', 'stock_property')->cvterm_id();
 
     $self->dbh->do(<<EOSQL);
 --do your SQL here
@@ -171,6 +173,7 @@ FROM crosstab(
     (''$extraction_cvterm_id''),
     (''$dna_person_cvterm_id''),
     (''$tissue_type_cvterm_id''),
+    (''$seedlot_quality_cvterm_id''),
     (''$ncbi_taxonomy_id_cvterm_id'')) AS t (type_id);'
 )
 AS (stock_id int,
@@ -231,6 +234,7 @@ AS (stock_id int,
     "extraction" jsonb,
     "dna_person" jsonb,
     "tissue_type" jsonb,
+    "seedlot_quality" jsonb,
     "ncbi_taxonomy_id" jsonb
 );
 CREATE UNIQUE INDEX materialized_stockprop_stock_idx ON public.materialized_stockprop(stock_id) WITH (fillfactor=100);
