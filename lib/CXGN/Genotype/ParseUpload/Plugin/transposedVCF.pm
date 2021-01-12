@@ -60,7 +60,7 @@ sub _validate_with_plugin {
     my @fields;
 
     open($F, "<", $filename) || die "Can't open file $filename\n";
-    
+    print STDERR "reading $filename\n"; 
     my @header_info;
 
     my $chroms;
@@ -179,8 +179,7 @@ sub _validate_with_plugin {
     #print STDERR "Scanning file for observation unit names... \n";
     my $lines = 0;
     while (<$F>) {
-	chomp;
-
+        s/[\r\n]//sg;
 	my @fields = split /\t/;
 	#print "Parsing line $fields[0]\n";
 	push @observation_unit_names, $fields[0];
@@ -188,7 +187,6 @@ sub _validate_with_plugin {
 	if ($lines % 100 == 0) { print STDERR "Reading line $lines...        \r"; }
     }
     
-    #print STDERR "\n";
     close($F);
     
     my $number_observation_units = scalar(@observation_unit_names);
@@ -203,16 +201,12 @@ sub _validate_with_plugin {
         }
     } else {
         foreach (@observation_unit_names) {
-	    if (m/\|\|\|/) {
-                my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
-		push @observation_units_names_trim, $observation_unit_name;
-	    } else {
-		push @observation_units_names_trim, $_;
-	    }
+	    s/[\r\n]//sg;
+            my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
+            push @observation_units_names_trim, $observation_unit_name;
         }
     }
     my $observation_unit_names = \@observation_units_names_trim;
-
     my $organism_id = $self->get_organism_id;
     my $accession_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
 
@@ -363,8 +357,7 @@ sub next_genotype {
                 # print STDERR Dumper $line;
             }
         }
-        chomp($line);
-
+        $line =~ s/[\r\n]//sg;
         my @fields = split /\t/, $line;
         #print STDERR Dumper \@fields;
 
