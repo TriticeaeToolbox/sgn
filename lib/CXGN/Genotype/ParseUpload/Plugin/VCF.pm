@@ -178,10 +178,10 @@ sub _validate_with_plugin {
         foreach (@observation_unit_names) {
 	    if (m/\|\|\|/) {
                 my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
+		push @observation_units_names_trim, $observation_unit_name;
 	    } else {
-		my ($observation_unit_name) = $_;
+		push @observation_units_names_trim, $_;
 	    }
-            push @observation_units_names_trim, $observation_unit_name;
         }
     }
     my $observation_unit_names = \@observation_units_names_trim;
