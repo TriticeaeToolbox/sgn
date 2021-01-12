@@ -176,7 +176,11 @@ sub _validate_with_plugin {
         }
     } else {
         foreach (@observation_unit_names) {
-            my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
+	    if (m/\|\|\|/) {
+                my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
+	    } else {
+		my ($observation_unit_name) = $_;
+	    }
             push @observation_units_names_trim, $observation_unit_name;
         }
     }
