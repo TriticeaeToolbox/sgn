@@ -35,6 +35,7 @@ kinship_check
 # Note: still need to test how well this pmatch deals with other trickier cases
 pheno_names <- names(pheno)
 pheno_names <- gsub(" ", ".", pheno_names)
+pheno_names <- gsub("/", ".", pheno_names)
 pheno_vector <- pheno[,pmatch(study_trait, pheno_names)]
 pheno_vector[1:5]
 # Make a new phenotype table, including only the phenotype selected:
