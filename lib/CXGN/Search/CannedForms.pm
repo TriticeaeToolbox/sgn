@@ -599,15 +599,13 @@ sub to_html {
 	      <div class="col-sm-7">
 	        $textbox{marker_name}
               </div>
-            </div>
+	    </div>
           </div>
         </div>
-        <div class="form-group">
+	<div class="form-group">
           <label class="col-sm-3 control-label"></label>
-	  <div class="col-sm-9" >
-	    <input class="btn btn-primary" type="submit" name="$uniq{submit}" value="Search" />&nbsp;&nbsp;&nbsp;&nbsp;
-            $checkbox{'mapped','checked'}
-            <span class="help" title="Unmapped markers include candidate markers that have not yet been mapped, and polymorphism surveys.">Find only markers that are mapped</span>
+	  <div class="col-sm-9">
+	    <input class="btn btn-primary" type="submit" name="$uniq{submit}" value="Search" />
 	  </div>
 	</div>
       </div>
