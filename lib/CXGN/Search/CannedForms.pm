@@ -625,6 +625,21 @@ EOHTML
     $retstring .= blue_section_html( 'Marker Options', '<a style="font-size: 75%" href="/search/markers/markersearch.pl?random=yes">  
     [Select a marker at random]</a>', <<EOFOO);
 
+    $checkbox{bac_assoc}
+    Show only markers with BAC associations<br />
+      <div style="margin-left: 20px;">
+        $checkbox{overgo_assoc}
+        <span class="help" title="The overgo process associates BACs with certain markers from SGN tomato maps.">Overgo associations<small> <a href="/maps/physical/overgo_process_explained.pl">[About the overgo process]</a></small></span><br />
+
+	$checkbox{manual_assoc}
+        <span class="help" title="Some markers have been manually associated with BACs.">Manual associations</span><br />
+
+	$checkbox{comp_assoc}
+        <span class="help" title="Some markers have been BLASTed against our collection of BACs.">Computational associations</span><br />
+
+      </div>
+      <br />
+
       <div class="form-horizontal" >
 	<div class="form-group">
       	  <label class="col-sm-6 control-label">Show markers mapped in species: </label>
@@ -664,14 +679,10 @@ EOHTML
           </div>
 	</div>
 	<div class="form-group">
-      	  <label class="col-sm-6 control-label">Position start: </label>
+      	  <label class="col-sm-6 control-label">Position between: </label>
       	  <div class="col-sm-6" >
-	     $textbox{'pos_start',3}
+	     $textbox{'pos_start',3} cM and $textbox{'pos_end',3} cM
           </div>
-	  <label class="col-sm-6 control-label">Position stop: </label>
-	  <div class="col-sm-6">
-	     $textbox{'pos_end', 3}
-	  </div>
 	</div>
 	<div class="form-group">
       	  <label class="col-sm-6 control-label"><span class="help" title="Maps that have been made with MapMaker have confidence values associated with their positions. Leave this setting at &quot;uncalculated&quot; to see all markers on all maps.">Confidence at least: </span></label>
@@ -804,65 +815,16 @@ sub selectbox {
 
 }
 
-sub selectboxMap {
-
-    my ( $self, $fieldname, $values, $mult ) = @_;
-    my @valuelist = $self->data_multiple($fieldname);
-    my $anysel = '';
-    my $maptype = '';
-    my @anymatches = grep { $_ eq 'Any' } @valuelist;
-    $anysel =
-      ( @valuelist == 0 || @anymatches > 0 ) ? 'selected="selected"' : '';
-    my $retstring = '';
-
-    if ($mult) {
-        $retstring = '<select multiple="multiple" size="3" class="form-control"  name="'
-          . $self->uniqify_name($fieldname) . '" >';
-        $retstring .= qq{<option $anysel>Any</option>};
-    } else {
-        $retstring = '<select class="form-control" name="' . $self->uniqify_name($fieldname) . '" >';
-    }
-
-    my $multiple = $mult ? 'multiple="multiple"' : '';
-    if ( ref( $values->[0] ) eq 'ARRAY' ) {
-        foreach my $i (@$values) {
-	    if ($maptype eq '') {
-		$retstring .= qq{<optgroup label="$i->[1] -------------------">};
-		$maptype = $i->[1];
-	    } elsif ($maptype ne $i->[1]) {
-		$retstring .= qq{<optgroup label="$i->[1] -------------------">};
-		$maptype = $i->[1];
-	    }
-            my $sel = '';
-            $sel = 'selected="selected"' if grep { $_ eq $i->[0] } @valuelist;
-            $retstring .= qq{<option value="$i->[0]" $sel>$i->[2]</option>};
-        }
-    } elsif ( @$values > 0 ) {
-        foreach my $i (@$values) {
-	    if ($maptype eq '') {
-		$retstring .= qq{<optgroup label="$i --------------------">};
-		$maptype = $i;
-	    }
-            my $sel = '';
-            $sel = 'selected="selected"' if grep { $_ eq $i } @valuelist;
-            $retstring .= qq{<option $sel>$i</option>};
-        }
-    } else {
-        warn "no values given to selectbox()\n";
-        return;
-    }
-    $retstring .= '</select>';
-    return $retstring;
-}
-
 sub map_select {
 
     my ($self) = @_;
+
     my $mapx0rz =
       $self->{dbh}->selectall_arrayref(
-"SELECT map_id, concat(map_type, ' ', units), short_name from map ORDER BY map_type, short_name"
+"SELECT map_id, short_name from map WHERE map_type = 'genetic' ORDER BY short_name"
       );
-    return $self->selectboxMap( 'maps', $mapx0rz, 'multiple' );
+
+    return $self->selectbox( 'maps', $mapx0rz, 'multiple' );
 
 }
 
@@ -914,8 +876,8 @@ sub chromo_select {
     {
       no warnings 'uninitialized';
       @$chromolist = sort {
-                do { $a =~ /(\w+)/; $1 }
-            cmp do { $b =~ /(\w+)/; $1 }
+                do { $a =~ /(\d+)/; $1 }
+            <=> do { $b =~ /(\d+)/; $1 }
       } @$chromolist;
     }
 
