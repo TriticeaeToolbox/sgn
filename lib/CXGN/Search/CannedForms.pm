@@ -627,21 +627,6 @@ EOHTML
     $retstring .= blue_section_html( 'Marker Options', '<a style="font-size: 75%" href="/search/markers/markersearch.pl?random=yes">  
     [Select a marker at random]</a>', <<EOFOO);
 
-    $checkbox{bac_assoc}
-    Show only markers with BAC associations<br />
-      <div style="margin-left: 20px;">
-        $checkbox{overgo_assoc}
-        <span class="help" title="The overgo process associates BACs with certain markers from SGN tomato maps.">Overgo associations<small> <a href="/maps/physical/overgo_process_explained.pl">[About the overgo process]</a></small></span><br />
-
-	$checkbox{manual_assoc}
-        <span class="help" title="Some markers have been manually associated with BACs.">Manual associations</span><br />
-
-	$checkbox{comp_assoc}
-        <span class="help" title="Some markers have been BLASTed against our collection of BACs.">Computational associations</span><br />
-
-      </div>
-      <br />
-
       <div class="form-horizontal" >
 	<div class="form-group">
       	  <label class="col-sm-6 control-label">Show markers mapped in species: </label>
