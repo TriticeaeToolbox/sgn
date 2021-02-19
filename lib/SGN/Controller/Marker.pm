@@ -134,6 +134,7 @@ sub search_marker : Private {
     
     # NO MATCH FOUND
     if ( $count == 0 ) {
+        $c->response->status(404);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>No Matching Marker Found</strong> ($marker_query)<br />You can view and search for markers from the <a href='/search/markers'>Marker Search Page</a>";
     }
@@ -149,6 +150,7 @@ sub search_marker : Private {
             $list .= "<li><a href='$url'>$marker_name</a></li>";
         }
         $list .= "</ul>";
+        $c->response->status(409);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>Multiple Markers Found</strong><br />" . $list;
     }

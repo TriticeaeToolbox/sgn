@@ -492,6 +492,7 @@ sub search_trial : Private {
 
     # NO MATCH FOUND
     if ( $count != 1 ) {
+        $c->response->status(404);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>No Matching Trial Found</strong> ($trial_query)<br />You can view and search for trials from the <a href='/search/trials'>Trial Search Page</a>";
     }
