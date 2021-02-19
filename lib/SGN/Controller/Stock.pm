@@ -509,6 +509,7 @@ sub search_stock : Private {
 
     # NO MATCH FOUND
     if ( $count == 0 ) {
+        $c->response->status(404);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>No Matching Stock Found</strong> ($stock_query $organism_query)<br />You can view and search for stocks from the <a href='/search/stocks'>Stock Search Page</a>";
     }
@@ -524,6 +525,7 @@ sub search_stock : Private {
             $list.="<li><a href='$url'>$stock_name ($species_name)</li>";
         }
         $list.="</ul>";
+        $c->response->status(409);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>Multiple Stocks Found</strong><br />" . $list;
     }
