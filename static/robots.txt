@@ -11,4 +11,5 @@ Disallow: /qtl/download/
 Disallow: /solgs/
 Disallow: /stock/*/datatables/
 Disallow: /stock/*/genotypes
+Disallow: /*genotypes
 Crawl-delay: 30
