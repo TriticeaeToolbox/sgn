@@ -168,7 +168,11 @@ sub search_marker_json {
         $self->{sth}->execute();
 	$results = $self->{sth}->fetchall_arrayref({});
     }
-    return $results;
+    if (defined($results)) {
+        return $results;
+    } else {
+	return;
+    }
 }
 
 sub perform_search {

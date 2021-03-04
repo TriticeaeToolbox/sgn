@@ -162,8 +162,8 @@ sub search_marker : Private {
     my @marker_entries = $msearchJ->search_marker_json($marker_query);
 
     my @filtered_marker_ids = _uniq(@marker_ids);
-    my @filtered_marker_entries = _uniq(@marker_entries);
     my $countm = scalar @filtered_marker_ids;
+    my @filtered_marker_entries = _uniq(@marker_entries);
     my $countp = scalar @filtered_marker_entries;
 
     # NO MATCH FOUND
@@ -192,15 +192,16 @@ sub search_marker : Private {
         $list .= "</table>";
 	$c->stash->{template} = "generic_message.mas";
 	$c->stash->{message} = "<strong>Markers Results</strong><br />" . $list;
-    }
-
     # 1 MATCH FOUND - FORWARD TO VIEW MARKER
-    else {
+    } else {
 	    if ($countm > 0) {
 	        my $marker_id = $filtered_marker_ids[0];
 	        $c->res->redirect('/search/markers/markerinfo.pl?marker_id=' . $marker_id, 301);
-	    } else {
+	    } elsif ($countp > 0) {
 		$c->res->redirect('/search/markers/markerinfo.pl?marker_name=' . $marker_query, 301);
+	    } else {
+		$c->stash->{template} = "generic_message.mas";
+                $c->stash->{message} = "<strong>No Matching Marker Found</strong> ($marker_query)<br />You can view and search for markers from the <a href='/search/markers'>Marker Search Page</a>";
 	    }
 	    $c->detach();
     }

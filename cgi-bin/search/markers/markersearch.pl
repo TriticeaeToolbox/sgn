@@ -179,7 +179,7 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   my $sth;
   my @row;
 
-  my $query = "select cvterm_id from cvterm where name = 'vcf_map_details_markers'";
+  $query = "select cvterm_id from cvterm where name = 'vcf_map_details_markers'";
   $sth = $dbh->prepare($query);
   $sth->execute();
   my ($protocol_markers_cvterm) = $sth->fetchrow_array();
@@ -228,7 +228,7 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
     }
     if ($subq2 ne "") {
 	$query .= " AND $subq2";
-	print STDERR "query = $query\n";
+	#print STDERR "query = $query\n";
     }
     $query .= " ORDER by s.value->>'name'";
     if ($subq2 ne "") {
