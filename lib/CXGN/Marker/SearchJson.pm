@@ -7,7 +7,6 @@ use CXGN::Marker;
 use CXGN::Marker::LocMarker;
 use CXGN::Marker::Tools qw(clean_marker_name);
 
-
 =head1 NAME
 
 CXGN::Marker::SearchJson - object to return lists of markers based on your criteria
@@ -75,6 +74,60 @@ sub name_like {
   push(@{$self->{query_parts}}, $subquery);
 
 }
+
+sub on_chr {
+
+  my ($self, @chrs) = @_;
+
+  return unless @chrs > 0;
+
+  # asking for "4" should also retrieve "4b".
+  foreach my $chr (@chrs){
+    if ($chr =~ /^\d+$/){ $chr .='[ABCabc]?' }
+    $chr = '^'.$chr.'$';
+  }
+
+  my $chrom_str = "'" . join('\',\'', @chrs) . "'";
+  my $subquery = " AND (s.value->>'chrom' IN ($chrom_str))";
+  push(@{$self->{query_parts}}, $subquery);
+}
+
+=item position_between($start, $end)
+
+Limits the results to markers appearing between the given endpoints.
+
+  $msearch->position_between(90,100);
+  $msearch->on_chr(5);
+  # returns only markers between 90-100 on chr 5
+
+  $msearch->position_between(50, undef);
+  # returns markers after 50 cM on any chromosome
+
+=cut
+
+sub position_between {
+
+  my ($self, $start, $end) = @_;
+
+  # making sure our inputs are numbers
+  # (pg barfs if you feed it a string; 
+  # we want to fail gracefully)
+  $start += 0;
+  $end += 0;
+  return unless ($start || $end);
+
+  my $subquery = " AND (s.value->>'pos')::int > $start AND (s.value->>'pos')::int < $end";
+  push(@{$self->{query_parts}}, $subquery);
+}
+
+sub return_subquery {
+    my ($self) = @_;
+    my $subq = '';
+    foreach ($self->{query_parts}) {
+        $subq .= $_;
+    }
+    return $subq;
+}    
 
 sub search_marker_json {
     my ($self, $marker) = @_;
