@@ -220,7 +220,7 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
     $countquery = "select count(*) as countq from nd_protocolprop, jsonb_each(nd_protocolprop.value) as s";
     if (scalar(@protocol_set) > 0) {
         $protocol_str = join(',', @protocol_set);
-        $query .= " WHERE nd_protocol_id IN ($protocol_str)";
+        $query .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
 	$countquery .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
     } else {
         $query .= " WHERE type_id = $protocol_markers_cvterm";

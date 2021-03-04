@@ -2,7 +2,7 @@
 
 =head1 NAME
 
-/markers/locationsGenotype.mas - a Mason component displaying information about genotype locations of markers
+/markers/locationsGenotype.mas - a Mason component displaying information about map locations of markers
 
 =head1 DESCRIPTION
 
@@ -12,13 +12,13 @@ parameters
 
 =item *
 
-$marker - marker nameker.
+$marker - a CXGN::Marker object.
 
 =back
 
 =head1 AUTHOR
 
-Clay Birkett <clb343@cornell.edu>
+Lukas Mueller <clb343@cornell.edu>
 
 =cut
 
@@ -30,6 +30,8 @@ $dbh
 </%args>
 
 <%perl>
+
+use strict;
 
 my @row;
 my $url;
@@ -92,6 +94,8 @@ if ($count > 0) {
     }
     $locations_html .=  "</table>";
 
+} else {
+   $locations_html = "No results found";
 }
 
 my $marker_name    = $marker;
