@@ -2,7 +2,7 @@
 package main;
 
 use strict;
-#use warnings;
+use warnings;
 use CXGN::Page;
 use CXGN::Search::CannedForms;
 use CXGN::Page::FormattingHelpers qw/blue_section_html  page_title_html columnar_table_html/;
@@ -14,7 +14,7 @@ use HTML::Entities;
 our $page = CXGN::Page->new( "Marker Search", "Beth Skwarecki");
 
 my %params=$page->cgi_params();
-#use Data::Dumper;
+use Data::Dumper;
 my $dbh=CXGN::DB::Connection->new();
 
 
@@ -210,7 +210,6 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
             push @protocol_set, $row[0];
         }
     }
-    $protocol_str = join(',', @protocol_set);
     my $protocolprop_marker_hash_select = ['name', 'chrom', 'pos', 'alt', 'ref']; #THESE ARE THE KEYS IN THE MARKERS OBJECT IN THE PROTOCOLPROP OBJECT
     my @protocolprop_marker_hash_select_arr;
     foreach (@$protocolprop_marker_hash_select){
@@ -218,14 +217,20 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
     }
     my $protocolprop_hash_select_sql = scalar(@protocolprop_marker_hash_select_arr) > 0 ? ', '.join ',', @protocolprop_marker_hash_select_arr : '';
     $query = "select nd_protocol_id, s.value->>'name' as alias ,s.value->>'chrom' as lg_name ,s.value->>'pos' as position, s.value->>'ref' as ref, s.value->>'alt' as alt from nd_protocolprop, jsonb_each(nd_protocolprop.value) as s";
-    $query .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
+    $countquery = "select count(*) as countq from nd_protocolprop, jsonb_each(nd_protocolprop.value) as s";
+    if (scalar(@protocol_set) > 0) {
+        $protocol_str = join(',', @protocol_set);
+        $query .= " WHERE nd_protocol_id IN ($protocol_str)";
+	$countquery .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
+    } else {
+        $query .= " WHERE type_id = $protocol_markers_cvterm";
+	$countquery .= " WHERE type_id = $protocol_markers_cvterm";
+    }
     if ($subq2 ne "") {
 	$query .= " AND $subq2";
-	#print STDERR "query = $query\n";
+	print STDERR "query = $query\n";
     }
     $query .= " ORDER by s.value->>'name'";
-    $countquery = "select count(*) as countq from nd_protocolprop, jsonb_each(nd_protocolprop.value) as s";
-    $countquery .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
     if ($subq2 ne "") {
         $countquery .= " AND $subq2";
     }
