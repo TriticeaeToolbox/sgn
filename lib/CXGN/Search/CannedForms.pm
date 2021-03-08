@@ -629,22 +629,18 @@ EOHTML
 
       <div class="form-horizontal" >
 	<div class="form-group">
-      	  <label class="col-sm-8 control-label">Show markers in species: </label>
-      	  <div class="col-sm-10" >
+      	  <label class="col-sm-6 control-label">Show markers in species: </label>
+      	  <div class="col-sm-8" >
 	    $species{yeah}
           </div>
 	</div>
 	<div class="form-group">
-      	  <label class="col-sm-8 control-label"><span class="help" title="Protocol definitions: AFLP - Amplified Fragment Length Polymorphisms. CAPS - Cleaved Amplified Polymorphisms. PCR - any unspecified PCR-based method. RFLP - Restriction Fragment Length Polymorphism. SSR - Short Sequence Repeats (microsatellites)">Show markers in Protocol: </span></label>
-      	  <div class="col-sm-10" >
+      	  <label class="col-sm-6 control-label"><span class="help" title="Protocol definitions: AFLP - Amplified Fragment Length Polymorphisms. CAPS - Cleaved Amplified Polymorphisms. PCR - any unspecified PCR-based method. RFLP - Restriction Fragment Length Polymorphism. SSR - Short Sequence Repeats (microsatellites)">Show markers in Protocol: </span></label>
+      	  <div class="col-sm-8" >
 	    $protocols{'yeah'}
           </div>
 	</div>
 	<div class="form-group">
-      	  <label class="col-sm-6 control-label"><span class="help" title="Collections: COS - Conserved Ortholog Sequences (tomato and Arabidopsis). COSII - Conserved Ortholog Sequences II (several Asterid species). KFG - Known Function Genes')">Show markers in group: </span></label>
-      	  <div class="col-sm-6" >
-	    $colls{'yeah'}
-          </div>
 	</div>
       </div>
     </div>
@@ -656,7 +652,7 @@ EOFOO
 
 EOHTML
 
-    $retstring .= blue_section_html( 'Map Locations', <<EOHTML);
+    $retstring .= blue_section_html( 'Map/Marker Locations', <<EOHTML);
 
       <div class="form-horizontal" >
 	<div class="form-group">
@@ -676,10 +672,6 @@ EOHTML
 	  </div>
 	</div>
 	<div class="form-group">
-      	  <label class="col-sm-6 control-label"><span class="help" title="Maps that have been made with MapMaker have confidence values associated with their positions. Leave this setting at &quot;uncalculated&quot; to see all markers on all maps.">Confidence at least: </span></label>
-      	  <div class="col-sm-6" >
-	     $confs{yeah}
-          </div>
 	</div>
 	<div class="form-group">
       	  <label class="col-sm-6 control-label">On maps: </label>
