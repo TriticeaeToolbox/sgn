@@ -14,7 +14,6 @@ use HTML::Entities;
 our $page = CXGN::Page->new( "Marker Search", "Beth Skwarecki");
 
 my %params=$page->cgi_params();
-use Data::Dumper;
 my $dbh=CXGN::DB::Connection->new();
 
 
@@ -24,6 +23,8 @@ $form->from_request(\%params);
 
 $page->header('SGN: Marker search') unless $form->data('text');
 
+#print STDERR Dumper($form->data);
+
 if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data('random') && $form->data('random') eq 'yes')) {
 
   #use Data::Dumper;
@@ -32,7 +33,6 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   # do the search!
   my $msearch;
   my $msearchJ;
-  my $subq2 = "";
   my $query;
   my @protos;
   my $protocol;
@@ -47,15 +47,12 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
       # but we probably want to be case-insensitive.
       $msearch->name_like($marker_name);
       $msearchJ->name_like($marker_name);
-      $subq2 = " s.value->>'name' = '$marker_name'";
     } elsif ($form->data('nametype') eq 'contains'){
       $msearch->name_like('%'.$marker_name.'%');
       $msearchJ->name_like('%'.$marker_name.'%');
-      $subq2 = " s.value->>'name' like '%" . $marker_name . "%'";
     } elsif ($form->data('nametype') eq 'starts with'){
       $msearch->name_like($marker_name.'%');
       $msearchJ->name_like($marker_name.'%');
-      $subq2 = " s.value->>'name' like '$marker_name" . "%'";
     }
 
   }
@@ -109,10 +106,6 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   if(my @chromos = $form->data_multiple('chromos')){
     $msearch->on_chr(@chromos) unless grep /^Any$/, @chromos;
     $msearchJ->on_chr(@chromos) unless grep /^Any$/, @chromos;
-    unless (grep /^Any$/, @chromos) {
-        my $chrom_str = "'" . join('\',\'', @chromos) . "'";
-        $subq2 .= " AND (s.value->>'chrom' IN ($chrom_str))";
-    }
   }
 
   my $pos_start = $form->data('pos_start') || '';
@@ -121,7 +114,6 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   if ($pos_start or $pos_end){
     $msearch->position_between($pos_start, $pos_end);
     $msearchJ->position_between($pos_start, $pos_end);
-    $subq2 .= " AND (s.value->>'pos')::int > $pos_start AND (s.value->>'pos')::int < $pos_end";
   }
 
   if(my @conf = $form->data_multiple('confs')){
@@ -145,9 +137,8 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   #print '<!-- '. $msearch->query_text() . ' -->';
  
   my ($subq, $places) = $msearch->return_subquery_and_placeholders();
-  my ($subq3) = $msearchJ->return_subquery();
+  my ($subq2) = $msearchJ->return_subquery();
 
-  #print STDERR "subq3\n$subq3\n";
 
   my $resultstart;
   my $resultsize;
@@ -226,6 +217,7 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
         $query .= " WHERE type_id = $protocol_markers_cvterm";
 	$countquery .= " WHERE type_id = $protocol_markers_cvterm";
     }
+    #print STDERR "query = $query\n";
     if ($subq2 ne "") {
 	$query .= " AND $subq2";
 	#print STDERR "query = $query\n";
@@ -233,6 +225,7 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
     $query .= " ORDER by s.value->>'name'";
     if ($subq2 ne "") {
         $countquery .= " AND $subq2";
+	#print STDERR "subq2 = $subq2\n";
     }
     $places = ();
     ($resultcount) = $dbh->selectrow_array($countquery, undef, @$places);

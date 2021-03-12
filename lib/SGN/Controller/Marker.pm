@@ -75,7 +75,6 @@ sub get_marker: Chained('/') PathPart('marker') :CaptureArgs(1) {
         $c->stash->{marker} = CXGN::Marker->new( $c->dbc->dbh, $marker_id);
 	$c->stash->{marker_id} = $marker_id;
     } else {
-	print STDERR "Error: bad $marker\n";
         $c->throw_404('No marker found with that ID');
     }
 }
@@ -170,12 +169,10 @@ sub search_marker : Private {
     if ( ($countm == 0) && ($countp == 0) ) {
 	$c->stash->{template} = "generic_message.mas";
 	$c->stash->{message} = "<strong>No Matching Marker Found</strong> ($marker_query)<br />You can view and search for markers from the <a href='/search/markers'>Marker Search Page</a>";
-    }
 
     # MULTIPLE MATCHES FOUND
-    elsif ( ($countm > 1) || ($countp > 1) ) {
+    } elsif ( ($countm > 1) || ($countp > 1) ) {
 	my @marker_objs = $msearch->fetch_full_markers();
-	#print STDERR Dumper @marker_objs;
         my $list = "<table style=\"border-spacing: 10px; border-collapse: separate;\">";
 	foreach (@marker_objs) {
 	    my $marker_id = $_->marker_id();
@@ -183,7 +180,6 @@ sub search_marker : Private {
             my $url = "/search/markers/markerinfo.pl?marker_id=$marker_id";
             $list .= "<tr><td><a href='$url'>$marker_name</a><td>marker is present on maps</li>";
 	}
-	#print STDERR Dumper @marker_entries;
         foreach (@marker_entries) {
 	    my $link = split(/<td>/, $_);
 	    my $url = "/search/markers/markerinfojson.pl?protocol_id=";
@@ -194,19 +190,17 @@ sub search_marker : Private {
 	$c->stash->{message} = "<strong>Markers Results</strong><br />" . $list;
     # 1 MATCH FOUND - FORWARD TO VIEW MARKER
     } else {
-	    if ($countm > 0) {
-	        my $marker_id = $filtered_marker_ids[0];
-	        $c->res->redirect('/search/markers/markerinfo.pl?marker_id=' . $marker_id, 301);
-	    } elsif ($countp > 0) {
-		$c->res->redirect('/search/markers/markerinfo.pl?marker_name=' . $marker_query, 301);
-	    } else {
-		$c->stash->{template} = "generic_message.mas";
-                $c->stash->{message} = "<strong>No Matching Marker Found</strong> ($marker_query)<br />You can view and search for markers from the <a href='/search/markers'>Marker Search Page</a>";
-	    }
-	    $c->detach();
+	if ($countm > 0) {
+	    my $marker_id = $filtered_marker_ids[0];
+            $c->res->redirect('/search/markers/markerinfo.pl?marker_id=' . $marker_id, 301);
+        } elsif ($countp > 0) {
+            $c->res->redirect('/search/markers/markerinfo.pl?marker_name=' . $marker_query, 301);
+	} else {
+	    $c->stash->{template} = "generic_message.mas";
+            $c->stash->{message} = "<strong>No Matching Marker Found</strong> ($marker_query)<br />You can view and search for markers from the <a href='/search/markers'>Marker Search Page</a>";
+	}
+	$c->detach();
     }
-
-
 }
 
 sub _uniq : Private {

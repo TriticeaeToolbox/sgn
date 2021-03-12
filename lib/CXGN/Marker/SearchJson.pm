@@ -70,26 +70,17 @@ sub name_like {
   # We'll search for both the input name and the cleaned name.
   my $clean_name = clean_marker_name($name);
 
-  my $subquery = " s.value->>'name' = '$name'";
-  push(@{$self->{query_parts}}, $subquery);
-
+  my $subquery = " s.value->>'name' like '$name'";
+  $self->{query_parts} .= $subquery;
 }
 
 sub on_chr {
 
   my ($self, @chrs) = @_;
 
-  return unless @chrs > 0;
-
-  # asking for "4" should also retrieve "4b".
-  foreach my $chr (@chrs){
-    if ($chr =~ /^\d+$/){ $chr .='[ABCabc]?' }
-    $chr = '^'.$chr.'$';
-  }
-
   my $chrom_str = "'" . join('\',\'', @chrs) . "'";
   my $subquery = " AND (s.value->>'chrom' IN ($chrom_str))";
-  push(@{$self->{query_parts}}, $subquery);
+  $self->{query_parts} .= $subquery;
 }
 
 =item position_between($start, $end)
@@ -117,16 +108,13 @@ sub position_between {
   return unless ($start || $end);
 
   my $subquery = " AND (s.value->>'pos')::int > $start AND (s.value->>'pos')::int < $end";
-  push(@{$self->{query_parts}}, $subquery);
+  $self->{query_parts} .= $subquery;
 }
 
 sub return_subquery {
     my ($self) = @_;
     my $subq = '';
-    foreach ($self->{query_parts}) {
-        $subq .= $_;
-    }
-    return $subq;
+    return $self->{query_parts};
 }    
 
 sub search_marker_json {
@@ -167,6 +155,8 @@ sub search_marker_json {
         $self->{sth} = $self->{dbh}->prepare($query);
         $self->{sth}->execute();
 	$results = $self->{sth}->fetchall_arrayref({});
+    } else {
+	print STDERR "$query\nnot fount\n";
     }
     if (defined($results)) {
         return $results;
