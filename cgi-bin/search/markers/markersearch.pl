@@ -23,8 +23,6 @@ $form->from_request(\%params);
 
 $page->header('SGN: Marker search') unless $form->data('text');
 
-#print STDERR Dumper($form->data);
-
 if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data('random') && $form->data('random') eq 'yes')) {
 
   #use Data::Dumper;
@@ -214,8 +212,8 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
         $query .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
 	$countquery .= " WHERE nd_protocol_id IN ($protocol_str) AND type_id = $protocol_markers_cvterm";
     } else {
-        $query .= " WHERE type_id = $protocol_markers_cvterm";
-	$countquery .= " WHERE type_id = $protocol_markers_cvterm";
+        $query .= " WHERE nd_protocol_id IN (null) AND type_id = $protocol_markers_cvterm";
+	$countquery .= " WHERE nd_protocol_id IN (NULL) AND type_id = $protocol_markers_cvterm";
     }
     #print STDERR "query = $query\n";
     if ($subq2 ne "") {
