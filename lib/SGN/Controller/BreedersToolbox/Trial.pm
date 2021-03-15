@@ -61,11 +61,9 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     #print STDERR $format;
     my $user = $c->user();
     if (!$user) {
-	#$c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
-	#return;
+	    $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+	    return;
     }
-
-    #$c->stash->{user_can_modify} = ($user->check_roles("submitter") || $user->check_roles("curator")) ;
 
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $trial = $c->stash->{trial};
@@ -105,6 +103,10 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     $c->stash->{breeding_program_id} = $breeding_program_data->[0]->[0];
     $c->stash->{breeding_program_name} = $breeding_program_data->[0]->[1];
 
+    $c->stash->{user_can_modify} = ($user->check_roles("submitter") && $user->check_roles($c->stash->{breeding_program_name})) || $user->check_roles("curator") ;
+
+
+    
     $c->stash->{year} = $trial->get_year();
 
     $c->stash->{trial_id} = $c->stash->{trial_id};
@@ -121,7 +123,7 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     $c->stash->{main_production_site_url} = $c->config->{main_production_site_url};
     $c->stash->{site_project_name} = $c->config->{project_name};
     $c->stash->{sgn_session_id} = $c->req->cookie('sgn_session_id');
-    #$c->stash->{user_name} = $c->user->get_object->get_username;
+    $c->stash->{user_name} = $c->user->get_object->get_username;
 
     if ($trial->get_folder) {
       $c->stash->{folder_id} = $trial->get_folder()->project_id();
@@ -189,6 +191,7 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
         my @management_factor_types = split ',',$field_management_factors;
         $c->stash->{management_factor_types} = \@management_factor_types;
         $c->stash->{trial_stock_type} = $trial->get_trial_stock_type();
+	$c->stash->{trial_stock_count} = $trial->get_trial_stock_count();
         $c->stash->{template} = '/breeders_toolbox/trial.mas';
     }
 
