@@ -53,26 +53,6 @@ has 'default_page_size' => (
 sub stock_search :Path('/search/stocks') Args(0) {
     my ($self, $c ) = @_;
     my @editable_stock_props = split ',',$c->get_conf('editable_stock_props');
-    
-    # Get Loci for Advanced Search
-    my @loci;
-    my $rsl = $c->dbic_schema("CXGN::Phenome::Schema")->resultset("Locus")->search( 
-        {
-            -and => [
-             'me.obsolete' => 'f'
-            ]
-        },
-        {
-            '+select' => ['locus_id', 'locus_name', 'locus_symbol' ],
-            order_by  => 'locus_name'
-        } 
-    );
-    while ( my $r = $rsl->next() ) {
-        my %locus;
-        $locus{'id'} = $r->get_column("locus_id");
-        $locus{'name'} = $r->get_column("locus_name");
-        push @loci, \%locus;
-    }
 
     $c->stash(
         template => '/search/stocks.mas',
@@ -84,7 +64,6 @@ sub stock_search :Path('/search/stocks') Args(0) {
 	    trait_db_name              => $c->get_conf('trait_ontology_db_name'),
 	    breeding_programs          => breeding_programs($self->schema),
         editable_stock_props => \@editable_stock_props,
-        loci => \@loci
 	);
 
 }

@@ -10,7 +10,6 @@
   $stock_types     => undef
   $breeding_programs => undef
   $editable_stock_props => undef
-  $loci => undef
 </%args>
 
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables', 'CXGN.Effects', 'CXGN.List' ] &>
@@ -222,21 +221,18 @@ my $breeding_programs_select = simple_selectbox_html(
   </div>
   </&>
 
-  <&| /page/info_section.mas, title => 'Genotypes', collapsible=>1, collapsed=>1 &>
+  <&| /page/info_section.mas, title => 'Genetic Characters', collapsible=>1, collapsed=>1 &>
     <div class="row">
       <div class="col-sm-11">
         <div class="form-group form-group-sm">
-          <label class="col-sm-4 control-label"><br />Search By Locus Allele Value: </label>
+          <label class="col-sm-4 control-label"><br />Search By Genetic Character Value: </label>
           <div class="col-sm-8">
-            <p><strong>Select Locus:</strong></p>
+            <p><strong>Select Genetic Character:</strong></p>
             <div class="form-group">
               <div class="input-group">
                 <span class="input-group-btn">
-                  <select class="form-control" id="locus_search_term">
-% foreach my $l (@$loci) {
-% my %locus = %$l;
-<option title="<% $locus{'name'} %>" value="<% $locus{'id'} %>" ><% $locus{'name'} %></option>
-%  }
+                  <select class="form-control" id="locus_search_term" disabled>
+                    <option selected>Loading...</option>
                   </select>
                 </span>
                 <span class="input-group-btn">
@@ -529,7 +525,10 @@ jQuery(document).ready(function () {
     });
 
 
-    // ==== GENOTYPE SEARCH ==== //
+    // ==== GENETIC CHARACTER SEARCH ==== //
+
+    // Load the genetic characters and populate the select box
+    _load_genetic_characters();
 
     // Add Selected Locus
     jQuery("#locus_search_add").on("click", function() {
@@ -586,7 +585,38 @@ jQuery(document).ready(function () {
 
 });
 
-// Load Alleles and populate select menu for specified locus
+
+/**
+ * Load the genetic characters from the database and populate the select box
+ */
+function _load_genetic_characters() {
+  jQuery.ajax({
+    url: '/ajax/search/loci?ontology_term=T3:T3_GC_CATEGORIES&ontology_term_include_children=true&length=5000',
+    success: function(response) {
+      let html = "";
+      if ( response && response.data ) {
+        for ( let i = 0; i < response.data.length; i++ ) {
+          let locus = response.data[i];
+          let label = jQuery(locus[1]).html();
+          html += "<option value='" + locus[2] + "'>" + label + "</option>";
+        }
+      }
+      jQuery('#locus_search_term').html(html);
+      jQuery('#locus_search_term').prop('disabled', false);
+    },
+    error: function(response) {
+      console.log("ERROR: Could not load genetic characters from the database");
+      console.log(response);
+    }
+  });
+}
+
+/**
+ * Load the allele values for the selected locus from the database 
+ * and populate the allele select menu for the added locus
+ * @param {string} locus_id Locus ID of the genetic character
+ * @param {string} locus_name Locus Name of the genetic character
+ */
 function _load_alleles(locus_id, locus_name) {
   jQuery.ajax({
     url: '/ajax/locus/autocomplete?term=' + locus_name + '&mode=allele_info',
@@ -595,10 +625,12 @@ function _load_alleles(locus_id, locus_name) {
 
       // Parse responses to find exactly matching loci
       let matches = [];
-      for ( let i = 0; i < response.length; i++ ) {
-        let l = response[i].split(" ")[0];
-        if ( l.toLowerCase() === locus_name.toLowerCase() ) {
-          matches.push(response[i]);
+      if ( response ) {
+        for ( let i = 0; i < response.length; i++ ) {
+          let l = response[i].split(" ")[0];
+          if ( l.toLowerCase() === locus_name.toLowerCase() ) {
+            matches.push(response[i]);
+          }
         }
       }
 
