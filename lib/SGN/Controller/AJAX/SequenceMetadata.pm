@@ -10,6 +10,7 @@ use CXGN::UploadFile;
 use SGN::Model::Cvterm;
 use CXGN::Genotype::SequenceMetadata;
 use CXGN::Genotype::Protocol;
+use CXGN::Marker::SearchMatView;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -18,6 +19,8 @@ __PACKAGE__->config(
     stash_key => 'rest',
     map       => { 'application/json' => 'JSON', 'text/html' => 'JSON' },
 );
+
+
 
 #
 # Get a list of reference genomes from loaded genotype protocols
@@ -31,24 +34,25 @@ sub get_reference_genomes : Path('/ajax/sequence_metadata/reference_genomes') :A
     my $self = shift;
     my $c = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $dbh = $schema->storage->dbh();
 
-    # Get Genotype Protocols
-    my $protocol_search_result = CXGN::Genotype::Protocol::list_simple($schema);
-
-    # Get reference genomes from the protocols
-    my @rgs = ();
+    # Get unique sets of genotype protocol species and reference genomes
+    my $q = "SELECT value->>'species_name' AS species, value->>'reference_genome_name' AS reference_genome
+            FROM nd_protocolprop
+            WHERE type_id = (SELECT cvterm_id FROM public.cvterm WHERE name = 'vcf_map_details')
+            GROUP BY species, reference_genome
+            ORDER BY species;";
+    my $h = $dbh->prepare($q);
+    $h->execute();
+    
+    # Parse the results
     my @results = ();
-    foreach my $protocol (@$protocol_search_result) {
-        my $name = $protocol->{reference_genome_name};
-        my $species = $protocol->{species_name};
-        if ( not grep $_ eq $name, @rgs ) {
-            my %result = (
-                reference_genome => $name,
-                species_name => $species
-            );
-            push(@results, \%result);
-            push(@rgs, $name);
-        }
+    while ( my ($species, $reference_genome) = $h->fetchrow_array() ) {
+        my %result = (
+            species_name => $species,
+            reference_genome => $reference_genome
+        );
+        push(@results, \%result);
     }
 
     # Return the results
@@ -77,12 +81,13 @@ sub get_features : Path('/ajax/sequence_metadata/features') :Args(0) {
     my $dbh = $schema->storage->dbh();
 
     # Get features used by sequence metadata
-    my $q = "SELECT feature.feature_id, feature.name AS feature_name, feature.type_id, cvterm.name AS type_name, feature.organism_id, organism.genus AS organism_genus, organism.species AS organism_species
-FROM public.feature
-LEFT JOIN public.organism ON (organism.organism_id = feature.organism_id)
-LEFT JOIN public.cvterm ON (cvterm.cvterm_id = feature.type_id)
-WHERE feature_id IN (SELECT DISTINCT(feature_id) FROM public.featureprop_json)
-ORDER BY feature.name ASC;";
+    my $q = "SELECT feature.feature_id, feature.name AS feature_name, feature.type_id, cvterm.name AS type_name, 
+                feature.organism_id, organism.genus AS organism_genus, REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '') AS organism_species
+            FROM public.feature
+            LEFT JOIN public.organism ON (organism.organism_id = feature.organism_id)
+            LEFT JOIN public.cvterm ON (cvterm.cvterm_id = feature.type_id)
+            WHERE feature_id IN (SELECT DISTINCT(feature_id) FROM public.featureprop_json)
+            ORDER BY feature.name ASC;";
     my $h = $dbh->prepare($q);
     $h->execute();
 
@@ -199,6 +204,7 @@ AND cvterm.name = 'sequence_metadata_protocol_properties';";
 # PATH: POST /ajax/sequence_metadata/file_upload_verify
 # PARAMS:
 #   - file = (required) upload file
+#   - species = (required) name of the species to use when matching chromosome names to features (must match the feature organism name)
 #   - use_existing_protocol = (required) 'true'/'false' if file is using an existing protocol (or creating a new one)
 #   - existing_protocol_id = (required if use_existing_protocol is 'true') nd_protocol_id of existing protocol
 #   - new_protocol_attribute_count = (required if use_existing_protocol is 'false') the number of attributes to be added to the new protocol
@@ -232,84 +238,111 @@ sub sequence_metadata_upload_verify_POST : Args(0) {
         $c->detach();
     }
 
-    # Archive upload file
+    # Check for uploaded file
     my $upload = $c->req->upload('file');
     if ( !defined $upload || $upload eq '' ) {
         $c->stash->{rest} = {error => 'You must provide the upload file!'};
         $c->detach();
     }
-    else {
-        my $upload_original_name = $upload->filename();
-        my $upload_tempfile = $upload->tempname;
-        my $time = DateTime->now();
-        my $timestamp = $time->ymd()."_".$time->hms();
-        my $subdirectory = "sequence_metadata_upload";
 
-        # Upload and Archive file
-        my $uploader = CXGN::UploadFile->new({
-            tempfile => $upload_tempfile,
-            subdirectory => $subdirectory,
-            archive_path => $c->config->{archive_path},
-            archive_filename => $upload_original_name,
-            timestamp => $timestamp,
-            user_id => $user_id,
-            user_role => $user_role
-        });
-        my $archived_filepath = $uploader->archive();
-        my $processed_filepath = $archived_filepath . ".processed";
+    # Set file paths
+    my $upload_original_name = $upload->filename();
+    my $upload_tempfile = $upload->tempname;
+    my $time = DateTime->now();
+    my $timestamp = $time->ymd()."_".$time->hms();
+    my $subdirectory = "sequence_metadata_upload";
 
-        # Get protocol attributes to verify...
-        my @attributes = ();
-        my $use_existing_protocol = $c->req->param('use_existing_protocol');
-        if ( !defined $use_existing_protocol || $use_existing_protocol eq '' ) {
-            $c->stash->{rest} = {error => 'use_existing_protocol not provided!'};
-            $c->detach();
-        }
+    # Upload and Archive file
+    my $uploader = CXGN::UploadFile->new({
+        tempfile => $upload_tempfile,
+        subdirectory => $subdirectory,
+        archive_path => $c->config->{archive_path},
+        archive_filename => $upload_original_name,
+        timestamp => $timestamp,
+        user_id => $user_id,
+        user_role => $user_role
+    });
+    my $archived_filepath = $uploader->archive();
+    my $processed_filepath = $archived_filepath . ".processed";
 
-        # Get attributes from existing protocol...
-        if ( $use_existing_protocol eq 'true' ) {
-            my $protocol_id = $c->req->param('existing_protocol_id');
-            if ( !defined $protocol_id || $protocol_id eq '' ) {
-                $c->stash->{rest} = {error => 'protocol_id not provided!'};
-                $c->detach();
-            }
-
-            # Get attributes from protocol props
-            my $smd_protocol_prop_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol_properties', 'protocol_property')->cvterm_id();
-            my $protocol_props = decode_json $schema->resultset('NaturalDiversity::NdProtocolprop')->search({nd_protocol_id=>$protocol_id, type_id=>$smd_protocol_prop_cvterm_id})->first->value;
-            my $attribute_descriptions = $protocol_props->{attribute_descriptions};
-            @attributes = keys %$attribute_descriptions;
-        }
-
-        # Get attributes to be added to new protocol...
-        else {
-            my $protocol_attribute_count = $c->req->param('new_protocol_attribute_count');
-            if ( !defined $protocol_attribute_count || $protocol_attribute_count eq '' ) {
-                $c->stash->{rest} = {error => 'protocol_attribute_count not provided!'};
-                $c->detach();
-            }
-            for ( my $i = 1; $i <= $protocol_attribute_count; $i++ ){
-                my $attribute_key = $c->req->param('new_protocol_attribute_key_' . $i);
-                if ( defined $attribute_key && $attribute_key ne '' && $attribute_key ne 'undefined' ) {
-                    push(@attributes, $attribute_key);
-                }
-            }
-        }
-
-        # Run the verification
-        my $smd = CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema);
-        my $verification_results = $smd->verify($archived_filepath, $processed_filepath, \@attributes);
-        $verification_results->{'processed_filepath'} = $processed_filepath;
-
-        # Verification Error
-        if ( defined $verification_results->{'error'} ) {
-            $c->stash->{rest} = {error => $verification_results->{'error'}};
-            $c->detach();
-        }
-
-        # Verification Results
-        $c->stash->{rest} = { results => $verification_results };
+    # Get protocol attributes to verify...
+    my @attributes = ();
+    my $use_existing_protocol = $c->req->param('use_existing_protocol');
+    if ( !defined $use_existing_protocol || $use_existing_protocol eq '' ) {
+        $c->stash->{rest} = {error => 'use_existing_protocol not provided!'};
+        $c->detach();
     }
+
+    # Set species via existing protocol or new protocol species param
+    my $species = "";
+
+    # Using an existing protocol...
+    if ( $use_existing_protocol eq 'true' ) {
+
+        # Get exisiting protocol id
+        my $protocol_id = $c->req->param('existing_protocol_id');
+        if ( !defined $protocol_id || $protocol_id eq '' ) {
+            $c->stash->{rest} = {error => 'protocol_id not provided!'};
+            $c->detach();
+        }
+
+        # Get attributes from protocol props
+        my $smd_protocol_prop_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol_properties', 'protocol_property')->cvterm_id();
+        my $protocol_props = decode_json $schema->resultset('NaturalDiversity::NdProtocolprop')->search({nd_protocol_id=>$protocol_id, type_id=>$smd_protocol_prop_cvterm_id})->first->value;
+        my $attribute_descriptions = $protocol_props->{attribute_descriptions};
+        @attributes = keys %$attribute_descriptions;
+
+        # Get species from the features of the protocol
+        my $q = "SELECT DISTINCT(CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), ''))) AS species
+                FROM public.feature 
+                LEFT JOIN public.organism USING (organism_id)
+                WHERE feature_id IN (
+                    SELECT feature_id FROM featureprop_json WHERE nd_protocol_id = ?
+                );";
+        my $h = $schema->storage->dbh()->prepare($q);
+        $h->execute($protocol_id);
+        ($species) = $h->fetchrow_array();
+        
+    }
+
+    # Adding new protocol...
+    else {
+
+        # Get new protocol attributes
+        my $protocol_attribute_count = $c->req->param('new_protocol_attribute_count');
+        if ( !defined $protocol_attribute_count || $protocol_attribute_count eq '' ) {
+            $c->stash->{rest} = {error => 'protocol_attribute_count not provided!'};
+            $c->detach();
+        }
+        for ( my $i = 1; $i <= $protocol_attribute_count; $i++ ){
+            my $attribute_key = $c->req->param('new_protocol_attribute_key_' . $i);
+            if ( defined $attribute_key && $attribute_key ne '' && $attribute_key ne 'undefined' ) {
+                push(@attributes, $attribute_key);
+            }
+        }
+
+        # Get new protocol species
+        $species = $c->req->param('species');
+        if ( !defined $species || $species eq '' ) {
+            $c->stash->{rest} = {error => 'species name not provided!'};
+            $c->detach();
+        }
+
+    }
+
+    # Run the verification
+    my $smd = CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema);
+    my $verification_results = $smd->verify($archived_filepath, $processed_filepath, $species, \@attributes);
+    $verification_results->{'processed_filepath'} = $processed_filepath;
+
+    # Verification Error
+    if ( defined $verification_results->{'error'} ) {
+        $c->stash->{rest} = {error => $verification_results->{'error'}};
+        $c->detach();
+    }
+
+    # Verification Results
+    $c->stash->{rest} = { results => $verification_results };
 }
 
 
@@ -324,6 +357,7 @@ sub sequence_metadata_upload_verify_POST : Args(0) {
 #   - new_protocol_description = description of new protocol
 #   - new_protocol_sequence_metadata_type = cvterm id of sequence metadata type
 #   - new_protocol_reference_genome = name of reference genome
+#   - new_protocol_species = name of species
 #   - new_protocol_score_description = description of score field
 #   - new_protocol_attribute_count = max number of attributes to read (some may be missing if an attribute was removed)
 #   - new_protocol_attribute_key_{n} = key name of nth attribute
@@ -358,6 +392,7 @@ sub sequence_metadata_store_POST : Args(0) {
     my $processed_filepath = $c->req->param('processed_filepath');
     my $protocol_id = undef;
     my $type_id = undef;
+    my $species = undef;
 
     # Check for processed filepath
     if ( !defined $processed_filepath || $processed_filepath eq '' ) {
@@ -371,6 +406,7 @@ sub sequence_metadata_store_POST : Args(0) {
         my $protocol_description = $c->req->param('new_protocol_description');
         my $protocol_sequence_metadata_type_id = $c->req->param('new_protocol_sequence_metadata_type');
         my $protocol_reference_genome = $c->req->param('new_protocol_reference_genome');
+        my $protocol_species = $c->req->param('new_protocol_species');
         my $protocol_score_description = $c->req->param('new_protocol_score_description');
         my $protocol_attribute_count = $c->req->param('new_protocol_attribute_count');
         if ( !defined $protocol_name || $protocol_name eq '' ) {
@@ -387,6 +423,10 @@ sub sequence_metadata_store_POST : Args(0) {
         }
         if ( !defined $protocol_reference_genome || $protocol_reference_genome eq '' ) {
             $c->stash->{rest} = {error => 'The new protocol reference genome must be defined!'};
+            $c->detach();
+        }
+        if ( !defined $protocol_species || $protocol_species eq '' ) {
+            $c->stash->{rest} = {error => 'The new protocol species must be defined!'};
             $c->detach();
         }
 
@@ -430,6 +470,7 @@ sub sequence_metadata_store_POST : Args(0) {
         $sth->execute($protocol_description, $protocol_id);
 
         $type_id = $protocol_sequence_metadata_type_id;
+        $species = $protocol_species;
     }
 
     # Use existing protocol
@@ -445,12 +486,23 @@ sub sequence_metadata_store_POST : Args(0) {
             $c->stash->{rest} = {error => 'The existing protocol sequence metadata type must be defined!'};
             $c->detach();
         }
+
+        # Get species from the features of the protocol
+        my $q = "SELECT DISTINCT(CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), ''))) AS species
+                FROM public.feature 
+                LEFT JOIN public.organism USING (organism_id)
+                WHERE feature_id IN (
+                    SELECT feature_id FROM featureprop_json WHERE nd_protocol_id = ?
+                );";
+        my $h = $schema->storage->dbh()->prepare($q);
+        $h->execute($protocol_id);
+        ($species) = $h->fetchrow_array();
     }
 
 
     # Run the store script
     my $smd = CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema, type_id => $type_id, nd_protocol_id => $protocol_id);
-    my $store_results = $smd->store($processed_filepath);
+    my $store_results = $smd->store($processed_filepath, $species);
     
 
     $c->stash->{rest} = { results => $store_results };
@@ -461,19 +513,25 @@ sub sequence_metadata_store_POST : Args(0) {
 # Perform a query of sequence metadata for a specific feature and range
 # PATH: GET /ajax/sequence_metadata/query
 # PARAMS:
+#   REQUIRED:
 #   - feature_id = id of the associated feature
-#   - start = (optional) start position of the query range (default: 0)
-#   - end = (optional) end position of the query range (default: feature max)
-#   - type_id = (optional) cvterm_id(s) of sequence metadata type(s) (comma separated list of multiple type ids)
-#   - nd_protocol_id = (optional) nd_protocol_id(s) of sequence metadata protocol(s) (comma separated list of multiple protocol ids)
-#   - attribute = (optional) attribute(s) and their properties (protocol id, comparison, and value - | separated) (comma separated list of multiple attributes)
+#   OR
+#   - feature_name = name of the associated feature
+#   - species_name = name of the organism associated with the feature
+#   OPTIONAL:
+#   - start = start position of the query range (default: 0)
+#   - end = end position of the query range (default: feature max)
+#   - reference_genome = (required if start or end are provided) = name of referene genome used by start and/or end positions
+#   - type_id = cvterm_id(s) of sequence metadata type(s) (comma separated list of multiple type ids)
+#   - nd_protocol_id = nd_protocol_id(s) of sequence metadata protocol(s) (comma separated list of multiple protocol ids)
+#   - attribute = attribute(s) and their properties (protocol id, comparison, and value - | separated) (comma separated list of multiple attributes)
 #       attribute format: 
 #           {attribute name}|{protocol id}|{comparison}|{value}
 #           where comparison = con, eq, lt, lte, gt, gte
 #       examples:
 #           attribute=score|12|lt|0
 #           attribute=score|12|lt|0,trait|13|eq|yield
-#   - format = (optional) define the output format
+#   - format = define the output format
 #       - GA4GH: (default) JSON output following Global Alliance for Genomics and Health API format
 #       - JSON: JSON output using internal/breedbase format
 #       - gff: gff3 format
@@ -496,8 +554,11 @@ sub sequence_metadata_query_GET : Args(0) {
     my $c = shift;
     
     my $feature_id = $c->req->param('feature_id');
+    my $feature_name = $c->req->param('feature_name');
+    my $species_name = $c->req->param('species_name');
     my $start = $c->req->param('start');
     my $end = $c->req->param('end');
+    my $reference_genome = $c->req->param('reference_genome');
     my @type_ids = split(',', $c->req->param('type_id'));
     my @nd_protocol_ids = split(',', $c->req->param('nd_protocol_id'));
     my @attributes = split(',', $c->req->param('attribute'));
@@ -509,8 +570,16 @@ sub sequence_metadata_query_GET : Args(0) {
 
 
     # Check required parameters
-    if ( !defined $feature_id || $feature_id eq '' ) {
-        $c->stash->{rest} = {error => 'Feature id must be provided!'};
+    if ( (!defined $feature_id || $feature_id eq '') && (!defined $feature_name && !defined $species_name) ) {
+        $c->stash->{rest} = {error => 'Feature id OR Feature name and species name must be provided!'};
+        $c->detach();
+    }
+    if ( (!defined $feature_name || $feature_name eq '' || !defined $species_name || $species_name eq '') && (!defined $feature_id) ) {
+        $c->stash->{rest} = {error => 'Feature id OR Feature name and species name must be provided!'};
+        $c->detach();
+    }
+    if ( (!defined $reference_genome || $reference_genome eq '') && (defined $start || defined $end) ) {
+        $c->stash->{rest} = {error => 'Reference genome must be provided with start and/or end position!'};
         $c->detach();
     }
 
@@ -529,12 +598,30 @@ sub sequence_metadata_query_GET : Args(0) {
     }
 
 
+    # Get feature id from name and species, if provided
+    if ( defined $feature_name && defined $species_name ) {
+        my $q = "SELECT feature_id, CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) AS species
+                    FROM public.feature 
+                    LEFT JOIN public.organism USING (organism_id)
+                    WHERE uniquename = ? AND species = ?;";
+        my $h = $dbh->prepare($q);
+        $h->execute($feature_name, $species_name);
+        ($feature_id) = $h->fetchrow_array();
+
+        if ( !defined $feature_id || $feature_id eq '' ) {
+            $c->stash->{rest} = {error => 'No matching feature found [' . $feature_name . ' / ' . $species_name . ']!'};
+            $c->detach();
+        }
+    }
+
+
     # Perform query
     my $smd =  CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema);
     my $query = $smd->query({
         feature_id => $feature_id, 
         start => defined $start && $start ne '' ? $start : undef, 
         end => defined $end && $end ne '' ? $end : undef,
+        reference_genome => defined $reference_genome && $reference_genome ne '' ? $reference_genome : undef,
         type_ids => @type_ids ? \@type_ids : undef,
         nd_protocol_ids => @nd_protocol_ids ? \@nd_protocol_ids : undef,
         attributes => @attributes_parsed ? \@attributes_parsed : undef
@@ -644,4 +731,80 @@ sub sequence_metadata_query_GET : Args(0) {
         $c->detach();
     }
    
+}
+
+#
+# Get the markers that are located on the feature between the specified start and end positions
+# PATH: GET /ajax/sequence_metadata/markers
+# PARAMS:
+#   - feature_id = id of the associated feature (chromosome)
+#   - nd_protocol_id = id of the sequence metadata protocol
+#   - start = start position of the query range
+#   - end = end position of the query range
+#
+sub sequence_metadata_markers : Path('/ajax/sequence_metadata/markers') : ActionClass('REST') { }
+sub sequence_metadata_markers_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $dbh = $schema->storage->dbh();
+
+    my $feature_id = $c->req->param('feature_id');
+    my $nd_protocol_id = $c->req->param('nd_protocol_id');
+    my $start = $c->req->param('start');
+    my $end = $c->req->param('end');
+
+
+    # Check required parameters
+    if ( !defined $feature_id || $feature_id eq '' ) {
+        $c->stash->{rest} = {error => 'Feature id must be provided!'};
+        $c->detach();
+    }
+    if ( !defined $nd_protocol_id || $nd_protocol_id eq '' ) {
+        $c->stash->{rest} = {error => 'Sequence Metadata protocol id must be provided!'};
+        $c->detach();
+    }
+    if ( !defined $start || $start eq '' ) {
+        $c->stash->{rest} = {error => 'start location must be provided!'};
+        $c->detach();
+    }
+    if ( !defined $end || $end eq '' ) {
+        $c->stash->{rest} = {error => 'end location must be provided!'};
+        $c->detach();
+    }
+
+    # Get the feature and species names from feature id
+    my $q = "SELECT feature.uniquename, CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) AS species
+                FROM public.feature 
+                LEFT JOIN public.organism USING (organism_id)
+                WHERE feature_id = ?;";
+    my $h = $dbh->prepare($q);
+    $h->execute($feature_id);
+    my ($feature_name, $species) = $h->fetchrow_array();
+    if ( !defined $feature_name || !defined($species) ) {
+        $c->stash->{rest} = {error => 'The provided feature_id could not be found in the database!'};
+        $c->detach();
+    }
+
+    # Get reference genome from the smd protocol
+    my $smd_protocol_prop_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol_properties', 'protocol_property')->cvterm_id();
+    my $protocol_props = decode_json $schema->resultset('NaturalDiversity::NdProtocolprop')->search({nd_protocol_id=>$nd_protocol_id, type_id=>$smd_protocol_prop_cvterm_id})->first->value;
+    my $reference_genome = $protocol_props->{reference_genome};
+
+    # Perform JSON marker search
+    my $msearch = CXGN::Marker::SearchMatView->new(bcs_schema => $schema);
+    my %args = (
+        chrom => $feature_name,
+        start => $start,
+        end => $end,
+        species_name => $species,
+        reference_genome_name => $reference_genome
+    );
+    my $results = $msearch->query(\%args);
+
+    # Return the results as JSON
+    $c->stash->{rest} = {
+        results => $results
+    };
+
 }
