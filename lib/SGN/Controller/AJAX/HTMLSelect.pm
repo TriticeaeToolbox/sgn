@@ -741,6 +741,7 @@ sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_
     my $c = shift;
     my $checkbox_name = $c->req->param('checkbox_name');
     my $data_type_cvterm_id = $c->req->param('sequence_metadata_data_type_id');
+    my $include_query_link = $c->req->param('include_query_link');
     
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
@@ -756,11 +757,40 @@ sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute();
 
-    my $html = '<table class="table table-bordered table-hover" id="html-select-sdmprotocol-table"><thead><tr><th>Select</th><th>Protocol Name</th><th>Description</th><th>Properties</th></tr></thead><tbody>';
+    my $html = '<table class="table table-bordered table-hover" id="html-select-sdmprotocol-table-' . $data_type_cvterm_id . '">';
+    my $select_th = defined $checkbox_name ? "<th>Select</th>" : "";
+    $html .= '<thead><tr>' . $select_th . '<th>Protocol Name</th><th>Description</th><th>Properties</th><th>Features</th></tr></thead>';
+    $html .= '<tbody>';
 
     while (my ($nd_protocol_id, $name, $description, $props_json) = $h->fetchrow_array()) {
+
+        # get features used by the protocol and the count of sequence metadata features
+        my $qq = "SELECT uniquename, SUM(jsonb_array_length(json))
+                    FROM featureprop_json
+                    JOIN feature USING (feature_id)
+                    WHERE nd_protocol_id = $nd_protocol_id
+                    GROUP BY uniquename
+                    ORDER BY uniquename;";
+        my $hh = $schema->storage->dbh()->prepare($qq);
+        $hh->execute();
+
+        # build list of features and smd feature counts
+        my $features = "";
+        while ( my ($feature_name, $smd_count) = $hh->fetchrow_array()) {
+            $features .= "<strong>" . $feature_name . ":</strong>&nbsp;" . $smd_count . "&nbsp;features<br />";
+        }
+
+        # Decode the json props
         my $props = decode_json $props_json;
-        $html .= '<tr><td><input type="checkbox" name="'.$checkbox_name.'" value="'.$nd_protocol_id.'"></td><td>'.$name.'</td><td>'.$description.'</td><td>';
+
+        # Add link to protocol name, if requested
+        if ( $include_query_link ) {
+            $name = "<a href='/search/sequence_metadata?nd_protocol_id=$nd_protocol_id&reference_genome=" . $props->{'reference_genome'} . "'>$name</a>";
+        }
+
+        # Build the row of the table
+        my $select_td = defined $checkbox_name ? '<td><input type="checkbox" name="'.$checkbox_name.'" value="'.$nd_protocol_id.'"></td>' : '';
+        $html .= '<tr>' . $select_td . '<td>'.$name.'</td><td>'.$description.'</td><td>';
         while (my($k,$v) = each %$props) {
             if (ref $v eq ref {}) {
                 $html .= "$k:<br />";
@@ -772,11 +802,12 @@ sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_
                 $html .= "$k: $v<br />";
             }
         }
-        $html .= '</td></tr>';
+        $html .= '</td><td>'.$features.'</td></tr>';
+
     }
     $html .= "</tbody></table>";
 
-    $html .= "<script>jQuery(document).ready(function() { jQuery('#html-select-sdmprotocol-table').DataTable({ }); } );</script>";
+    $html .= "<script>jQuery(document).ready(function() { jQuery('#html-select-sdmprotocol-table-" . $data_type_cvterm_id . "').DataTable({ }); } );</script>";
 
     $c->stash->{rest} = { select => $html };
 }
