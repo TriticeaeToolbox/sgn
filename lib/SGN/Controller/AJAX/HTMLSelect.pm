@@ -710,26 +710,104 @@ sub get_high_dimensional_phenotypes_protocols : Path('/ajax/html/select/high_dim
     my $protocol_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, $protocol_type, 'protocol_type')->cvterm_id();
     my $protocolprop_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'high_dimensional_phenotype_protocol_properties', 'protocol_property')->cvterm_id();
 
-    my $q = "SELECT nd_protocol.nd_protocol_id, nd_protocol.name, nd_protocol.description, nd_protocolprop.value
+    my $q = "SELECT nd_protocol.nd_protocol_id, nd_protocol.name, nd_protocol.description, nd_protocol.create_date, nd_protocolprop.value
         FROM nd_protocol
         JOIN nd_protocolprop USING(nd_protocol_id)
         WHERE nd_protocol.type_id=$protocol_type_cvterm_id AND nd_protocolprop.type_id=$protocolprop_type_cvterm_id;";
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute();
 
-    my $html = '<table class="table table-bordered table-hover" id="html-select-highdimprotocol-table"><thead><tr><th>Select</th><th>Protocol Name</th><th>Description</th><th>Properties</th></tr></thead><tbody>';
+    my $html = '<table class="table table-bordered table-hover" id="html-select-highdimprotocol-table"><thead><tr><th>Select</th><th>Protocol Name</th><th>Description</th><th>Create Date</th><th>Properties</th></tr></thead><tbody>';
 
-    while (my ($nd_protocol_id, $name, $description, $props_json) = $h->fetchrow_array()) {
+    while (my ($nd_protocol_id, $name, $description, $create_date, $props_json) = $h->fetchrow_array()) {
         my $props = decode_json $props_json;
-        $html .= '<tr><td><input type="checkbox" name="'.$checkbox_name.'" value="'.$nd_protocol_id.'"></td><td>'.$name.'</td><td>'.$description.'</td><td>';
+        $html .= '<tr><td><input type="checkbox" name="'.$checkbox_name.'" value="'.$nd_protocol_id.'"></td><td>'.$name.'</td><td>'.$description.'</td><td>'.$create_date.'</td><td>';
         while (my($k,$v) = each %$props) {
-            $html .= "$k: $v<br/>";
+            if ($k ne 'header_column_details' && $k ne 'header_column_names') {
+                $html .= "$k: $v<br/>";
+            }
         }
         $html .= '</td></tr>';
     }
     $html .= "</tbody></table>";
 
     $html .= "<script>jQuery(document).ready(function() { jQuery('#html-select-highdimprotocol-table').DataTable({ }); } );</script>";
+
+    $c->stash->{rest} = { select => $html };
+}
+
+sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_protocols') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $checkbox_name = $c->req->param('checkbox_name');
+    my $data_type_cvterm_id = $c->req->param('sequence_metadata_data_type_id');
+    my $include_query_link = $c->req->param('include_query_link');
+    
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    my $protocol_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol', 'protocol_type')->cvterm_id();
+    my $protocolprop_type_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol_properties', 'protocol_property')->cvterm_id();
+
+    # Only select protocols that have a type of 'sequence_metadata_protocol' and its protocolprop of 'sequence_metadata_type' is the same as the provided $data_type
+    my $q = "SELECT nd_protocol.nd_protocol_id, nd_protocol.name, nd_protocol.description, nd_protocolprop.value
+        FROM nd_protocol
+        JOIN nd_protocolprop USING(nd_protocol_id)
+        WHERE nd_protocol.type_id=$protocol_type_cvterm_id AND nd_protocolprop.type_id=$protocolprop_type_cvterm_id
+        AND (nd_protocolprop.value->>'sequence_metadata_type_id')::integer = $data_type_cvterm_id;";
+    my $h = $schema->storage->dbh()->prepare($q);
+    $h->execute();
+
+    my $html = '<table class="table table-bordered table-hover" id="html-select-sdmprotocol-table-' . $data_type_cvterm_id . '">';
+    my $select_th = defined $checkbox_name ? "<th>Select</th>" : "";
+    $html .= '<thead><tr>' . $select_th . '<th>Protocol Name</th><th>Description</th><th>Properties</th><th>Features</th></tr></thead>';
+    $html .= '<tbody>';
+
+    while (my ($nd_protocol_id, $name, $description, $props_json) = $h->fetchrow_array()) {
+
+        # get features used by the protocol and the count of sequence metadata features
+        my $qq = "SELECT uniquename, SUM(jsonb_array_length(json))
+                    FROM featureprop_json
+                    JOIN feature USING (feature_id)
+                    WHERE nd_protocol_id = $nd_protocol_id
+                    GROUP BY uniquename
+                    ORDER BY uniquename;";
+        my $hh = $schema->storage->dbh()->prepare($qq);
+        $hh->execute();
+
+        # build list of features and smd feature counts
+        my $features = "";
+        while ( my ($feature_name, $smd_count) = $hh->fetchrow_array()) {
+            $features .= "<strong>" . $feature_name . ":</strong>&nbsp;" . $smd_count . "&nbsp;features<br />";
+        }
+
+        # Decode the json props
+        my $props = decode_json $props_json;
+
+        # Add link to protocol name, if requested
+        if ( $include_query_link ) {
+            $name = "<a href='/search/sequence_metadata?nd_protocol_id=$nd_protocol_id&reference_genome=" . $props->{'reference_genome'} . "'>$name</a>";
+        }
+
+        # Build the row of the table
+        my $select_td = defined $checkbox_name ? '<td><input type="checkbox" name="'.$checkbox_name.'" value="'.$nd_protocol_id.'"></td>' : '';
+        $html .= '<tr>' . $select_td . '<td>'.$name.'</td><td>'.$description.'</td><td>';
+        while (my($k,$v) = each %$props) {
+            if (ref $v eq ref {}) {
+                $html .= "$k:<br />";
+                while (my($k2,$v2) = each %$v) {
+                    $html .= "&nbsp;&nbsp;$k2: $v2<br />";
+                }
+            }
+            else {
+                $html .= "$k: $v<br />";
+            }
+        }
+        $html .= '</td><td>'.$features.'</td></tr>';
+
+    }
+    $html .= "</tbody></table>";
+
+    $html .= "<script>jQuery(document).ready(function() { jQuery('#html-select-sdmprotocol-table-" . $data_type_cvterm_id . "').DataTable({ }); } );</script>";
 
     $c->stash->{rest} = { select => $html };
 }
@@ -1382,7 +1460,7 @@ sub get_datasets_select :Path('/ajax/html/select/datasets') Args(0) {
                 @items = @{$transform->{transform}};
             }
             else {
-		if (defined($ids)) { 
+		if (defined($ids)) {
 		    @items = @$ids;
 		}
             }

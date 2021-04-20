@@ -977,7 +977,6 @@ sub organisms_GET :Args(0) {
     $c->stash->{rest} = $response;
 }
 
-
 ####
 1;
 ###

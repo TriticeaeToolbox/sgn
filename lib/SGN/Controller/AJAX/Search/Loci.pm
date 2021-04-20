@@ -115,15 +115,19 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
 			# Get cvterm of initial DB / accession
 			my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
 			my $db = $schema->resultset('General::Db')->search({ name => uc($db_name)} )->first();
-			my $dbxref = $db->find_related('dbxrefs', { accession => $accession });
-			my $cvterm = $dbxref->cvterm;
+			if ( $db ) {
+				my $dbxref = $db->find_related('dbxrefs', { accession => $accession });
+				if ( $dbxref ) {
+					my $cvterm = $dbxref->cvterm;
 
-			# Get all children of initial cvterm
-			my $c_rs = $cvterm->recursive_children();
+					# Get all children of initial cvterm
+					my $c_rs = $cvterm->recursive_children();
 
-			# Parse the children dbxref_ids
-			while ( my $c_row = $c_rs->next() ) {
-				push @dbxref_ids, $c_row->get_column('dbxref_id');
+					# Parse the children dbxref_ids
+					while ( my $c_row = $c_rs->next() ) {
+						push @dbxref_ids, $c_row->get_column('dbxref_id');
+					}
+				}
 			}
 		}
 
