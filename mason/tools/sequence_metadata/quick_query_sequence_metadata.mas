@@ -35,7 +35,7 @@ my %params = (
 <!-- Results Table(s) -->
 % foreach my $id (keys %$params) {
     <br />
-    <div class="well">
+    <div class="quick-query-table-container">
         <table class="table quick-query-table">
             <thead><tr>
                 <th>Reference Genome</th>
@@ -54,8 +54,8 @@ my %params = (
                 <td><a href="/search/sequence_metadata?reference_genome=<% $params->{$id}->{'reference_genome'} %>&feature=<% $params->{$id}->{'feature'} %>&start=<% $params->{$id}->{'start'} %>&end=<% $params->{$id}->{'end'} %>">Modify&nbsp;Query</a></td>
             </tr>
         </table>
-        <table id="<% $id %>" class="display"></table>
     </div>
+    <table id="<% $id %>" class="display"></table>
     <br />
 % }
 
@@ -198,5 +198,14 @@ function renderAttributesColumn(data, type, row) {
         padding: 15px;
         border-radius: 5px;
         border: 1px solid;
+    }
+    .quick-query-table-container {
+        background: #f1f1f1;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+    .quick-query-table {
+        margin: 0;
     }
 </style>

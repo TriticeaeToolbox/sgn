@@ -1,0 +1,100 @@
+<%doc>
+=head1 NAME
+
+Variant Detail Page
+
+=head1 DESCRIPTION
+
+A detail page for variants / markers stored in the genotype protocol props, 
+and summarized in the materialized_markerview materialized view
+
+=head1 ARGUMENTS
+
+=over 5
+
+=item variant_name
+
+The name of the variant, as used in the variant_name column of the materialized_markerview table
+
+=item markers
+
+An arrayref containing a hash for each marker for the variant.  The marker hash has the following 
+keys: chrom, species_name, reference_genome_name, pos, alt, ref
+
+=item related_variants 
+
+A hashref containing the variants and the markers related to one or more of the markers in the current variant
+
+=back
+</%doc>
+
+<%args>
+    $variant_name => undef
+    $markers => undef
+</%args>
+
+<%init>
+    if ( !$variant_name ) {
+        print "<p><strong>ERROR: </strong>Missing variant name!</p>";
+    }
+    if ( !$markers ) {
+        print "<p><strong>ERROR: </strong>Missing variant markers!</p>";
+    }
+
+    # Set query parameters for the sequence metadata table
+    my %smd_params = (
+        "sequence_metadata_results" => {
+            "feature" => ${$markers}[0]->{'chrom'},
+            "species" => ${$markers}[0]->{'species_name'},
+            "reference_genome" => ${$markers}[0]->{'reference_genome_name'},
+            "start" => ${$markers}[0]->{'pos'},
+            "end" => ${$markers}[0]->{'pos'}
+        }
+    );
+
+    # Set parameters for jbrowse
+    my $location = ${$markers}[0]->{'chrom'} . ':' . ${$markers}[0]->{'pos'};
+    my $ref = ${$markers}[0]->{'reference_genome_name'};
+</%init>
+
+
+
+<& /page/page_title.mas, title=> "Variant $variant_name" &>
+
+
+
+<!-- VARIANT DETAILS TABLE -->
+<&| /page/info_section.mas, title=>'Genotype locations', collapsible=>1, collapsed=>0 &>
+    <& /markers/genotyped/genotype_locations.mas, markers => $markers &>
+</&>
+
+
+
+<!-- RELATED VARIANTS LINKS -->
+<&| /page/info_section.mas, title=>'Related Markers', collapsible=>1, collapsed=>0 &>
+    <& /markers/genotyped/related_markers.mas, variant_name => $variant_name &>
+</&>
+
+
+
+<!-- EXTERNAL LINKS -->
+<&| /page/info_section.mas, title=>'External Links', collapsible=>1, collapsed=>0 &>
+    <& /markers/genotyped/external_links.mas, markers => $markers &>
+</&>
+
+
+
+<!-- JBROWSE LINKS -->
+<&| /page/info_section.mas, title=>'Genome Browser', collapsible=>1 &>
+    <& /feature/jbrowse_exact_match.mas, feature=> $location, src_feature=> $ref &>
+</&>
+
+
+
+
+<!-- SEQUENCE METADATA RESULTS -->
+<&| /page/info_section.mas, title=>'Sequence Metadata', collapsible=>1, collapsed=>0 &>
+  <& /tools/sequence_metadata/quick_query_sequence_metadata.mas, params=>\%smd_params &>
+</&>
+
+
