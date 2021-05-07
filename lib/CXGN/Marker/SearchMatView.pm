@@ -119,19 +119,36 @@ sub chromosomes {
     my $dbh = $schema->storage->dbh();
 
     # Build the query to get the unique set of chromosomes for each reference genome and species
-    my $q = "SELECT species_name, reference_genome_name, UPPER(REGEXP_REPLACE(chrom, '^chr', '')) AS chrom_mod
+    my $q = "SELECT species_name, reference_genome_name, UPPER(chrom)
                 FROM materialized_markerview
-                WHERE chrom !~* '[Uu][Nn]\\d'
-                GROUP BY species_name, reference_genome_name, chrom_mod
-                ORDER BY species_name, reference_genome_name, chrom_mod;";
+                GROUP BY species_name, reference_genome_name, chrom
+                ORDER BY species_name, reference_genome_name, chrom;";
     
     # Perform the query
     my $h = $dbh->prepare($q);
     $h->execute();
     
-    # Parse the response
-    my %results = ();
+    # Parse the response (remove chr prefix and unknown suffixes)
+    my %keys = ();
     while (my ($species, $reference, $chrom) = $h->fetchrow_array()) {
+        $chrom =~ s/^CHR//;
+        $chrom =~ s/UN[0-9]*$/Un/;
+        if ( $chrom ) {
+            my $key = $species . $reference . $chrom;
+            $keys{$key} = {
+                species => $species,
+                reference => $reference,
+                chrom => $chrom
+            };
+        }
+    }
+
+    # Build the results
+    my %results = ();
+    foreach my $key (keys %keys) {
+        my $species = $keys{$key}{'species'};
+        my $reference = $keys{$key}{'reference'};
+        my $chrom = $keys{$key}{'chrom'};
         if ( !exists($results{$species}) ) {
             $results{$species} = {};
         }
@@ -141,7 +158,14 @@ sub chromosomes {
         push(@{$results{$species}{$reference}}, $chrom);
     }
 
-    # Return the results
+    # Return sorted chromosomes
+    foreach my $sp (keys %results) {
+        foreach my $ref (keys %{$results{$sp}}) {
+            my @chroms = @{$results{$sp}{$ref}};
+            @chroms = sort(@chroms);
+            $results{$sp}{$ref} = \@chroms;
+        }
+    }
     return(\%results);
 }
 
@@ -260,8 +284,13 @@ sub related_variants {
 # Returns an array of marker hashes with the following keys:
 #   - marker_id = id of mapped marker
 #   - marker_name = name of mapped marker
+#   - lg_name = marker linkage group / chromosome
+#   - position = marker position
 #   - map_id = id of map
 #   - map_name = name of map
+#   - map_units = units of map positions
+#   - species_name = name of species
+#   - protocol = name of protocol
 #
 sub related_mapped_markers {
     my $self = shift;
@@ -271,7 +300,8 @@ sub related_mapped_markers {
 
     # Build query
     my $q = "SELECT m.marker_name, m.species_name AS ori_species_name, marker_alias.marker_id, marker_alias.alias, map.map_id, map.short_name, 
-                CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) AS species_name 
+                CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) AS species_name, 
+                m2m.protocol, m2m.lg_name, m2m.position, map.units
                 FROM (
                     SELECT marker_name, species_name 
                     FROM materialized_markerview 
@@ -291,13 +321,18 @@ sub related_mapped_markers {
 
     # Parse Results
     my @markers;
-    while (my ($ori_marker_name, $ori_species_name, $marker_id, $marker_name, $map_id, $map_name, $species_name) = $h->fetchrow_array()) {
+    while (my ($ori_marker_name, $ori_species_name, $marker_id, $marker_name, $map_id, $map_name, $species_name, $protocol, $lg_name, $position, $map_units) = $h->fetchrow_array()) {
         if ( $ori_species_name eq $species_name ) {
             my %marker = (
                 marker_id => $marker_id,
                 marker_name => $marker_name,
+                lg_name => $lg_name,
+                position => $position,
                 map_id => $map_id,
-                map_name => $map_name
+                map_name => $map_name,
+                map_units => $map_units,
+                species_name => $species_name,
+                protocol => $protocol
             );
             push(@markers, \%marker);
         }
@@ -441,13 +476,13 @@ sub query {
         push(@args, $offset);
     }
 
-    print STDERR "QUERY:\n";
-    print STDERR "$query\n";
-    use Data::Dumper;
-    print STDERR "ARGS:\n";
-    print STDERR Dumper \@args;
-    print STDERR "TOTAL MARKERS:\n";
-    print STDERR "$marker_count\n";
+    # print STDERR "QUERY:\n";
+    # print STDERR "$query\n";
+    # use Data::Dumper;
+    # print STDERR "ARGS:\n";
+    # print STDERR Dumper \@args;
+    # print STDERR "TOTAL MARKERS:\n";
+    # print STDERR "$marker_count\n";
 
     # Perform the Query
     my $h = $dbh->prepare($query);
