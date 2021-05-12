@@ -64,7 +64,7 @@ sub patch {
     $self->dbh->do(<<EOSQL);
 
 -- Create the function to build the materialized markerview
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
+CREATE EXTENSION IF NOT EXISTS pg_trgm WITH SCHEMA public;
 CREATE OR REPLACE FUNCTION public.create_materialized_markerview(refresh boolean)
  RETURNS boolean
  LANGUAGE plpgsql
@@ -114,7 +114,7 @@ AS \$function\$
 \$function\$;
 
 -- Build an empty materialized view (will need to be manually refreshed)
-SELECT public.create_materialized_markerview(false);
+SELECT public.create_materialized_markerview(true);
 
 -- Grant access to the web_usr
 GRANT SELECT ON public.materialized_markerview TO web_usr;
