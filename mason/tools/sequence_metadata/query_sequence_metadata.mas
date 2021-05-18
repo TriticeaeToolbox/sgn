@@ -395,6 +395,7 @@ jQuery(document).ready(function() {
             { title: "End", data: "end" },
             { title: "Score", data: "score" },
             { title: "Attributes", data: "attributes", render: renderAttributesColumn },
+            { title: "External&nbsp;Links", data: "links", render: renderLinksColumn },
             { title: "Markers", data: renderMarkersColumn }
         ],
         order: [[ 2, "asc" ]],
@@ -628,6 +629,24 @@ function get_protocols(callback) {
                     t += "</tbody>";
                     t += "</table>";
                     props += t;
+
+                    var links = data.protocols[i].nd_protocol_properties.links;
+                    if ( links ) {
+                        props += "<strong>Links:</strong><br />";
+                        var titles = Object.keys(links);
+                        titles.sort();
+                        let t = "<table class='table' style='background: transparent !important'>";
+                        t += "<thead><tr><th>Title</th><th>URL&nbsp;Template</th></tr></thead>";
+                        t += "<tbody>";
+                        for ( let j = 0; j < titles.length; j++ ) {
+                            let title = titles[j];
+                            let url = data.protocols[i].nd_protocol_properties.links[title];
+                            t += "<tr><td class='col-md-4'><strong>" + title + "</strong></td><td class='col-md-8'>" + url + "</td></tr>";
+                        }
+                        t += "</tbody>";
+                        t += "</table>";
+                        props += t;
+                    }
 
                     info += "<tr>";
                     info += "<td class='col-md-2'>" + data.protocols[i].nd_protocol_name + "</td>";
@@ -1227,7 +1246,7 @@ function renderAttributesColumn(data, type, row) {
         keys.sort();
         for ( var i=0; i<keys.length; ++i ) {
             let key = keys[i];
-            let value = data[keys[i]];
+            let value = data[key];
             if ( type === 'export' ) {
                 rtn.push(key + '=' + value);
             }
@@ -1239,6 +1258,32 @@ function renderAttributesColumn(data, type, row) {
     return rtn.join(sep);
 } 
 
+/**
+ * Render the Links column
+ * @param data The column's data for the current row
+ * @param {String} type The display type
+ * @param {Object} row The current row's data
+ * @returns {String} The text/html to display in the table
+ */
+function renderLinksColumn(data, type, row) {
+    let rtn = [];
+    let sep = type === 'export' ? ';' : '<br /><br />';
+    if ( data ) {
+        var titles = Object.keys(data);
+        titles.sort();
+        for ( var i=0; i<titles.length; i++ ) {
+            let title = titles[i];
+            let url = data[title];
+            if ( type === 'export' ) {
+                rtn.push(title + '=' + url);
+            }
+            else {
+                rtn.push("<a href='" + url + "' target='_blank'>" + title + "</a>");
+            }
+        }
+    }
+    return rtn.join(sep);
+}
 
 
 //

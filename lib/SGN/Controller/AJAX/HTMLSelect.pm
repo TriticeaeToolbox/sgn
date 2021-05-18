@@ -759,7 +759,7 @@ sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_
 
     my $html = '<table class="table table-bordered table-hover" id="html-select-sdmprotocol-table-' . $data_type_cvterm_id . '">';
     my $select_th = defined $checkbox_name ? "<th>Select</th>" : "";
-    $html .= '<thead><tr>' . $select_th . '<th>Protocol Name</th><th>Description</th><th>Properties</th></tr></thead>';
+    $html .= '<thead><tr>' . $select_th . '<th>Protocol&nbsp;Name</th><th>Description</th><th>Properties</th></tr></thead>';
     $html .= '<tbody>';
 
     while (my ($nd_protocol_id, $name, $description, $props_json) = $h->fetchrow_array()) {
@@ -778,7 +778,7 @@ sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_
 
         my $type = $props->{'sequence_metadata_type'};
         $type =~ s/ /&nbsp;/;
-        $html .= "<strong>Data&nbsp;Type:</strong>&nbsp;" . $type . "&nbsp;(" . $props->{'sequence_metadata_type_id'} . ")<br />";
+        $html .= "<strong>Data&nbsp;Type:</strong>&nbsp;" . $type . "<br />";
         $html .= "<strong>Reference&nbsp;Genome:</strong>&nbsp;" . $props->{'reference_genome'} . "<br />";
         $html .= "<strong>Score:</strong>&nbsp;" . $props->{'score_description'} . "<br />";
         $html .= "<strong>Attributes:</strong><br />";
@@ -790,6 +790,18 @@ sub get_sequence_metadata_protocols : Path('/ajax/html/select/sequence_metadata_
             $html .= "<tr><td>$k</td><td>$v</td></tr>";
         }
         $html .= "</table>";
+
+        my $links = $props->{'links'};
+        if ( defined $links ) {
+            $html .= "<strong>Links:</strong><br />";
+            $html .= "<table class='table table-striped' style='min-width: 300px'>";
+            $html .= "<thead><tr><th>Title</th><th>URL&nbsp;Template</th></tr></thead>";
+            while (my($k,$v) = each %$links) {
+                $html .= "<tr><td>$k</td><td>$v</td></tr>";
+            }
+        }
+        $html .= "</table>";
+
         $html .= '</td></tr>';
 
     }
