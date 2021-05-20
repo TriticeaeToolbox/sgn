@@ -3365,3 +3365,87 @@ name: after harvest
 synonym: "AftHvt" EXACT []
 def: "" []
 is_a: TIME:0000477
+
+[Term]
+id: TIME:0009001
+name: timepoint 1
+synonym: "TP1" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009002
+name: timepoint 2
+synonym: "TP2" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009003
+name: timepoint 3
+synonym: "TP3" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009004
+name: timepoint 4
+synonym: "TP4" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009005
+name: timepoint 5
+synonym: "TP5" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009006
+name: timepoint 6
+synonym: "TP6" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009007
+name: timepoint 7
+synonym: "TP7" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009008
+name: timepoint 8
+synonym: "TP8" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009009
+name: timepoint 9
+synonym: "TP9" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0009010
+name: timepoint 10
+synonym: "TP10" EXACT []
+def: "" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0010000
+name: seedling
+synonym: "sdl" EXACT []
+def: "a point in time when the plant is at the seedling stage" []
+is_a: TIME:0000005
+
+[Term]
+id: TIME:0011000
+name: after maturity
+synonym: "AftMat" EXACT []
+def: "" []
+is_a: TIME:0000477
