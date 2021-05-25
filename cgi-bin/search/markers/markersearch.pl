@@ -29,14 +29,12 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   #print '<pre>' .(Dumper \%params). '</pre>';
 
   # do the search!
-  my $msearch;
-  my $msearchJ;
   my $query;
   my @protos;
   my $protocol;
   my $marker_name;
-  $msearch = CXGN::Marker::Search->new($dbh);
-  $msearchJ = CXGN::Marker::SearchJson->new($dbh);
+  my $msearch = CXGN::Marker::Search->new($dbh);
+  my $msearchJ = CXGN::Marker::SearchJson->new($dbh);
 
   if($marker_name = $form->data('marker_name')){
 

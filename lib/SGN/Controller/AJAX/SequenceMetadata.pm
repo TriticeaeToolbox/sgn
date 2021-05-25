@@ -21,47 +21,6 @@ __PACKAGE__->config(
 );
 
 
-
-#
-# Get a list of reference genomes from loaded genotype protocols
-# PATH: GET /ajax/sequence_metadata/reference_genomes
-# RETURNS:
-#   - reference_genomes: an array of reference genomes
-#       - reference_genome: name of reference genome
-#       - species_name: name of species associated with reference genome
-#
-sub get_reference_genomes : Path('/ajax/sequence_metadata/reference_genomes') :Args(0) {
-    my $self = shift;
-    my $c = shift;
-    my $schema = $c->dbic_schema("Bio::Chado::Schema");
-    my $dbh = $schema->storage->dbh();
-
-    # Get unique sets of genotype protocol species and reference genomes
-    my $q = "SELECT value->>'species_name' AS species, value->>'reference_genome_name' AS reference_genome
-            FROM nd_protocolprop
-            WHERE type_id = (SELECT cvterm_id FROM public.cvterm WHERE name = 'vcf_map_details')
-            GROUP BY species, reference_genome
-            ORDER BY species;";
-    my $h = $dbh->prepare($q);
-    $h->execute();
-    
-    # Parse the results
-    my @results = ();
-    while ( my ($species, $reference_genome) = $h->fetchrow_array() ) {
-        my %result = (
-            species_name => $species,
-            reference_genome => $reference_genome
-        );
-        push(@results, \%result);
-    }
-
-    # Return the results
-    $c->stash->{rest} = {
-        reference_genomes => \@results
-    };
-}
-
-
 #
 # Get all of the features associated with sequence metadata
 # PATH: GET /ajax/sequence_metadata/features
@@ -174,7 +133,8 @@ FROM public.nd_protocol
 LEFT JOIN public.nd_protocolprop ON (nd_protocolprop.nd_protocol_id = nd_protocol.nd_protocol_id)
 LEFT JOIN public.cvterm ON (nd_protocolprop.type_id = cvterm.cvterm_id)
 WHERE nd_protocol.type_id = (SELECT cvterm_id FROM public.cvterm WHERE name = 'sequence_metadata_protocol' AND cv_id = (SELECT cv_id FROM public.cv WHERE name = 'protocol_type'))
-AND cvterm.name = 'sequence_metadata_protocol_properties';";
+AND cvterm.name = 'sequence_metadata_protocol_properties'
+ORDER BY name;";
     my $h = $dbh->prepare($q);
     $h->execute();
 
@@ -362,6 +322,9 @@ sub sequence_metadata_upload_verify_POST : Args(0) {
 #   - new_protocol_attribute_count = max number of attributes to read (some may be missing if an attribute was removed)
 #   - new_protocol_attribute_key_{n} = key name of nth attribute
 #   - new_protocol_attribute_description_{n} = description of nth attribute
+#   - new_protocol_link_count = max number of links to read (some may be missing if a link was removed)
+#   - new_protocol_link_title_{n} = title of nth external link
+#   - new_protocol_link_url_{n} = URL template of nth external link
 # RETURNS:
 #   - error: error message
 #   - results: store results
@@ -399,6 +362,9 @@ sub sequence_metadata_store_POST : Args(0) {
         $c->stash->{rest} = {error => 'The path to the previously processed and verified file must be defined!'};
         $c->detach();
     }
+
+    # SMD Object for creating new protocol and storing data
+    my $smd;
     
     # Create new protocol, if requested
     if ( $c->req->param('use_existing_protocol') eq 'false' ) {
@@ -409,6 +375,7 @@ sub sequence_metadata_store_POST : Args(0) {
         my $protocol_species = $c->req->param('new_protocol_species');
         my $protocol_score_description = $c->req->param('new_protocol_score_description');
         my $protocol_attribute_count = $c->req->param('new_protocol_attribute_count');
+        my $protocol_link_count = $c->req->param('new_protocol_link_count');
         if ( !defined $protocol_name || $protocol_name eq '' ) {
             $c->stash->{rest} = {error => 'The new protocol name must be defined!'};
             $c->detach();
@@ -430,20 +397,14 @@ sub sequence_metadata_store_POST : Args(0) {
             $c->detach();
         }
 
+        # Check validity of sequence metadata type id (exists as cvterm)
         my $sequence_metadata_type_cvterm = $schema->resultset('Cv::Cvterm')->find({ cvterm_id => $protocol_sequence_metadata_type_id });
         if ( !defined $sequence_metadata_type_cvterm ) {
             $c->stash->{rest} = {error => 'Could not find matching CVTerm for sequence metadata type!'};
             $c->detach();
         }
 
-        my %sequence_metadata_protocol_props = (
-            sequence_metadata_type_id => $protocol_sequence_metadata_type_id,
-            sequence_metadata_type => $sequence_metadata_type_cvterm->name(),
-            reference_genome => $protocol_reference_genome
-        );
-        if ( defined $protocol_score_description && $protocol_score_description ne '' ) {
-            $sequence_metadata_protocol_props{'score_description'} = $protocol_score_description;
-        }
+        # Parse attributes
         my %attributes = ();
         if ( defined $protocol_attribute_count && $protocol_attribute_count ne '' ) {
             for ( my $i = 1; $i <= $protocol_attribute_count; $i++ ){
@@ -454,20 +415,35 @@ sub sequence_metadata_store_POST : Args(0) {
                 }
             }
         }
-        $sequence_metadata_protocol_props{'attribute_descriptions'} = \%attributes;
-        
-        my $sequence_metadata_protocol_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol', 'protocol_type')->cvterm_id();
-        my $sequence_metadata_protocol_prop_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'sequence_metadata_protocol_properties', 'protocol_property')->cvterm_id();
-        my $protocol = $schema->resultset('NaturalDiversity::NdProtocol')->create({
-            name => $protocol_name,
-            type_id => $sequence_metadata_protocol_type_id,
-            nd_protocolprops => [{type_id => $sequence_metadata_protocol_prop_cvterm_id, value => encode_json \%sequence_metadata_protocol_props}]
-        });
-        $protocol_id = $protocol->nd_protocol_id();
-        
-        my $sql = "UPDATE nd_protocol SET description=? WHERE nd_protocol_id=?;";
-        my $sth = $dbh->prepare($sql);
-        $sth->execute($protocol_description, $protocol_id);
+
+        # Parse links
+        my %links = ();
+        if ( defined $protocol_link_count && $protocol_link_count ne '' ) {
+            for ( my $i = 1; $i <= $protocol_link_count; $i++ ) {
+                my $link_title = $c->req->param('new_protocol_link_title_' . $i);
+                my $link_url = $c->req->param('new_protocol_link_url_' . $i);
+                if ( defined $link_title && $link_title ne '' && $link_title ne 'undefined' && 
+                        defined $link_url && $link_url ne '' && $link_url ne 'undefined' ) {
+                    $links{$link_title} = $link_url;
+                }
+            }
+        }
+
+        # Create the Sequence Metadata protocol
+        $smd = CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema, type_id => $protocol_sequence_metadata_type_id);
+        my %protocol_args = (
+            protocol_name => $protocol_name,
+            protocol_description => $protocol_description,
+            reference_genome => $protocol_reference_genome,
+            score_description => $protocol_score_description,
+            attributes => \%attributes,
+            links => \%links
+        );
+        my $protocol_results = $smd->create_protocol(\%protocol_args);
+        if ( $protocol_results->{'error'} ) {
+            $c->stash->{rest} = {error => 'Could not create sequence metadata protocol: ' . $protocol_results->{'error'}};
+            $c->detach();
+        }
 
         $type_id = $protocol_sequence_metadata_type_id;
         $species = $protocol_species;
@@ -487,6 +463,9 @@ sub sequence_metadata_store_POST : Args(0) {
             $c->detach();
         }
 
+        # Create SMD with existing protocol id
+        $smd = CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema, type_id => $type_id, nd_protocol_id => $protocol_id);
+
         # Get species from the features of the protocol
         my $q = "SELECT DISTINCT(CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), ''))) AS species
                 FROM public.feature 
@@ -501,7 +480,6 @@ sub sequence_metadata_store_POST : Args(0) {
 
 
     # Run the store script
-    my $smd = CXGN::Genotype::SequenceMetadata->new(bcs_schema => $schema, type_id => $type_id, nd_protocol_id => $protocol_id);
     my $store_results = $smd->store($processed_filepath, $species);
     
 
@@ -547,6 +525,7 @@ sub sequence_metadata_store_POST : Args(0) {
 #   - end = end position of sequence metadata
 #   - score = primary score value of sequence metadata
 #   - attributes = hash of secondary key/value attributes
+#   - links = hash of external link titles and URLs
 #
 sub sequence_metadata_query : Path('/ajax/sequence_metadata/query') : ActionClass('REST') { }
 sub sequence_metadata_query_GET : Args(0) {
@@ -731,78 +710,4 @@ sub sequence_metadata_query_GET : Args(0) {
         $c->detach();
     }
    
-}
-
-#
-# Get the markers that are located on the feature between the specified start and end positions
-# PATH: GET /ajax/sequence_metadata/markers
-# PARAMS:
-#   - reference_genome = name of the reference genome
-#   - feature_id = id of the associated feature (chromosome)
-#   - start = start position of the query range
-#   - end = end position of the query range
-#   - limit = (optional, default=100) limit the number of markers returned
-#
-sub sequence_metadata_markers : Path('/ajax/sequence_metadata/markers') : ActionClass('REST') { }
-sub sequence_metadata_markers_GET : Args(0) {
-    my $self = shift;
-    my $c = shift;
-    my $schema = $c->dbic_schema("Bio::Chado::Schema");
-    my $dbh = $schema->storage->dbh();
-
-    my $feature_id = $c->req->param('feature_id');
-    my $reference_genome = $c->req->param('reference_genome');
-    my $start = $c->req->param('start');
-    my $end = $c->req->param('end');
-    my $limit = $c->req->param('limit') ? $c->req->param('limit') : 100;
-
-
-    # Check required parameters
-    if ( !defined $reference_genome || $reference_genome eq '' ) {
-        $c->stash->{rest} = {error => 'Reference genome must be provided!'};
-        $c->detach();
-    }
-    if ( !defined $feature_id || $feature_id eq '' ) {
-        $c->stash->{rest} = {error => 'Feature id must be provided!'};
-        $c->detach();
-    }
-    if ( !defined $start || $start eq '' ) {
-        $c->stash->{rest} = {error => 'start location must be provided!'};
-        $c->detach();
-    }
-    if ( !defined $end || $end eq '' ) {
-        $c->stash->{rest} = {error => 'end location must be provided!'};
-        $c->detach();
-    }
-
-    # Get the feature and species names from feature id
-    my $q = "SELECT feature.uniquename, CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) AS species
-                FROM public.feature 
-                LEFT JOIN public.organism USING (organism_id)
-                WHERE feature_id = ?;";
-    my $h = $dbh->prepare($q);
-    $h->execute($feature_id);
-    my ($feature_name, $species) = $h->fetchrow_array();
-    if ( !defined $feature_name || !defined($species) ) {
-        $c->stash->{rest} = {error => 'The provided feature_id could not be found in the database!'};
-        $c->detach();
-    }
-
-    # Perform JSON marker search
-    my $msearch = CXGN::Marker::SearchMatView->new(bcs_schema => $schema);
-    my %args = (
-        species_name => $species,
-        reference_genome_name => $reference_genome,
-        chrom => $feature_name,
-        start => $start,
-        end => $end,
-        limit => $limit
-    );
-    my $results = $msearch->query(\%args);
-
-    # Return the results as JSON
-    $c->stash->{rest} = {
-        results => $results
-    };
-
 }

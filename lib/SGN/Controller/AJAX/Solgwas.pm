@@ -65,7 +65,7 @@ sub shared_phenotypes: Path('/ajax/solgwas/shared_phenotypes') : {
     my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     my $temppath = $c->config->{basepath}."/".$tempfile;
 #    my $temppath = $solgwas_tmp_output . "/" . $tempfile;
-    my $ds2 = CXGN::Dataset::File->new(people_schema => $people_schema, schema => $schema, sp_dataset_id => $dataset_id, file_name => $temppath);
+    my $ds2 = CXGN::Dataset::File->new(people_schema => $people_schema, schema => $schema, sp_dataset_id => $dataset_id, file_name => $temppath, quotes => 0);
     my $phenotype_data_ref = $ds2->retrieve_phenotypes();
 
 #    my $phenotypes = $ds->retrieve_phenotypes();
@@ -297,7 +297,7 @@ sub generate_results: Path('/ajax/solgwas/generate_results') : {
     my $temppath = $solgwas_tmp_output . "/" . $tempfile;
 
 #    my $ds = CXGN::Dataset::File->new(people_schema => $people_schema, schema => $schema, sp_dataset_id => $dataset_id, file_name => $temppath);
-    my $ds = CXGN::Dataset::File->new(people_schema => $people_schema, schema => $schema, sp_dataset_id => $dataset_id, file_name => $temppath);
+    my $ds = CXGN::Dataset::File->new(people_schema => $people_schema, schema => $schema, sp_dataset_id => $dataset_id, file_name => $temppath, quotes => 0);
 
 ##    my $phenotype_data_ref = $ds->retrieve_phenotypes();
     my $phenotype_data_ref = $ds->retrieve_phenotypes($pheno_filepath);
