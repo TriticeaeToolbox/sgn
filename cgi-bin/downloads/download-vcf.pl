@@ -96,9 +96,9 @@ print "<div id=\"step2\">";
     my $file = "/home/production/genotype_files/" . $trial . ".vcf.gz";
     my $file_pas = "/home/production/genotype_files/" . $cgi->param('trial') . ".passport.xls";
     my $unique_str = int(rand(10000000));
-    my $dir = "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org/download_" . $unique_str;
-    if ( !-d "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org") {
-	mkdir "/export/prod/tmp/triticum-site/wheat.triticeaetoolbox.org";
+    my $dir = "/home/production/tmp/triticum-site/download/download_" . $unique_str;
+    if ( !-d "/home/production/tmp/triticum-site/download") {
+	mkdir "/home/production/tmp/tritticum-site/download";
     }
     if ($chrom =~ /([a-z]*[A-Z0-9]+)/) {
         $chrom = $1;
