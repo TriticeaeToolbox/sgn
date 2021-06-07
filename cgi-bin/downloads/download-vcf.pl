@@ -37,6 +37,7 @@ my $option1 = "1kEC_genotype01222019";
 my $option2 = "1kEC_genotype01222019f";
 my $option3 = "all_filtered_snps_allaccessions_allploidy_snpeff";
 my $option4 = "2019_hapmap";
+my $option5 = "watkins-filtered-cleaned";
 
 print "<table>";
 print "<tr><td>Genotype trial:<td><select id=trial onchange=\"getChromFile()\">";
@@ -44,6 +45,8 @@ print "<option value=$option1>2019_Diversity_GBS</option>\n";
 print "<option value=$option2>2019_Diversity_GBS filtered</option>\n";
 print "<option value=$option3>2017_WheatCAP_UCD</option>\n";
 print "<option value=$option4>2019_HapMap</option>";
+print "<option value=$option5>Exome_Capture_Watkins</option>";
+
 print "</select>\n";
 print "<tr><td>Chromosome:<td><div id=\"step1\"><select id=chrom>";
 print "<option>select</option>";
