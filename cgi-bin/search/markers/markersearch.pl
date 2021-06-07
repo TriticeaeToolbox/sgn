@@ -29,14 +29,12 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   #print '<pre>' .(Dumper \%params). '</pre>';
 
   # do the search!
-  my $msearch;
-  my $msearchJ;
   my $query;
   my @protos;
   my $protocol;
   my $marker_name;
-  $msearch = CXGN::Marker::Search->new($dbh);
-  $msearchJ = CXGN::Marker::SearchJson->new($dbh);
+  my $msearch = CXGN::Marker::Search->new($dbh);
+  my $msearchJ = CXGN::Marker::SearchJson->new($dbh);
 
   if($marker_name = $form->data('marker_name')){
 
@@ -165,11 +163,10 @@ if($form->data('submit') && ($form->data('submit') eq 'Search') || ($form->data(
   my @protocol_set;
   my $protocol_str;
   my $protocol_name;
-  my $sth;
   my @row;
 
   $query = "select cvterm_id from cvterm where name = 'vcf_map_details_markers'";
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute();
   my ($protocol_markers_cvterm) = $sth->fetchrow_array();
 
