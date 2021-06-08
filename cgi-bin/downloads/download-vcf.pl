@@ -1,7 +1,7 @@
 
 # allows download of large VCF files
-# input files should be gziped and indexed with tabix
-# also requires a file with valid index values
+# input files should be bgziped and indexed with tabix
+# also requires a file with list of chromosomes
 
 use strict;
 use warnings;
@@ -31,7 +31,7 @@ if (!$function) {
 print "<h2>Download Genotype Data</h2>\n";
 print "This tool allows you to quickly download a portion of a genotype experiment.<br>\n";
 print "Select a genotype experiment, chromosome, and range.<br>\n";
-print "The output format is Variant Call Format (VCF) and can be viewed in TASSEL.<br><br>\n";
+print "The output format is Variant Call Format (VCF) and can be viewed in TASSEL (File => Open) or Excel (File => Open, Tab Delimeted).<br><br>\n";
 
 my $option1 = "1kEC_genotype01222019";
 my $option2 = "1kEC_genotype01222019f";
@@ -64,7 +64,7 @@ print "<tr><td><input type=\"button\" value=\"Query\" onclick=\"select_chrom()\"
 
 print "</table>\n";
 
-print "<div id=\"step2\">";
+print "<div id=\"step2\"></div>";
 
 } elsif ($function eq "valid") {
     print "content-type: text/csv \n\n";
@@ -166,6 +166,5 @@ print "<div id=\"step2\">";
 
     }
 }
-print "</div>";
 
 #$page->footer();
