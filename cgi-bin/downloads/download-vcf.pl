@@ -41,11 +41,11 @@ my $option5 = "watkins-filtered-cleaned";
 
 print "<table>";
 print "<tr><td>Genotype trial:<td><select id=trial onchange=\"getChromFile()\">";
-print "<option value=$option1>2019_Diversity_GBS</option>\n";
-print "<option value=$option2>2019_Diversity_GBS filtered</option>\n";
-print "<option value=$option3>2017_WheatCAP_UCD</option>\n";
-print "<option value=$option4>2019_HapMap</option>";
-print "<option value=$option5>Exome_Capture_Watkins</option>";
+print "<option value=$option1>Exome Capture 2019 Diversity</option>\n";
+print "<option value=$option2>Exome Capture 2019 Diversity filtered</option>\n";
+print "<option value=$option3>Exome Capture 2017 WheatCAP_UCD</option>\n";
+print "<option value=$option4>Exome Capture 2019 HapMap</option>";
+print "<option value=$option5>Exome Capture Watkins</option>";
 
 print "</select>\n";
 print "<tr><td>Chromosome:<td><div id=\"step1\"><select id=chrom>";
@@ -115,12 +115,20 @@ print "<div id=\"step2\"></div>";
     my $filename1 = $dir . "/" . $trial . ".vcf";
     my $filename2 = $dir . "/proc_error.txt";
     my $filename3 = $trial . ".vcf";
+    my $filename4 = $dir . "/" . $trial . ".tsv";
 
     my $cmd = "tabix -h $file $chrom:$start-$stop > $filename1 2> $filename2";
     #print "$cmd<br>\n";
     system($cmd);
 
     my $count = 0;
+    my @line;
+    my $geno;
+    my $chr;
+    my $ref;
+    my $alt;
+    my $a1;
+    my $a2;
     my $errorLog = "";
     if (-e $filename2) {
         open(IN, $filename2);
@@ -131,12 +139,45 @@ print "<div id=\"step2\"></div>";
     }
     if (-e $filename1) {
 	open(IN, $filename1);
+	open(OUT, '>', $filename4);
+	print OUT "rs#\talleles\tchrom\tpos";
         while (<IN>) {
-            if (!/^#/) {
+	    if (/#CHROM/) {
+		@line = split('\t', $_);
+		foreach my $key (keys @line) {
+		    if ($key > 8) {
+			print OUT "\t$line[$key]";
+		    }
+		}
+	    } elsif (!/^#/) {
                 $count++;
+		@line = split('\t', $_);
+		$chr = $line[0];
+		$ref = $line[3];
+		$alt = $line[4];
+		foreach my $key (keys @line) {
+		    if ($key == 1) {
+			print OUT "$line[2]\t$ref$alt\t$chr\t$line[1]";
+		    } elsif ($key > 8) {
+			$geno = $line[$key];
+			$a1 = substr($geno,0,1);
+			$a2 = substr($geno,2,1);
+			if ($a1 eq "0") {
+			    print OUT "\t$ref";
+			} elsif ($a1 eq "1") {
+			    print OUT "\t$alt";
+			} elsif ($a eq ".") {
+			    print OUT "\tN";
+			} else {
+			    print OUT "\t?";
+			}
+		    }
+		}
+		print OUT "\n";
             }
         }
         close(IN);
+	close(OUT);
     }
     if (($errorLog ne "") && ($count != 0)) {
         print "Content-type: text/plain\n";
@@ -156,6 +197,7 @@ print "<div id=\"step2\"></div>";
       if ($count > 0) {
           #print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:window.open('$filename1')\">";
           print "<br><input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\"><br>";
+	  print "<br><input type=\"button\" value=\"-\" onclick=\"javascript:output_file('$filename4','$trial')\"><br>";
       } else {
           print "<br><input type=\"button\" value=\"Error: no results from $chrom:$start-$stop\"><br>";
 	  #print "$cmd\n";
