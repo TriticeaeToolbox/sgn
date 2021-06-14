@@ -158,7 +158,7 @@ sub search {
 	my ($data_window, $pagination) = CXGN::BrAPI::Pagination->paginate_array(\@call_search, $page_size, $page);
 	foreach (@$data_window){
 		push @data, {
-			datatypes=>$_->[0],
+			dataTypes=>$_->[0],
 			methods=>$_->[1],
 			service=>$_->[2],
             versions=>$_->[3]
