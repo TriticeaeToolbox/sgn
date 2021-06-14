@@ -90,15 +90,15 @@ sub list {
 
 		if ( $passes_search ){ 
 	        my %map_info = (
-			    additionalInfo => {name => $m->get_long_name()},
-				comments => $m->get_abstract(),			
+		    additionalInfo => {name => $m->get_long_name()},
+		    comments => $m->get_abstract(),			
 	            commonCropName => $common_name,
 	            documentationURL => "https://brapi.org",
 	            linkageGroupCount => $m->get_chromosome_count(),
 	            mapDbId =>  qq|$map_id|,
 	            mapName => $m->get_short_name(),
-	            mapPUI => undef,
-				markerCount => $marker_count,
+		#    mapPUI => undef,
+	 	    markerCount => $marker_count,
 	            publishedDate => $date_loaded,
 	            scientificName => $scientific_name,
 	            type => $map_type,
@@ -169,7 +169,7 @@ sub detail {
 	        linkageGroupCount => $map->get_chromosome_count(),
 	        mapDbId =>  qq|$map_id|,
 	        mapName => $map->get_short_name(),
-	        mapPUI => undef,
+		# mapPUI => undef,
 			markerCount => $marker_count,
 	        publishedDate => $date_loaded,
 	        scientificName => $scientific_name,
