@@ -471,27 +471,26 @@ HTML
     my $sp_person_id = $c->user->get_object->get_sp_person_id;
     my $username = $c->user->get_username();
     $html = <<HTML;
-  <li>
-      <div class="btn-group" role="group" aria-label="..." style="height:34px; margin: 1px 3px 0px 0px">
-	<button id="navbar_profile" class="btn btn-primary" type="button" onclick='location.href="/solpeople/profile/$sp_person_id"' style="margin: 7px 0px 0px 0px" title="My Profile">$username</button>
-	<button id="navbar_lists" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Lists" onClick="show_lists();">
-        Lists <span class="glyphicon glyphicon-list-alt" ></span>
-	</button>
-	<button id="navbar_personal_calendar" name="personal_calendar_link" class="btn btn-primary" style="margin:7px 0px 0px 0px" type="button" title="Your Calendar">Calendar&nbsp;<span class="glyphicon glyphicon-calendar" ></span>
-	</button>
-	<button id="navbar_logout" class="btn btn-default glyphicon glyphicon-log-out" style="margin:6px 0px 0px 0px" type="button" onclick="logout();" title="Logout"></button>
+      <div class="btn-group" role="group" aria-label="..." style="margin: 1px 3px 0px 0px">
+	    <button id="navbar_profile" class="btn btn-primary" type="button" onclick='location.href="/solpeople/profile/$sp_person_id"' style="margin: 7px 0px 0px 0px" title="My Profile"><span class="glyphicon glyphicon-user" ></span>&nbsp;<span class="hidden-sm">$username</span></button>
+	    <button id="navbar_lists" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Lists" onClick="show_lists();"><span class="glyphicon glyphicon-list-alt" ></span>&nbsp;<span class="hidden-sm">Lists</span></button>
+	    <button id="navbar_logout" class="btn btn-default glyphicon glyphicon-log-out" style="margin:6px 0px 0px 0px" type="button" onclick="logout();" title="Logout"></button>
       </div>
-  </li>
 HTML
 
   } else {
       print STDERR "generating regular login button..\n";
       $html = qq |
-      <li class="dropdown">
-        <div class="btn-group" role="group" aria-label="..." style="height:34px; margin: 1px 0px 0px 0px" >
-            <button id="site_login_button" name="site_login_button" class="btn btn-primary" type="button" style="margin: 7px 7px 0px 0px; position-absolute: 10,10,100,10">Login</button>
+        <div class="btn-group" role="group" aria-label="..." style="" >
+            <button id="site_register_button" name="site_register_button" class="btn btn-info" type="button" style="margin: 8px 0px 0px 0px; height: 35px">
+                <span class="glyphicon glyphicon-plus"></span>
+                <span class="hidden-sm">&nbsp;Register</span>
+            </button>
+            <button id="site_login_button" name="site_login_button" class="btn btn-primary" type="button" style="margin: 8px 7px 0px 0px; height: 35px;">
+                <span class="glyphicon glyphicon-user"></span>
+                <span class="hidden-sm">&nbsp;Login</span>
+            </button>
         </div>
-      </li>
  |;
 
 };

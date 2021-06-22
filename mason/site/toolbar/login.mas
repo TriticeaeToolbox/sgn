@@ -1,5 +1,5 @@
 
-<span id="login_button_html_div" style="white-space:nowrap;width:200;float:right"><button class="btn btn-primary disabled" type="button" style="margin: 7px 7px 0px 0px">Login</button></span>
+<span id="login_button_html_div"><button class="btn btn-primary disabled" type="button" style="margin: 7px 7px 0px 0px">Login</button></span>
 
 
 <script>
@@ -44,9 +44,11 @@ jQuery(document).ready(function () {
 
   update_login_button();
    
-  jQuery(document).on('click', 'button[name="site_login_button"]', function(event) 
-  { 
+  jQuery(document).on('click', 'button[name="site_login_button"]', function(event) { 
     jQuery('#site_login_dialog').modal("show");
+  });
+  jQuery(document).on('click', 'button[name="site_register_button"]', function(event) {
+    jQuery('#site_login_new_user_dialog').modal("show");
   });
 });
   
