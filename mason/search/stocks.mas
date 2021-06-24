@@ -436,7 +436,8 @@ jQuery(document).ready(function () {
         _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
     });
 
-    _load_stock_search_results('accession', editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci);
+    parseArgs();
+    _load_stock_search_results(jQuery('#stock_type_select option:selected').text(), editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array);
 
     jQuery('#stock_search_results').on( 'draw.dt', function () {
       var name_links = stock_table.column(0).data();
@@ -660,7 +661,15 @@ function _load_alleles(locus_id, locus_name) {
 
 
 
-function _load_stock_search_results(stock_type, editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array, selected_loci){
+function parseArgs() {
+  const params = new URLSearchParams(window.location.search);
+  if ( params.has('any_name') ) {
+    jQuery('#any_name').val(params.get('any_name'));
+    jQuery('#stock_type_select').val(0);
+  }
+}
+
+function _load_stock_search_results(stock_type, editable_stockprops_search, stockprop_extra_columns_view, stockprop_extra_columns_view_array){
     console.log(stock_type);
     console.log("Making AJAX request with editable stockprop "+JSON.stringify(editable_stockprops_search));
     stock_table = jQuery('#stock_search_results').DataTable({
