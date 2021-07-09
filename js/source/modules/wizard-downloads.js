@@ -24,8 +24,8 @@ export function WizardDownloads(main_id,wizard){
       trial: d.Trial
     };
   }).then(function(data) {
-    console.log(data[0].id);
-    console.log(data[0].trial);
+    // console.log(data[0].id);
+    // console.log(data[0].trial);
     return data;
   });
 
@@ -73,7 +73,7 @@ export function WizardDownloads(main_id,wizard){
         var marker_set_list_id = d3.select(".wizard-download-genotypes-marker-set-list-id").node().value;
         var url = "";
 
-        console.log(trial_ids);
+        // console.log(trial_ids);
         vcfdata.then(function(data) {
           if (data[0].id == protocol_id) {
             var trial_name = vcfFile[trial_id];

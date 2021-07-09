@@ -1,4 +1,4 @@
-import "../legacy/d3/d3v4Min.js";
+import "../legacy/d3/d3v5Min.js";
 import "../legacy/CXGN/Dataset.js";
 
 /**
@@ -114,7 +114,7 @@ export function WizardDatasets(main_id,wizard){
       cols.forEach(c=>{
         params+=`&${c.type}=${JSON.stringify(c.items.filter(d=>d.selected).map(d=>d.value.id))}`;
       })
-      console.log(document.location.origin+'/ajax/dataset/save'+params);
+      // console.log(document.location.origin+'/ajax/dataset/save'+params);
       fetch(document.location.origin+'/ajax/dataset/save'+params,{
         method:'post',
         credentials: 'include'
