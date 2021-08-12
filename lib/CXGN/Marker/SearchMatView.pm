@@ -377,8 +377,8 @@ sub related_mapped_markers {
 #   - start = (optional) start position of query range
 #   - end = (optional) end position of query range
 #   - variant = (optional) variant name (exact, case-insensitive match)
-#   - name = (optional) marker name or variant name
-#   - name_match = (optional, default=exact) how to match (case-insensitively) the marker name (exact, contains, starts_with, ends_with)
+#   - name = (optional) marker name (or a comma-separated list of names, if name_match == 'list')
+#   - name_match = (optional, default=exact) how to match (case-insensitively) the marker name (exact, contains, starts_with, ends_with, list)
 #   - nd_protocol_ids = (optional) array ref of genotype protocol ids
 #   - limit = (optional, default=500) max number of markers to return
 #   - page = (optional, default=1) return a different set of $limit number of results, if more than $limit are found
@@ -417,12 +417,15 @@ sub query {
     my $dbh = $schema->storage->dbh();
 
     # Build query
-    my $select_info = "SELECT materialized_markerview.nd_protocol_id, nd_protocol.name AS nd_protocol_name, species_name, reference_genome_name, marker_name, variant_name, chrom, pos, ref, alt";
-    my $select_count = "SELECT COUNT(*) AS marker_count";
-    my $q = " FROM public.materialized_markerview";
-    $q .= " LEFT JOIN nd_protocol USING (nd_protocol_id)";
+    my $sc = "SELECT COUNT(*) AS marker_count";
+    my $si = "SELECT materialized_markerview.nd_protocol_id, nd_protocol.name AS nd_protocol_name, species_name, reference_genome_name, marker_name, variant_name, chrom, pos, ref, alt, feature.residues AS flanking_sequence_ref, featureprop.value AS flanking_sequence_snp";
+    my $fc = " FROM public.materialized_markerview";
+    $fc .= " LEFT JOIN nd_protocol USING (nd_protocol_id)";
+    my $fi = $fc . " LEFT JOIN feature ON (materialized_markerview.marker_name = feature.uniquename AND materialized_markerview.species_name = (SELECT CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) FROM public.organism WHERE organism.organism_id = feature.organism_id))";
+    $fi .= " LEFT JOIN featureprop USING (feature_id)";
 
     # Add filter parameters
+    my $w = "";
     my @where = ();
     my @args = ();
     if ( defined $species ) {
@@ -453,16 +456,21 @@ sub query {
     }
     if ( defined $name && $name ne '' ) {
         if ( $name_match eq 'contains' ) {
-            push(@where, "(marker_name ILIKE ? OR variant_name ILIKE ?)");
-            push(@args, '%'.$name.'%', '%'.$name.'%');
+            push(@where, "(marker_name ILIKE ?)");
+            push(@args, '%'.$name.'%');
         }
         elsif ( $name_match eq 'starts_with' ) {
-            push(@where, "(marker_name ILIKE ? OR variant_name ILIKE ?)");
-            push(@args, $name.'%', $name.'%');
+            push(@where, "(marker_name ILIKE ?)");
+            push(@args, $name.'%');
         }
         elsif ( $name_match eq 'ends_with' ) {
-            push(@where, "(marker_name ILIKE ? OR variant_name ILIKE ?)");
-            push(@args, '%'.$name, '%'.$name);
+            push(@where, "(marker_name ILIKE)");
+            push(@args, '%'.$name);
+        }
+        elsif ( $name_match eq 'list' ) {
+            my @names = split(',', $name);
+            push(@where, "(marker_name IN(@{[join',', ('?') x @names]}))");
+            push(@args, @names);
         }
         else {
             push(@where, "(UPPER(marker_name) = UPPER(?) OR UPPER(variant_name) = UPPER(?))");
@@ -476,20 +484,23 @@ sub query {
     }
     # push(@where, "marker_name <> '.'");
     if ( @where ) {
-        $q .= " WHERE " . join(' AND ', @where);
+        $w .= " WHERE " . join(' AND ', @where);
     }
 
     # Get the total count of markers
     # my $subq_count = $select_count . $q . " GROUP BY variant_name";
     # my $query_count = "SELECT SUM(c.marker_count)::int AS marker_count, COUNT(*) AS variant_count FROM ($subq_count) AS c;";
     # ^getting variant counts adds too much time to the query
-    my $query_count = $select_count . $q;
+    my $query_count = $sc . $fc . $w;
     my $h_count = $dbh->prepare($query_count);
     $h_count->execute(@args);
     my ($marker_count) = $h_count->fetchrow_array();
 
     # Get the marker info
-    my $query = $select_info . $q;
+    my $query = $si . $fi . $w;
+    $query .= ((@where) ? " AND " : " WHERE ") . " (feature.type_id = (SELECT cvterm_id FROM public.cvterm WHERE name = 'markers') OR feature.type_id IS NULL)";
+    $query .= " AND (featureprop.type_id IN (SELECT cvterm_id FROM public.cvterm WHERE name = 'flanking_region') OR featureprop.type_id IS NULL)";
+    
     $query .= " ORDER BY marker_name";
     if ( defined $limit ) {
         $query .= " LIMIT ?";
@@ -515,7 +526,7 @@ sub query {
 
     # Parse the results
     my %variants;
-    while (my ($nd_protocol_id, $nd_protocol_name, $species_name, $reference_genome_name, $marker_name, $variant_name, $chrom, $pos, $ref, $alt) = $h->fetchrow_array()) {
+    while (my ($nd_protocol_id, $nd_protocol_name, $species_name, $reference_genome_name, $marker_name, $variant_name, $chrom, $pos, $ref, $alt, $fs_ref, $fs_snp) = $h->fetchrow_array()) {
         my %marker = (
             nd_protocol_id => $nd_protocol_id,
             nd_protocol_name => $nd_protocol_name, 
@@ -526,7 +537,9 @@ sub query {
             chrom => $chrom,
             pos => $pos,
             ref => $ref,
-            alt => $alt
+            alt => $alt,
+            flanking_sequence_ref => $fs_ref ? $fs_ref : "",
+            flanking_sequence_snp => $fs_snp ? $fs_snp : ""
         );
         if ( !exists $variants{$variant_name} ) {
             $variants{$variant_name} = ();
