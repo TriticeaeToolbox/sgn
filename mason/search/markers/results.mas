@@ -17,7 +17,7 @@ David Waring <djw64@cornell.edu>
 
 </%doc>
 
-<& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables' ] &>
+<& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables', 'jquery.dataTables-buttons-min', 'jszip-min', 'buttons.bootstrap-min', 'buttons.html5-min' ] &>
 
 <& /page/page_title.mas, title=>"Marker Search Results" &>
 
@@ -72,6 +72,29 @@ David Waring <djw64@cornell.edu>
 
 
 
+<!-- Flanking Sequence Modal Dialog -->
+<div class="modal fade" id="genotyped-marker-flanking-sequence-dialog" name="genotyped-marker-flanking-sequence-dialog" tabindex="-1" role="dialog" aria-labelledby="flankingSequenceDialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="flankingSequenceDialog"><span id="genotyped-marker-flanking-sequence-name"></span> Flanking Sequence</h4>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">                    
+                    <p><strong>Flanking Sequence with SNP:</strong></p>
+                    <p id="genotyped-marker-flanking-sequence-snp" class="genotyped-marker-flanking-sequence"></p>
+                    <br />
+                    <p><strong>Flanking Sequence of Reference Genome:</strong></p>
+                    <p id="genotyped-marker-flanking-sequence-ref" class="genotyped-marker-flanking-sequence"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <script type="text/javascript">
 
 // QUERY PARAMS SENT AS SEARCH ARGUMENTS
@@ -90,7 +113,7 @@ jQuery(document).ready(function() {
 
     // Init Genotyped DataTable
     jQuery('#genotyped-marker-results-table').DataTable({
-        dom: 'frt',
+        dom: 'Bfrt',
         autoWidth: false,
         pageLength: GENOTYPED_MARKERS_LIMIT,
         language: {
@@ -117,9 +140,46 @@ jQuery(document).ready(function() {
             { title: "Chromosome", data: "chrom" },
             { title: "Position", data: "pos" },
             { title: "Ref", data: "ref" },
-            { title: "Alt", data: "alt" }
+            { title: "Alt", data: "alt" },
+            { 
+                title: "Flanking Sequence",
+                data: "flanking_sequence_snp",
+                render: function(data, type, row) {
+                    if ( data && data !== "" ) {
+                        if ( type === 'display' ) {
+                            let s = data.substring(
+                                data.indexOf("[")-5,
+                                data.indexOf("]")+5+1
+                            );
+                            return "<span class='fs-span' data-fs-marker=" + row.marker_name + " data-fs-snp=" + row.flanking_sequence_snp + " data-fs-ref=" + row.flanking_sequence_ref + ">..." + s + "...</span><br />";
+                        }
+                        else {
+                            return data;
+                        }
+                    }
+                    else {
+                        return "";
+                    }
+                }
+            }
         ],
-        order: [[ 0, "asc" ]]
+        order: [[ 0, "asc" ], [ 2, "asc" ]],
+        buttons: [
+            {
+                extend: 'excelHtml5',
+                title: 'genotyped_markers',
+                exportOptions: {
+                    orthogonal: 'export'
+                }
+            },
+            {
+                extend: 'csvHtml5',
+                title: 'genotyped_markers',
+                exportOptions: {
+                    orthogonal: 'export'
+                }
+            }
+        ]
     });
 
     // Init Mapped DataTable
@@ -146,7 +206,7 @@ jQuery(document).ready(function() {
             { title: "Position", data: "position" },
             { title: "Map Units", data: "map_units" },
         ],
-        order: [[ 0, "asc" ]]
+        order: [[ 0, "asc" ], [ 2, "asc" ]]
     });
 
     // Click Listeners
@@ -155,6 +215,19 @@ jQuery(document).ready(function() {
     jQuery("#mapped-marker-page-prev").click(searchMappedMarkersPrev);
     jQuery("#mapped-marker-page-next").click(searchMappedMarkersNext);
     jQuery("#btn-modify-search").click(backToSearch);
+    jQuery("#genotyped-markers").on("click", ".fs-span", function() {
+        let marker = jQuery(this).data("fs-marker");
+        let fs_snp = jQuery(this).data("fs-snp");
+        let fs_ref = jQuery(this).data("fs-ref");
+        let s = fs_snp.indexOf("[");
+        fs_snp = fs_snp.replace(/\[(.*)\]/, "<span class='genotyped-marker-flanking-sequence-snp'>[$1]</span>");
+        fs_ref = fs_ref.substring(0, s) + "<span class='genotyped-marker-flanking-sequence-snp'>" + fs_ref.substring(s, s+1) + "</span>" + fs_ref.substring(s+1);
+        jQuery("#genotyped-marker-flanking-sequence-name").html(marker);
+        jQuery("#genotyped-marker-flanking-sequence-snp").html(fs_snp);
+        jQuery("#genotyped-marker-flanking-sequence-ref").html(fs_ref);
+        jQuery("#genotyped-marker-flanking-sequence-dialog").modal('show');
+
+    });
 
     // Start the Marker Search
     parseArgs();
@@ -435,4 +508,18 @@ function displayMappedMarkers(dt, data) {
 
 
 <style>
+    .fs-span {
+        cursor: pointer;
+    }
+    .genotyped-marker-flanking-sequence {
+        word-break: break-all;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    .genotyped-marker-flanking-sequence-snp {
+        font-weight: bolder;
+        color: #A2AD00;
+    }
 </style>

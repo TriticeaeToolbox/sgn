@@ -111,8 +111,8 @@ sub get_variant_protocols : Path('/ajax/markers/genotyped/protocols') : Args(0) 
 #
 # PATH: GET /ajax/markers/genotyped/query
 # PARAMS:
-#   - name = (optional) name of marker or variant
-#   - name_match = (optional, default=exact) type of marker name match (exact, contains, starts_with, ends_with)
+#   - name = (optional) name of marker (or a comma-separated list of names, if name_match == 'list') or variant (if name_match == 'exact')
+#   - name_match = (optional, default=exact) type of marker name match (exact, contains, starts_with, ends_with, list)
 #   - species = (required if chrom, start or end provided) name of the species
 #   - reference_genome = (required if chrom, start or end provided) name of the reference genome
 #   - chrom = (required if start or end provided) name of the chromosome

@@ -322,6 +322,10 @@ sub query_mapped_markers_GET : Args(0) {
         elsif ( $name_match eq 'ends_with' ) {
             $msearch->name_like('*'.$name);
         }
+        elsif ( $name_match eq 'list' ) {
+            my @names = split(',', $name);
+            $msearch->name_in(\@names);
+        }
         else {
             $msearch->name_exactly($name);
         }

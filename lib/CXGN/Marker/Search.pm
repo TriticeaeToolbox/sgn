@@ -208,6 +208,25 @@ sub name_exactly {
 }
 
 
+=item name_in($names)
+
+Limits the search to markers that have one of the EXACT names specified.
+See also name_exactly() and name_like().
+
+  my @names = ('marker1', 'marker2');
+  $msearch->name_in(\@names);
+
+=cut
+
+sub name_in {
+  my ($self, $names) = @_;
+  return unless $names;
+
+  my $subquery = "SELECT marker_id FROM marker_alias WHERE alias IN (@{[join',', ('?') x @$names]})";
+  $self->_add_marker_query($subquery, @$names);
+}
+
+
 =item marker_id($marker_id)
 
 Limits the search to one particular marker that you know the id of. 
