@@ -242,7 +242,7 @@ var drag_behaviour = d3.behavior.drag().on(
 $(document).ready(function($) {
 
     initializeDrawArea();
-    $('#source_select').focus();
+    $('#source_dropdown').focus();
 
     //Add link to docs
     // jQuery('#pagetitle_h3').append('&nbsp;<a id="label_designer_docs_link" href="http://solgenomics.github.io/sgn/03_managing_breeding_data/03_12.html"><span class="glyphicon glyphicon-info-sign"></span></a>');
@@ -289,12 +289,12 @@ $(document).ready(function($) {
         $('#editAdditionalSettingsModal').modal('show');
     });
 
-    $(document).on("change", "#source_select", function() {
+    $(document).on("change", "#source_dropdown", function() {
 
-        var name = jQuery('#source_select :selected').text();
+        var name = jQuery('#source_dropdown :selected').text();
         jQuery('#selected_data_source').text(name);
 
-        var data_type = $('#source_select :selected').parent().attr('label');
+        var data_type = $('#source_dropdown :selected').parent().attr('label');
 
         // updateFields(data_type, this.value, '');
 
@@ -342,7 +342,7 @@ $(document).ready(function($) {
 
             var html = '<select class="form-control" id="label_designer_data_level" ><option value="" selected>Select a Level</option><option value="list">List Items</option>';
             // Check list type, if Plot, Plant, or Tissue Sample add details option
-            var name = $('#source_select :selected').text();
+            var name = $('#source_dropdown :selected').text();
 
             jQuery.ajax({
                 url: '/list/exists',
@@ -396,8 +396,8 @@ $(document).ready(function($) {
     });
 
     jQuery(document).on('change', '#label_designer_data_level', function(){
-        var data_type = $('#source_select :selected').parent().attr('label');
-        var source_id = jQuery('#source_select').val();
+        var data_type = $('#source_dropdown :selected').parent().attr('label');
+        var source_id = jQuery('#source_dropdown').val();
 
         var name = jQuery('#label_designer_data_level :selected').text();
         jQuery('#selected_data_level').text(name);
@@ -560,9 +560,9 @@ function downloadLabels (design, download_type) {
         alert("No elements in the design. Please add design elements before downloading");
         return;
     }
-    var data_type = $('#source_select :selected').parent().attr('label');
-    var source_id = $("#source_select").val();
-    var source_name = $("#source_select :selected").text();
+    var data_type = $('#source_dropdown :selected').parent().attr('label');
+    var source_id = $("#source_dropdown").val();
+    var source_name = $("#source_dropdown :selected").text();
     //console.log("Id is "+source_id+" and name is "+source_name);
     if (!source_id || source_id == 'Please select a trial' || source_id == 'Select a plot list') {
         alert("No data source selected. Please select a data source before downloading");
@@ -893,9 +893,9 @@ function doSnap(state, selection) {
 function getDataSourceSelect() {
     get_select_box('label_data_sources', 'data_source',
         {
-            name: 'source_select',
-            id: 'source_select',
-            default: 'Select a data source',
+            name: 'source_dropdown',
+            id: 'source_dropdown',
+            default: 'Choose a data source',
             live_search: 1,
             // workflow_trigger: 1,
         });
