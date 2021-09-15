@@ -150,7 +150,7 @@ sub brapi : Chained('/') PathPart('brapi') CaptureArgs(1) {
 			}
 			$c->stash->{clean_inputs} = $c->request->data;
 		} else {
-			$c->stash->{clean_inputs} = $c->request->data;
+			$c->stash->{clean_inputs} = _clean_inputs($c->req->params,$c->request->data);
 		}
 	}
 	else {
