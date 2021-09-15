@@ -43,6 +43,7 @@ extends 'CXGN::Metadata::Dbpatch';
 has '+description' => ( default => <<'' );
 This patch used to fix the fieldbook_image cvterm from showing up in the trait search as an ontology. This term was missing the upper link to its ontology.
 Now it does nothing because it should not be linked to a crop ontology cv. A future patch will remove it from databases that ran the old version of this patch 
+
 has '+prereq' => (
 	default => sub {
         [],
