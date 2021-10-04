@@ -385,6 +385,7 @@ sub send_reset_email_message {
     my $pid = shift;
     my $private_email = shift;
     my $reset_link = shift;
+    my $person = shift;
 
     my $subject = "[SGN] E-mail Address Confirmation Request";
     my $main_url = $c->config->{main_production_site_url};
