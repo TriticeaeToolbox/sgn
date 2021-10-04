@@ -6,13 +6,14 @@ load_composed_trait.pl
 
 =head1 SYNOPSIS
 
-load_composed_trait.pl -H [dbhost] -D [dbname] -T [trait name]
+load_composed_trait.pl -H [dbhost] -D [dbname] -t [trait name] -d [trait description]
 
 =head1 COMMAND-LINE OPTIONS
 
  -H  host name
  -D  database name
- -T  trait name
+ -t  trait name
+ -d  (optional) trait description
 
 =head2 DESCRIPTION
 
@@ -34,15 +35,15 @@ use CXGN::DB::Connection;
 use CXGN::Onto;
 use Try::Tiny;
 
-our ( $opt_H, $opt_D, $opt_T );
-getopts('H:D:T:');
+our ( $opt_H, $opt_D, $opt_t, $opt_d );
+getopts('H:D:t:d:');
 
 sub print_help {
     print STDERR
 "A script to load a free-text trait into the composed trait ontology\nUsage: load_composed_trait.pl -H [dbhost] -D [dbname] -T [trait name] \n";
 }
 
-if ( !$opt_D || !$opt_H || !$opt_T ) {
+if ( !$opt_D || !$opt_H || !$opt_t ) {
     print_help();
     die("Exiting: -H [dbhost] or -D [dbname] or -T [trait name] options missing\n");
 }
@@ -62,7 +63,7 @@ my $schema = Bio::Chado::Schema->connect( sub { $dbh->get_actual_dbh() } );
 
 my $coderef = sub {
     my $onto = CXGN::Onto->new({ schema => $schema });
-    $onto->store_breeder_term($opt_T);
+    $onto->store_breeder_term($opt_t, $opt_d);
 };
 
 try {

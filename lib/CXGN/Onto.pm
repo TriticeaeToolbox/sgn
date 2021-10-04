@@ -168,6 +168,7 @@ sub store_composed_term {
 sub store_breeder_term {
     my $self = shift;
     my $trait_name = shift;
+    my $trait_definition = shift;
 
     my $schema = $self->schema();
     my $dbh = $schema->storage->dbh;
@@ -193,9 +194,10 @@ sub store_breeder_term {
     } 
     else {
         $new_term = $schema->resultset("Cv::Cvterm")->create({
-            cv_id     => $cv->cv_id(),
-            name      => $trait_name,
-            dbxref_id => $new_term_dbxref->dbxref_id()
+            cv_id      => $cv->cv_id(),
+            name       => $trait_name,
+            definition => $trait_definition,
+            dbxref_id  => $new_term_dbxref->dbxref_id()
         });
     }
 
