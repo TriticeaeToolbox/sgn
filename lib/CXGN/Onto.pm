@@ -165,6 +165,65 @@ sub store_composed_term {
     return \@new_terms;
 }
 
+sub store_breeder_term {
+    my $self = shift;
+    my $trait_name = shift;
+    my $trait_definition = shift;
+
+    my $schema = $self->schema();
+    my $dbh = $schema->storage->dbh;
+
+    my $db = $schema->resultset("General::Db")->find_or_create({ name => 'COMP' });
+    my $cv= $schema->resultset('Cv::Cv')->find_or_create({ name => 'composed_trait' });
+
+    ## Add dbxref term
+    my $accession_query = "SELECT nextval('composed_trait_ids')";
+    my $h = $dbh->prepare($accession_query);
+    $h->execute();
+    my $accession = $h->fetchrow_array();
+
+    my $new_term_dbxref = $schema->resultset("General::Dbxref")->create({
+        db_id     => $db->get_column('db_id'),
+        accession => sprintf("%07d", $accession)
+    });
+
+    ## Add cvterm
+    my $new_term = $schema->resultset('Cv::Cvterm')->find({ name => $trait_name });
+    if ( $new_term ) {
+        die "Cvterm with name $trait_name already exists... cannot create new trait\n";
+    } 
+    else {
+        $new_term = $schema->resultset("Cv::Cvterm")->create({
+            cv_id      => $cv->cv_id(),
+            name       => $trait_name,
+            definition => $trait_definition,
+            dbxref_id  => $new_term_dbxref->dbxref_id()
+        });
+    }
+
+    ## Add variable_of relationship
+    my $variable_relationship = $schema->resultset("Cv::Cvterm")->find({ name => 'VARIABLE_OF' });
+    my $variable_term = $schema->resultset("Cv::Cvterm")->find({
+        cv_id  => $cv->cv_id(),
+        name   => 'Composed traits',
+    });
+    my $variable_rel = $schema->resultset('Cv::CvtermRelationship')->find_or_create({
+        subject_id => $new_term->cvterm_id(),
+        object_id  => $variable_term->cvterm_id(),
+        type_id    => $variable_relationship->cvterm_id()
+    });
+
+    ## Add relationship to breeder_trait_ontology term
+    my $contains_relationship = $schema->resultset("Cv::Cvterm")->find({ name => 'contains' });
+    my $composable_cvtypes = $schema->resultset("Cv::Cv")->find({ name => 'composable_cvtypes' });
+    my $contains_term = $schema->resultset("Cv::Cvterm")->find({ name  => "breeder_trait_ontology", cv_id => $composable_cvtypes->cv_id() });
+    my $contains_rel = $schema->resultset('Cv::CvtermRelationship')->find_or_create({
+        subject_id => $contains_term->cvterm_id(),
+        object_id  => $new_term->cvterm_id(),
+        type_id    => $contains_relationship->cvterm_id()
+    });
+}
+
 sub store_ontology_identifier {
     my $self = shift;
     my $ontology_name = shift;
