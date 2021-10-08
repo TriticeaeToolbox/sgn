@@ -256,6 +256,7 @@ sub get_related_variants_of_mapped_marker_GET : Args(0) {
 # Query the mapped markers
 # PATH: GET /ajax/markers/mapped/query
 # PARAMS:
+#   - marker_id = (optional) id of the mapped marker
 #   - name = (optional) name of marker or variant
 #   - name_match = (optional, default=exact) type of marker name match (exact, contains, starts_with, ends_with)
 #   - species = (optional) name of the species
@@ -288,6 +289,7 @@ sub query_mapped_markers_GET : Args(0) {
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
     my $dbh = $schema->storage->dbh();
 
+    my $marker_id = $c->req->param('marker_id');
     my $name = $c->req->param('name');
     my $name_match = $c->req->param('name_match');
     my $species = $c->req->param('species');
@@ -310,6 +312,11 @@ sub query_mapped_markers_GET : Args(0) {
 
     # Setup marker search
     my $msearch = CXGN::Marker::Search->new($dbh);
+
+    # Add marker id filter
+    if ( defined $marker_id && $marker_id ne '' ) {
+        $msearch->marker_id($marker_id);
+    }
    
     # Add name filter
     if ( defined $name && $name ne '' ) {
@@ -376,14 +383,18 @@ sub query_mapped_markers_GET : Args(0) {
     my ($subq, $places) = $msearch->return_subquery_and_placeholders();
     my $query = "SELECT subq.marker_id, marker_alias.alias, 
                     m2m.protocol, m2m.map_id, m2m.map_version_id, map.short_name, map.map_type, map.units, subq.lg_name, subq.position, 
-                    CONCAT(organism.genus, ' ', REGEXP_REPLACE(organism.species, CONCAT('^', organism.genus, ' '), '')) AS species_name, organism.common_name 
+                    CONCAT(o1.genus, ' ', REGEXP_REPLACE(o1.species, CONCAT('^', o1.genus, ' '), '')) AS species_name, 
+                    feature.residues AS flanking_sequence_ref, featureprop.value AS flanking_sequence_snp
                 FROM ($subq) AS subq
                 LEFT JOIN sgn.marker_alias USING (marker_id) 
                 LEFT JOIN sgn.marker_to_map AS m2m ON (subq.marker_id = m2m.marker_id) AND (subq.map_id = m2m.map_id)
                 LEFT JOIN sgn.map ON (subq.map_id = map.map_id)
                 LEFT JOIN public.stock ON (map.parent1_stock_id = stock.stock_id)
-                LEFT JOIN public.organism ON (stock.organism_id = organism.organism_id)
-                WHERE preferred = true";
+                LEFT JOIN public.organism AS o1 ON (stock.organism_id = o1.organism_id)
+                LEFT JOIN public.feature ON (feature.uniquename = marker_alias.alias AND feature.organism_id IN (SELECT organism_id FROM public.organism AS o2 WHERE o2.abbreviation = o1.abbreviation))
+                LEFT JOIN featureprop USING (feature_id)
+                WHERE preferred = true
+                AND (featureprop.type_id IN (SELECT cvterm_id FROM public.cvterm WHERE name = 'flanking_region') OR featureprop.type_id IS NULL)";
 
     # Build count query
     my $count_query = "SELECT COUNT(*) FROM ($query) AS subq";
@@ -414,7 +425,7 @@ sub query_mapped_markers_GET : Args(0) {
 
     # Parse the results
     my @markers = ();
-    while (my ($marker_id, $marker_name, $protocol, $map_id, $map_version_id, $map_name, $map_type, $map_units, $lg_name, $position, $species_name) = $h->fetchrow_array()) {
+    while (my ($marker_id, $marker_name, $protocol, $map_id, $map_version_id, $map_name, $map_type, $map_units, $lg_name, $position, $species_name, $fs_ref, $fs_snp) = $h->fetchrow_array()) {
         my %marker = (
             marker_id => $marker_id,
             marker_name => $marker_name,
@@ -426,7 +437,9 @@ sub query_mapped_markers_GET : Args(0) {
             map_units => $map_units,
             lg_name => $lg_name,
             position => $position,
-            species_name => $species_name
+            species_name => $species_name,
+            flanking_sequence_ref => $fs_ref ? $fs_ref : "",
+            flanking_sequence_snp => $fs_snp ? $fs_snp : ""
         );
         push(@markers, \%marker);
     }
