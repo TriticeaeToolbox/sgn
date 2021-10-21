@@ -213,18 +213,19 @@ sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
 
 	# print message if the stock is obsolete
 	my $obsolete = $stock->get_is_obsolete();
-	if ( $obsolete  && !$curator ) {
-	    #$c->throw(is_client_error => 0,
-	    #          title             => 'Obsolete stock',
-	    #          message           => "Stock $stock_id is obsolete!",
-	    #          developer_message => 'only curators can see obsolete stock',
-	    #          notify            => 0,   #< does not send an error email
-	    #    );
+    # T3 CHANGE: Allow user to display stock detail page for obsolete stocks
+	# if ( $obsolete  && !$curator ) {
+	#     #$c->throw(is_client_error => 0,
+	#     #          title             => 'Obsolete stock',
+	#     #          message           => "Stock $stock_id is obsolete!",
+	#     #          developer_message => 'only curators can see obsolete stock',
+	#     #          notify            => 0,   #< does not send an error email
+	#     #    );
 
-	    $c->stash->{template} = "generic_message.mas";
-	    $c->stash->{message}  = "The stock with database id $stock_id has been deleted. It can no longer be viewed.";
-	    return;
-	}
+	#     $c->stash->{template} = "generic_message.mas";
+	#     $c->stash->{message}  = "The stock with database id $stock_id has been deleted. It can no longer be viewed.";
+	#     return;
+	# }
 	# print message if stock_id does not exist
 	if ( !$stock && $action ne 'new' && $action ne 'store' ) {
 	    $c->throw_404('No stock exists for this identifier');
