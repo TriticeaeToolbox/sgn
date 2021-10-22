@@ -164,3 +164,33 @@ sub trial_lookup : Path('/ajax/breeders/trial_lookup') Args(0) {
 
     $c->stash->{rest} = { trial_id => $trial_id };
 }
+
+
+#
+# GET /ajax/breeders/trial_folders
+# Get all of the projects/folders used to hold phenotyping trials
+# Returns:
+#   folders: array of folder info (id, name)
+#
+sub trial_folders : Path('/ajax/breeders/trial_folders') {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    my @folders;
+    my $trial_folder_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "trial_folder", "project_property")->cvterm_id();
+    my $rs = $schema->resultset("Project::Project")->search(
+        { 'projectprops.type_id' => $trial_folder_type_id },
+        { join => 'projectprops' }
+    );
+    if ( $rs ) {
+        while ( my $folder = $rs->next ) {
+            push(@folders, {
+                id => $folder->id,
+                name => $folder->name
+            });
+        }
+    }
+
+    $c->stash->{rest} = { folders => \@folders };
+}

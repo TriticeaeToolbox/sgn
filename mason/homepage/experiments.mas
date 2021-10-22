@@ -25,25 +25,21 @@
 
 
   /**
-   * Get the list of "experiments" via the BrAPI /trials endpoint
+   * Get the list of "experiments" = projects/folders used to hold trials
    * @param callback Callback function(experiments)
    */
   function getExperiments(callback) {
     jQuery.ajax({
       method: 'GET',
-      url: '/brapi/v2/trials',
-      data: {
-        sortBy: 'trialName',
-        pageSize: 1000
-      },
+      url: '/ajax/breeders/trial_folders',
       error: function(response) {
-        console.log("ERROR: Could not get studies");
+        console.log("ERROR: Could not get experiments");
         console.log(response);
         return callback([]);
       },
       success: function(response) {
-        if ( response && response.result && response.result.data ) {
-          return callback(response.result.data);
+        if ( response && response.folders ) {
+          return callback(response.folders);
         }
         else {
           return callback([]);
@@ -60,8 +56,8 @@
   function displayExperiments(experiments) {
     let options = ["<option value=''>---- Select an Experiment to Explore ----</option>"];
     for ( let i = 0; i < experiments.length; i++ ) {
-      let id = experiments[i].trialDbId;
-      let name = experiments[i].trialName;
+      let id = experiments[i].id;
+      let name = experiments[i].name;
 
       let html = "<option value='" + id + "'>" + name + "</option>";
       options.push(html);
