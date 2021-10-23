@@ -40,10 +40,11 @@ sub define_object {
     $self->set_object_name('Stock'); #this is useful for email messages
     $self->set_object( CXGN::Stock->new({schema=>$schema, stock_id=>$stock_id}) );
 
-    if ( $self->get_object()->is_obsolete() == 1 && $user_type ne 'curator' )
-    {
-        $json_hash{error}="Stock $stock_id is obsolete!";
-    }
+    # T3 Change: Allow any user to view obsolete stock
+    # if ( $self->get_object()->is_obsolete() == 1 && $user_type ne 'curator' )
+    # {
+    #     $json_hash{error}="Stock $stock_id is obsolete!";
+    # }
     unless ( ( $stock_id =~ m /^\d+$/ || !$stock_id  )  ) {
         $json_hash{error}="No stock exists for identifier $stock_id";
     }

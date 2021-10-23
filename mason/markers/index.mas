@@ -42,7 +42,6 @@ use CXGN::Marker;
 use SGN::Exception;
 
 
-
 my $e = undef;
 
 if (!$marker_id) { 
@@ -75,6 +74,10 @@ my $src_feature = "SL2.50";
 % if (@other_names) { 
     <% join "<br />", @other_names %>
 % }
+</&>
+
+<&| /page/info_section.mas, title=>"Flanking Sequence", collapsible=>1 &>
+<& /markers/flanking_sequence.mas, marker=>$marker &>
 </&>
 
 <&| /page/info_section.mas, title=>"Locus associations", collapsible=>1 &>

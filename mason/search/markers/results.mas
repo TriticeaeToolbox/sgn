@@ -111,6 +111,24 @@ const MAPPED_MARKERS_LIMIT = 50;        // Limit of markers for the mapped marke
 
 jQuery(document).ready(function() {
 
+    // Shared Download Buttons
+    let buttons = [
+        {
+            extend: 'excelHtml5',
+            title: 'markers',
+            exportOptions: {
+                orthogonal: 'export'
+            }
+        },
+        {
+            extend: 'csvHtml5',
+            title: 'markers',
+            exportOptions: {
+                orthogonal: 'export'
+            }
+        }
+    ];
+
     // Init Genotyped DataTable
     jQuery('#genotyped-marker-results-table').DataTable({
         dom: 'Bfrt',
@@ -144,47 +162,16 @@ jQuery(document).ready(function() {
             { 
                 title: "Flanking Sequence",
                 data: "flanking_sequence_snp",
-                render: function(data, type, row) {
-                    if ( data && data !== "" ) {
-                        if ( type === 'display' ) {
-                            let s = data.substring(
-                                data.indexOf("[")-5,
-                                data.indexOf("]")+5+1
-                            );
-                            return "<span class='fs-span' data-fs-marker=" + row.marker_name + " data-fs-snp=" + row.flanking_sequence_snp + " data-fs-ref=" + row.flanking_sequence_ref + ">..." + s + "...</span><br />";
-                        }
-                        else {
-                            return data;
-                        }
-                    }
-                    else {
-                        return "";
-                    }
-                }
+                render: renderFlankingSequence
             }
         ],
         order: [[ 0, "asc" ], [ 2, "asc" ]],
-        buttons: [
-            {
-                extend: 'excelHtml5',
-                title: 'genotyped_markers',
-                exportOptions: {
-                    orthogonal: 'export'
-                }
-            },
-            {
-                extend: 'csvHtml5',
-                title: 'genotyped_markers',
-                exportOptions: {
-                    orthogonal: 'export'
-                }
-            }
-        ]
+        buttons: buttons
     });
 
     // Init Mapped DataTable
     jQuery('#mapped-marker-results-table').DataTable({
-        dom: 'frt',
+        dom: 'Bfrt',
         autoWidth: false,
         pageLength: GENOTYPED_MARKERS_LIMIT,
         language: {
@@ -205,8 +192,14 @@ jQuery(document).ready(function() {
             { title: "Chromosome", data: "lg_name" },
             { title: "Position", data: "position" },
             { title: "Map Units", data: "map_units" },
+            { 
+                title: "Flanking Sequence",
+                data: "flanking_sequence_snp",
+                render: renderFlankingSequence
+            }
         ],
-        order: [[ 0, "asc" ], [ 2, "asc" ]]
+        order: [[ 0, "asc" ], [ 2, "asc" ]],
+        buttons: buttons
     });
 
     // Click Listeners
@@ -215,7 +208,7 @@ jQuery(document).ready(function() {
     jQuery("#mapped-marker-page-prev").click(searchMappedMarkersPrev);
     jQuery("#mapped-marker-page-next").click(searchMappedMarkersNext);
     jQuery("#btn-modify-search").click(backToSearch);
-    jQuery("#genotyped-markers").on("click", ".fs-span", function() {
+    jQuery(document).on("click", ".fs-span", function() {
         let marker = jQuery(this).data("fs-marker");
         let fs_snp = jQuery(this).data("fs-snp");
         let fs_ref = jQuery(this).data("fs-ref");
@@ -278,6 +271,28 @@ function startSearch() {
 function backToSearch() {
     const params = new URLSearchParams(window.location.search);
     window.location = "/search/variants?" + params.toString();
+}
+
+
+/**
+ * Render the flanking sequence column in the DataTables
+ */
+function renderFlankingSequence(data, type, row) {
+    if ( data && data !== "" ) {
+        if ( type === 'display' ) {
+            let s = data.substring(
+                data.indexOf("[")-5,
+                data.indexOf("]")+5+1
+            );
+            return "<span class='fs-span' data-fs-marker=" + row.marker_name + " data-fs-snp=" + row.flanking_sequence_snp + " data-fs-ref=" + row.flanking_sequence_ref + ">..." + s + "...</span><br />";
+        }
+        else {
+            return data;
+        }
+    }
+    else {
+        return "";
+    }
 }
 
 
