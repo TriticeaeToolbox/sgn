@@ -467,21 +467,59 @@ $dataset_id => undef
   });
 
 
-  // On Page Ready: load a pre-defined list into the first column by id, if provided as `list` query param
+  // On Page Ready: load a pre-defined list or experiment into the first column
   jQuery(document).ready(function() {
     let urlParams = new URLSearchParams(window.location.search);
     if ( urlParams.has('list') ) {
-      let listId = urlParams.get('list');
-      let listValue = "__LIST__" + listId;
-      jQuery('#wizard-type-select-col1 option').each(function() {
-        let opt = jQuery(this);
-        if ( opt.val() == listValue ) {
-          jQuery("#wizard-type-select-col1").val(opt.val());
-          window.sWizard.wizard.initial_list(listId);
-        }
-      });
+      loadList(urlParams.get('list'));
+    }
+    else if ( urlParams.has('experiment') ) {
+      loadExperiment(urlParams.get('experiment'));
     }
   });
+
+
+  /**
+   * Preload the Wizard with the contents of the specified List
+   * @param {String,Number} listId The ID of the List to load
+   */
+  function loadList(listId) {
+    let listValue = "__LIST__" + listId;
+    jQuery('#wizard-type-select-col1 option').each(function() {
+      let opt = jQuery(this);
+      if ( opt.val() == listValue ) {
+        jQuery("#wizard-type-select-col1").val(opt.val());
+        window.sWizard.wizard.initial_list(listId);
+      }
+    });
+  }
+
+
+  /**
+   * Preload the Wizard with the Trials from the specified Experiement (project/folder)
+   * @param {String,Number} experimenId The ID of the experiment/project/folder to load
+   */
+  function loadExperiment(experimentId) {
+    jQuery.ajax({
+      method: 'GET',
+      url: '/ajax/breeders/trial_folders/' + experimentId,
+      error: function(response) {
+        console.log("ERROR: Could not get trials in folder");
+        console.log(response);
+      },
+      success: function(response) {
+        if ( response && response.trials ) {
+          let ids = [];
+          for ( let i = 0; i < response.trials.length; i++ ) {
+            ids.push(response.trials[i].id);
+          }
+          window.sWizard.wizard.setColumn(0, "trials", null, function(i) { 
+            return ids.includes(i.id);
+          });
+        }
+      }
+    });
+  }
 
 
   // Wizard Callback: get chromosome names for a single selected genotyping protocol
