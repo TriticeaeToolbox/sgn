@@ -166,7 +166,7 @@ print "<div id=\"step2\"></div>";
 			    print OUT "\t$ref";
 			} elsif ($a1 eq "1") {
 			    print OUT "\t$alt";
-			} elsif ($a eq ".") {
+			} elsif ($a1 eq ".") {
 			    print OUT "\tN";
 			} else {
 			    print OUT "\t?";
@@ -197,7 +197,7 @@ print "<div id=\"step2\"></div>";
       if ($count > 0) {
           #print "<input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:window.open('$filename1')\">";
           print "<br><input type=\"button\" value=\"Download $count markers from $chrom:$start-$stop\" onclick=\"javascript:output_file('$filename1','$trial')\"><br>";
-	  print "<br><input type=\"button\" value=\"-\" onclick=\"javascript:output_file('$filename4','$trial')\"><br>";
+	  #print "<br><input type=\"button\" value=\"-\" onclick=\"javascript:output_file('$filename4','$trial')\"><br>";
       } else {
           print "<br><input type=\"button\" value=\"Error: no results from $chrom:$start-$stop\"><br>";
 	  #print "$cmd\n";
