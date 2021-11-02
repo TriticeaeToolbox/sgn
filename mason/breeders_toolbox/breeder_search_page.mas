@@ -45,6 +45,7 @@ $dataset_id => undef
             <select class="wizard-type-select form-control input-sm form-inline" id="wizard-type-select-col1">
               <option value="" disabled selected>Select Column Type</option>
               <optgroup class="wizard-types-group" label="--------------------"></optgroup>
+              <optgroup class="wizard-experiments-group" label="Load Trials from Experiment:"></optgroup>
               <optgroup class="wizard-lists-group" label="Load Selection from List:"></optgroup>
             </select>
           </div>
@@ -500,23 +501,12 @@ $dataset_id => undef
    * @param {String,Number} experimenId The ID of the experiment/project/folder to load
    */
   function loadExperiment(experimentId) {
-    jQuery.ajax({
-      method: 'GET',
-      url: '/ajax/breeders/trial_folders/' + experimentId,
-      error: function(response) {
-        console.log("ERROR: Could not get trials in folder");
-        console.log(response);
-      },
-      success: function(response) {
-        if ( response && response.trials ) {
-          let ids = [];
-          for ( let i = 0; i < response.trials.length; i++ ) {
-            ids.push(response.trials[i].id);
-          }
-          window.sWizard.wizard.setColumn(0, "trials", null, function(i) { 
-            return ids.includes(i.id);
-          });
-        }
+    let experimentValue = "__EXPERIMENT__" + experimentId;
+    jQuery('#wizard-type-select-col1 option').each(function() {
+      let opt = jQuery(this);
+      if ( opt.val() == experimentValue ) {
+        jQuery("#wizard-type-select-col1").val(opt.val());
+        window.sWizard.wizard.initial_experiment(experimentId);
       }
     });
   }
