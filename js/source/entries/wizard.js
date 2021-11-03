@@ -138,6 +138,27 @@ export function WizardSetup(main_id){
            });
         })
     });
+
+    var load_experiments = () => (new Promise((resolve, reject)=>{
+      let experiment_dict = {};
+      fetch(document.location.origin+'/ajax/breeders/trial_folders')
+        .then(resp=>resp.json())
+        .then(json=>{
+          if ( json && json.folders ) {
+            for ( let i = 0; i < json.folders.length; i++ ) {
+              experiment_dict[json.folders[i].id] = json.folders[i].name;
+            }
+          }
+          resolve(experiment_dict);
+        })
+        .catch(err=>{
+          reject("ERROR: Could not fetch experiment/trial folders [" + err.message + "]");
+        });
+    })).then(experiment_dict => {
+      wiz.experiments(experiment_dict);
+    });
+
+    load_experiments();
     
     var load_lists = ()=>(new Promise((resolve,reject)=>{
       var private_lists = list.availableLists(initialtypes);

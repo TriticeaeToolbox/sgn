@@ -75,7 +75,7 @@
     jQuery("#explore-experiments-select").change(function() {
         let experimentId = jQuery(this).find('option:selected').val();
         if ( experimentId && experimentId !== "" ) {
-            jQuery(this).find('option:selected').html("Searching...");
+            jQuery(this).find('option:selected').html("Loading...");
             jQuery("#explore-experiments-select").prop('disabled', true);
             window.location = "/breeders/search?experiment=" + experimentId;
         }
