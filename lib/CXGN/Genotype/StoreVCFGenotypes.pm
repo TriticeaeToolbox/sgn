@@ -910,6 +910,7 @@ sub store_metadata {
             $chr_count++;
         }
         print STDERR Dumper \%chromosomes;
+        $new_protocol_info->{chromosomes} = \%chromosomes;
 
         delete($new_protocol_info->{markers});
         delete($new_protocol_info->{markers_array});
@@ -921,8 +922,6 @@ sub store_metadata {
 
         foreach  my $chr_name (sort keys %unique_chromosomes) {
 #            print STDERR "Chromosome: $chr_name\n";
-            $new_protocol_info->{chromosomes} = $chr_name;
-
             my $rank = $chromosomes{$chr_name}->{rank};
             my $nd_protocolprop_markers_json_string = encode_json $nd_protocolprop_markers->{$chr_name};
             my $nd_protocolprop_markers_array_json_string = encode_json $nd_protocolprop_markers_array->{$chr_name};
@@ -952,7 +951,7 @@ sub store_metadata {
 
     while (my ($stock_id, $uniquename, $synonym, $type_id) = $h->fetchrow_array()) {
         $stock_lookup{$uniquename} = { stock_id => $stock_id };
-        if ($type_id && $type_id == $self->synonym_type_id()) {
+        if ($type_id && $self->synonym_type_id() && ($type_id == $self->synonym_type_id())) {
             $stock_lookup{$synonym} = { stock_id => $stock_id };
         }
     }
