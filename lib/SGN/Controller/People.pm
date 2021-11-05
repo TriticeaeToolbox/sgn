@@ -156,6 +156,7 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
     my $sp = CXGN::People::Login->get_login( $dbh, $username );
 
     # Confirmation status information
+    my $already_confirmed = 0;
     my $success = 1;
     my $message = "";
     my $user_auto_submitter = 0;
@@ -166,7 +167,8 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
         $message =  "Username \"$username\" was not found.";
     }
     elsif ( !$sp->get_confirm_code() ) {
-        $success = 0;
+        $success = 1;
+        $already_confirmed = 1;
         $message = "No confirmation is required for user <b>$username</b>. This account has already been confirmed.";
     }
     elsif ( $sp->get_confirm_code() ne $confirm_code ) {
@@ -191,6 +193,7 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
     }
 
     $c->stash->{username} = $username;
+    $c->stash->{already_confirmed} = $already_confirmed;
     $c->stash->{success} = $success;
     $c->stash->{message} = $message;
     $c->stash->{user_auto_submitter} = $user_auto_submitter;
