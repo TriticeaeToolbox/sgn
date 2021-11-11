@@ -3,6 +3,7 @@
 
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jqueryui' ] &>
 
+<!-- Main Workflow Dialog -->
 <div class="modal fade" id="upload_genetic_characters_workflow_modal" name="upload_genetic_characters_workflow_modal" tabindex="-1" role="dialog" aria-labelledby="uploadGCDialog">
   <div class="modal-dialog modal-xl" role="document">
     <div class="modal-content">
@@ -13,8 +14,334 @@
       <div class="modal-body">
         <div class="container-fluid">
 
+          <&| /util/workflow.mas, id=> "upload_genetic_characters_workflow" &>
+
+            <!-- Step 1: Intro -->
+            <&| /util/workflow.mas:step, title=> "Intro" &>
+              <& /page/page_title.mas, title=>"Upload Genetic Characters" &>
+              <div class="well">
+                  <p>This workflow will guide you through the process of addding any new genetic characters to the database, adding any new values of genetic characters, and adding new associations between specific accessions and genetic character values.</p>
+                  <p>Each data type has a specific upload template (Excel .xls file).  Before you begin, view the upload template format to make sure your data is formatted correctly.</p>
+
+                <div style="display: flex; flex-wrap: wrap; align-items: flex-start">
+
+                  <div style="max-width: 525px">
+                    <&| /page/explanation.mas, title=>'Template information' &>
+                      <p>
+                        <b>Genetic Characters</b>
+                        <br>
+                        Use this file to upload information about each of the genetic characters
+                        <br><br>
+                        <a href="#" class="genetic_characters_format_info">Genetic Character Template Format</a>
+                      </p>
+                    </&>
+                  </div>
+
+                  <div style="max-width: 525px">
+                    <&| /page/explanation.mas, title=>'Template information' &>
+                      <p>
+                        <b>Genetic Character Values</b>
+                        <br>
+                        Use this file to add information about possible values that could be used to associate an accession with a genetic character (such as Present/Absent/Heterozygous, tall/short, or red/white, etc).
+                        <br><br>
+                        <a href="#" class="genetic_character_values_format_info">Genetic Character Value Template Format</a>
+                      </p>
+                    </&>
+                  </div>
+
+                  <div style="max-width: 525px">
+                    <&| /page/explanation.mas, title=>'Template information' &>
+                      <p>
+                        <b>Accession Associations</b>
+                        <br>
+                        Use this file to add associations between accessions and specific genetic character values.
+                        <br><br>
+                        <a href="#" class="genetic_character_associations_format_info">Accession Association Template Format</a>
+                      </p>
+                    </&>
+                  </div>
+
+                </div>
+              </div>
+
+              <div class="center">
+                <button class="btn btn-primary" id="genetic_characters_intro_step">Go to Next Step</button>
+              </div>
+            </&>
+            <!-- End Intro -->
+
+            <!-- Step 2: Add Genetic Characters -->
+            <&| /util/workflow.mas:step, title=> "Genetic Characters" &>
+              <& /page/page_title.mas, title=>"Add New Genetic Characters" &>
+              <div class="well">
+                <p>Use this step to upload any new Genetic Characters.  If all of your Genetic Characters already exist, you can continue to the next step.</p>
+                <div style="display: flex; align-items: flex-start; gap: 25px; flex-wrap: wrap">
+                  <div>
+                    <&| /page/explanation.mas, title=>'Template information' &>
+                      <p>
+                        <b>Genetic Characters</b>
+                        <br>
+                        <a href="#" class="genetic_characters_format_info">Genetic Character Template Format</a>
+                      </p>
+                    </&>
+                  </div>
+                  <div style="margin-top: 25px">
+                    <p><strong>Upload Genetic Characters:</strong></p>
+                    <input type="file" class="form-control" id="genetic_characters_upload_gc_file" name="genetic_characters_upload_gc_file" encoding="multipart/form-data" />
+                    <br />
+                    <button id="genetic_characters_upload_gc_submit" class="btn btn-primary" disabled>Upload</button>
+                  </div>
+                </div>
+              </div>
+              <br /><br />
+              <div class="center">
+                <button class="btn btn-primary" id="genetic_characters_upload_gc_step">Go to Next Step</button>
+              </div>
+            </&>
+            <!-- End Genetic Characters -->
+
+            <!-- Step 2: Add Genetic Character Values -->
+            <&| /util/workflow.mas:step, title=> "Genetic Character Values" &>
+              <& /page/page_title.mas, title=>"Add New Genetic Character Values" &>
+              <div class="well">
+                <p>Use this step to add any new Genetic Character values to existing Genetic Characters.  If all of your Genetic Character valuesalready exist, you can continue to the next step.</p>
+                <div style="display: flex; align-items: flex-start; gap: 25px; flex-wrap: wrap">
+                  <div>
+                    <&| /page/explanation.mas, title=>'Template information' &>
+                      <p>
+                        <b>Genetic Character Values</b>
+                        <br>
+                        <a href="#" class="genetic_character_values_format_info">Genetic Character Values Template Format</a>
+                      </p>
+                    </&>
+                  </div>
+                  <div style="margin-top: 25px">
+                    <p><strong>Upload Genetic Character Values:</strong></p>
+                    <input type="file" class="form-control" id="genetic_characters_upload_gcv_file" name="genetic_characters_upload_gcv_file" encoding="multipart/form-data" />
+                    <br />
+                    <button id="genetic_characters_upload_gcv_submit" class="btn btn-primary" disabled>Upload</button>
+                  </div>
+                </div>
+              </div>
+              <br /><br />
+              <div class="center">
+                <button class="btn btn-primary" id="genetic_characters_upload_gcv_step">Go to Next Step</button>
+              </div>
+            </&>
+            <!-- End Genetic Character Values -->
+
+            <!-- Step 3: Add Genetic Character Associations -->
+            <&| /util/workflow.mas:step, title=> "Genetic Character Associations" &>
+              <& /page/page_title.mas, title=>"Add New Genetic Character Associations" &>
+              <div class="well">
+                <p>Use this step to add any new associations between Accessions and Genetic Character values.</p>
+                <div style="display: flex; align-items: flex-start; gap: 25px; flex-wrap: wrap">
+                  <div>
+                    <&| /page/explanation.mas, title=>'Template information' &>
+                      <p>
+                        <b>Genetic Character Associations</b>
+                        <br>
+                        <a href="#" class="genetic_character_associations_format_info">Genetic Character Associations Template Format</a>
+                      </p>
+                    </&>
+                  </div>
+                  <div style="margin-top: 25px">
+                    <p><strong>Upload Genetic Character Associations:</strong></p>
+                    <input type="file" class="form-control" id="genetic_characters_upload_gcv_file" name="genetic_characters_upload_gcv_file" encoding="multipart/form-data" />
+                    <br />
+                    <button id="genetic_characters_upload_gcv_submit" class="btn btn-primary" disabled>Upload</button>
+                  </div>
+                </div>
+              </div>
+              <br /><br />
+            </&>
+            <!-- End Genetic Character Associations -->
+
+
+          </&>
+
         </div>
       </div>
     </div>
   </div>
 </div>
+<!-- END Main Workflow Dialog -->
+
+
+<!-- Upload Template Format Dialogs -->
+<div class="modal fade" id="genetic_characters_format_info_dialog" name="genetic_characters_format_info_dialog" tabindex="-1" role="dialog" aria-labelledby="geneticCharactersFormatDialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="geneticCharactersFormatDialog">Genetic Characters Template Information</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <b>New Genetic Characters may be uploaded in an Excel file (.xls)</b>
+          <br>
+          (.xlsx format not supported)
+          <br><br>
+          <b>Header:</b>
+          <br>
+          The first row (header) must contain the following:
+          <br>
+
+          <table class="table table-bordered table-hover">
+            <tbody>
+              <tr>
+                <td>Name</td>
+                <td>Symbol</td>
+                <td>Category</td>
+                <td>Chromosome</td>
+                <td>Arm</td>
+                <td>Description</td>
+              </tr>
+            </tbody>
+          </table>
+          <b>Column Definitions:</b>
+          <ul>
+            <li><b>Name:</b> (REQUIRED) A unique name of the Genetic Character. (ex: Fhb_2B_Bess)</li>
+            <li><b>Symbol:</b> (REQUIRED) A unique code for the Genetic Character. This cannot contain any spaces. (ex: FHB2BBESS)</li>
+            <li><b>Category:</b> The name of the 'T3 Genetic Characters' category to place the new Genetic Character in. (ex: T3:Agronomic or T3:Biotic_FHB)</li>
+            <li><b>Chromosome:</b> The name of the chromosome where the Genetic Character exists.</li>
+            <li><b>Arm:</b> The name of the chromosome arm where the Genetic Character exists.</li>
+            <li><b>Description:</b> A description of the genetic character.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="genetic_character_values_format_info_dialog" name="genetic_character_values_format_info_dialog" tabindex="-1" role="dialog" aria-labelledby="geneticCharacterValuesFormatDialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="geneticCharacterValuesFormatDialog">Genetic Character Values Template Information</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <b>New Genetic Character values may be uploaded in an Excel file (.xls)</b>
+          <br>
+          (.xlsx format not supported)
+          <br><br>
+          <b>Header:</b>
+          <br>
+          The first row (header) must contain the following:
+          <br>
+
+          <table class="table table-bordered table-hover">
+            <tbody>
+              <tr>
+                <td>Genetic_Character</td>
+                <td>Name</td>
+                <td>Symbol</td>
+                <td>Phenotype</td>
+              </tr>
+            </tbody>
+          </table>
+          <b>Column Definitions:</b>
+          <ul>
+            <li><b>Genetic_Character:</b> (REQUIRED) The <em>symbol</em> of an existing Genetic Character which this value will be associated with. (ex: FHB2BBESS)</li>
+            <li><b>Name:</b> (REQUIRED) A name for the Genetic Character value - this does NOT need to be unique. (ex: Present)</li>
+            <li><b>Symbol:</b> (REQUIRED) A unique code for the Genetic Character value.  This cannot contain any spaces. (ex: FHB2BBESS_P)</li>
+            <li><b>Phenotype:</b> A description of the phenotype that an accession with this genetic character value may display.</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="genetic_character_associations_format_info_dialog" name="genetic_character_values_forgenetic_character_associations_format_info_dialogmat_info_dialog" tabindex="-1" role="dialog" aria-labelledby="geneticCharacterAssociationsFormatDialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="geneticCharacterAssociationsFormatDialog">Genetic Character Associations Template Information</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <b>New Genetic Character / Accession associations may be uploaded in an Excel file (.xls)</b>
+          <br>
+          (.xlsx format not supported)
+          <br><br>
+          <b>Header:</b>
+          <br>
+          The first row (header) must contain the following:
+          <br>
+
+          <table class="table table-bordered table-hover">
+            <tbody>
+              <tr>
+                <td>Accession</td>
+                <td>Value</td>
+              </tr>
+            </tbody>
+          </table>
+          <b>Column Definitions:</b>
+          <ul>
+            <li><b>Accession:</b> (REQUIRED) The name of an existing Accession. (ex: AC_BARRIE)</li>
+            <li><b>Value:</b> (REQUIRED) The symbol of the Genetic Character <em>Value</em> to associate with the Accession. (ex: FHB2BBESS_P)</li>
+          </ul>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+
+jQuery(document).ready(function() {
+
+  // Start GC Upload Workflow
+  jQuery('#upload_gc').click(function() {
+    jQuery('#upload_genetic_characters_workflow_modal').modal('show');
+  });
+
+  // Show Template Formats
+  jQuery(".genetic_characters_format_info").click(function(){
+    jQuery("#genetic_characters_format_info_dialog").modal("show");
+  });
+  jQuery(".genetic_character_values_format_info").click(function(){
+    jQuery("#genetic_character_values_format_info_dialog").modal("show");
+  });
+  jQuery(".genetic_character_associations_format_info").click(function(){
+    jQuery("#genetic_character_associations_format_info_dialog").modal("show");
+  });
+
+  // Complete the Intro Step
+  jQuery('#genetic_characters_intro_step').click(function() {
+    Workflow.complete("#genetic_characters_intro_step");
+    Workflow.focus('#upload_genetic_characters_workflow', 1);
+  });
+
+  // Complete the Genetic Character Step
+  jQuery('#genetic_characters_upload_gc_step').click(function() {
+    Workflow.complete("#genetic_characters_upload_gc_step");
+    Workflow.focus('#upload_genetic_characters_workflow', 2);
+  });
+
+  // Complete the Genetic Character Values Step
+  jQuery('#genetic_characters_upload_gcv_step').click(function() {
+    Workflow.complete("#genetic_characters_upload_gcv_step");
+    Workflow.focus('#upload_genetic_characters_workflow', 3);
+  });
+
+
+});
+
+</script>

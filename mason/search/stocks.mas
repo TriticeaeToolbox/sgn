@@ -12,6 +12,10 @@
   $editable_stock_props => undef
 </%args>
 
+<%init>
+  my $gc_onto_root = $c->config->{loci_filter_onto_gc};
+</%init>
+
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables', 'CXGN.Effects', 'CXGN.List' ] &>
 
 <div class="container-fluid">
@@ -592,7 +596,7 @@ jQuery(document).ready(function () {
  */
 function _load_genetic_characters() {
   jQuery.ajax({
-    url: '/ajax/search/loci?ontology_term=T3:T3_GC_CATEGORIES&ontology_term_include_children=true&length=5000',
+    url: '/ajax/search/loci?ontology_term=<% $gc_onto_root %>&ontology_term_include_children=true&length=5000',
     success: function(response) {
       let html = "";
       if ( response && response.data ) {
