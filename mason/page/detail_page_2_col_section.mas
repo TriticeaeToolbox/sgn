@@ -422,6 +422,10 @@ $analytics_protocol_result_summary => {}
     <& /tools/sequence_metadata/manage_sequence_metadata_main.mas &>
 % } #End manage_smd_main
 
+% if ($info_section_id eq 'manage_genetic_characters'){
+    <& /tools/genetic_characters/manage_genetic_characters_main.mas &>
+% } #End manage_smd_main
+
 % if ($info_section_id eq 'manage_drone_imagery_main'){
                                 <& /breeders_toolbox/drone_imagery/raw_image_section.mas &>
 % } #End manage_drone_imagery_main

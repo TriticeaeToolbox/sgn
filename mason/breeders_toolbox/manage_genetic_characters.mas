@@ -1,0 +1,28 @@
+
+<%args>
+</%args>
+
+<& /page/page_title.mas, title=>"Manage Genetic Characters" &>
+
+<div>
+
+<%perl>
+    my $buttons_html = "<button class='btn btn-primary' style='margin:3px' id='upload_gc'>Upload Genetic Characters</button>";
+    $buttons_html .= "<button class='btn btn-info' style='margin:3px' id='search_gc'>Search Genetic Characters</button>";
+</%perl>
+
+<& /tools/genetic_characters/upload_genetic_characters_workflow.mas &>
+
+<& /page/detail_page_2_col_section.mas, info_section_collapsed => 0, info_section_title => "<h4 style='display:inline'>Genetic Characters</h4>", info_section_subtitle => 'Upload New and View Existing Genetic Characters', buttons_html => $buttons_html, icon_class => undef, col1_width_class => "col-sm-0", col2_width_class => "col-sm-12", info_section_id => "manage_genetic_characters" &>
+
+</div>
+
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+    jQuery('#search_gc').click(function() {
+        window.location = "/search/locus?filter=T3:T3_GC_CATEGORIES";
+        return false;
+    });
+});
+</script>
