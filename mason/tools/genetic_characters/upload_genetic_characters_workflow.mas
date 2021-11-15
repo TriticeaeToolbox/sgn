@@ -234,8 +234,8 @@
           <ul>
             <li><b>name:</b> (REQUIRED) A unique name of the Genetic Character. (ex: Fhb_2B_Bess)</li>
             <li><b>symbol:</b> (REQUIRED) A unique code for the Genetic Character. This cannot contain any spaces. (ex: FHB2BBESS)</li>
-            <li><b>category:</b> The name of the 'T3 Genetic Characters' category to place the new Genetic Character in. (ex: T3:Agronomic or T3:Biotic_FHB)</li>
-            <li><b>chromosome:</b> The name of the chromosome where the Genetic Character exists.</li>
+            <li><b>category:</b> The <em>name</em> of the 'T3 Genetic Characters' category to place the new Genetic Character in. (ex: 'Agronomic' or 'Biotic stress: FHB').  If given, the category must already exist.  If none is given, then the root 'T3 Genetic Characters' category will be used.</li>
+          <li><b>chromosome:</b> The name of the chromosome where the Genetic Character exists.</li>
             <li><b>arm:</b> The name of the chromosome arm where the Genetic Character exists.</li>
             <li><b>description:</b> A description of the genetic character.</li>
           </ul>
