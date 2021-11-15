@@ -427,6 +427,7 @@ sub get_existing_associations {
             FROM public.stockprop
             LEFT JOIN phenome.allele ON (stockprop.value::integer = allele.allele_id)
             WHERE stock_id = (SELECT stock_id FROM public.stock WHERE uniquename = ?)
+            AND type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'sgn allele_id')
             AND stockprop.value IN (
                 SELECT allele_id::text FROM phenome.allele WHERE locus_id IN (
                     SELECT DISTINCT(locus_id) FROM phenome.allele WHERE allele_symbol = ?

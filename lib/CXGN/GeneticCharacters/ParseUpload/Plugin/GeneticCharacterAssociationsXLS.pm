@@ -122,8 +122,7 @@ sub _validate_with_plugin {
     my @seen_accession_names = keys(%seen_accessions);
     my $accession_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id;
     my $rs = $schema->resultset("Stock::Stock")->search({
-        'is_obsolete' => { '!=' => 't' },
-        'uniquename' => { -in => \@seen_accession_names },
+        'uniquename' => \@seen_accession_names,
         'type_id' => $accession_cvterm_id
     });
     my %found_accession_names;
