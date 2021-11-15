@@ -3,4 +3,139 @@
 </%args>
 
 
-<p>View existing Genetic Characters</p>
+<div id="existing_genetic_characters"></div>
+
+
+<script>
+  jQuery(document).ready(function() {
+
+    // Load the Categories
+    loadCategories(function(categories) {
+
+      // Load the Genetic Characters
+      loadCharacters(function(characters) {
+
+        // Load the Genetic Character Values
+        loadValues(function(values) {
+
+          // Display the characters in categories
+          display(categories, characters, values);
+
+        });
+      });
+    });
+  });
+
+
+  function loadCategories(callback) {
+    jQuery.ajax({
+      url: '/ajax/genetic_characters/categories',
+      type: 'GET',
+      success: function(resp) {
+        if ( resp && resp.categories ) {
+          let categories = resp.categories;
+          categories.sort(function(a, b) { return (a.name > b.name) ? 1 : -1 });
+          return callback(categories);
+        }
+      },
+      error: function() {
+        alert("ERROR: Could not load genetic character categories");
+      }
+    });
+  }
+
+  function loadCharacters(callback) {
+    jQuery.ajax({
+      url: '/ajax/genetic_characters/characters',
+      type: 'GET',
+      success: function(resp) {
+        if ( resp && resp.characters ) {
+          return callback(resp.characters);
+        }
+      },
+      error: function() {
+        alert("ERROR: Could not load genetic characters");
+      }
+    });
+  }
+
+  function loadValues(callback) {
+    jQuery.ajax({
+      url: '/ajax/genetic_characters/values',
+      type: 'GET',
+      success: function(resp) {
+        if ( resp && resp.values ) {
+          return callback(resp.values);
+        }
+      },
+      error: function() {
+        alert("ERROR: Could not load genetic character values");
+      }
+    });
+  }
+
+  function display(categories, characters, values) {
+    let html = "";
+
+    // Parse each category...
+    for ( let i = 0; i < categories.length; i++ ) {
+
+      // Display Category
+      html += "<h2>" + categories[i].name + "</h2>";
+
+      // Start Table
+      html += "<table class='table table-striped table-hover'>";
+      html += "<thead><tr>";
+      html += "<th width='300'>Genetic Character</th>";
+      html += "<th>Genetic Character Values</th>";
+      html += "</tr></thead>";
+      html += "<tbody>";
+
+      // Find matching characters
+      let matching_characters = [];
+      for (const cs in characters) {
+        if ( characters.hasOwnProperty(cs) ) {
+          if ( characters[cs].category.id === categories[i].id ) {
+            matching_characters.push(characters[cs]);
+          }
+        }
+      }
+
+      // Parse each character...
+      matching_characters.sort(function(a, b) { return (a.name > b.name) ? 1 : -1 });
+      for ( let j = 0; j < matching_characters.length; j++ ) {
+        html += "<tr>";
+
+        // Display character
+        html += "<td><a href='/locus/" + matching_characters[j].id + "/view'>";
+        html += "<strong>" + matching_characters[j].name + "</strong> (" + matching_characters[j].symbol + ")";
+        html += "</a></td>";
+
+        // Find matching values
+        let matching_values = [];
+        for (const vs in values) {
+          if ( values.hasOwnProperty(vs) ) {
+            if ( values[vs].genetic_character_id === matching_characters[j].id ) {
+              matching_values.push(values[vs]);
+            }
+          }
+        }
+
+        // Parse each value...
+        matching_values.sort(function(a, b) { return (a.name > b.name) ? 1 : -1 });
+        html += "<td>";
+        for ( let k = 0; k < matching_values.length; k++ ) {
+          html += "<strong>" + matching_values[k].name + "</strong> (" + matching_values[k].symbol + ") ";
+        }
+        html += "</td>"
+
+        html += "</tr>";
+      }
+
+      // Finish Table
+      html += "</tbody></table>";
+    }
+
+    jQuery("#existing_genetic_characters").html(html);
+  }
+</script>

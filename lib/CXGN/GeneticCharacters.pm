@@ -243,6 +243,19 @@ sub store_genetic_character_values {
     }
 }
 
+#
+# Store the associations between Accessions and Genetic Character Values in the stockprop 
+# and phenome.stock_allele tables
+# PARAMS:
+#   - sp_person_id = id of person adding the data
+#   - data = A hash of hashes with the genetic character associations:
+#       - accession_name = name of accession to associate
+#       - accession_id = stock id of accession to associate
+#       - value_symbol = symbol of genetic character value to associate with accession
+#       - value_id = allele id of genetic character value to assicate with accession
+#   - overwrite_conflicting = flag to remove conflicting associations before storing a new one
+# RETURNS: an error message, if encountered
+#
 sub store_genetic_character_associations {
     my $self = shift;
     my $sp_person_id = shift;

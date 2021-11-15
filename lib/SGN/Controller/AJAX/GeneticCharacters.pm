@@ -28,6 +28,37 @@ sub genetic_character_organisms : Path('/ajax/genetic_characters/organisms') : A
     $c->detach();
 }
 
+sub genetic_character_categories : Path('/ajax/genetic_characters/categories') : ActionClass('REST') {
+    my $self = shift;
+    my $c = shift;
+
+    my $categories = CXGN::GeneticCharacters->get_categories();
+
+    $c->stash->{rest} = { categories => $categories };
+    $c->detach();
+}
+
+sub genetic_characters : Path('/ajax/genetic_characters/characters') : ActionClass('REST') {
+    my $self = shift;
+    my $c = shift;
+
+    my $characters = CXGN::GeneticCharacters->get_genetic_characters();
+
+    $c->stash->{rest} = { characters => $characters };
+    $c->detach();
+}
+
+sub genetic_character_values : Path('/ajax/genetic_characters/values') : ActionClass('REST') {
+    my $self = shift;
+    my $c = shift;
+
+    my $values = CXGN::GeneticCharacters->get_genetic_character_values();
+
+    $c->stash->{rest} = { values => $values };
+    $c->detach();
+}
+
+
 sub genetic_characters_upload : Path('/ajax/genetic_characters/file_upload') : ActionClass('REST') { }
 sub genetic_characters_upload_POST : Args(0) {
     my $self = shift;
