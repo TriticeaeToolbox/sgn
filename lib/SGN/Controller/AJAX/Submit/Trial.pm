@@ -380,7 +380,8 @@ sub write_trial_observations_file :Private {
         trial_list => \@trial_list,
         filename => $trial_observations_file,
         format => $plugin,
-        data_level => "plot"
+        data_level => "plot",
+        search_type => 'Native'
     });
     my $error = $download->download();
 }
