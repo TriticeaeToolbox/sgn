@@ -250,7 +250,6 @@ my $breeding_programs_select = simple_selectbox_html(
     </div>
     <div id="selected_loci">
     </div>
-  </div>
   </&>
 
   <&| /page/info_section.mas, title => 'Search Accessions Using Genotype', collapsible=>1, collapsed=>1 &>
