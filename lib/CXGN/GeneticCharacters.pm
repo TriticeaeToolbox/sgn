@@ -302,9 +302,6 @@ sub store_genetic_character_associations {
                         $sth = $dbh->prepare($q);
                         $sth->execute($ea_sp_id);
 
-                        print STDERR "DELETE FROM public.stockprop WHERE stockprop_id = $ea_sp_id\n";
-                        print STDERR "DELETE FROM phenome.stock_allele WHERE stock_id = $ea_stock_id AND allele_id = $ea_id\n";
-
                         $q = "DELETE FROM phenome.stock_allele WHERE stock_id = ? AND allele_id = ?;";
                         $sth = $dbh->prepare($q);
                         $sth->execute($ea_stock_id, $ea_id);
