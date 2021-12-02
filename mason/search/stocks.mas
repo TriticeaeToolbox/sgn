@@ -545,11 +545,11 @@ jQuery(document).ready(function () {
       var locus_id = jQuery('#locus_search_term option:selected').attr("value");
       var locus_name = jQuery("#locus_search_term option:selected").text();
 
-      if ( selected_loci.hasOwnProperty(locus_name) ) {
+      if ( selected_loci.hasOwnProperty(locus_id) ) {
         return;
       }
       else {
-        selected_loci[locus_name] = {};
+        selected_loci[locus_id] = {};
       }
 
       var html = "<div class='row' id='selected_locus_" + locus_id + "'><div class='col-sm-11'><div class='form-group form-group-sm'>";
@@ -576,7 +576,7 @@ jQuery(document).ready(function () {
       jQuery('#allele_search_term_' + locus_id).change(function() {
         let allele_id = jQuery('#allele_search_term_' + locus_id + ' option:selected').attr('value');
         let allele_name = jQuery('#allele_search_term_' + locus_id + ' option:selected').text();
-        selected_loci[locus_name] = {
+        selected_loci[locus_id] = {
             locus_id: locus_id,
             locus_name: locus_name,
             allele_id: allele_id,
@@ -590,7 +590,7 @@ jQuery(document).ready(function () {
       var locus_id = jQuery(this).data('id');
       var locus_name = jQuery(this).data('name');
       jQuery("#selected_locus_" + locus_id).remove();
-      delete selected_loci[locus_name];
+      delete selected_loci[locus_id];
     });
 
 });
@@ -637,8 +637,8 @@ function _load_alleles(locus_id, locus_name) {
       let matches = [];
       if ( response ) {
         for ( let i = 0; i < response.length; i++ ) {
-          let l = response[i].split(" ")[0];
-          if ( l.toLowerCase() === locus_name.toLowerCase() ) {
+          let l = response[i].match(/\(.*\)/g)[0].replace(/[\(\)]/g, "");
+          if ( l.toLowerCase() === locus_id.toLowerCase() ) {
             matches.push(response[i]);
           }
         }
@@ -649,7 +649,7 @@ function _load_alleles(locus_id, locus_name) {
         let d = matches[i].split("Allele: ")[1].split("|");
         html += "<option title='" + d[0] + "' value='" + d[2] + "'>" + d[0] + "</option>";
         if ( i === 0 ) {
-          selected_loci[locus_name] = {
+          selected_loci[locus_id] = {
             locus_id: locus_id,
             locus_name: locus_name,
             allele_id: d[2],
