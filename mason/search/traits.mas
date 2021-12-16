@@ -103,6 +103,13 @@
 
 </div>
 
+
+<style>
+    #submit_trait_search {
+        min-width: 150px;
+    }
+</style>
+
 <script>
 
 jQuery(document).ready(function () {
@@ -118,7 +125,9 @@ jQuery(document).ready(function () {
         _draw_trait_search_result_table();
     });
 
-    jQuery('#submit_trait_search').click(function(){
+    jQuery('#submit_trait_search').click(function() {
+        jQuery("#submit_trait_search").attr('disabled', true);
+        jQuery("#submit_trait_search").html("Searching...")
         _draw_trait_search_result_table();
     });
 
@@ -160,6 +169,10 @@ jQuery(document).ready(function () {
                     d.trait_any_name  = jQuery('#trait_search_name').val();
                     d.trait_definition  = jQuery('#trait_search_definition').val();
                     d.ontology_db_id = selectedontologies;
+                },
+                'complete': function() {
+                    jQuery("#submit_trait_search").attr('disabled', false);
+                    jQuery("#submit_trait_search").html("Search");
                 }
             },
             "order": [[ 1, "asc" ]]
