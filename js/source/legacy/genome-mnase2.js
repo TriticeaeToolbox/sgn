@@ -22,7 +22,7 @@ function select_markers()
     }
     document.getElementById("step2").innerHTML = "";
     document.getElementById("step3").innerHTML = "";
-    var url = "https://dev.triticeaetoolbox.org/ajax/sequence_metadata/query"  + "?feature_id=2639703" + "&start=" + start + "&end=" + stop + "&reference_genome=RefSeq_v1"; 
+    var url = "/ajax/sequence_metadata/query"  + "?feature_id=2639703" + "&start=" + start + "&end=" + stop + "&reference_genome=RefSeq_v1"; 
     jQuery.getJSON(url, function( data ) {
 	var items = [];
 	var attributes = "";
