@@ -13,7 +13,7 @@ if (!$function) {
     my $page = CXGN::Page->new();
 
     $page->header();
-    $page->jsan_use("genome-mnase");
+    $page->jsan_use("genome-mnase2");
 
     my $page_title = page_title_html("MNase chromatin and VEP Results");
 
@@ -47,17 +47,17 @@ my $name;
 my $dbh = CXGN::DB::Connection->new();
 
 print "<table>";
-print "<tr><td>Genotype Protocol:<td><select id=protocol onchange=\"getChrom()\">";
-my $q = "select nd_protocol_id, name from nd_protocol order by name";
-my $protocol_q = $dbh->prepare($q);
-$protocol_q->execute();
-while (my @row = $protocol_q->fetchrow_array()) {
-    $id = $row[0];
-    $name = $row[1];
-    print "<option value=$id>$name</option>";
-}
-print "</select><td><div id=\"step2\"></div>";
+print "<div id=\"step2\"></div>";
 print "<tr><td>Chromosome:<td><div id=\"step1\"><select id=chrom>";
+my $q = "select distinct(s.value->>'chrom') from nd_protocolprop, jsonb_each(nd_protocolprop.value) as s where nd_protocol_id = 38 and type_id = 84975 order by s.value->>'chrom'";
+my $chrom_q = $dbh->prepare($q) or die $dbh->errstr;
+$chrom_q->execute();
+while (my ($chrom) = $chrom_q->fetchrow_array()) {
+      # we only want chromosomes 1A, 1B, ... because these are the only ones that map to MNase and VEP
+      if ($chrom =~ /\d[ABD]$/) {
+          print "<option value=$chrom>$chrom</option>";
+      }
+  }
 print "</select></div>";
 print "<tr><td>Start:<td><input type=\"text\" id=\"start\" value=\"$start\"><td>$min\n";
 print "<tr><td>Stop:<td><input type=\"text\" id=\"stop\" value=\"$stop\"><td>$max\n";
@@ -67,13 +67,6 @@ print "<div id=\"step3\"></div>";
 
 print <<HTML;
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.css">
-    <script type="text/javascript">
-    if ( window.addEventListener ) {
-        window.addEventListener( "load", getChrom(), false );
-    } else if (window.onload) {
-        window.onload = getChrom();
-    }
-    </script>
     <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.js"></script>
 HTML
 
@@ -166,9 +159,9 @@ $page->footer();
 	$dns_q->execute($chromM,$pos, $pos);
 	if (($score) = $dns_q->fetchrow_array()) {
 	    $score = sprintf("%.2f", $score);
-	    print "<tr><td>$name<td>$chrom<td>$pos<td>$score<td>";
+	    print "<tr><td>$marker_name<td>$chrom<td>$pos<td>$score<td>";
 	} else {
-	    print "<tr><td>$name<td>$chrom<td>$pos<td>not found<td>";
+	    print "<tr><td>$marker_name<td>$chrom<td>$pos<td>not found<td>";
 	}
 	$msf_q->execute($chromM,$pos, $pos);
 	if (($score) = $msf_q->fetchrow_array()) {
