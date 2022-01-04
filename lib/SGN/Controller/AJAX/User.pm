@@ -207,7 +207,7 @@ END_HEREDOC
     my $message = "";
     if ( $c->config->{user_registration_admin_confirmation} && $c->config->{user_registration_admin_confirmation_email} ) {
         CXGN::Contact::send_email($subject,$body,'user_registration_admin_confirmation_email');
-        $message = "Your account has been created but first must be confirmed by the site administrators.";
+        $message = "Your account has been created but first must be confirmed by the site administrators.  You will receive an email once your account has been confirmed.";
     }
 
     # Send confirmation email to user
