@@ -190,6 +190,29 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
         }
     }
 
+    # Send confirmation to user, if manual confirmation is enabled
+    if ( $c->config->{user_registration_admin_confirmation} && $c->config->{user_registration_admin_confirmation_email} ) {
+        my $host = $c->config->{main_production_site_url};
+        my $project_name = $c->config->{project_name};
+        my $subject="[$project_name] New Account Confirmed";
+        my $body=<<END_HEREDOC;
+
+Your new account on $project_name with the username \"$username\" has been confirmed.
+
+You can now login using your account credentials:
+$host
+
+Thank you,
+$project_name Team
+
+Please do *NOT* reply to this message. If you have any trouble logging into your 
+account or have any other questions, please use the contact form instead:
+$host/contact/form
+
+END_HEREDOC
+        CXGN::Contact::send_email($subject,$body,$sp->get_pending_email());
+    }
+
     $c->stash->{username} = $username;
     $c->stash->{success} = $success;
     $c->stash->{message} = $message;
