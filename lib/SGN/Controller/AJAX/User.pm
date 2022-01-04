@@ -203,12 +203,22 @@ $host/contact/form
 
 END_HEREDOC
 
-CXGN::Contact::send_email($subject,$body,$email_address);
-    $c->stash->{rest} = { message => qq | <table summary="" width="80%" align="center">
-<tr><td><p>Account was created with username \"$username\". To continue, you must confirm that SGN staff can reach you via email address \"$email_address\". An email has been sent with a URL to confirm this address. Please check your email for this message and use the link to confirm your email address.</p></td></tr>
-<tr><td><br /></td></tr>
-</table>
-| };
+    # Send confirmation email to admin
+    my $message = "";
+    if ( $c->config->{user_registration_admin_confirmation} && $c->config->{user_registration_admin_confirmation_email} ) {
+        CXGN::Contact::send_email($subject,$body,'user_registration_admin_confirmation_email');
+        $message = "Your account has been created but first must be confirmed by the site administrators.";
+    }
+
+    # Send confirmation email to user
+    else {
+        CXGN::Contact::send_email($subject,$body,$email_address);
+        $message = "To continue, you must confirm that we can reach you via email address \"$email_address\". An email has been sent with a URL to confirm this address. Please check your email for this message and use the link to confirm your email address.";
+    }
+
+    $c->stash->{rest} = {
+        message => "Account was created with username \"$username\".\n\n$message\n\nYou will be able to login once your account has been confirmed."
+    };
 }
 
 
