@@ -101,7 +101,9 @@ print "<div id=\"step2\"></div>";
     my $unique_str = int(rand(10000000));
     my $dir = "/home/production/tmp/triticum-site/download/download_" . $unique_str;
     if ( !-d "/home/production/tmp/triticum-site/download") {
-	mkdir "/home/production/tmp/tritticum-site/download";
+	unless (mkdir "/home/production/tmp/triticum-site/download") {
+	    die "Unable to create download dir";
+	}
     }
     if ($chrom =~ /([a-z]*[A-Z0-9]+)/) {
         $chrom = $1;
