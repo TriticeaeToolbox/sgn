@@ -8,12 +8,12 @@ $trial_id
             <tr>
                 <th>Protocol</th>
                 <th>Marker Type</th>
-                <th>Header Information Lines</th>
                 <th>Number of Markers</th>
                 <th>Description</th>
                 <th>Reference Genome</th>
                 <th>Species Name</th>
                 <th>Sample Type</th>
+		<th>Created Date</th>
             </tr>
         </thead>
     </table>
