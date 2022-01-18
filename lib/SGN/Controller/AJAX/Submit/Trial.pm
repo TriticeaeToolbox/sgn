@@ -168,8 +168,7 @@ sub write_location_file :Private {
     my $location_id = $location->[0];
     
     my $btp = CXGN::BreedersToolbox::Projects->new( { schema => $schema });
-    my $locations_json = $btp->get_location_geojson();
-    my $locations = decode_json ($locations_json);
+    my $locations = $btp->get_location_geojson_data();
     my $location_properties;
 
     foreach my $l ( @$locations ) { 
