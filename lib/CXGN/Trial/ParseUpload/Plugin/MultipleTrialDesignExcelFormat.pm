@@ -59,7 +59,7 @@ sub _validate_with_plugin {
   }
 
   my @treatment_names;
-  for (24 .. $col_max){
+  for (25 .. $col_max){
       if ($worksheet->get_cell(0,$_)){
           push @treatment_names, $worksheet->get_cell(0,$_)->value();
       }
@@ -107,6 +107,7 @@ sub _validate_with_plugin {
     my $range_number;
     my $row_number;
     my $col_number;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,0)) {
       $current_trial_name = $worksheet->get_cell($row,0)->value();
@@ -234,6 +235,10 @@ sub _validate_with_plugin {
     }
     if ($worksheet->get_cell($row,23)) {
       $weight_gram_seed_per_plot = $worksheet->get_cell($row,23)->value();
+    }
+    if ($worksheet->get_cell($row,24)) {
+      $is_private = $worksheet->get_cell($row,24)->value();
+      $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
     }
 
     if ($working_on_new_trial) {
@@ -415,8 +420,13 @@ sub _validate_with_plugin {
         push @error_messages, "Cell X$row_name: weight_gram_seed_per_plot <b>$weight_gram_seed_per_plot</b> must be a positive integer.";
     }
 
+    ## IS PRIVATE CHECK
+    if ($is_private) {
+      push @warning_messages, "Cell Y$row_name: plot $plot_name (accession $accession_name) is marked as private and will be skipped.";
+    }
+
     ## TREATMENT CHECKS
-    my $treatment_col = 24;
+    my $treatment_col = 25;
     foreach my $treatment_name (@treatment_names){
         if($worksheet->get_cell($row,$treatment_col)){
             my $apply_treatment = $worksheet->get_cell($row,$treatment_col)->value();
@@ -600,7 +610,7 @@ sub _parse_with_plugin {
   my ( $col_min, $col_max ) = $worksheet->col_range();
 
   my @treatment_names;
-  for (24 .. $col_max){
+  for (25 .. $col_max){
       if ($worksheet->get_cell(0,$_)){
           push @treatment_names, $worksheet->get_cell(0,$_)->value();
       }
@@ -663,6 +673,7 @@ sub _parse_with_plugin {
     my $seedlot_name;
     my $num_seed_per_plot = 0;
     my $weight_gram_seed_per_plot = 0;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,0)) {
       $current_trial_name = $worksheet->get_cell($row,0)->value();
@@ -771,8 +782,17 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,23)) {
         $weight_gram_seed_per_plot = $worksheet->get_cell($row, 23)->value();
     }
+    if ($worksheet->get_cell($row,24)) {
+      $is_private = $worksheet->get_cell($row,24)->value();
+      $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+    }
 
-    my $treatment_col = 24;
+    # Skip plots marked as private
+    if ( $is_private ) {
+      next;
+    }
+
+    my $treatment_col = 25;
     foreach my $treatment_name (@treatment_names){
         if($worksheet->get_cell($row,$treatment_col)){
             if($worksheet->get_cell($row,$treatment_col)->value()){
