@@ -106,7 +106,7 @@ sub _validate_with_plugin {
   }
 
   my @treatment_names;
-  for (12 .. $col_max){
+  for (13 .. $col_max){
       if ($worksheet->get_cell(0,$_)){
           push @treatment_names, $worksheet->get_cell(0,$_)->value();
       }
@@ -178,6 +178,7 @@ sub _validate_with_plugin {
     my $range_number;
     my $row_number;
     my $col_number;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,0)) {
       $plot_name = $worksheet->get_cell($row,0)->value();
@@ -214,6 +215,10 @@ sub _validate_with_plugin {
     }
     if ($worksheet->get_cell($row,11)) {
       $weight_gram_seed_per_plot = $worksheet->get_cell($row,11)->value();
+    }
+    if ($worksheet->get_cell($row,12)) {
+      $is_private = $worksheet->get_cell($row,12)->value();
+      $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
     }
 
     #skip blank lines
@@ -308,7 +313,13 @@ sub _validate_with_plugin {
         push @error_messages, "Cell L$row_name: weight_gram_seed_per_plot must be a positive integer: $weight_gram_seed_per_plot";
     }
 
-    my $treatment_col = 12;
+    ## IS PRIVATE CHECK
+    # DISABLED: Warnings are not displayed before saving the trial with the single-trial upload
+    # if ($is_private) {
+      # push @warning_messages, "Cell M$row_name: plot $plot_name (accession $stock_name) is marked as private and will be skipped.";
+    # }
+
+    my $treatment_col = 13;
     foreach my $treatment_name (@treatment_names){
         if($worksheet->get_cell($row,$treatment_col)){
             my $apply_treatment = $worksheet->get_cell($row,$treatment_col)->value();
@@ -397,7 +408,7 @@ sub _parse_with_plugin {
   my ( $col_min, $col_max ) = $worksheet->col_range();
 
   my @treatment_names;
-  for (12 .. $col_max){
+  for (13 .. $col_max){
       if ($worksheet->get_cell(0,$_)){
           push @treatment_names, $worksheet->get_cell(0,$_)->value();
       }
@@ -440,6 +451,7 @@ sub _parse_with_plugin {
     my $seedlot_name;
     my $num_seed_per_plot = 0;
     my $weight_gram_seed_per_plot = 0;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,0)) {
       $plot_name = $worksheet->get_cell($row,0)->value();
@@ -482,13 +494,22 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,11)) {
         $weight_gram_seed_per_plot = $worksheet->get_cell($row, 11)->value();
     }
+    if ($worksheet->get_cell($row,12)) {
+        $is_private = $worksheet->get_cell($row,12)->value();
+        $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+    }
 
     #skip blank lines
     if (!$plot_name && !$stock_name && !$plot_number && !$block_number) {
       next;
     }
 
-    my $treatment_col = 12;
+    # Skip plots marked as private
+    if ( $is_private ) {
+      next;
+    }
+
+    my $treatment_col = 13;
     foreach my $treatment_name (@treatment_names){
         if($worksheet->get_cell($row,$treatment_col)){
             if($worksheet->get_cell($row,$treatment_col)->value()){
