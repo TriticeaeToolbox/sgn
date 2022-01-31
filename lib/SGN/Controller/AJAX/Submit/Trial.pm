@@ -24,7 +24,7 @@ sub export_accessions : Path('/ajax/submit/accessions') : ActionClass('REST') { 
 sub export_accessions_GET : Args(0) {
     my $self = shift;
     my $c = shift;
-    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     my $dbh = $schema->storage->dbh();
 
     my $offset = $c->req->param("offset") || 0;
