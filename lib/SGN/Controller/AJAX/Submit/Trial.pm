@@ -20,6 +20,84 @@ __PACKAGE__->config(
     map       => { 'application/json' => 'JSON', 'text/html' => 'JSON' },
 );
 
+sub export_accessions : Path('/ajax/submit/accessions') : ActionClass('REST') { }
+sub export_accessions_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $dbh = $schema->storage->dbh();
+
+    my $offset = $c->req->param("offset") || 0;
+    my $limit = $c->req->param("limit") || 1000;
+
+    print STDERR "==> GENERATING ACCESSIONS: $limit (from $offset)\n";
+
+    # Get stock ids to query
+    my $q = "SELECT stock_id FROM public.stock WHERE type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'accession') ORDER BY uniquename LIMIT ? OFFSET ?;";
+    my $s = $dbh->prepare($q);
+    $s->execute($limit, $offset);
+    my @stock_ids;
+    while (my ($stock_id) = $s->fetchrow_array()) {
+        push(@stock_ids, $stock_id);
+    }
+
+    # Get stock data
+    my @rows = ();
+    foreach my $stock_id ( @stock_ids ) {
+        print STDERR "--> Fetching stock #$stock_id...\n";
+        my $a = new CXGN::Stock::Accession({ schema => $schema, stock_id => $stock_id});
+        my @r = (
+            $a->uniquename(),
+            $a->get_species(),
+            $a->population_name(),
+            $a->organization_name(),
+            $a->synonyms(),
+            $a->locationCode(),
+            $a->ploidyLevel(),
+            $a->genomeStructure(),
+            $a->variety(),
+            $a->donors(),
+            $a->_retrieve_stockprop('donor institute'),
+            $a->_retrieve_stockprop('donor PUI'),
+            $a->countryOfOriginCode(),
+            $a->state(),
+            $a->instituteCode(),
+            $a->instituteName(),
+            $a->biologicalStatusOfAccessionCode(),
+            $a->notes(),
+            $a->accessionNumber(),
+            $a->germplasmPUI(),
+            $a->germplasmSeedSource(),
+            $a->typeOfGermplasmStorageCode(),
+            $a->acquisitionDate(),
+            $a->transgenic(),
+            $a->introgression_parent(),
+            $a->introgression_backcross_parent(),
+            $a->introgression_map_version(),
+            $a->introgression_chromosome(),
+            $a->introgression_start_position_bp(),
+            $a->introgression_end_position_bp(),
+            $a->purdyPedigree(),
+            $a->filialGeneration()
+        );
+        push(@rows, \@r);
+    }
+
+    # Write to File
+    my $submission_path = $c->config->{submission_path};
+    my $dir = $submission_path . "/bi_accessions";
+    unless (-d $dir) {
+        mkpath($dir) or die "Couldn't mkdir $dir: $!";
+    }
+    my $file = $dir . "/accessions_$offset.xls";
+    my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
+    $self->write_excel_file($file, \@headers, \@rows);
+
+    print STDERR "    Wrote accessions to: $file\n";
+
+    $c->stash->{rest} = {status => "success", file => "$file"};
+}
+
 
 #
 # SUBMIT AN ENTIRE TRIAL FOR CURATION
