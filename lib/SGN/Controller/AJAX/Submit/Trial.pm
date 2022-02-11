@@ -98,6 +98,53 @@ sub export_accessions_GET : Args(0) {
 }
 
 
+sub export_trials : Path('/ajax/submit/trials') : ActionClass('REST') { }
+sub export_trials_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
+    my $dbh = $schema->storage->dbh();
+
+    my $trial_prefix = $c->req->param("prefix") || "";
+
+    print STDERR "==> GENERATING TRIALS: $trial_prefix...\n";
+
+    # Set output directory
+    my $submission_path = $c->config->{submission_path};
+    my $dir = $submission_path . "/bi_trials/" . $trial_prefix;
+    unless (-d $dir) {
+        mkpath($dir) or die "Couldn't mkdir $dir: $!";
+    }
+
+    # Get trial ids to query
+    my $q = "SELECT project_id, name FROM public.project WHERE name LIKE ? ORDER BY name;";
+    my $s = $dbh->prepare($q);
+    $s->execute($trial_prefix . '%');
+    
+    # Parse each trial
+    while (my ($trial_id, $trial_name) = $s->fetchrow_array()) {
+        my $trial_dir = $dir . "/" . $trial_name;
+        unless (-d $trial_dir) {
+            mkpath($trial_dir) or die "Couldn't mkdir $trial_dir: $!";
+        }
+
+        my $trial = undef;
+        eval {
+            $trial = new CXGN::Trial({bcs_schema => $schema, trial_id => $trial_id});
+            1;    
+        } or do {
+            $self->submit_error($c, undef, "The requested Trial ($trial_id) could not be found");
+        };
+
+        $self->write_location_file($c, $trial_dir, $trial);
+        $self->write_trial_layout_file($c, $trial_dir, $trial);
+        $self->write_trial_observations_file($c, $trial_dir, $trial);
+    }
+
+    $c->stash->{rest} = {status => "success"};
+}
+
+
 #
 # SUBMIT AN ENTIRE TRIAL FOR CURATION
 # Generate the upload templates to submit the trial to a production website
