@@ -44,7 +44,6 @@ sub export_accessions_GET : Args(0) {
     # Get stock data
     my @rows = ();
     foreach my $stock_id ( @stock_ids ) {
-        print STDERR "--> Fetching stock #$stock_id...\n";
         my $a = new CXGN::Stock::Accession({ schema => $schema, stock_id => $stock_id});
         my @r = (
             $a->uniquename(),
