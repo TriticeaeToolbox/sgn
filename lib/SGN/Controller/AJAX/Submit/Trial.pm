@@ -123,7 +123,7 @@ sub export_trials_GET : Args(0) {
     
     # Parse each trial
     while (my ($trial_id, $trial_name) = $s->fetchrow_array()) {
-        my $trial_dir = $dir . "/" . $trial_name;
+        my $trial_dir = $dir . "/" . strftime("%Y%m%d_%H%M%S", localtime time) . "_" . $trial_id;
         unless (-d $trial_dir) {
             mkpath($trial_dir) or die "Couldn't mkdir $trial_dir: $!";
         }
