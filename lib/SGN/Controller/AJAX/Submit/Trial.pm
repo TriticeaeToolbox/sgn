@@ -441,7 +441,7 @@ sub write_trial_layout_file :Private {
     my $year = $trial->get_year();
     my $design_type = $trial->get_design_type();
     my $description = $trial->get_description();
-    my $trial_type = $trial->get_project_type()->[1];
+    my $trial_type = defined($trial->get_project_type()) ? $trial->get_project_type()->[1] : "";
     my $plot_width = $trial->get_plot_width();
     my $plot_length = $trial->get_plot_length();
     my $field_size = $trial->get_field_size();
