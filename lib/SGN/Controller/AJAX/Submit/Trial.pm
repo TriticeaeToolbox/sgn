@@ -20,6 +20,9 @@ __PACKAGE__->config(
     map       => { 'application/json' => 'JSON', 'text/html' => 'JSON' },
 );
 
+#
+# Function to export all of the accessions (grouped by offset and limit params)
+#
 sub export_accessions : Path('/ajax/submit/accessions') : ActionClass('REST') { }
 sub export_accessions_GET : Args(0) {
     my $self = shift;
@@ -44,42 +47,8 @@ sub export_accessions_GET : Args(0) {
     # Get stock data
     my @rows = ();
     foreach my $stock_id ( @stock_ids ) {
-        my $a = new CXGN::Stock::Accession({ schema => $schema, stock_id => $stock_id});
-        my @r = (
-            ref($a->uniquename()) eq 'ARRAY' ? join(',', @{$a->uniquename()}) : $a->uniquename(),
-            ref($a->get_species()) eq 'ARRAY' ? join(',', @{$a->get_species()}) : $a->get_species(),
-            ref($a->population_name()) eq 'ARRAY' ? join(',', @{$a->population_name()}) : $a->population_name(),
-            ref($a->organization_name()) eq 'ARRAY' ? join(',', @{$a->organization_name()}) : $a->organization_name(),
-            ref($a->synonyms()) eq 'ARRAY' ? join(',', @{$a->synonyms()}) : $a->synonyms(),
-            ref($a->locationCode()) eq 'ARRAY' ? join(',', @{$a->locationCode()}) : $a->locationCode(),
-            ref($a->ploidyLevel()) eq 'ARRAY' ? join(',', @{$a->ploidyLevel()}) : $a->ploidyLevel(),
-            ref($a->genomeStructure()) eq 'ARRAY' ? join(',', @{$a->genomeStructure()}) : $a->genomeStructure(),
-            ref($a->variety()) eq 'ARRAY' ? join(',', @{$a->variety()}) : $a->variety(),
-            ref($a->donors()) eq 'ARRAY' ? join(',', @{$a->donors()}) : $a->donors(),
-            ref($a->_retrieve_stockprop('donor institute')) eq 'ARRAY' ? join(',', @{$a->_retrieve_stockprop('donor institute')}) : $a->_retrieve_stockprop('donor institute'),
-            ref($a->_retrieve_stockprop('donor PUI')) eq 'ARRAY' ? join(',', @{$a->_retrieve_stockprop('donor PUI')}) : $a->_retrieve_stockprop('donor PUI'),
-            ref($a->countryOfOriginCode()) eq 'ARRAY' ? join(',', @{$a->countryOfOriginCode()}) : $a->countryOfOriginCode(),
-            ref($a->state()) eq 'ARRAY' ? join(',', @{$a->state()}) : $a->state(),
-            ref($a->instituteCode()) eq 'ARRAY' ? join(',', @{$a->instituteCode()}) : $a->instituteCode(),
-            ref($a->instituteName()) eq 'ARRAY' ? join(',', @{$a->instituteName()}) : $a->instituteName(),
-            ref($a->biologicalStatusOfAccessionCode()) eq 'ARRAY' ? join(',', @{$a->biologicalStatusOfAccessionCode()}) : $a->biologicalStatusOfAccessionCode(),
-            ref($a->notes()) eq 'ARRAY' ? join(',', @{$a->notes()}) : $a->notes(),
-            ref($a->accessionNumber()) eq 'ARRAY' ? join(',', @{$a->accessionNumber()}) : $a->accessionNumber(),
-            "",
-            ref($a->germplasmSeedSource()) eq 'ARRAY' ? join(',', @{$a->germplasmSeedSource()}) : $a->germplasmSeedSource(),
-            ref($a->typeOfGermplasmStorageCode()) eq 'ARRAY' ? join(',', @{$a->typeOfGermplasmStorageCode()}) : $a->typeOfGermplasmStorageCode(),
-            ref($a->acquisitionDate()) eq 'ARRAY' ? join(',', @{$a->acquisitionDate()}) : $a->acquisitionDate(),
-            ref($a->transgenic()) eq 'ARRAY' ? join(',', @{$a->transgenic()}) : $a->transgenic(),
-            ref($a->introgression_parent()) eq 'ARRAY' ? join(',', @{$a->introgression_parent()}) : $a->introgression_parent(),
-            ref($a->introgression_backcross_parent()) eq 'ARRAY' ? join(',', @{$a->introgression_backcross_parent()}) : $a->introgression_backcross_parent(),
-            ref($a->introgression_map_version()) eq 'ARRAY' ? join(',', @{$a->introgression_map_version()}) : $a->introgression_map_version(),
-            ref($a->introgression_chromosome()) eq 'ARRAY' ? join(',', @{$a->introgression_chromosome()}) : $a->introgression_chromosome(),
-            ref($a->introgression_start_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_start_position_bp()}) : $a->introgression_start_position_bp(),
-            ref($a->introgression_end_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_end_position_bp()}) : $a->introgression_end_position_bp(),
-            ref($a->purdyPedigree()) eq 'ARRAY' ? join(',', @{$a->purdyPedigree()}) : $a->purdyPedigree(),
-            ref($a->filialGeneration()) eq 'ARRAY' ? join(',', @{$a->filialGeneration()}) : $a->filialGeneration()
-        );
-        push(@rows, \@r);
+        my $r = $self->generate_accession_row($c, $stock_id);
+        push(@rows, $r);
     }
 
     # Write to File
@@ -89,8 +58,7 @@ sub export_accessions_GET : Args(0) {
         mkpath($dir) or die "Couldn't mkdir $dir: $!";
     }
     my $file = $dir . "/accessions_$offset.xls";
-    my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
-    $self->write_excel_file($file, \@headers, \@rows);
+    $self->write_accessions_file($file, \@rows);
 
     print STDERR "    Wrote accessions to: $file\n";
 
@@ -98,6 +66,9 @@ sub export_accessions_GET : Args(0) {
 }
 
 
+# 
+# Function to export all of the trials with the specified name prefix
+#
 sub export_trials : Path('/ajax/submit/trials') : ActionClass('REST') { }
 sub export_trials_GET : Args(0) {
     my $self = shift;
@@ -136,9 +107,9 @@ sub export_trials_GET : Args(0) {
             $self->submit_error($c, undef, "The requested Trial ($trial_id) could not be found");
         };
 
-        $self->write_location_file($c, $trial_dir, $trial);
-        $self->write_trial_layout_file($c, $trial_dir, $trial);
-        $self->write_trial_observations_file($c, $trial_dir, $trial);
+        $self->generate_location_file($c, $trial_dir, $trial);
+        $self->generate_trial_layout_file($c, $trial_dir, $trial);
+        $self->generate_trial_observations_file($c, $trial_dir, $trial);
     }
 
     $c->stash->{rest} = {status => "success"};
@@ -207,13 +178,13 @@ sub submit_trial_data_POST : Args(0) {
     print STDERR "==> Writing Trial $trial_id templates to: $dir\n";
 
     # Write Individual Files
-    $self->write_submission_file($c, $dir, $comments);
-    $self->write_breeding_program_file($c, $dir, $trial);
-    $self->write_location_file($c, $dir, $trial);
-    $self->write_trial_details_file($c, $dir, $trial);
-    $self->write_accessions_file($c, $dir, $trial);
-    $self->write_trial_layout_file($c, $dir, $trial);
-    $self->write_trial_observations_file($c, $dir, $trial);
+    $self->generate_submission_file($c, $dir, $comments);
+    $self->generate_breeding_program_file($c, $dir, $trial);
+    $self->generate_location_file($c, $dir, $trial);
+    $self->generate_trial_details_file($c, $dir, $trial);
+    $self->generate_accessions_file($c, $dir, $trial);
+    $self->generate_trial_layout_file($c, $dir, $trial);
+    $self->generate_trial_observations_file($c, $dir, $trial);
 
     # Send email notification
     if ( $submission_email ) {
@@ -244,7 +215,7 @@ sub submit_trial_data_POST : Args(0) {
 ## INDIVIDUAL FILE FUNCTIONS
 ##
 
-sub write_submission_file :Private {
+sub generate_submission_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -260,7 +231,7 @@ sub write_submission_file :Private {
     $self->write_text_file($sub_file, $sub_contents);
 }
 
-sub write_breeding_program_file :Private {
+sub generate_breeding_program_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -276,7 +247,7 @@ sub write_breeding_program_file :Private {
     $self->write_text_file($bp_file, $bp_contents);
 }
 
-sub write_location_file :Private {
+sub generate_location_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -316,7 +287,7 @@ sub write_location_file :Private {
     $self->write_excel_file($location_file, \@location_headers, \@location_info);
 }
 
-sub write_trial_details_file :Private {
+sub generate_trial_details_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -341,7 +312,7 @@ sub write_trial_details_file :Private {
     $self->write_text_file($details_file, $details_contents);
 }
 
-sub write_accessions_file :Private {
+sub generate_accessions_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -352,53 +323,18 @@ sub write_accessions_file :Private {
     my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     
     my $accessions_file = $dir . "/accessions.xls";
-    my @accession_headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
     my @accession_rows = ();
 
     my $accession_info = $trial->get_accessions();
     foreach my $ai ( @$accession_info ) {
         my $stock_id = $ai->{stock_id};
-        my $a = new CXGN::Stock::Accession({ schema => $schema, stock_id => $stock_id});
-        my @r = (
-            ref($a->uniquename()) eq 'ARRAY' ? join(',', @{$a->uniquename()}) : $a->uniquename(),
-            ref($a->get_species()) eq 'ARRAY' ? join(',', @{$a->get_species()}) : $a->get_species(),
-            ref($a->population_name()) eq 'ARRAY' ? join(',', @{$a->population_name()}) : $a->population_name(),
-            ref($a->organization_name()) eq 'ARRAY' ? join(',', @{$a->organization_name()}) : $a->organization_name(),
-            ref($a->synonyms()) eq 'ARRAY' ? join(',', @{$a->synonyms()}) : $a->synonyms(),
-            ref($a->locationCode()) eq 'ARRAY' ? join(',', @{$a->locationCode()}) : $a->locationCode(),
-            ref($a->ploidyLevel()) eq 'ARRAY' ? join(',', @{$a->ploidyLevel()}) : $a->ploidyLevel(),
-            ref($a->genomeStructure()) eq 'ARRAY' ? join(',', @{$a->genomeStructure()}) : $a->genomeStructure(),
-            ref($a->variety()) eq 'ARRAY' ? join(',', @{$a->variety()}) : $a->variety(),
-            ref($a->donors()) eq 'ARRAY' ? join(',', @{$a->donors()}) : $a->donors(),
-            ref($a->_retrieve_stockprop('donor institute')) eq 'ARRAY' ? join(',', @{$a->_retrieve_stockprop('donor institute')}) : $a->_retrieve_stockprop('donor institute'),
-            ref($a->_retrieve_stockprop('donor PUI')) eq 'ARRAY' ? join(',', @{$a->_retrieve_stockprop('donor PUI')}) : $a->_retrieve_stockprop('donor PUI'),
-            ref($a->countryOfOriginCode()) eq 'ARRAY' ? join(',', @{$a->countryOfOriginCode()}) : $a->countryOfOriginCode(),
-            ref($a->state()) eq 'ARRAY' ? join(',', @{$a->state()}) : $a->state(),
-            ref($a->instituteCode()) eq 'ARRAY' ? join(',', @{$a->instituteCode()}) : $a->instituteCode(),
-            ref($a->instituteName()) eq 'ARRAY' ? join(',', @{$a->instituteName()}) : $a->instituteName(),
-            ref($a->biologicalStatusOfAccessionCode()) eq 'ARRAY' ? join(',', @{$a->biologicalStatusOfAccessionCode()}) : $a->biologicalStatusOfAccessionCode(),
-            ref($a->notes()) eq 'ARRAY' ? join(',', @{$a->notes()}) : $a->notes(),
-            ref($a->accessionNumber()) eq 'ARRAY' ? join(',', @{$a->accessionNumber()}) : $a->accessionNumber(),
-            "",
-            ref($a->germplasmSeedSource()) eq 'ARRAY' ? join(',', @{$a->germplasmSeedSource()}) : $a->germplasmSeedSource(),
-            ref($a->typeOfGermplasmStorageCode()) eq 'ARRAY' ? join(',', @{$a->typeOfGermplasmStorageCode()}) : $a->typeOfGermplasmStorageCode(),
-            ref($a->acquisitionDate()) eq 'ARRAY' ? join(',', @{$a->acquisitionDate()}) : $a->acquisitionDate(),
-            ref($a->transgenic()) eq 'ARRAY' ? join(',', @{$a->transgenic()}) : $a->transgenic(),
-            ref($a->introgression_parent()) eq 'ARRAY' ? join(',', @{$a->introgression_parent()}) : $a->introgression_parent(),
-            ref($a->introgression_backcross_parent()) eq 'ARRAY' ? join(',', @{$a->introgression_backcross_parent()}) : $a->introgression_backcross_parent(),
-            ref($a->introgression_map_version()) eq 'ARRAY' ? join(',', @{$a->introgression_map_version()}) : $a->introgression_map_version(),
-            ref($a->introgression_chromosome()) eq 'ARRAY' ? join(',', @{$a->introgression_chromosome()}) : $a->introgression_chromosome(),
-            ref($a->introgression_start_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_start_position_bp()}) : $a->introgression_start_position_bp(),
-            ref($a->introgression_end_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_end_position_bp()}) : $a->introgression_end_position_bp(),
-            ref($a->purdyPedigree()) eq 'ARRAY' ? join(',', @{$a->purdyPedigree()}) : $a->purdyPedigree(),
-            ref($a->filialGeneration()) eq 'ARRAY' ? join(',', @{$a->filialGeneration()}) : $a->filialGeneration()
-        );
-        push(@accession_rows, \@r);
+        my $r = $self->generate_accession_row($c, $stock_id);
+        push(@accession_rows, $r);
     }
-    $self->write_excel_file($accessions_file, \@accession_headers, \@accession_rows);
+    $self->write_accessions_file($accessions_file, \@accession_rows);
 }
 
-sub write_trial_layout_file :Private {
+sub generate_trial_layout_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -484,7 +420,7 @@ sub write_trial_layout_file :Private {
     $self->write_excel_file($trial_layout_file, \@trial_layout_headers, \@trial_layout_rows);
 }
 
-sub write_trial_observations_file :Private {
+sub generate_trial_observations_file :Private {
     my $self = shift;
     my $c = shift;
     my $dir = shift;
@@ -512,9 +448,83 @@ sub write_trial_observations_file :Private {
 
 
 ##
+## HELPER FUNCTIONS
+##
+
+#
+# WRITE ACCESSIONS FILE
+# Write an accessions template to the specified file using the specified rows
+# Arguments:
+#   file = file path to write the file
+#   rows = 2D-arrayref of accession properties
+#
+sub write_accessions_file {
+  my $self = shift;
+  my $file = shift;
+  my $rows = shift;
+
+  my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
+  $self->write_excel_file($file, \@headers, $rows);
+}
+
+
+##
 ## PRIVATE FUNCTIONS
 ## 
 
+#
+# GENERATE ACCESSION ROW
+# Generate an array of accession properties to be used in the accession
+# template for the specified accession
+# Arguments:
+#   c = catalyst context
+#   stock_id = id of the accession
+# Returns: an arrayref of accession properties
+#
+sub generate_accession_row :Private {
+  my $self = shift;
+  my $c = shift;
+  my $stock_id = shift;
+  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
+
+  my $a = new CXGN::Stock::Accession({ schema => $schema, stock_id => $stock_id});
+  my @r = (
+      ref($a->uniquename()) eq 'ARRAY' ? join(',', @{$a->uniquename()}) : $a->uniquename(),
+      ref($a->get_species()) eq 'ARRAY' ? join(',', @{$a->get_species()}) : $a->get_species(),
+      ref($a->population_name()) eq 'ARRAY' ? join(',', @{$a->population_name()}) : $a->population_name(),
+      ref($a->organization_name()) eq 'ARRAY' ? join(',', @{$a->organization_name()}) : $a->organization_name(),
+      ref($a->synonyms()) eq 'ARRAY' ? join(',', @{$a->synonyms()}) : $a->synonyms(),
+      ref($a->locationCode()) eq 'ARRAY' ? join(',', @{$a->locationCode()}) : $a->locationCode(),
+      ref($a->ploidyLevel()) eq 'ARRAY' ? join(',', @{$a->ploidyLevel()}) : $a->ploidyLevel(),
+      ref($a->genomeStructure()) eq 'ARRAY' ? join(',', @{$a->genomeStructure()}) : $a->genomeStructure(),
+      ref($a->variety()) eq 'ARRAY' ? join(',', @{$a->variety()}) : $a->variety(),
+      ref($a->donors()) eq 'ARRAY' ? join(',', @{$a->donors()}) : $a->donors(),
+      ref($a->_retrieve_stockprop('donor institute')) eq 'ARRAY' ? join(',', @{$a->_retrieve_stockprop('donor institute')}) : $a->_retrieve_stockprop('donor institute'),
+      ref($a->_retrieve_stockprop('donor PUI')) eq 'ARRAY' ? join(',', @{$a->_retrieve_stockprop('donor PUI')}) : $a->_retrieve_stockprop('donor PUI'),
+      ref($a->countryOfOriginCode()) eq 'ARRAY' ? join(',', @{$a->countryOfOriginCode()}) : $a->countryOfOriginCode(),
+      ref($a->state()) eq 'ARRAY' ? join(',', @{$a->state()}) : $a->state(),
+      ref($a->instituteCode()) eq 'ARRAY' ? join(',', @{$a->instituteCode()}) : $a->instituteCode(),
+      ref($a->instituteName()) eq 'ARRAY' ? join(',', @{$a->instituteName()}) : $a->instituteName(),
+      ref($a->biologicalStatusOfAccessionCode()) eq 'ARRAY' ? join(',', @{$a->biologicalStatusOfAccessionCode()}) : $a->biologicalStatusOfAccessionCode(),
+      ref($a->notes()) eq 'ARRAY' ? join(',', @{$a->notes()}) : $a->notes(),
+      ref($a->accessionNumber()) eq 'ARRAY' ? join(',', @{$a->accessionNumber()}) : $a->accessionNumber(),
+      "",
+      ref($a->germplasmSeedSource()) eq 'ARRAY' ? join(',', @{$a->germplasmSeedSource()}) : $a->germplasmSeedSource(),
+      ref($a->typeOfGermplasmStorageCode()) eq 'ARRAY' ? join(',', @{$a->typeOfGermplasmStorageCode()}) : $a->typeOfGermplasmStorageCode(),
+      ref($a->acquisitionDate()) eq 'ARRAY' ? join(',', @{$a->acquisitionDate()}) : $a->acquisitionDate(),
+      ref($a->transgenic()) eq 'ARRAY' ? join(',', @{$a->transgenic()}) : $a->transgenic(),
+      ref($a->introgression_parent()) eq 'ARRAY' ? join(',', @{$a->introgression_parent()}) : $a->introgression_parent(),
+      ref($a->introgression_backcross_parent()) eq 'ARRAY' ? join(',', @{$a->introgression_backcross_parent()}) : $a->introgression_backcross_parent(),
+      ref($a->introgression_map_version()) eq 'ARRAY' ? join(',', @{$a->introgression_map_version()}) : $a->introgression_map_version(),
+      ref($a->introgression_chromosome()) eq 'ARRAY' ? join(',', @{$a->introgression_chromosome()}) : $a->introgression_chromosome(),
+      ref($a->introgression_start_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_start_position_bp()}) : $a->introgression_start_position_bp(),
+      ref($a->introgression_end_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_end_position_bp()}) : $a->introgression_end_position_bp(),
+      # ref($a->purdyPedigree()) eq 'ARRAY' ? join(',', @{$a->purdyPedigree()}) : $a->purdyPedigree(),
+      # ref($a->filialGeneration()) eq 'ARRAY' ? join(',', @{$a->filialGeneration()}) : $a->filialGeneration()
+  );
+
+  return \@r;
+}
 
 # 
 # SUBMIT ERROR
@@ -571,6 +581,8 @@ sub write_excel_file :Private {
     my $file = shift;
     my $headers = shift;
     my $rows = shift;
+
+    print STDERR "WRITING EXCEL FILE: $file\n";
 
     my $workbook = Spreadsheet::WriteExcel->new($file);
     my $worksheet = $workbook->add_worksheet();
