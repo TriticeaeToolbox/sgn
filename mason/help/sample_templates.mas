@@ -1,0 +1,135 @@
+<%args>
+  $prefix => 'Prefix',
+  $species => ''
+</%args>
+
+<& "/page/page_title.mas", title => "Generate Sample Templates" &>
+
+
+<!-- Intro -->
+<div>
+  <p>Use this form to generate sample upload templates that you can use to test the various upload functions 
+  for data types related to phentyping / field trials.  Once you've downloaded the templates, follow the 
+  phenotype upload instructions to test load the files on the sandbox.</p>
+
+  <p>Since new accessions and field trials need to have unique names, specify a unique prefix that will be 
+  prepended to their names to ensure that they are unique and don't already exist in the database.</p>
+
+  <p>The following upload templates will be created for two example trials, each consiting of three reps of ten accessions at two different locations:</p>
+
+  <ul>
+    <li><strong>Accessions</strong> (10 new accessions)</li>
+    <li><strong>Locations</strong> (2 new locations)</li>
+    <li><strong>Trials</strong> (2 RCBD trials with 3 reps, using the same 10 accessions)</li>
+    <li><strong>Trait Observations</strong> (3 traits observed at both trial locations)</li>
+  </ul>
+</div>
+
+
+<!-- Generate Templates -->
+<div id="generate-templates" style="max-width: 600px; margin: 25px auto; display: none">
+  <div class="well">
+    <h2>Generate Templates</h2>
+    <div class="form-group">
+      <label for="generate-templates-prefix">Individual Prefix (your initials, etc):</label>
+      <input type="text" class="form-control" id="generate-templates-prefix" placeholder="<% $prefix %>" value="<% $prefix ne 'Prefix' ? $prefix : '' %>">
+      <br />
+      <button class="btn btn-block btn-primary" name="generate-templates-submit" id="generate-templates-submit">
+        Generate&nbsp;&nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Download Templates -->
+<div id="download-templates" style="max-width: 600px; margin: 25px auto; display: none">
+  <div class="well">
+    <h2>Download Templates (<span id="download-templates-prefix"></span>)</h2>
+    <p>Download each of the upload templates below.  Then, follow the upload instructions to upload each data type.</p>
+    <div style="max-width: 400px; margin: 25px auto">
+      <button class="btn btn-block btn-info download-templates-btn" data-type="accessions">
+        <span class="glyphicon glyphicon-download-alt"></span>&nbsp;&nbsp;Accessions
+      </button>
+      <button class="btn btn-block btn-info download-templates-btn" data-type="locations">
+        <span class="glyphicon glyphicon-download-alt"></span>&nbsp;&nbsp;Locations
+      </button>
+      <button class="btn btn-block btn-info download-templates-btn" data-type="trials">
+        <span class="glyphicon glyphicon-download-alt"></span>&nbsp;&nbsp;Trials
+      </button>
+      <button class="btn btn-block btn-info download-templates-btn" data-type="observations">
+        <span class="glyphicon glyphicon-download-alt"></span>&nbsp;&nbsp;Trait Observations
+      </button>
+    </div>
+    <div style="display: flex; justify-content: space-between">
+      <div>
+        <button class="btn btn-block btn-primary" name="download-templates-back" id="download-templates-back">
+          <span class="glyphicon glyphicon-chevron-left"></span>&nbsp;&nbsp;Change Prefix
+        </button>
+      </div>
+      <div>
+        <button class="btn btn-block btn-primary" name="download-templates-submit" id="download-templates-submit">
+          Upload Instructions&nbsp;&nbsp;<span class="glyphicon glyphicon-chevron-right"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+<script type="text/javascript">
+
+jQuery(document).ready(function() {
+
+  // Check for pre-defined prefix in query params
+  const urlParams = new URLSearchParams(window.location.search);
+  if ( urlParams.has('prefix') ) {
+    displayDownloads(urlParams.get('prefix'));
+  }
+  else {
+    displayGenerate();
+  }
+
+  // Click Listeners
+  jQuery("#download-templates-back").click(displayGenerate);
+  jQuery("#generate-templates-submit").click(function() {
+    displayDownloads(jQuery("#generate-templates-prefix").val());
+  });
+  jQuery(".download-templates-btn").click(downloadTemplate);
+
+});
+
+
+/**
+ * Display the generate container
+ */
+function displayGenerate() {
+  jQuery("#generate-templates").show();
+  jQuery("#download-templates").hide();
+}
+
+/**
+ * Display the downloads container
+ */
+function displayDownloads(prefix) {
+  if ( !prefix || prefix === "" ) {
+    alert("Please enter an individual prefix");
+    return displayGenerate();
+  }
+  jQuery("#generate-templates-prefix").val(prefix);
+  jQuery("#download-templates-prefix").html(prefix);
+  jQuery("#generate-templates").hide();
+  jQuery("#download-templates").show();
+}
+
+/**
+ * Download the template of the specified type
+ */
+function downloadTemplate() {
+  let type = jQuery(this).data("type");
+  let prefix = jQuery("#generate-templates-prefix").val();
+  window.location = "/ajax/help/sample_templates?type=" + type + "&prefix=" + prefix;
+}
+
+</script>
