@@ -458,8 +458,7 @@ sub write_accessions_file {
     my $file = shift;
     my $rows = shift;
 
-    # my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
-    my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp");
+    my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
     $self->write_excel_file($file, \@headers, $rows);
 }
 
@@ -566,8 +565,8 @@ sub generate_accession_row :Private {
       ref($a->introgression_chromosome()) eq 'ARRAY' ? join(',', @{$a->introgression_chromosome()}) : $a->introgression_chromosome(),
       ref($a->introgression_start_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_start_position_bp()}) : $a->introgression_start_position_bp(),
       ref($a->introgression_end_position_bp()) eq 'ARRAY' ? join(',', @{$a->introgression_end_position_bp()}) : $a->introgression_end_position_bp(),
-      # ref($a->purdyPedigree()) eq 'ARRAY' ? join(',', @{$a->purdyPedigree()}) : $a->purdyPedigree(),
-      # ref($a->filialGeneration()) eq 'ARRAY' ? join(',', @{$a->filialGeneration()}) : $a->filialGeneration()
+      ref($a->purdyPedigree()) eq 'ARRAY' ? join(',', @{$a->purdyPedigree()}) : $a->purdyPedigree(),
+      ref($a->filialGeneration()) eq 'ARRAY' ? join(',', @{$a->filialGeneration()}) : $a->filialGeneration()
   );
 
   return \@r;
