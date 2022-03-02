@@ -97,6 +97,9 @@ jQuery(document).ready(function() {
     displayDownloads(jQuery("#generate-templates-prefix").val());
   });
   jQuery(".download-templates-btn").click(downloadTemplate);
+  jQuery("#download-templates-submit").click(function() {
+    window.location = "/help/phenotype_upload_workflow";
+  });
 
 });
 
