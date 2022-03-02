@@ -272,7 +272,7 @@ sub generate_location_file :Private {
             $location_properties = $p;
         }
     }
-    my @location_headers = ("Name", "Abbreviation", "Country Code", "Country Name", "Program", "Type", "Latitude", "Longitude", "Altitude");
+
     my @location_info = ([
         $location_properties->{Name},
         $location_properties->{Abbreviation},
@@ -282,9 +282,10 @@ sub generate_location_file :Private {
         $location_properties->{Type},
         $location_properties->{Latitude},
         $location_properties->{Longitude},
-        $location_properties->{Altitude}
+        $location_properties->{Altitude},
+        $location_properties->{NOAAStationID}
     ]);
-    $self->write_excel_file($location_file, \@location_headers, \@location_info);
+    $self->write_locations_file($location_file, \@location_info);
 }
 
 sub generate_trial_details_file :Private {
@@ -317,14 +318,10 @@ sub generate_accessions_file :Private {
     my $c = shift;
     my $dir = shift;
     my $trial = shift;
-
-    # TODO: Use separate accession download code
-
     my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     
     my $accessions_file = $dir . "/accessions.xls";
     my @accession_rows = ();
-
     my $accession_info = $trial->get_accessions();
     foreach my $ai ( @$accession_info ) {
         my $stock_id = $ai->{stock_id};
@@ -366,7 +363,6 @@ sub generate_trial_layout_file :Private {
 
     # Trial layout file info
     my $trial_layout_file = $dir . "/trial_layout.xls";
-    my @trial_layout_headers = ("trial_name", "breeding_program", "location", "year", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
     my @trial_layout_rows = ();
     my $bps = $trial->get_breeding_programs();
 
@@ -417,7 +413,7 @@ sub generate_trial_layout_file :Private {
 
     }
 
-    $self->write_excel_file($trial_layout_file, \@trial_layout_headers, \@trial_layout_rows);
+    $self->write_trial_layout_file($trial_layout_file, \@trial_layout_rows);
 }
 
 sub generate_trial_observations_file :Private {
@@ -455,7 +451,7 @@ sub generate_trial_observations_file :Private {
 # WRITE ACCESSIONS FILE
 # Write an accessions template to the specified file using the specified rows
 # Arguments:
-#   file = file path to write the file
+#   file = file path to write the excel file
 #   rows = 2D-arrayref of accession properties
 #
 sub write_accessions_file {
@@ -465,6 +461,57 @@ sub write_accessions_file {
 
   my @headers = ("accession_name", "species_name", "population_name", "organization_name(s)", "synonym(s)", "location_code(s)", "ploidy_level(s)", "genome_structure(s)", "variety(s)", "donor(s)", "donor_institute(s)", "donor_PUI(s)", "country_of_origin(s)", "state(s)", "institute_code(s)", "institute_name(s)", "biological_status_of_accession_code(s)", "notes(s)", "accession_number(s)", "PUI(s)", "seed_source(s)", "type_of_germplasm_storage_code(s)", "acquisition_date(s)", "transgenic", "introgression_parent", "introgression_backcross_parent", "introgression_map_version", "introgression_chromosome", "introgression_start_position_bp", "introgression_end_position_bp", "purdy_pedigree", "filial_generation");
   $self->write_excel_file($file, \@headers, $rows);
+}
+
+#
+# WRITE LOCATIONS FILE
+# Write a locations template to the specified file using the specified rows
+# Arguments:
+#   file = file path to write the excel file
+#   rows = 2D-arrayref of location properties
+#
+sub write_locations_file {
+    my $self = shift;
+    my $file = shift;
+    my $rows = shift;
+
+    my @headers = ("Name", "Abbreviation", "Country Code", "Country Name", "Program", "Type", "Latitude", "Longitude", "Altitude", "NOAA Station ID");
+    $self->write_excel_file($file, \@headers, $rows);
+}
+
+#
+# WRITE TRIAL LAYOUT FILE
+# Write a trial layout template to the specified file using the specified rows
+# Arguments:
+#   file = file path to write the excel file
+#   rows = 2D-arrayref of location properties
+#
+sub write_trial_layout_file {
+    my $self = shift;
+    my $file = shift;
+    my $rows = shift;
+
+    my @headers = ("trial_name", "breeding_program", "location", "year", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
+    $self->write_excel_file($file, \@headers, $rows);
+}
+
+#
+# WRITE TRIAL OBSERVATIONS FILE
+# Write a trial observations template to the specified file using the specified traits and rows
+# Arguments:
+#   file = file path to write the excel file
+#   traits = arrayref of trait headers
+#   rows = 2D-arrayref of location properties
+#
+sub write_trial_observations_file {
+    my $self = shift;
+    my $file = shift;
+    my $traits = shift;
+    my $rows = shift;
+
+    my @headers = ("observationunit_name");
+    push(@headers, @$traits);
+    $self->write_excel_file($file, \@headers, $rows);
 }
 
 
