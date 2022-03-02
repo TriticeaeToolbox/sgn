@@ -129,7 +129,7 @@ function displayDownloads(prefix) {
 function downloadTemplate() {
   let type = jQuery(this).data("type");
   let prefix = jQuery("#generate-templates-prefix").val();
-  alert(type + " " + prefix);
+  window.location = "/ajax/help/sample_templates?type=" + type + "&prefix=" + prefix;
 }
 
 </script>
