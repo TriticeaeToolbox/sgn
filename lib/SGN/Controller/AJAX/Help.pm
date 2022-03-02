@@ -121,7 +121,7 @@ sub generate_accessions :Private {
             "",
             "",
             "",
-            $name =~ /-1000$/ ? "FEMALE_PARENT/MALE_PARENT" : ""
+            # $name =~ /-1000$/ ? "FEMALE_PARENT/MALE_PARENT" : ""
         );
         push(@rows, \@r);
     }
