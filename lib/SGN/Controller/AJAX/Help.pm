@@ -354,7 +354,7 @@ sub get_trait_stats :Private {
     my $query = "SELECT AVG(value::float) AS mean, STDDEV(value::float) AS sd
                 FROM public.phenotype
                 WHERE cvalue_id = ?
-                AND value ~ '[0-9].+'";
+                AND value ~ '^[0-9\.\-]+\$';";
     my $h = $dbh->prepare($query);
     $h->execute($cvterm_id);
     my ($mean, $sd) = $h->fetchrow_array();
