@@ -401,7 +401,7 @@ sub random_normal :Private {
     $g2 = $u1 * $w;
     $g1 = $u2 * $w;
     
-    return $g1 * $sd + $mean;
+    return abs($g1 * $sd + $mean);
 }
 
 1;
