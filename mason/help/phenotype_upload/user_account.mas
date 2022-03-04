@@ -1,0 +1,6 @@
+<%args>
+    $user_roles => 'unknown'
+</%args>
+
+<h2>User Account</h2>
+<p>Put instance-specific instructions here.</p>

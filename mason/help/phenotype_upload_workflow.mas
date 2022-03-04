@@ -1,5 +1,99 @@
 <%args>
-$user_roles => 'unknown'
+    $user_roles => 'unknown'
 </%args>
 
-<p>Put instance-specific upload instructions here.</p>
+<style>
+    .section {
+        padding: 0 7px;
+        margin-top: 40px;
+        background-color: #eee;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+    }
+    .section h2 {
+        border-bottom: 1px solid #ccc;
+    }
+
+    a.template {
+        float: right;
+        margin: 5px;
+        padding: 5px;
+    }
+
+    .section > ol > li {
+        margin-bottom: 15px;
+    }
+    .section ul > li.manual {
+        display: block;
+    }
+    .section ul > li.manual:before {
+        content: "\e085";
+        font-family: 'Glyphicons Halflings';
+        font-size: 12px;
+        float: left;
+        margin-top: 0px;
+        margin-left: -17px;
+        color: #000;
+    }
+    .section h3 {
+        color: #000;
+        margin: 0 0 10px 0;
+    }
+
+    .section-submit {
+        border: 2px solid #A2AD00;
+    }
+
+    a.btn {
+        color: #fff;
+    }
+    a.btn:hover {
+        background-color: #286090 !important;
+        color: #fff !important;
+    }
+</style>
+
+
+
+<& /page/page_title.mas, title=>"Phenotype Upload Instructions" &>
+
+<& /help/phenotype_upload/intro.mas &>
+
+<!-- User Account -->
+<div class="section">
+    <& /help/phenotype_upload/user_account.mas, user_roles => $user_roles &>
+</div>
+
+<!-- Breeding Program -->
+<div class="section">
+    <& /help/phenotype_upload/breeding_programs.mas &>
+</div>
+
+<!-- Locations -->
+<div class="section">
+    <& /help/phenotype_upload/locations.mas &>
+</div>
+
+<!-- Accessions -->
+<div class="section">
+    <& /help/phenotype_upload/accessions.mas &>
+</div>
+
+<!-- Trials -->
+<div class="section">
+    <& /help/phenotype_upload/trials.mas &>
+</div>
+
+<!-- Observations -->
+<div class="section">
+    <& /help/phenotype_upload/observations.mas &>
+</div>
+
+
+<!-- SUBMISSION INFO -->
+<div class="section section-submit">
+    <& /help/phenotype_upload/submission.mas &>
+</div>
+
+
+<br /><br />
