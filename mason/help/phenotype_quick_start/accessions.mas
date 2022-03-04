@@ -1,0 +1,45 @@
+<p>The contents of each plot must be associated with a single <strong>Accession</strong> (germplasm line).  The Accession 
+must exist in the database before a Trial can be created.  Also, you must refer to the exact spelling and letter-case of 
+the Accession's name (or synonym) in the database when creating the Trial.</p>
+
+<p>We try very hard to <strong>avoid creating duplicate entries of an Accession</strong> based on variations in the spelling 
+and/or characters used in the Accession name.  Therefore, we <em>highly recommend</em> using the 
+<a href="https://synonyms.triticeaetoolbox.org?db=<% our $T3_INSTANCE_NAME %>" target="_blank">BrAPI Germplasm Search Tool</a> to search for existing 
+Accession entries in the database and any that match possible variations in spelling and/or punctuation.</p>
+
+<br /><br />
+
+<p><strong>Search for existing Accession entries:</strong></p>
+<ul>
+  <li>
+    Search for exact matches of individual entries using the <a href="/search/stocks" target="_blank">Search &gt; Accessions and Plots</a> page
+  </li>
+  <li>
+    Search for exact matches of multiple entries using the <a href="/search/bulk?type=accessions" target="_blank">Search &gt; Bulk Search</a> page
+  </li>
+  <li>Search for multiple entries (and variations in spelling and/or punctuation) using the 
+    <a href="https://synonyms.triticeaetoolbox.org?db=<% $T3_INSTANCE_NAME %>" target="_blank">BrAPI Germplasm Search Tool</a>
+  </li>
+</ul>
+
+<br /><br />
+
+<p><strong>If all of your Accessions already exist:</strong></p>
+<p>Continue to the next step</p>
+
+<br />
+
+<p><strong>Add any new Accessions to the database</em>:</strong></p>
+<ol>
+  <li>Go to the <a href="/breeders/accessions" target="_blank">Manage &gt; Accessions</a> page</li>
+  <li>Click the <em>[Add Accessions or Upload Accession Info]</em> link in the top right corner of the page</li>
+  <li>Select the <em>Uploading a File</em> tab to upload an Accessions Excel template</li>
+</ol>
+
+<br /><br />
+
+<&| /page/info_section.mas, title=>'Detailed Instructions', collapsible=>1, collapsed=>1 &>
+  <div class="well detailed-instructions">
+    <& /help/phenotype_upload/accessions.mas &>
+  </div>
+</&>

@@ -1,0 +1,39 @@
+<p>Once the Trial(s) have been added to the database, <strong>Trait Observations</strong> can be added 
+to the Plots within the Trial(s).</p>
+
+<p>To add Trait Observations, you will need:</p>
+<ul>
+  <li>The <strong>Plot Name</strong> (used when creating the Trial)</li>
+  <li>The <strong>Trait Name</strong> of each observation (from the <a href="/search/traits" target="_blank">Search &gt; Traits</a> page)</li>
+  <li>The <strong>Trait ID</strong> of each observation (from the <a href="/search/traits" target="_blank">Search &gt; Traits</a> page)</li>
+</ul>
+
+<br />
+
+<p>It is important to note the <strong>units/scale</strong> used by the trait in the database.  If your observations 
+were recorded using a different scale, you will need to convert them to the scale used by the database first.</p>
+
+<p><strong>File Format:</strong></p>
+<ul>
+  <li>The first column has the header <code>observationunit_name</code> and contains the Plot Name</li>
+  <li>Add an additional column for each trait being stored.  The column header follows the format <code>{Trait Name}|{Trait ID}</code> 
+    and contains the trait values for each Plot.  Unobserved plots should be left blank.</li>
+</ul>
+
+<br /><br />
+
+<p><strong>Upload a Trait Observations Template:</strong></p>
+<ol>
+  <li>Go to the <a href="/breeders/phenotyping" target="_blank">Manage &gt; Phenotyping Results</a> page</li>
+  <li>Click the <em>[Upload Spreadsheet]</em> link in the top right corner of the page</li>
+  <li>Change the <em>Spreadsheet Format</em> format to <em>Simple</em></li>
+  <li>Upload a Trait Observations Excel Template</li>
+</ol>
+
+<br /><br />
+
+<&| /page/info_section.mas, title=>'Detailed Instructions', collapsible=>1, collapsed=>1 &>
+  <div class="well detailed-instructions">
+    <& /help/phenotype_upload/observations.mas &>
+  </div>
+</&>

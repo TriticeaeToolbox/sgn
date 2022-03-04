@@ -1,0 +1,40 @@
+<p>A <strong>Trial</strong> (a single location &amp; year environment) must exist in the database before Trait Observations 
+can be added.  When a Trial is created, the folllowing information is added to the database:</p>
+<ul>
+  <li>Trial Metadata, such as:
+    <ul>
+      <li>the Breeding Program that performed the Trial</li>
+      <li>the Location</li>
+      <li>the Design Type</li>
+      <li>the Planting/Harvest Date(s)</li>
+    </ul>
+  </li>
+  <li>Plot Metadata, such as:
+    <ul>
+      <li>the Accession grown in the Plot</li>
+      <li>Plot number</li>
+      <li>Block number</li>
+      <li>Rep number</li>
+      <li>Whether or not the Plot is used as a control</li>
+      <li>Row/Column position of the Plot within the field</li>
+    </ul>
+  </li>
+</ul>
+
+<br /><br />
+
+<p><strong>Upload a Multi-Trial Upload Template:</strong></p>
+<ol>
+  <li>Go to the <a href="/breeders/trials" target="_blank">Manage &gt; Field Trials</a> page</li>
+  <li>Click the <em>Upload Existing Trial(s)</em> button in the top right corner of the page</li>
+  <li>On Step 2, select the <em>Multiple Trial Designs</em> tab</li>
+  <li>Upload a Multi-Trial Excel Template</li>
+</ol>
+
+<br /><br />
+
+<&| /page/info_section.mas, title=>'Detailed Instructions', collapsible=>1, collapsed=>1 &>
+  <div class="well detailed-instructions">
+    <& /help/phenotype_upload/trials.mas &>
+  </div>
+</&>

@@ -1,0 +1,42 @@
+<%args>
+  $breeding_programs => []
+</%args>
+
+<p>Trials are associated with a single <strong>Breeding Program</strong>.  Before a Trial can be added, the 
+Breeding Program must already exist in the database.</p>
+<p>Check the table below to see if your Breeding Program has already been created.</p>
+
+<br /><br />
+
+<p><strong>Breeding Programs:</strong></p>
+<table class="table table-striped table-hover table-condensed">
+  <thead>
+    <tr><th>Name</th><th>Description</th></tr>
+  </thead>
+  <tbody>
+% foreach my $bp (@$breeding_programs) {
+    <tr><td><% $bp->[1] %></td><td><% $bp->[2] %></td></tr>
+% }
+  </tbody>
+</table>
+
+<br /><br />
+
+<p><strong>If your Breeding Program exists:</strong></p>
+<p>Continue to the next step</p>
+
+<br />
+
+<p><strong>If your Breeding Program <em>does not exist</em>:</strong></p>
+<ol>
+  <li>Go to the <a href="/breeders/manage_programs" target="_blank">Manage &gt; Breeding Programs</a> page</li>
+  <li>Click the <em>Add New Program</em> button at the bottom of the page to add your Breeding Program to the database</li>
+</ol>
+
+<br /><br />
+
+<&| /page/info_section.mas, title=>'Detailed Instructions', collapsible=>1, collapsed=>1 &>
+  <div class="well detailed-instructions">
+    <& /help/phenotype_upload/breeding_programs.mas &>
+  </div>
+</&>

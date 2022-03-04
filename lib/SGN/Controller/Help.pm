@@ -53,7 +53,25 @@ sub phenotype_upload_workflow : Path('/help/phenotype_upload_workflow') Args(0) 
 }
 
 
-sub help_generate_sample_tempaltes : Path('/help/sample_templates') Args(0) {
+sub phenotype_quick_start : Path('/help/phenotype_quick_start') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+
+    # Get Breeding Programs
+    my $projects = CXGN::BreedersToolbox::Projects->new( { schema=> $schema } );
+    my $breeding_programs = $projects->get_breeding_programs();
+    $c->stash->{breeding_programs} = $breeding_programs;
+
+    # Get Locations
+    my $locations = $projects->get_location_geojson_data();
+    $c->stash->{locations} = $locations;
+
+    $c->stash->{template} = '/help/phenotype_quick_start.mas';
+}
+
+
+sub help_generate_sample_templates : Path('/help/sample_templates') Args(0) {
     my $self = shift;
     my $c = shift;
 
