@@ -26,16 +26,18 @@ Most of our trials are associated with a location of the closest town to the fie
 <br /><br />
 
 <p><strong>Locations:</strong></p>
-<table class="table table-striped table-hover table-condensed">
-  <thead>
-    <tr><th>Name</th><th>Abbreviation</th><th>Country</th><th>Trials</th></tr>
-  </thead>
-  <tbody>
+<div style="max-height: 400px; overflow-y: scroll">
+  <table class="table table-striped table-hover table-condensed">
+    <thead>
+      <tr><th>Name</th><th>Abbreviation</th><th>Country</th><th>Trials</th></tr>
+    </thead>
+    <tbody>
 % foreach (@locations_sorted) {
-    <tr><td><% $_->{name} %></td><td><% $_->{abbreviation} %></td><td><% $_->{country} %></td><td><% $_->{trials} %></td></tr>
+      <tr><td><% $_->{name} %></td><td><% $_->{abbreviation} %></td><td><% $_->{country} %></td><td><% $_->{trials} %></td></tr>
 % }
-  </tbody>
-</table>
+    </tbody>
+  </table>
+</div>
 
 <br /><br />
 
