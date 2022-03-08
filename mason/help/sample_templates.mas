@@ -9,11 +9,11 @@
 <!-- Intro -->
 <div>
   <p>Use this form to generate sample upload templates that you can use to test the various upload functions 
-  for data types related to phentyping / field trials.  Once you've downloaded the templates, follow the 
+  for data types related to phenotyping / field trials.  Once you've downloaded the templates, follow the 
   phenotype upload instructions to test load the files on the sandbox.</p>
 
-  <p>Since new accessions and field trials need to have unique names, specify a unique prefix that will be 
-  prepended to their names to ensure that they are unique and don't already exist in the database.</p>
+  <p>Since new accessions and field trials need to have unique names, <strong>specify a unique prefix that will be 
+  prepended to their names to ensure that they are unique</strong> and don't already exist in the database.</p>
 
   <p>The following upload templates will be created for two example trials, each consiting of three reps of ten accessions at two different locations:</p>
 
