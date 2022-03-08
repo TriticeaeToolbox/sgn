@@ -15,7 +15,7 @@ were recorded using a different scale, you will need to convert them to the scal
 
 <p><strong>File Format:</strong></p>
 <ul>
-  <li>The first column has the header <code>observationunit_name</code> and contains the Plot Name</li>
+  <li>The first column has the header <code>observationunit_name</code> and contains the Plot Name (or Subplot Name or Plant Name, but it is almost always going to be the Plot Name)</li>
   <li>Add an additional column for each trait being stored.  The column header follows the format <code>{Trait Name}|{Trait ID}</code> 
     and contains the trait values for each Plot.  Unobserved plots should be left blank.</li>
 </ul>
