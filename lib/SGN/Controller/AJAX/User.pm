@@ -181,6 +181,14 @@ sub new_account :Path('/ajax/user/new') Args(0) {
         }
     }
 
+    # Add additional user details for admin confirmation
+    my $user_details = '';
+    if ( $c->config->{user_registration_admin_confirmation} && $c->config->{user_registration_admin_confirmation_email} ) {
+        $user_details .= "Name: $first_name $last_name\n";
+        $user_details .= "Email: $email_address\n";
+        $user_details .= "Organization(s): $organization\n";
+    }
+
     my $host = $c->config->{main_production_site_url};
     my $project_name = $c->config->{project_name};
     my $subject="[$project_name] Email Address Confirmation Request";
@@ -188,7 +196,7 @@ sub new_account :Path('/ajax/user/new') Args(0) {
 
 This message is sent to confirm the email address for community user
 \"$username\"
-
+$user_details
 Please click (or cut and paste into your browser) the following link to
 confirm your account and email address:
 
