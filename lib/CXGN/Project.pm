@@ -259,7 +259,7 @@ sub get_year {
 
     my $type_id = $self->get_year_type_id();
 
-    my $rs = $self->bcs_schema->resultset('Project::Project')->search( { 'me.project_id' => $self->get_trial_id() })->search_related('projectprops', { type_id => $type_id } );
+    my $rs = $self->bcs_schema->resultset('Project::Project')->search( { 'me.project_id' => $self->get_trial_id() })->search_related('projectprops', { 'projectprops.type_id' => $type_id } );
 
     if ($rs->count() == 0) {
 	return undef;
@@ -405,30 +405,53 @@ sub get_location {
 sub set_location {
     my $self = shift;
     my $location_id = shift;
+    my $schema = $self->bcs_schema();
 
     if (!looks_like_number($location_id)) {
         die "Location_id $location_id not an integer!\n";
     }
 
-		my $project_id = $self->get_trial_id();
-		my $type_id = $self->get_location_type_id();
+	my $project_id = $self->get_trial_id();
+	my $type_id = $self->get_location_type_id();
 
-    my $row = $self->bcs_schema()->resultset('Project::Projectprop')->find({
-	    project_id => $project_id,
-	    type_id => $type_id,
-		});
+    ## Use txn_do with the following coderef so that if any part fails, the entire transaction fails.
+    my $coderef = sub {
 
-		if ($row) {
-			$row->value($location_id);
-			$row->update();
-		}
-		else {
-			$row = $self->bcs_schema()->resultset('Project::Projectprop')->create({
-				project_id => $project_id,
-				type_id => $type_id,
-				value => $location_id,
-			});
-		}
+        # update or create location id in projectprop
+        my $row = $schema->resultset('Project::Projectprop')->find({
+    	    project_id => $project_id,
+    	    type_id => $type_id,
+    	});
+
+    	if ($row) {
+    		$row->value($location_id);
+    		$row->update();
+    	}
+    	else {
+    		$row = $schema->resultset('Project::Projectprop')->create({
+    			project_id => $project_id,
+    			type_id => $type_id,
+    			value => $location_id,
+    		});
+    	}
+
+        # update location ids for connected rows in nd_experiment
+        my $nd_experiment_rs = $schema->resultset('NaturalDiversity::NdExperimentProject')->search(
+            { project_id => $project_id }
+        )->search_related('nd_experiment');
+
+        foreach my $exp ($nd_experiment_rs->all()) {
+            $exp->nd_geolocation_id($location_id);
+            $exp->update();
+        }
+    };
+
+    try {
+        $schema->txn_do($coderef);
+    } catch {
+        print STDERR "Transaction error updating location: $_\n";
+    };
+
 }
 
 =head2 function get_location_noaa_station_id()
@@ -1891,7 +1914,7 @@ sub set_additional_info {
 =head2 accessors get_entry_numbers(), set_entry_numbers()
 
  Usage: For field trials, this records a map of stock ids to entry numbers
- Desc: The value of this projectprop is stored as a JSON object, where the 
+ Desc: The value of this projectprop is stored as a JSON object, where the
  key is the stock id and the value is the stock entry number
  Ret:
  Args:
@@ -3040,7 +3063,7 @@ sub create_plant_entities {
             project_id => $self->get_trial_id(),
         });
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         foreach my $plot (keys %$design) {
             print STDERR " ... creating plants for plot $plot...\n";
@@ -3153,7 +3176,7 @@ sub save_plant_entries {
         });
 
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         while( my ($key, $val) = each %$parsed_data){
             my $plot_stock_id = $key;
@@ -3263,7 +3286,7 @@ sub create_plant_subplot_entities {
                     project_id => $_->[0],
                 });
 
-                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $treatment_cvterm })->single();
+                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $treatment_cvterm })->single();
                 $treatment_experiments{$_->[0]} = $treatment_nd_experiment->nd_experiment_id();
 
                 my $treatment_trial = CXGN::Project->new({ bcs_schema => $chado_schema, trial_id => $_->[0]});
@@ -3280,7 +3303,7 @@ sub create_plant_subplot_entities {
             project_id => $self->get_trial_id(),
         });
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         foreach my $plot (keys %$design) {
             print STDERR " ... creating plants for plot $plot...\n";
@@ -3403,7 +3426,7 @@ sub save_plant_subplot_entries {
                     project_id => $_->[0],
                 });
 
-                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $treatment_cvterm })->single();
+                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $treatment_cvterm })->single();
                 $treatment_experiments{$_->[0]} = $treatment_nd_experiment->nd_experiment_id();
 
                 my $treatment_trial = CXGN::Trial->new({ bcs_schema => $chado_schema, trial_id => $_->[0]});
@@ -3421,7 +3444,7 @@ sub save_plant_subplot_entries {
         });
 
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         while( my ($key, $val) = each %$parsed_data){
             my $subplot_stock_id = $key;
@@ -3662,9 +3685,20 @@ sub create_tissue_samples {
         my $has_tissues_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'project_has_tissue_sample_entries', 'project_property')->cvterm_id();
         my $block_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'block', 'stock_property')->cvterm_id();
         my $plot_number_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'plot number', 'stock_property')->cvterm_id();
+        my $tissue_type_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'tissue_type', 'stock_property')->cvterm_id();
         my $replicate_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'replicate', 'stock_property')->cvterm_id();
         my $field_layout_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'field_layout', 'experiment_type')->cvterm_id();
         my $treatment_cvterm = SGN::Model::Cvterm->get_cvterm_row($chado_schema, 'treatment_experiment', 'experiment_type')->cvterm_id();
+
+        my $rs_previous_tissue = $chado_schema->resultset("Project::Projectprop")->search({
+            type_id => $has_tissues_cvterm,
+            project_id => $self->get_trial_id(),
+        });
+        my $previous_tissue_number = 0;
+        if ($rs_previous_tissue->count > 0) {
+            $previous_tissue_number = $rs_previous_tissue->first->value;
+        }
+        my $new_tissue_number = $previous_tissue_number + scalar(@$tissue_names);
 
         my $treatments;
         my %treatment_experiments;
@@ -3674,13 +3708,17 @@ sub create_tissue_samples {
             $treatments = $self->get_treatments();
             foreach (@$treatments){
 
-                my $rs = $chado_schema->resultset("Project::Projectprop")->find_or_create({
+                my $rs = $chado_schema->resultset('Project::Projectprop')->update_or_create({
                     type_id => $has_tissues_cvterm,
-                    value => scalar(@$tissue_names),
                     project_id => $_->[0],
+                    rank => 0,
+                    value => $new_tissue_number
+                },
+                {
+                    key=>'projectprop_c1'
                 });
 
-                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $treatment_cvterm })->single();
+                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $treatment_cvterm })->single();
                 $treatment_experiments{$_->[0]} = $treatment_nd_experiment->nd_experiment_id();
 
                 my $treatment_trial = CXGN::Trial->new({ bcs_schema => $chado_schema, trial_id => $_->[0]});
@@ -3695,13 +3733,17 @@ sub create_tissue_samples {
             }
         }
 
-        my $rs = $chado_schema->resultset("Project::Projectprop")->find_or_create({
+        my $rs = $chado_schema->resultset('Project::Projectprop')->update_or_create({
             type_id => $has_tissues_cvterm,
-            value => scalar(@$tissue_names),
             project_id => $self->get_trial_id(),
+            rank => 0,
+            value => $new_tissue_number
+        },
+        {
+            key=>'projectprop_c1'
         });
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         foreach my $plot (keys %$design) {
             my $plant_names = $design->{$plot}->{plant_names};
@@ -3722,16 +3764,47 @@ sub create_tissue_samples {
                 my $parent_plant_name = $plant_row->uniquename();
                 my $parent_plant_organism = $plant_row->organism_id();
 
-                my $tissue_index_number = 1;
+                my $tissue_index_number = $previous_tissue_number + 1;
                 foreach my $tissue_name (@$tissue_names){
-                    my $tissue_name = $parent_plant_name."_".$tissue_name.$tissue_index_number;
-                    print STDERR "... ... creating tissue $tissue_name...\n";
+                    my $tissue_sample_name = $parent_plant_name."_".$tissue_name.$tissue_index_number;
+                    print STDERR "... ... creating tissue $tissue_sample_name...\n";
+
+                    my $plant_accession_rs = $self->bcs_schema()->resultset("Stock::StockRelationship")->search({'me.subject_id'=>$parent_plant, 'me.type_id'=>$plant_relationship_cvterm, 'object.type_id'=>[$accession_cvterm, $cross_cvterm, $family_name_cvterm]}, {'join'=>'object'});
+                    if ($plant_accession_rs->count != 1){
+                        die "There is not 1 stock_relationship of type plant_of between the plant $parent_plant and an accession, a cross or a family_name.";
+                    }
+
+                    my @tissue_stock_props;
+                    my @tissue_subjects;
+                    my @tissue_objects;
+                    my @tissue_nd_experiment_stocks;
+                    push @tissue_stock_props, { type_id => $tissue_type_cvterm, value => $tissue_name };
+                    push @tissue_stock_props, { type_id => $tissue_index_number_cvterm, value => $tissue_index_number };
+                    push @tissue_subjects, { type_id => $tissue_relationship_cvterm, object_id => $parent_plant };
+                    push @tissue_subjects, { type_id => $tissue_relationship_cvterm, object_id => $parent_plot_id };
+                    push @tissue_subjects, { type_id => $tissue_relationship_cvterm, object_id => $plant_accession_rs->first->object_id };
+                    push @tissue_nd_experiment_stocks, { nd_experiment_id => $field_layout_experiment->nd_experiment_id(), type_id => $field_layout_cvterm };
+
+                    if ($inherits_plot_treatments){
+                        if($treatments){
+                            foreach (@$treatments){
+                                my $plots = $treatment_plots{$_->[0]};
+                                if (exists($plots->{$parent_plot_id})){
+                                    push @tissue_nd_experiment_stocks, { nd_experiment_id => $treatment_experiments{$_->[0]}, type_id => $treatment_cvterm };
+                                }
+                            }
+                        }
+                    }
 
                     my $tissue = $chado_schema->resultset("Stock::Stock")->create({
                         organism_id => $parent_plant_organism,
-                        name       => $tissue_name,
-                        uniquename => $tissue_name,
+                        name       => $tissue_sample_name,
+                        uniquename => $tissue_sample_name,
                         type_id => $tissue_sample_cvterm,
+                        stockprops => \@tissue_stock_props,
+                        stock_relationship_subjects => \@tissue_subjects,
+                        stock_relationship_objects => \@tissue_objects,
+                        nd_experiment_stocks => \@tissue_nd_experiment_stocks,
                     });
 
                     if ($tissue_sample_owner) {
@@ -3739,59 +3812,7 @@ sub create_tissue_samples {
                         $stock->associate_owner($tissue_sample_owner,$tissue_sample_owner,$username, "");
                     }
 
-                    my $tissueprop = $chado_schema->resultset("Stock::Stockprop")->create( {
-                        stock_id => $tissue->stock_id(),
-                        type_id => $tissue_index_number_cvterm,
-                        value => $tissue_index_number,
-                    });
                     $tissue_index_number++;
-
-                    #the tissue has a relationship to the plant
-                    my $stock_relationship = $self->bcs_schema()->resultset("Stock::StockRelationship")->create({
-                        object_id => $parent_plant,
-                        subject_id => $tissue->stock_id(),
-                        type_id => $tissue_relationship_cvterm,
-                    });
-
-                    #the tissue has a relationship to the plot
-                    $stock_relationship = $self->bcs_schema()->resultset("Stock::StockRelationship")->create({
-                        object_id => $parent_plot_id,
-                        subject_id => $tissue->stock_id(),
-                        type_id => $tissue_relationship_cvterm,
-                    });
-
-                    #the tissue has a relationship to the accession
-                    my $plant_accession_rs = $self->bcs_schema()->resultset("Stock::StockRelationship")->search({'me.subject_id'=>$parent_plant, 'me.type_id'=>$plant_relationship_cvterm, 'object.type_id'=>[$accession_cvterm, $cross_cvterm, $family_name_cvterm]}, {'join'=>'object'});
-                    if ($plant_accession_rs->count != 1){
-                        die "There is not 1 stock_relationship of type plant_of between the plant $parent_plant and an accession, a cross or a family_name.";
-                    }
-                    $stock_relationship = $self->bcs_schema()->resultset("Stock::StockRelationship")->create({
-                        object_id => $plant_accession_rs->first->object_id,
-                        subject_id => $tissue->stock_id(),
-                        type_id => $tissue_relationship_cvterm,
-                    });
-
-                    #link tissue to project through nd_experiment.
-                    my $plant_nd_experiment_stock = $chado_schema->resultset("NaturalDiversity::NdExperimentStock")->create({
-                        nd_experiment_id => $field_layout_experiment->nd_experiment_id(),
-                        type_id => $field_layout_cvterm,
-                        stock_id => $tissue->stock_id(),
-                    });
-
-                    if ($inherits_plot_treatments){
-                        if($treatments){
-                            foreach (@$treatments){
-                                my $plots = $treatment_plots{$_->[0]};
-                                if (exists($plots->{$parent_plot_id})){
-                                    my $plant_nd_experiment_stock = $chado_schema->resultset("NaturalDiversity::NdExperimentStock")->create({
-                                        nd_experiment_id => $treatment_experiments{$_->[0]},
-                                        type_id => $treatment_cvterm,
-                                        stock_id => $tissue->stock_id(),
-                                    });
-                                }
-                            }
-                        }
-                    }
 
                     push @{$plant_tissue_hash{$plant_name}}, $tissue->stock_id;
 
@@ -3828,6 +3849,10 @@ sub create_tissue_samples {
             }
         }
 
+        foreach (@$treatments) {
+            my $layout = CXGN::Trial::TrialLayout->new( { schema => $chado_schema, trial_id => $_->[0], experiment_type=>'field_layout' });
+            $layout->generate_and_cache_layout();
+        }
         $layout->generate_and_cache_layout();
     };
 
@@ -3969,7 +3994,7 @@ sub create_subplot_entities {
                     project_id => $_->[0],
                 });
 
-                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $treatment_cvterm })->single();
+                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $treatment_cvterm })->single();
                 $treatment_experiments{$_->[0]} = $treatment_nd_experiment->nd_experiment_id();
 
                 my $treatment_trial = CXGN::Project->new({ bcs_schema => $chado_schema, trial_id => $_->[0]});
@@ -3986,7 +4011,7 @@ sub create_subplot_entities {
             project_id => $self->get_trial_id(),
         });
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         foreach my $plot (keys %$design) {
             print STDERR " ... creating subplots for plot $plot...\n";
@@ -4082,7 +4107,7 @@ sub save_subplot_entries {
                     project_id => $_->[0],
                 });
 
-                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $treatment_cvterm })->single();
+                my $treatment_nd_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $_->[0] }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $treatment_cvterm })->single();
                 $treatment_experiments{$_->[0]} = $treatment_nd_experiment->nd_experiment_id();
 
                 my $treatment_trial = CXGN::Trial->new({ bcs_schema => $chado_schema, trial_id => $_->[0]});
@@ -4100,7 +4125,7 @@ sub save_subplot_entries {
         });
 
 
-        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { type_id => $field_layout_cvterm })->single();
+        my $field_layout_experiment = $chado_schema->resultset("Project::Project")->search( { 'me.project_id' => $self->get_trial_id() }, {select=>['nd_experiment.nd_experiment_id']})->search_related('nd_experiment_projects')->search_related('nd_experiment', { 'nd_experiment.type_id' => $field_layout_cvterm })->single();
 
         while( my ($key, $val) = each %$parsed_data){
             my $plot_stock_id = $key;
@@ -4803,7 +4828,7 @@ sub get_treatments {
     my @plants;
     my $treatment_rel_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "trial_treatment_relationship", "project_relationship")->cvterm_id();
 
-    my $treatment_rs = $self->bcs_schema->resultset("Project::ProjectRelationship")->search({type_id=>$treatment_rel_cvterm_id, object_project_id=>$self->get_trial_id()})->search_related('subject_project');
+    my $treatment_rs = $self->bcs_schema->resultset("Project::ProjectRelationship")->search({ 'me.type_id'=>$treatment_rel_cvterm_id, object_project_id=>$self->get_trial_id()})->search_related('subject_project');
 
     my @treatments;
     while(my $rs = $treatment_rs->next()) {

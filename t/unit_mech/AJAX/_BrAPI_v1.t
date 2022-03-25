@@ -2,8 +2,8 @@
 use strict;
 use warnings;
 
-#use lib 't/lib';
-#use SGN::Test::Fixture;
+use lib 't/lib';
+use SGN::Test::Fixture;
 use Test::More;
 use Test::WWW::Mechanize;
 
@@ -11,6 +11,8 @@ use Test::WWW::Mechanize;
 use Data::Dumper;
 use JSON;
 local $Data::Dumper::Indent = 0;
+
+my $f = SGN::Test::Fixture->new(); # calculate db stats
 
 my $mech = Test::WWW::Mechanize->new;
 my $response; my $searchId;
@@ -315,5 +317,7 @@ $mech->get_ok('http://localhost:3010/brapi/v1/samples-search?access_token='.$acc
 $response = decode_json $mech->content;
 print STDERR Dumper $response;
 is_deeply($response, {'result' => {'data' => []},'metadata' => {'datafiles' => [],'pagination' => {'totalPages' => 0,'pageSize' => 10,'currentPage' => 0,'totalCount' => 0},'status' => [{'message' => 'BrAPI base call found with page=0, pageSize=10','messageType' => 'INFO'},{'message' => 'Loading CXGN::BrAPI::v1::Samples','messageType' => 'INFO'},{'messageType' => 'INFO','message' => 'Sample search result constructed'}]}}, 'samples');
+
+$f->clean_up_db();
 
 done_testing();

@@ -2503,7 +2503,7 @@ sub replace_plot_accession : Chained('trial') PathPart('replace_plot_accessions'
     my $dbh = $c->dbc->dbh();
     my $bs = CXGN::BreederSearch->new( { dbh=>$dbh, dbname=>$c->config->{dbname}, } );
     my $refresh = $bs->refresh_matviews($c->config->{dbhost}, $c->config->{dbname}, $c->config->{dbuser}, $c->config->{dbpass}, 'phenotypes', 'concurrent', $c->config->{basepath});
-    
+
     print "OldAccession: $old_accession, NewAcc: $new_accession, OldPlotName: $old_plot_name, NewPlotName: $new_plot_name OldPlotId: $plot_id\n";
     $c->stash->{rest} = { success => 1};
 }
@@ -2520,6 +2520,18 @@ sub accession_exists : Chained('trial') PathPart('accession_exists') Args(0) {
     }
     my $accession_id = $rs->first()->stock_id();
     $c->stash->{rest} = { success => $accession_id};
+}
+
+sub check_curator_privileges : Chained('trial') PathPart('check_curator_privileges') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    if ($c->user()->check_roles("curator")) {
+        $c->stash->{rest} = { success => 1};
+    } else {
+        $c->stash->{rest} = { error => "You have insufficient access privileges to edit this map." };
+    }
+
 }
 
 sub replace_well_accession : Chained('trial') PathPart('replace_well_accessions') Args(0) {
@@ -2650,10 +2662,10 @@ sub create_plant_plot_entries : Chained('trial') PathPart('create_plant_entries'
     my $t = CXGN::Trial->new( { bcs_schema => $c->dbic_schema("Bio::Chado::Schema"), trial_id => $c->stash->{trial_id} });
 
     if ($t->create_plant_entities($plants_per_plot, $plants_with_treatments, $user_id)) {
-
         my $dbh = $c->dbc->dbh();
         my $bs = CXGN::BreederSearch->new( { dbh=>$dbh, dbname=>$c->config->{dbname}, } );
         my $refresh = $bs->refresh_matviews($c->config->{dbhost}, $c->config->{dbname}, $c->config->{dbuser}, $c->config->{dbpass}, 'stockprop', 'concurrent', $c->config->{basepath});
+
 
         $c->stash->{rest} = {success => 1};
         return;
@@ -3273,6 +3285,32 @@ sub cross_additional_info_trial : Chained('trial') PathPart('cross_additional_in
     }
 
     $c->stash->{rest} = { data => \@crosses };
+}
+
+
+sub downloaded_intercross_file_metadata : Chained('trial') PathPart('downloaded_intercross_file_metadata') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    my $trial_id = $c->stash->{trial_id};
+    my $crosses = CXGN::Cross->new({ schema => $schema, trial_id => $trial_id, file_type => 'intercross_download'});
+    my $result = $crosses->get_intercross_file_metadata();
+
+    $c->stash->{rest} = { data => $result };
+}
+
+
+sub uploaded_intercross_file_metadata : Chained('trial') PathPart('uploaded_intercross_file_metadata') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    my $trial_id = $c->stash->{trial_id};
+    my $crosses = CXGN::Cross->new({ schema => $schema, trial_id => $trial_id, file_type => 'intercross_upload'});
+    my $result = $crosses->get_intercross_file_metadata();
+
+    $c->stash->{rest} = { data => $result };
 }
 
 
@@ -4553,7 +4591,7 @@ sub get_entry_numbers : Chained('trial') PathPart('entry_numbers') Args(0) {
     $c->stash->{rest} = { entry_numbers => \@entry_numbers };
 }
 
-# 
+#
 # Create an entry number template for the specified trials
 # query param: 'trial_ids' = comma separated list of trial ids
 # return: 'file' = path to tempfile of excel template
@@ -4581,7 +4619,7 @@ sub create_entry_number_template : Path('/ajax/breeders/trial_entry_numbers/crea
     $c->stash->{rest} = { file => $tempfile };
 }
 
-# 
+#
 # Download an entry number template
 # query param: 'file' = path of entry number template tempfile to download
 # return: contents of excel file
@@ -4597,9 +4635,9 @@ sub download_entry_number_template : Path('/ajax/breeders/trial_entry_numbers/do
     $c->res->body($output);
 }
 
-# 
+#
 # Upload an entry number template
-# upload params: 
+# upload params:
 #   upload_entry_numbers_file: Excel file to validate and parse
 #   ignore_warnings: true to add processed data if warnings exist
 # return: validation errors and warnings or success = 1 if entry numbers sucessfully stored
@@ -4631,7 +4669,7 @@ sub upload_entry_number_template_POST : Args(0) {
         $c->stash->{rest} = { filename => $upload_original_name, error => \@errors };
         return;
     }
-    
+
     my $user_id = $c->user()->get_object()->get_sp_person_id();
     my $user_role = $c->user->get_object->get_user_type();
 
@@ -4671,7 +4709,7 @@ sub upload_entry_number_template_POST : Args(0) {
         }
         $c->stash->{rest} = {
             filename => $upload_original_name,
-            error => $parse_errors->{'error_messages'}, 
+            error => $parse_errors->{'error_messages'},
             warning => $parse_warnings->{'warning_messages'},
             missing_accessions => $parse_errors->{'missing_accessions'},
             missing_trials => $parse_errors->{'missing_trials'}
@@ -4685,10 +4723,10 @@ sub upload_entry_number_template_POST : Args(0) {
         $trial->set_entry_numbers($parsed_data->{$trial_id});
     }
 
-    $c->stash->{rest} = { 
+    $c->stash->{rest} = {
         success => 1,
-        filename => $upload_original_name, 
-        warning => $parse_warnings->{'warning_messages'} 
+        filename => $upload_original_name,
+        warning => $parse_warnings->{'warning_messages'}
     };
     return;
 }
