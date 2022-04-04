@@ -8,3 +8,7 @@
 <& /breeders_toolbox/seedlot_maintenance/tools/split_seedlot.mas &>
 
 <br />
+
+<& /breeders_toolbox/seedlot_maintenance/tools/transfer_seedlots.mas &>
+
+<br />
