@@ -1,0 +1,147 @@
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h5 class="panel-title">Transfer Seedlots</h5>
+    </div>
+    <div class="panel-body">
+        <p>This tool will update the Location and/or Box properties of the Seedlots in the selected List.</p>
+        
+        <br />
+
+        <!-- Seedlots -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label" style="text-align: right">Seedlots to Transfer</label>
+            <div class="col-sm-9">
+                <div id="seedlot_transfer_list"></div>
+            </div>
+        </div>
+
+        <br /><br />
+
+        <!-- Location -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label" style="text-align: right">Update Location?</label>
+            <div class="col-sm-9">
+                <input type="checkbox" id="seedlot_transfer_location_cb">
+            </div>
+        </div>
+
+        <br />
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label" style="text-align: right">New Location</label>
+            <div class="col-sm-9">
+                <input class="form-control" id="seedlot_transfer_location_name" type="text" value="" disabled>
+            </div>
+        </div>
+
+        <br /><br />
+
+        <!-- Box -->
+        <div class="form-group">
+            <label class="col-sm-3 control-label" style="text-align: right">Update Box?</label>
+            <div class="col-sm-9">
+                <input type="checkbox" id="seedlot_transfer_box_cb">
+            </div>
+        </div>
+
+        <br />
+
+        <div class="form-group">
+            <label class="col-sm-3 control-label" style="text-align: right">New Box</label>
+            <div class="col-sm-9">
+                <input class="form-control" id="seedlot_transfer_box_name" type="text" value="" disabled>
+            </div>
+        </div>
+
+        <br /><br />
+
+        <!-- Submit -->
+        <div style="max-width: 400px; margin: 0 auto">
+            <button id="seedlot_transfer_submit" class="btn btn-primary btn-block">Update Seedlots</button>
+        </div>
+
+
+    </div>
+</div>
+
+
+<script type="text/javascript">
+
+let TOOLS_TRANSFER_LO = new CXGN.List();
+
+jQuery(document).ready(function() {
+
+    // Set seedlot list select
+    jQuery('#seedlot_transfer_list').html(TOOLS_TRANSFER_LO.listSelect('seedlot_transfer_list_select', [ 'seedlots' ], 'select', undefined, undefined));
+
+    // Checkbox Toggles
+    jQuery('#seedlot_transfer_location_cb').change(function() {
+        jQuery('#seedlot_transfer_location_name').prop('disabled', !this.checked);
+        if ( !this.checked ) jQuery('#seedlot_transfer_location_name').val('');
+    });
+    jQuery('#seedlot_transfer_box_cb').change(function() {
+        jQuery('#seedlot_transfer_box_name').prop('disabled', !this.checked);
+        if ( !this.checked ) jQuery('#seedlot_transfer_box_name').val('');
+    });
+
+    // Submit changes
+    jQuery('#seedlot_transfer_submit').on('click', seedlotTransferSubmit);
+
+});
+
+
+
+function seedlotTransferSubmit() {
+    let listId = jQuery('#seedlot_transfer_list_select_list_select').val();
+    let updateLocation = jQuery('#seedlot_transfer_location_cb').is(':checked');
+    let locationName = jQuery('#seedlot_transfer_location_name').val();
+    let updateBox = jQuery('#seedlot_transfer_box_cb').is(':checked');
+    let boxName = jQuery('#seedlot_transfer_box_name').val();
+
+    // Check required parameters
+    if ( !listId || listId === '' ) {
+        alert("Select a list of seedlots");
+        return false;
+    }
+    if ( !updateLocation && !updateBox ) {
+        alert("The location and/or box need to be updated");
+        return false;
+    }
+    if ( updateLocation && (locationName === '' || !locationName) ) {
+        alert("Enter a new location");
+        return false;
+    }
+
+    // Build request body
+    let seedlot_names = TOOLS_TRANSFER_LO.getList(listId);
+    let body = {
+        seedlots: seedlot_names,
+        location: updateLocation ? locationName : undefined,
+        box: updateBox ? boxName : undefined
+    }
+
+    // Make request
+    jQuery("#working_modal").modal("show");
+    jQuery("#seedlot_transfer_submit").attr("disabled", true);
+    jQuery.ajax({
+        type: 'POST',
+        url: '/ajax/breeders/seedlot/maintenance/transfer',
+        data: JSON.stringify(body),
+        contentType: 'application/json; charset=utf-8',
+        dataType: 'json',
+        success: function(data) {
+            console.log(data);
+        },
+        error: function() {
+            alert("ERROR: Could not update the Seedlots!");
+        },
+        complete: function() {
+            jQuery("#working_modal").modal("hide");
+            jQuery("#seedlot_transfer_submit").attr("disabled", false);
+        }
+    });
+
+    return false;
+}
+
+</script>

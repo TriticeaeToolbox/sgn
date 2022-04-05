@@ -17,6 +17,7 @@ use CXGN::Login;
 use JSON;
 use CXGN::BreederSearch;
 use CXGN::Onto;
+use CXGN::List::Transform;
 
 __PACKAGE__->config(
     default   => 'application/json',
@@ -1285,6 +1286,84 @@ sub seedlot_maintenance_event_overdue_POST {
     $c->stash->{rest} = { results => $results };
 }
 
+
+#
+# Update Location and/or box of specified Seedlots
+# PATH: POST /ajax/breeders/seedlot/maintenance/transfer
+# PARAMS:
+#   seedlots = array of seedlot names to update
+#   location = (optional) new location code for the Seedlots
+#   box = (optional) new box name for the Seedlots
+# RETURNS:
+#   error = error message, if encountered
+#   success = 1, if successful
+#
+sub seedlot_maintenance_event_transfer : Path('/ajax/breeders/seedlot/maintenance/transfer') : ActionClass('REST') { }
+sub seedlot_maintenance_event_transfer_POST {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $phenome_schema = $c->dbic_schema("CXGN::Phenome::Schema");
+
+    # Check user permissions
+    if (!$c->user()){
+        $c->stash->{rest} = { error => "You must be logged in to edit seedlot details" };
+        $c->detach();
+    }
+    if (!$c->user()->check_roles("curator")) {
+        $c->stash->{rest} = { error => "You must be a curator to transfer Seedlots" };
+        $c->detach();
+    }
+
+    # Get transfer parameters
+    my $body = $c->request->data;
+    my $seedlots = $body->{seedlots};
+    my $location = $body->{location};
+    my $box = $body->{box};
+
+    # Get Seedlot IDs
+    my $t = CXGN::List::Transform->new();
+    my $stock_id_list = $t->transform($schema, 'stocks_2_stock_ids', $seedlots);
+    my $seedlot_ids = $stock_id_list->{'transform'};
+
+    # Update each Seedlot
+    foreach my $seedlot_id (@$seedlot_ids) {
+        my $seedlot = CXGN::Stock::Seedlot->new(
+            schema => $schema,
+            phenome_schema => $phenome_schema,
+            seedlot_id => $seedlot_id
+        );
+        if ( defined($location) ) {
+            $seedlot->location_code($location);
+        }
+        if ( defined($box) ) {
+            $seedlot->box_name($box);
+        }
+        my $return = $seedlot->store();
+        if ( exists($return->{error}) ) {
+            $c->stash->{rest} = { error => $return->{error} };
+            $c->detach();
+        }
+    }
+
+    # Refresh materialized stock props
+    my $bs = CXGN::BreederSearch->new({ 
+        dbh => $c->dbc->dbh(), 
+        dbname => $c->config->{dbname}
+    });
+    my $refresh = $bs->refresh_matviews(
+        $c->config->{dbhost}, 
+        $c->config->{dbname}, 
+        $c->config->{dbuser}, 
+        $c->config->{dbpass}, 
+        'stockprop', 
+        'concurrent', 
+        $c->config->{basepath}
+    );
+
+    # Return success
+    $c->stash->{rest} = { success => 1 };
+}
 
 
 #
