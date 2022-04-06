@@ -621,6 +621,9 @@ function updateFields(data_type, source_id, data_level){
     //console.log("running update fields");
     if (data_type.match(/List/)) {
         jQuery('#sort_order').val('list_order');
+        data_type = "Lists";
+        // data type is initially set as 'Public Lists' when a public list is selected, which causes some 
+        // issues in the /retrieve_longest_fields call
     }
 
     jQuery.ajax({
