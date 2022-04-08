@@ -81,7 +81,8 @@ sub upload_phenotype_verify_POST : Args(1) {
     );
 
     my $warning_status;
-    my ($verified_warning, $verified_error) = $store_phenotypes->verify();
+    my $date_status;
+    my ($verified_warning, $verified_error, $verified_dates) = $store_phenotypes->verify();
     if ($verified_error) {
         push @$error_status, $verified_error;
         $c->stash->{rest} = {success => $success_status, error => $error_status };
@@ -90,9 +91,12 @@ sub upload_phenotype_verify_POST : Args(1) {
     if ($verified_warning) {
         push @$warning_status, $verified_warning;
     }
+    if ($verified_dates) {
+        push @$date_status, $verified_dates;
+    }
     push @$success_status, "File data verified. Plot names and trait names are valid.";
 
-    $c->stash->{rest} = {success => $success_status, warning => $warning_status, error => $error_status};
+    $c->stash->{rest} = {success => $success_status, warning => $warning_status, error => $error_status, dates => $date_status};
 }
 
 sub upload_phenotype_store :  Path('/ajax/phenotype/upload_store') : ActionClass('REST') { }

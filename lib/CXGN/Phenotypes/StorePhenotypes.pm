@@ -403,6 +403,42 @@ sub verify {
         }
     }
 
+    ## Verify trial planting/harvest dates are set
+    my $q = "SELECT project.project_id, project.name
+            FROM stock as accession 
+            JOIN stock_relationship ON (accession.stock_id=stock_relationship.object_id) 
+            JOIN stock as plot ON (plot.stock_id=stock_relationship.subject_id) 
+            JOIN nd_experiment_stock ON (plot.stock_id=nd_experiment_stock.stock_id) 
+            JOIN nd_experiment_project USING(nd_experiment_id) 
+            JOIN project USING (project_id) 
+            LEFT JOIN projectprop ON (project.project_id=projectprop.project_id) 
+            WHERE plot.uniquename IN (" . join(',', map { '?' } @plot_list) . ")
+            GROUP BY project.project_id, project.name;";
+    my $h = $schema->storage->dbh()->prepare($q);
+    $h->execute(@plot_list);
+    my @missing_planting_dates;
+    my @missing_harvest_dates;
+    while ( my($trial_id, $trial_name) = $h->fetchrow_array() ) {
+        my $t = CXGN::Trial->new({ bcs_schema => $schema, trial_id => $trial_id });
+        my $pd = $t->get_planting_date();
+        my $hd = $t->get_harvest_date();
+        if ( !defined($pd) ) { 
+            push(@missing_planting_dates, $trial_name);
+        }
+        if ( !defined($hd) ) {
+            push(@missing_harvest_dates, $trial_name);
+        }
+    }
+
+    ## Build planting/harvest date message
+    my $date_message = '';
+    if ( scalar(@missing_planting_dates) > 0 ) {
+        $date_message = $date_message."<strong>Planting Dates</strong> are missing for the following trials: " . join(', ', @missing_planting_dates) . "<hr>";
+    }
+    if ( scalar(@missing_harvest_dates) > 0 ) {
+        $date_message = $date_message."<strong>Harvest Dates</strong> are missing for the following trials: " . join(', ', @missing_harvest_dates) . "<hr>";
+    }
+
     ## Verify metadata
     if ($phenotype_metadata{'archived_file'} && (!$phenotype_metadata{'archived_file_type'} || $phenotype_metadata{'archived_file_type'} eq "")) {
         $error_message = "No file type provided for archived file.";
@@ -417,7 +453,7 @@ sub verify {
         return ($warning_message, $error_message);
     }
 
-    return ($warning_message, $error_message);
+    return ($warning_message, $error_message, $date_message);
 }
 
 sub store {

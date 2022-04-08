@@ -191,6 +191,20 @@ function displayPhenotypeUploadVerifyResponse(response, upload_type) {
             }
         }
     }
+    if (response.dates) {
+        var datesarrayLength = response.dates.length;
+        if (datesarrayLength > 0) {
+            message_text += "<li class='list-group-item list-group-item-info'>";
+            message_text += "<span class='badge'><span class='glyphicon glyphicon-calendar'></span></span>";
+            message_text += "<strong>The following Trials have missing planting and/or harvest dates.</strong>  This is essential Trial metadata - please add them to the Trials.  You can do this by going to the Manage > Field Trials page, double clicking the Trial name, and clicking the 'Edit Trial Details' button near the top left of the Trial Detail Page.<br><br>";
+            message_text += "</li>";
+            for (var i = 0; i < datesarrayLength; i++) {
+                message_text += "<li class='list-group-item list-group-item-info'>";
+                message_text += response.dates[i];
+                message_text += "</li>";
+            }
+        }
+    }
     message_text += "</ul>";
     jQuery(upload_phenotype_status).html(message_text);
 }
