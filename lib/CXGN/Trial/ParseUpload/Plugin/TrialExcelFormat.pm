@@ -25,6 +25,7 @@ sub _validate_with_plugin {
   my %seen_plot_names;
   my %seen_seedlot_names;
   my %seen_entry_names;
+  my $treatment_col_start = 12;
 
 
   #try to open the excel file and report any errors
@@ -105,8 +106,14 @@ sub _validate_with_plugin {
     $weight_gram_seed_per_plot_head = $worksheet->get_cell(0,11)->value();
   }
 
+  if ( $col_max >= $treatment_col_start ) {
+    my $h = $worksheet->get_cell(0,$treatment_col_start)->value();
+    if ( $h eq 'is_private' ) {
+      $treatment_col_start = $treatment_col_start+1;
+    }
+  }
   my @treatment_names;
-  for (13 .. $col_max){
+  for ($treatment_col_start .. $col_max){
       if ($worksheet->get_cell(0,$_)){
           push @treatment_names, $worksheet->get_cell(0,$_)->value();
       }
@@ -217,8 +224,11 @@ sub _validate_with_plugin {
       $weight_gram_seed_per_plot = $worksheet->get_cell($row,11)->value();
     }
     if ($worksheet->get_cell($row,12)) {
-      $is_private = $worksheet->get_cell($row,12)->value();
-      $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+      my $h = $worksheet->get_cell(0,12)->value();
+      if ( $h eq 'is_private' ) {
+        $is_private = $worksheet->get_cell($row,12)->value();
+        $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+      }
     }
 
     #skip blank lines
@@ -319,7 +329,7 @@ sub _validate_with_plugin {
       # push @warning_messages, "Cell M$row_name: plot $plot_name (accession $stock_name) is marked as private and will be skipped.";
     # }
 
-    my $treatment_col = 13;
+    my $treatment_col = $treatment_col_start;
     foreach my $treatment_name (@treatment_names){
         if($worksheet->get_cell($row,$treatment_col)){
             my $apply_treatment = $worksheet->get_cell($row,$treatment_col)->value();
@@ -397,6 +407,7 @@ sub _parse_with_plugin {
   my $excel_obj;
   my $worksheet;
   my %design;
+  my $treatment_col_start = 12;
 
   $excel_obj = $parser->parse($filename);
   if ( !$excel_obj ) {
@@ -407,8 +418,14 @@ sub _parse_with_plugin {
   my ( $row_min, $row_max ) = $worksheet->row_range();
   my ( $col_min, $col_max ) = $worksheet->col_range();
 
+  if ( $col_max >= $treatment_col_start ) {
+    my $h = $worksheet->get_cell(0,$treatment_col_start)->value();
+    if ( $h eq 'is_private' ) {
+      $treatment_col_start = $treatment_col_start+1;
+    }
+  }
   my @treatment_names;
-  for (13 .. $col_max){
+  for ($treatment_col_start .. $col_max){
       if ($worksheet->get_cell(0,$_)){
           push @treatment_names, $worksheet->get_cell(0,$_)->value();
       }
@@ -495,8 +512,11 @@ sub _parse_with_plugin {
         $weight_gram_seed_per_plot = $worksheet->get_cell($row, 11)->value();
     }
     if ($worksheet->get_cell($row,12)) {
-        $is_private = $worksheet->get_cell($row,12)->value();
-        $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+        my $h = $worksheet->get_cell(0,12)->value();
+        if ( $h eq 'is_private' ) {
+            $is_private = $worksheet->get_cell($row,12)->value();
+            $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+        }
     }
 
     #skip blank lines
@@ -509,7 +529,7 @@ sub _parse_with_plugin {
       next;
     }
 
-    my $treatment_col = 13;
+    my $treatment_col = $treatment_col_start;
     foreach my $treatment_name (@treatment_names){
         if($worksheet->get_cell($row,$treatment_col)){
             if($worksheet->get_cell($row,$treatment_col)->value()){
