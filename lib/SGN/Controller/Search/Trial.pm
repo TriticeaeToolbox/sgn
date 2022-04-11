@@ -28,4 +28,12 @@ sub genotyping_data_project_search_page : Path('/search/genotyping_data_projects
     $c->stash->{template} = '/search/genotyping_data_projects.mas';
 }
 
+sub genotyping_data_public_search_page : Path('/search/genotyping_data_public/') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    $c->stash->{template} = '/search/genotyping_data_public.mas';
+}
+
+
 1;
