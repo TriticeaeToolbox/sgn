@@ -63,7 +63,7 @@ $editable_stock_props_definitions
                                 <input type="checkbox" id="synonym_search_check" name="synonym_search_check" checked disabled>
 % }
                                 <br/>
-                                <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the fuzzy search.</small>
+                                <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
                             </div>
                         </div>
                     </form>
@@ -107,7 +107,7 @@ $editable_stock_props_definitions
                                 <input type="checkbox" id="synonym_search_check_upload_accessions" name="synonym_search_check_upload_accessions" checked disabled>
 % }
                                 <br/>
-                                <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the fuzzy search.</small>
+                                <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
                             </div>
                         </div>
                     </form>
@@ -280,7 +280,7 @@ $editable_stock_props_definitions
           </p>
           <br />
           <p>
-            <strong>Display Search Results:</strong>&nbsp;
+            <strong>Filter by Match Type:</strong>&nbsp;
             <a href="#" class="synonym_search_dialog_filter" data-match-type="all">All</a>&nbsp;|&nbsp;
             <a href="#" class="synonym_search_dialog_filter" data-match-type="exact">Exact</a>&nbsp;|&nbsp;
             <a href="#" class="synonym_search_dialog_filter" data-match-type="exact_potential">Exact &amp; Potential</a>&nbsp;|&nbsp;

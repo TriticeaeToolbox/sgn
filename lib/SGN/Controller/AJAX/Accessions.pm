@@ -85,10 +85,6 @@ sub verify_accession_list_POST : Args(0) {
     my @organism_list = $organism_list_json ? @{_parse_list_from_json($c, $organism_list_json)} : [];
 
     my $do_fuzzy_search = $c->req->param('do_fuzzy_search');
-    if ($user_role ne 'curator' && !$do_fuzzy_search) {
-        $c->stash->{rest} = {error=>'Only a curator can add accessions without using the fuzzy search!'};
-        $c->detach();
-    }
 
     if ($do_fuzzy_search) {
         $self->do_fuzzy_search($c, \@accession_list, \@organism_list);
@@ -234,10 +230,6 @@ sub verify_accessions_file_POST : Args(0) {
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $upload = $c->req->upload('new_accessions_upload_file');
     my $do_fuzzy_search = $c->req->param('fuzzy_check_upload_accessions');
-    my $do_synonym_search = $c->req->param('synonym_search_check_upload_accessions');
-
-    print STDERR "DO FUZZY SEARCH: $do_fuzzy_search\n";
-    print STDERR "DO SYNONYM SEARCH: $do_synonym_search\n";
 
     # These roles are required by CXGN::UploadFile
     if ($user_role ne 'curator' && $user_role ne 'submitter' && $user_role ne 'sequencer' ) {
@@ -310,7 +302,6 @@ sub verify_accessions_file_POST : Args(0) {
         success => "1",
         list_id => $new_list_id,
         full_data => \%full_accessions,
-        do_synonym_search => $do_synonym_search ? "1" : "0",
         absent => $parsed_data->{absent_accessions},
         fuzzy => $parsed_data->{fuzzy_accessions},
         found => $parsed_data->{found_accessions},

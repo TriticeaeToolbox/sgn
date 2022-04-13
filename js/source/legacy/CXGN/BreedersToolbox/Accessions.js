@@ -394,8 +394,9 @@ jQuery(document).ready(function ($) {
             }
             else if (response.success) {
                 fullParsedData = response.full_data;
-                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').attr('checked');;
-                review_verification_results(doFuzzySearch, response, response.list_id);
+                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').is(':checked');
+                doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').is(':checked');
+                review_verification_results(doFuzzySearch, doSynonymSearch, response, response.list_id);
             }
             else {
                 fullParsedData = undefined;
@@ -469,7 +470,8 @@ function openWindowWithPost(fuzzyResponse) {
 
 function verify_accession_list(accession_list_id) {
     accession_list = JSON.stringify(list.getList(accession_list_id));
-    doFuzzySearch = jQuery('#fuzzy_check').attr('checked');
+    doFuzzySearch = jQuery('#fuzzy_check').is(':checked');
+    doSynonymSearch = jQuery('#synonym_search_check').is(':checked');
 
     jQuery.ajax({
         type: 'POST',
@@ -489,7 +491,7 @@ function verify_accession_list(accession_list_id) {
             if (response.error) {
                 alert(response.error);
             }
-            review_verification_results(doFuzzySearch, response, accession_list_id);
+            review_verification_results(doFuzzySearch, doSynonymSearch, response, accession_list_id);
         },
         error: function (response) {
             enable_ui();
@@ -500,14 +502,13 @@ function verify_accession_list(accession_list_id) {
     });
 }
 
-function review_verification_results(doFuzzySearch, verifyResponse, accession_list_id){
+function review_verification_results(doFuzzySearch, doSynonymSearch, verifyResponse, accession_list_id){
     var i;
     var j;
     accessionListFound = {};
     accessionList = [];
     infoToAdd = [];
     speciesNames = [];
-    doSynonymSearch = verifyResponse.do_synonym_search && verifyResponse.do_synonym_search === '1';
 
     //console.log(accession_list_id);
 
@@ -588,12 +589,22 @@ function review_verification_results(doFuzzySearch, verifyResponse, accession_li
 
     // Display separate dialog for synonym search, if enabled
     if ( doSynonymSearch ) {
-        perform_synonym_search(verifyResponse);
+        let terms = [];
+        if ( verifyResponse && verifyResponse.full_data ) {
+            terms = Object.keys(verifyResponse.full_data);
+        }
+        else if ( verifyResponse.absent && verifyResponse.found ) {
+            terms = terms.concat(verifyResponse.absent);
+            for ( let i = 0; i < verifyResponse.found.length; i++ ) {
+                terms.push(verifyResponse.found[i].matched_string);
+            }
+        }
+        perform_synonym_search(terms);
     }
 }
 
 
-function perform_synonym_search(response) {
+function perform_synonym_search(terms) {
     
     // Display the dialog
     jQuery("#synonym_search_dialog").modal("show");
@@ -606,7 +617,7 @@ function perform_synonym_search(response) {
             auth_token: "",
             call_limit: 10
         },
-        terms: Object.keys(response.full_data),
+        terms: terms,
         config: {
             database_terms: {
                 name: true,
