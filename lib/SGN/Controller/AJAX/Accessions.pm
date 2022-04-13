@@ -233,12 +233,11 @@ sub verify_accessions_file_POST : Args(0) {
 
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $upload = $c->req->upload('new_accessions_upload_file');
-    my $do_fuzzy_search = $user_role eq 'curator' && !$c->req->param('fuzzy_check_upload_accessions') ? 0 : 1;
+    my $do_fuzzy_search = $c->req->param('fuzzy_check_upload_accessions');
+    my $do_synonym_search = $c->req->param('synonym_search_check_upload_accessions');
 
-    if ($user_role ne 'curator' && !$do_fuzzy_search) {
-        $c->stash->{rest} = {error=>'Only a curator can add accessions without using the fuzzy search!'};
-        $c->detach();
-    }
+    print STDERR "DO FUZZY SEARCH: $do_fuzzy_search\n";
+    print STDERR "DO SYNONYM SEARCH: $do_synonym_search\n";
 
     # These roles are required by CXGN::UploadFile
     if ($user_role ne 'curator' && $user_role ne 'submitter' && $user_role ne 'sequencer' ) {
@@ -311,6 +310,7 @@ sub verify_accessions_file_POST : Args(0) {
         success => "1",
         list_id => $new_list_id,
         full_data => \%full_accessions,
+        do_synonym_search => $do_synonym_search ? "1" : "0",
         absent => $parsed_data->{absent_accessions},
         fuzzy => $parsed_data->{fuzzy_accessions},
         found => $parsed_data->{found_accessions},
