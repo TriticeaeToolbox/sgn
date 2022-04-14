@@ -66,6 +66,15 @@ $editable_stock_props_definitions
                                 <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="synonym_search_update" name="synonym_search_update">
+                                <br/>
+                                <small>Note: The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_last_updated"></span></small>
+                            </div>
+                        </div>
                     </form>
                 </div>
 
@@ -108,6 +117,15 @@ $editable_stock_props_definitions
 % }
                                 <br/>
                                 <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="synonym_search_update_upload_accessions" name="synonym_search_update_upload_accessions">
+                                <br/>
+                                <small>Note: The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_last_updated"></span></small>
                             </div>
                         </div>
                     </form>

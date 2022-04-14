@@ -396,7 +396,8 @@ jQuery(document).ready(function ($) {
                 fullParsedData = response.full_data;
                 doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').is(':checked');
                 doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').is(':checked');
-                review_verification_results(doFuzzySearch, doSynonymSearch, response, response.list_id);
+                updateSynonymSearchCache = jQuery('#synonym_search_update_upload_accessions').is(':checked');
+                review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, response.list_id);
             }
             else {
                 fullParsedData = undefined;
@@ -459,6 +460,8 @@ jQuery(document).ready(function ($) {
             jQuery(".match-row-" + type).show();
         }
     });
+
+    check_synonym_search_cache();
 });
 
 function openWindowWithPost(fuzzyResponse) {
@@ -472,6 +475,7 @@ function verify_accession_list(accession_list_id) {
     accession_list = JSON.stringify(list.getList(accession_list_id));
     doFuzzySearch = jQuery('#fuzzy_check').is(':checked');
     doSynonymSearch = jQuery('#synonym_search_check').is(':checked');
+    updateSynonymSearchCache = jQuery('#synonym_search_update').is(':checked');
 
     jQuery.ajax({
         type: 'POST',
@@ -491,7 +495,7 @@ function verify_accession_list(accession_list_id) {
             if (response.error) {
                 alert(response.error);
             }
-            review_verification_results(doFuzzySearch, doSynonymSearch, response, accession_list_id);
+            review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, accession_list_id);
         },
         error: function (response) {
             enable_ui();
@@ -502,7 +506,7 @@ function verify_accession_list(accession_list_id) {
     });
 }
 
-function review_verification_results(doFuzzySearch, doSynonymSearch, verifyResponse, accession_list_id){
+function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, verifyResponse, accession_list_id){
     var i;
     var j;
     accessionListFound = {};
@@ -599,14 +603,102 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, verifyRespo
                 terms.push(verifyResponse.found[i].matched_string);
             }
         }
-        perform_synonym_search(terms);
+        if ( updateSynonymSearchCache ) {
+            update_synonym_search_cache(terms);
+        }
+        else {
+            perform_synonym_search(terms);
+        }
     }
 }
 
 
-function perform_synonym_search(terms) {
-    
+/**
+ * Check if this server is cached by the Synonym Search Tool
+ * - Display the Date of the last cache update
+ */
+function check_synonym_search_cache() {
+    jQuery.ajax({
+        type: 'GET',
+        url: `${SYNONYM_SEARCH_HOST}/api/cache?address=${location.protocol}//${location.host}/brapi/v1/`,
+        dataType: "json",
+        success: function(response) {
+            if ( response && response.response && response.response.saved ) {
+                jQuery(".synonym_search_tool_last_updated").html(
+                    new Date(response.response.saved).toLocaleString()
+                );
+            }
+        },
+        error: function() {
+            jQuery(".synonym_search_tool_last_updated").html("<em>Cache does not exist</em>");
+            jQuery("#synonym_search_update_upload_accessions").attr("checked", true);
+            jQuery("#synonym_search_update").attr("checked", true);
+        }
+    });
+}
+
+
+/**
+ * Update the Synonym Search Tool's cache of this server
+ * - Monitor the progress of the update
+ * - Perform a search of the specified terms when complete
+ * @param {String[]} terms Search Terms (User's Accession Names)
+ */
+function update_synonym_search_cache(terms) {
+
     // Display the dialog
+    jQuery("#synonym_search_dialog_starting").show();
+    jQuery("#synonym_search_dialog_working").hide();
+    jQuery("#synonym_search_dialog_results").hide();
+    jQuery("#synonym_search_dialog_continue").attr("disabled", true);
+    jQuery("#synonym_search_dialog").modal("show");
+
+    // Start the Update
+    let body = {
+        address: `${location.protocol}//${location.host}/brapi/v1/`,
+        version: "v1.3",
+        auth_token: "",
+        call_limit: 10
+    }
+    jQuery.ajax({
+        type: 'PUT',
+        url: `${SYNONYM_SEARCH_HOST}/api/cache`,
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(body),
+        success: function (response) {
+            if ( response && response.status && response.status === 'queued' ) {
+                monitor_synonym_search(response.job.id, function() {
+                    perform_synonym_search(terms);
+                });
+            }
+            else {
+                alert("ERROR: Could not update synonym search cache!");
+                jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+            }
+        },
+        error: function () {
+            alert("ERROR: Could not update synonym search cache!");
+            jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+        }
+    });
+
+}
+
+
+/**
+ * Perform a search using the specified terms
+ * - Monitor the progress of the search
+ * - Display the results when complete
+ * @param {String[]} terms Search Terms (User's Accession Names)
+ */
+function perform_synonym_search(terms) {
+
+    // Display the dialog
+    jQuery("#synonym_search_dialog_starting").show();
+    jQuery("#synonym_search_dialog_working").hide();
+    jQuery("#synonym_search_dialog_results").hide();
+    jQuery("#synonym_search_dialog_continue").attr("disabled", true);
     jQuery("#synonym_search_dialog").modal("show");
 
     // Start the Search
@@ -643,7 +735,9 @@ function perform_synonym_search(terms) {
         data: JSON.stringify(body),
         success: function (response) {
             if ( response && response.status && response.status === 'queued' ) {
-                monitor_synonym_search(response.job.id);
+                monitor_synonym_search(response.job.id, function(response) {
+                    display_synonym_search(response);
+                });
             }
             else {
                 alert("ERROR: Could not start synonym search!");
@@ -660,10 +754,17 @@ function perform_synonym_search(terms) {
     jQuery("#synonym_search_dialog_continue").click(function() {
         jQuery('#review_found_matches_dialog').modal('show');
     });
+
 }
 
 
-function monitor_synonym_search(job, count=0) {
+/**
+ * Monitor the status of the specified job (cache update or search)
+ * @param {String} job Job ID
+ * @param {Function} callback Callback function(response)
+ * @param {int} [count=0] Counter of the number of times the job is checked 
+ */
+function monitor_synonym_search(job, callback, count=0) {
 
     // Get current status of Job
     jQuery.ajax({
@@ -684,13 +785,13 @@ function monitor_synonym_search(job, count=0) {
                 jQuery("#synonym_search_dialog_working").show();
                 jQuery("#synonym_search_dialog_results").hide();
                 setTimeout(function() {
-                    monitor_synonym_search(job, count+1);
+                    monitor_synonym_search(job, callback, count+1);
                 }, 500+(250*count));
             }
 
-            // Job is complete --> display the results
+            // Job is complete --> send the results to the callback
             else if ( response && response.status && response.status === 'complete' ) {
-                display_synonym_search(response);
+                return callback(response);
             }
 
             // Job status is unknown --> error
@@ -709,6 +810,11 @@ function monitor_synonym_search(job, count=0) {
 }
 
 
+/**
+ * Display the results of the Synonym Search
+ * - Build a table that displays potential matches
+ * @param {Object} response Search Results
+ */
 function display_synonym_search(response) {
 
     // Sort search terms
