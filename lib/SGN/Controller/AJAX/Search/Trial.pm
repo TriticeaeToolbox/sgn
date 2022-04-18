@@ -15,7 +15,7 @@ __PACKAGE__->config(
     map       => { 'application/json' => 'JSON' },
 );
 
-sub search : Path('/ajax/search/trials') Args(0) {
+sub search : Path('/ajax/search/trials') : Args(0) {
     my $self = shift;
     my $c    = shift;
 
@@ -70,3 +70,79 @@ sub search : Path('/ajax/search/trials') Args(0) {
 
     $c->stash->{rest} = { data => \@result };
 }
+
+sub search_public : Path('/ajax/search/trials_public') : Args(0) {
+    my $self = shift;
+    my $c    = shift;
+    my $public_date;
+    my $create_date;
+
+    my @location_ids;
+    my $location_id = $c->req->param('location_id');
+    if ($location_id && $location_id ne 'not_provided'){
+        #print STDERR "location id: " . $location_id . "\n";
+        push @location_ids, $location_id;
+    }
+
+    my $checkbox_select_name = $c->req->param('select_checkbox_name');
+    my $field_trials_only = $c->req->param('field_trials_only') || 1;
+    my $trial_design_list = $c->req->param('trial_design') ? [$c->req->param('trial_design')] : [];
+
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    my $trial_search = CXGN::Trial::Search->new({
+        bcs_schema=>$schema,
+        location_id_list=>\@location_ids,
+        field_trials_only=>$field_trials_only,
+        trial_design_list=>$trial_design_list
+    });
+    my ($data, $total_count) = $trial_search->search();
+    my $copied_to_t3_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'copied_to_t3', 'project_property')->cvterm_id();
+    my $transferred = "";
+    my @result;
+    my %selected_columns = ('plot_name'=>1, 'plot_id'=>1, 'block_number'=>1, 'plot_number'=>1, 'rep_number'=>1, 'row_number'=>1, 'col_number'=>1, 'accession_name'=>1, 'is_a_control'=>1);
+    my $selected_columns_json = encode_json \%selected_columns;
+    foreach (@$data){
+        my @res;
+        if ($checkbox_select_name){
+            push @res, "<input type='checkbox' name='$checkbox_select_name' value='$_->{trial_id}'>";
+        }
+	my $q = "select create_date from project where project_id = ?";
+        my $h = $schema->storage->dbh()->prepare($q);
+        $h->execute($_->{trial_id});
+        my @info = $h->fetchrow_array();
+        $create_date = $info[0];
+	my $dt1 = DateTime->now;
+        my $dt2 = $dt1 - DateTime::Duration->new( years => 2 );
+        if ($create_date =~ /(\d+)-(\d+)-(\d+)/) {
+            my $dt3 = DateTime->new(
+                year => $1,
+                month => $2,
+                day => $3
+            );
+            $create_date = $1 . "-" . $2 . "-" . $3;
+            my $cmp = DateTime->compare( $dt2, $dt3 );
+            if ($cmp < 0) {
+                $public_date = int($1) + 2 . "-" . $2 . "-" . $3;
+            } else {
+                $public_date = "now";
+            }
+        }
+        push @res, (
+            "<a href=\"/breeders_toolbox/trial/$_->{trial_id}\">$_->{trial_name}</a>",
+            $_->{description},
+            "<a href=\"/breeders/program/$_->{breeding_program_id}\">$_->{breeding_program_name}</a>",
+            $_->{year},
+            $_->{project_planting_date},
+            $_->{project_harvest_date},
+	    $create_date,
+	    $public_date,
+	    $transferred
+        );
+        push @result, \@res;
+    }
+    print STDERR Dumper \@result;
+
+    $c->stash->{rest} = { data => \@result };
+}
+
