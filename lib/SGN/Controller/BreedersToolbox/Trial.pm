@@ -59,20 +59,15 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     my $c = shift;
     my $format = $c->req->param("format");
     #print STDERR $format;
-    my $user = $c->user();
-    if (!$user) {
-	    $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
-	    return;
-    }
 
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $trial = $c->stash->{trial};
     my $program_object = CXGN::BreedersToolbox::Projects->new( { schema => $schema });
 
     if (!$program_object->trial_exists($c->stash->{trial_id})) {
-	$c->stash->{message} = "The requested trial does not exist or has been deleted.";
-	$c->stash->{template} = 'generic_message.mas';
-	return;
+        $c->stash->{message} = "The requested trial does not exist or has been deleted.";
+        $c->stash->{template} = 'generic_message.mas';
+        return;
     }
 
     $c->stash->{trial_name} = $trial->get_name();
@@ -104,10 +99,6 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     $c->stash->{breeding_program_id} = $breeding_program_data->[0]->[0];
     $c->stash->{breeding_program_name} = $breeding_program_data->[0]->[1];
 
-    $c->stash->{user_can_modify} = ($user->check_roles("submitter") && $user->check_roles($c->stash->{breeding_program_name})) || $user->check_roles("curator") ;
-
-
-
     $c->stash->{year} = $trial->get_year();
 
     $c->stash->{trial_id} = $c->stash->{trial_id};
@@ -123,8 +114,6 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     $c->stash->{expression_atlas_url} = $c->config->{expression_atlas_url};
     $c->stash->{main_production_site_url} = $c->config->{main_production_site_url};
     $c->stash->{site_project_name} = $c->config->{project_name};
-    $c->stash->{sgn_session_id} = $c->req->cookie('sgn_session_id');
-    $c->stash->{user_name} = $c->user->get_object->get_username;
 
     if ($trial->get_folder) {
       $c->stash->{folder_id} = $trial->get_folder()->project_id();
@@ -198,9 +187,19 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
         my @management_factor_types = split ',',$field_management_factors;
         $c->stash->{management_factor_types} = \@management_factor_types;
         $c->stash->{trial_stock_type} = $trial->get_trial_stock_type();
-	$c->stash->{trial_stock_count} = $trial->get_trial_stock_count();
+        $c->stash->{trial_stock_count} = $trial->get_trial_stock_count();
         $c->stash->{template} = '/breeders_toolbox/trial.mas';
     }
+
+    my $user = $c->user();
+    if (!$user) {
+        $c->stash->{template} = '/breeders_toolbox/project_preview.mas';
+        return;
+    }
+
+    $c->stash->{sgn_session_id} = $c->req->cookie('sgn_session_id');
+    $c->stash->{user_name} = $c->user->get_object->get_username;
+    $c->stash->{user_can_modify} = ($user->check_roles("submitter") && $user->check_roles($c->stash->{breeding_program_name})) || $user->check_roles("curator");
 
     print STDERR "End Load Trial Detail Page: ".localtime()."\n";
 
