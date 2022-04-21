@@ -293,8 +293,8 @@ $editable_stock_props_definitions
           <p>The table below lists your Accession names that have potential matches to existing Accession entries in the database.</p>
           <p>
             <strong>Any of your Accession names <em>that are not an EXACT match</em> with a Database entry will have a new Accession entry created.</strong>
-            If any of the potential matches are really the same as your Accession name, please cancel the upload and update your files to use the 
-            existing name in the Database (or optionally add your name as a synonym of the existing entry).
+            For each of your Accession names with a potential match, you can select a Database entry to use as a replacement.  This will replace your 
+            Accession name with the selected Database name and optionally add your Accession name as a synonym of the selected Database entry.
           </p>
           <br />
           <p>
@@ -311,6 +311,43 @@ $editable_stock_props_definitions
       <div class="modal-footer">
         <button type="button" class="btn btn-default" name="synonym_search_dialog_cancel" id="synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
         <button type="button" class="btn btn-primary" name="synonym_search_dialog_continue" id="synonym_search_dialog_continue" data-dismiss="modal" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="review_synonym_search_dialog" name="review_synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="reviewSynonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="reviewSynonymSearchDialog">Synonym Search Results</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="well">
+            <p><strong>Selected Replacements:</strong></p>
+            <p>The following existing Database Accession entries will replace your provided Accession name(s) and your Accession name 
+            will be added to the existing Database Accession entry, if selected.</p>
+            <div id="review_synonym_search_dialog_replacements"></div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>New Accessions:</strong></p>
+            <p>The following Accession entries will be created in the Database.</p>
+            <div id="review_synonym_search_dialog_create"></div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>Existing Accessions:</strong></p>
+            <p>The following Accession entries already exist in the Database.  They will be updated with any new information.</p>
+            <div id="review_synonym_search_dialog_existing"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="review_synonym_search_dialog_cancel" id="review_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" name="review_synonym_search_dialog_continue" id="review_synonym_search_dialog_continue" data-dismiss="modal">Store</button>
       </div>
     </div>
   </div>
