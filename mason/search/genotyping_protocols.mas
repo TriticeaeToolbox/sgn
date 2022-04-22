@@ -6,9 +6,6 @@
 
 <& /page/page_title.mas, title => "Genotyping Protocol Search" &>
 
-For more details on each protocol see <a href="/about/genotype-trial.pl">Protocol description</a><br>
-For GoldenGate and DArT genotyping projects see <a href=https://triticeaetoolbox.org/wheat target=_blank>T3/Wheat Classic</a><br><br>
-
 <div class="well well-sm">
     <div class="panel panel-default">
         <div class="panel-body">
