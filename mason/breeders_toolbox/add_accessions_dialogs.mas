@@ -306,6 +306,10 @@ $editable_stock_props_definitions
             <a href="#" class="synonym_search_dialog_filter" data-match-type="none">None</a>
           </p>
           <div id="synonym_search_dialog_results_table"></div>
+          <div id="synonym_search_dialog_results_none" style="display: none">
+            <p><strong>No potential matches found</strong></p>
+            <p>There are no potential Database Accession entries matching your provided Accession names.  Click the <strong>Continue</strong> button below to update any existing Accessions and/or add any new Accessions to the Database.</p>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
@@ -347,6 +351,7 @@ $editable_stock_props_definitions
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" name="review_synonym_search_dialog_cancel" id="review_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-default" name="review_synonym_search_dialog_back" id="review_synonym_search_dialog_back" data-dismiss="modal">Back</button>
         <button type="button" class="btn btn-primary" name="review_synonym_search_dialog_continue" id="review_synonym_search_dialog_continue" data-dismiss="modal">Store</button>
       </div>
     </div>

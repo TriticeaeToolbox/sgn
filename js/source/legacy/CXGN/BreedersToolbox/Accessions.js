@@ -416,17 +416,6 @@ jQuery(document).ready(function ($) {
         jQuery('#infoToAdd_new_table').DataTable({});
     });
 
-    jQuery('.synonym_search_dialog_filter').click(function() {
-        let type = jQuery(this).data('match-type');
-        if ( type === 'all' ) {
-            jQuery(".match-row").show();
-        }
-        else {
-            jQuery(".match-row").hide();
-            jQuery(".match-row-" + type).show();
-        }
-    });
-
     check_synonym_search_cache();
 });
 
@@ -753,7 +742,7 @@ function perform_synonym_search(terms) {
     });
 
     // Continue with the accession upload
-    jQuery("#synonym_search_dialog_continue").click(complete_synonym_search);
+    jQuery("#synonym_search_dialog_continue").off('click').on('click', complete_synonym_search);
 
 }
 
@@ -869,7 +858,7 @@ function display_synonym_search(response) {
         for ( let db_term of Object.keys(matches) ) {
             let match = matches[db_term];
             let selected = exact_match && exact_match === db_term ? 'checked' : '';
-            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='" + db_term + "' " + selected + ">&nbsp;&nbsp;";
+            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='" + db_term + "' data-stock-id='" + match.germplasmDbId + "' " + selected + ">&nbsp;&nbsp;";
             html += "<a href='/stock/" + match.germplasmDbId + "/view' target='_blank'><strong>" + match.germplasmName + ":</strong></a>";
             html += "<ul>";
             for ( let i = 0; i < match.matched_db_terms.length; i++ ) {
@@ -885,7 +874,7 @@ function display_synonym_search(response) {
 
         // No exact match found, create new entry
         if ( !exact_match || match_count === 0 ) {
-            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='' checked>&nbsp;&nbsp;";
+            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='' data-stock-id='' checked>&nbsp;&nbsp;";
             html += "<em>Create New Accession Entry</em>";
         }
 
@@ -904,12 +893,30 @@ function display_synonym_search(response) {
     jQuery("#synonym_search_dialog_results_table").html(html);
     jQuery(".match-row-exact").hide();
     jQuery(".match-row-none").hide();
+    if ( jQuery(".match-row-exact_potential,.match-row-potential").length === 0 ) {
+        jQuery("#synonym_search_dialog_results_none").show();
+    }
+
+    jQuery('.synonym_search_dialog_filter').off('click').on('click', toggle_match_type);
     jQuery('.synonym_search_radio').off('click').on('click', toggle_synonym_search_checkbox);
 
     jQuery("#synonym_search_dialog_starting").hide();
     jQuery("#synonym_search_dialog_working").hide();
     jQuery("#synonym_search_dialog_results").show();
     jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+}
+
+
+function toggle_match_type() {
+    let type = jQuery(this).data('match-type');
+    jQuery("#synonym_search_dialog_results_none").hide();
+    if ( type === 'all' ) {
+        jQuery(".match-row").show();
+    }
+    else {
+        jQuery(".match-row").hide();
+        jQuery(".match-row-" + type).show();
+    }
 }
 
 
@@ -941,6 +948,7 @@ function complete_synonym_search() {
         let selection = jQuery(selections[i]);
         let user_name = selection.attr('name');
         let db_name = selection.attr('value');
+        let db_id = selection.data("stock-id");
         if ( !db_name || db_name === '' ) {
             create.push(user_name);
         }
@@ -951,6 +959,7 @@ function complete_synonym_search() {
             replacements.push({
                 user_name: user_name,
                 db_name: db_name,
+                db_id: db_id,
                 add_synonym: jQuery(".synonym_search_checkbox[name='" + user_name + "']").is(':checked')
             });
         }
@@ -1001,6 +1010,10 @@ function complete_synonym_search() {
     jQuery("#review_synonym_search_dialog_existing").html(e_html);
 
     jQuery('#review_synonym_search_dialog').modal('show');
+    
+    jQuery('#review_synonym_search_dialog_back').off('click').on('click', function() {
+        jQuery("#synonym_search_dialog").modal('show');
+    });
     jQuery('#review_synonym_search_dialog_continue').off('click').on('click', function() {
         store_synonym_search(replacements)
     });
@@ -1015,6 +1028,7 @@ function store_synonym_search(replacements) {
             if ( infoToAdd[i].germplasmName === replacements[j].user_name ) {
                 infoToAdd[i].germplasmName = replacements[j].db_name;
                 infoToAdd[i].defaultDisplayName = replacements[j].db_name;
+                infoToAdd[i].stock_id = replacements[j].db_id;
                 if ( !infoToAdd[i].synonyms ) infoToAdd[i].synonyms = [];
                 if ( replacements[j].add_synonym ) infoToAdd[i].synonyms.push(replacements[j].user_name);
             }
