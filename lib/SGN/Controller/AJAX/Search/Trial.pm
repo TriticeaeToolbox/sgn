@@ -130,7 +130,7 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
         }
 
 	$q = "SELECT projectprop.value FROM projectprop WHERE projectprop.type_id = ? AND projectprop.project_id = ?";
-        $h = $bcs_schema->storage->dbh()->prepare($q);
+        $h = $schema->storage->dbh()->prepare($q);
         $h->execute($copied_to_t3_cvterm_id, $_->{trial_id});
         my @info = $h->fetchrow_array();
         $transferred = $info[0];
@@ -148,7 +148,7 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
         );
         push @result, \@res;
     }
-    print STDERR Dumper \@result;
+    #print STDERR Dumper \@result;
 
     $c->stash->{rest} = { data => \@result };
 }
