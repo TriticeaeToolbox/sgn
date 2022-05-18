@@ -17,6 +17,7 @@ sub _validate_with_plugin {
   my $self = shift;
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
   my %errors;
   my @error_messages;
   my %warnings;
@@ -506,37 +507,39 @@ sub _validate_with_plugin {
   }
 
   ## ACCESSIONS OVERALL VALIDATION
-  my @accessions = keys %seen_accession_names;
-  my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
+  if ( !$skip_accession_checks ) {
+    my @accessions = keys %seen_accession_names;
+    my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
 
-  #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
-  my @synonyms =  @{$accessions_hashref->{'synonyms'}};
-  foreach my $synonym (@synonyms) {
-      my $found_acc_name_from_synonym = $synonym->{'uniquename'};
-      my $matched_synonym = $synonym->{'synonym'};
+    #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
+    my @synonyms =  @{$accessions_hashref->{'synonyms'}};
+    foreach my $synonym (@synonyms) {
+        my $found_acc_name_from_synonym = $synonym->{'uniquename'};
+        my $matched_synonym = $synonym->{'synonym'};
 
-      push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
+        push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
 
-      @accessions = grep !/$matched_synonym/, @accessions;
-      push @accessions, $found_acc_name_from_synonym;
-  }
+        @accessions = grep !/$matched_synonym/, @accessions;
+        push @accessions, $found_acc_name_from_synonym;
+    }
 
-  #now validate again the accession names
-  $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
+    #now validate again the accession names
+    $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
 
-  my @accessions_missing = @{$accessions_hashref->{'missing'}};
-  my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
+    my @accessions_missing = @{$accessions_hashref->{'missing'}};
+    my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
 
-  if (scalar(@accessions_missing) > 0) {
-      # $errors{'missing_accessions'} = \@accessions_missing;
-      push @error_messages, "Accession(s) <b>".join(',',@accessions_missing)."</b> are not in the database as uniquenames or synonyms.";
-  }
-  if (scalar(@multiple_synonyms) > 0) {
-      my @msgs;
-      foreach my $m (@multiple_synonyms) {
-          push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
-      }
-      push @error_messages, "Accession(s) <b>".join(',',@msgs)."</b> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+    if (scalar(@accessions_missing) > 0) {
+        # $errors{'missing_accessions'} = \@accessions_missing;
+        push @error_messages, "Accession(s) <b>".join(',',@accessions_missing)."</b> are not in the database as uniquenames or synonyms.";
+    }
+    if (scalar(@multiple_synonyms) > 0) {
+        my @msgs;
+        foreach my $m (@multiple_synonyms) {
+            push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+        }
+        push @error_messages, "Accession(s) <b>".join(',',@msgs)."</b> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+    }
   }
 
   ## SEEDLOTS OVERALL VALIDATION
@@ -589,6 +592,7 @@ sub _parse_with_plugin {
   my $self = shift;
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
   my $parser   = Spreadsheet::ParseExcel->new();
   my $excel_obj;
   my $worksheet;
@@ -785,12 +789,14 @@ sub _parse_with_plugin {
         $treatment_col++;
     }
 
-    if ($acc_synonyms_lookup{$accession_name}){
-        my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
-        if (scalar(@accession_names)>1){
-            print STDERR "There is more than one uniquename for this synonym $accession_name. this should not happen!\n";
-        }
-        $accession_name = $accession_names[0];
+    if ( !$skip_accession_checks ) {
+      if ($acc_synonyms_lookup{$accession_name}){
+          my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
+          if (scalar(@accession_names)>1){
+              print STDERR "There is more than one uniquename for this synonym $accession_name. this should not happen!\n";
+          }
+          $accession_name = $accession_names[0];
+      }
     }
 
     my $key = $row;

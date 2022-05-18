@@ -25,7 +25,7 @@ var infoToAdd;
 var accessionListFound;
 var speciesNames;
 var doFuzzySearch;
-const SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org/";
+const SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org";
 
 function disable_ui() {
     jQuery('#working_modal').modal("show");

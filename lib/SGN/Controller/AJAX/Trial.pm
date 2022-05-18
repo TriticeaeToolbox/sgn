@@ -1108,6 +1108,8 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     my $dbh = $c->dbc->dbh;
     my $upload = $c->req->upload('multiple_trial_designs_upload_file');
     my $ignore_warnings = $c->req->param('upload_multiple_trials_ignore_warnings');
+    my $synonym_search_check = $c->req->param('multi_trial_synonym_search_check');
+    my $synonym_search_update = $c->req->param('multi_trial_synonym_search_update');
     my $parser;
     my $parsed_data;
     my $upload_original_name = $upload->filename();
@@ -1173,7 +1175,11 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
 
 
     #parse uploaded file with appropriate plugin
-    $parser = CXGN::Trial::ParseUpload->new(chado_schema => $chado_schema, filename => $archived_filename_with_path);
+    $parser = CXGN::Trial::ParseUpload->new(
+        chado_schema => $chado_schema, 
+        filename => $archived_filename_with_path, 
+        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on'
+    );
     $parser->load_plugin('MultipleTrialDesignExcelFormat');
     $parsed_data = $parser->parse();
 
@@ -1199,6 +1205,19 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
             $c->stash->{rest} = {warnings => $warnings->{'warning_messages'}};
             return;
         }
+    }
+
+    ###
+    # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
+    # Do not continue to save the trials...
+    ###
+    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
+        $c->stash->{rest} = {
+            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
+            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
+            parsed_data => $parsed_data
+        };
+        return;
     }
 
     # print STDERR "Check 4: ".localtime()."\n";
