@@ -25,6 +25,7 @@ var infoToAdd;
 var accessionListFound;
 var speciesNames;
 var doFuzzySearch;
+const SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org/";
 
 function disable_ui() {
     jQuery('#working_modal').modal("show");
@@ -238,40 +239,6 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function add_accessions(full_info, species_names) {
-        console.log(full_info);
-        $.ajax({
-            type: 'POST',
-            url: '/ajax/accession_list/add',
-            dataType: "json",
-            timeout: 36000000,
-            data: {
-                'full_info': JSON.stringify(full_info),
-                'allowed_organisms': JSON.stringify(species_names),
-            },
-            beforeSend: function(){
-                disable_ui();
-            },
-            success: function (response) {
-                enable_ui();
-		//alert("ADD ACCESSIONS: "+JSON.stringify(response));
-                if (response.error) {
-                    alert(response.error);
-                } else {
-                    var html = 'The following stocks were added!<br/>';
-                    for (var i=0; i<response.added.length; i++){
-                        html = html + '<a href="/stock/'+response.added[i][0]+'/view">'+response.added[i][1]+'</a><br/>';
-                    }
-                    jQuery('#add_accessions_saved_message').html(html);
-                    jQuery('#add_accessions_saved_message_modal').modal('show');
-                }
-            },
-            error: function (response) {
-                alert('An error occurred in processing. sorry'+response.responseText);
-            }
-        });
-    }
-
     function verify_species_name() {
         var speciesName = $("#species_name_input").val();
         validSpecies = 0;
@@ -393,8 +360,10 @@ jQuery(document).ready(function ($) {
             }
             else if (response.success) {
                 fullParsedData = response.full_data;
-                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').attr('checked');;
-                review_verification_results(doFuzzySearch, response, response.list_id);
+                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').is(':checked');
+                doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').is(':checked');
+                updateSynonymSearchCache = jQuery('#synonym_search_update_upload_accessions').is(':checked');
+                review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, response.list_id);
             }
             else {
                 fullParsedData = undefined;
@@ -447,7 +416,42 @@ jQuery(document).ready(function ($) {
         jQuery('#infoToAdd_new_table').DataTable({});
     });
 
+    check_synonym_search_cache();
 });
+
+function add_accessions(full_info, species_names) {
+    console.log(full_info);
+    jQuery.ajax({
+        type: 'POST',
+        url: '/ajax/accession_list/add',
+        dataType: "json",
+        timeout: 36000000,
+        data: {
+            'full_info': JSON.stringify(full_info),
+            'allowed_organisms': JSON.stringify(species_names),
+        },
+        beforeSend: function(){
+            disable_ui();
+        },
+        success: function (response) {
+            enable_ui();
+            //alert("ADD ACCESSIONS: "+JSON.stringify(response));
+            if (response.error) {
+                alert(response.error);
+            } else {
+                var html = 'The following stocks were added!<br/>';
+                for (var i=0; i<response.added.length; i++){
+                    html = html + '<a href="/stock/'+response.added[i][0]+'/view">'+response.added[i][1]+'</a><br/>';
+                }
+                jQuery('#add_accessions_saved_message').html(html);
+                jQuery('#add_accessions_saved_message_modal').modal('show');
+            }
+        },
+        error: function (response) {
+            alert('An error occurred in processing. sorry'+response.responseText);
+        }
+    });
+}
 
 function openWindowWithPost(fuzzyResponse) {
     var f = document.getElementById('add_accession_fuzzy_match_download');
@@ -458,7 +462,9 @@ function openWindowWithPost(fuzzyResponse) {
 
 function verify_accession_list(accession_list_id) {
     accession_list = JSON.stringify(list.getList(accession_list_id));
-    doFuzzySearch = jQuery('#fuzzy_check').attr('checked');
+    doFuzzySearch = jQuery('#fuzzy_check').is(':checked');
+    doSynonymSearch = jQuery('#synonym_search_check').is(':checked');
+    updateSynonymSearchCache = jQuery('#synonym_search_update').is(':checked');
 
     jQuery.ajax({
         type: 'POST',
@@ -478,7 +484,7 @@ function verify_accession_list(accession_list_id) {
             if (response.error) {
                 alert(response.error);
             }
-            review_verification_results(doFuzzySearch, response, accession_list_id);
+            review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, accession_list_id);
         },
         error: function (response) {
             enable_ui();
@@ -489,14 +495,14 @@ function verify_accession_list(accession_list_id) {
     });
 }
 
-function review_verification_results(doFuzzySearch, verifyResponse, accession_list_id){
+function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, verifyResponse, accession_list_id){
     var i;
     var j;
     accessionListFound = {};
     accessionList = [];
     infoToAdd = [];
     speciesNames = [];
-    //console.log(verifyResponse);
+
     //console.log(accession_list_id);
 
     if (verifyResponse.found) {
@@ -514,7 +520,7 @@ function review_verification_results(doFuzzySearch, verifyResponse, accession_li
 
         jQuery('#view_found_matches').html(found_html);
 
-        jQuery('#review_found_matches_dialog').modal('show');
+        jQuery('#review_found_matches_dialog').modal(doSynonymSearch ? 'hide' : 'show');
 
         jQuery('#found_accessions_table').DataTable({});
 
@@ -522,17 +528,19 @@ function review_verification_results(doFuzzySearch, verifyResponse, accession_li
 
     }
 
-    if (verifyResponse.fuzzy.length > 0 && doFuzzySearch) {
+    if (verifyResponse.fuzzy.length > 0 && doFuzzySearch && !doSynonymSearch) {
         fuzzyResponse = verifyResponse.fuzzy;
         var fuzzy_html = '<table id="add_accession_fuzzy_table" class="table"><thead><tr><th class="col-xs-4">Name in Your List</th><th class="col-xs-4">Existing Name(s) in Database</th><th class="col-xs-4">Options&nbsp;&nbsp;&nbsp&nbsp;<input type="checkbox" id="add_accession_fuzzy_option_all"/> Use Same Option for All</th></tr></thead><tbody>';
         for( i=0; i < verifyResponse.fuzzy.length; i++) {
             fuzzy_html = fuzzy_html + '<tr id="add_accession_fuzzy_option_form'+i+'"><td>'+ verifyResponse.fuzzy[i].name + '<input type="hidden" name="fuzzy_name" value="'+ verifyResponse.fuzzy[i].name + '" /></td>';
             fuzzy_html = fuzzy_html + '<td><select class="form-control" name ="fuzzy_select">';
-            for(j=0; j < verifyResponse.fuzzy[i].matches.length; j++){
-                if (verifyResponse.fuzzy[i].matches[j].is_synonym){
-                    fuzzy_html = fuzzy_html + '<option value="' + verifyResponse.fuzzy[i].matches[j].synonym_of + '">' + verifyResponse.fuzzy[i].matches[j].name + ' (SYNONYM OF: '+verifyResponse.fuzzy[i].matches[j].synonym_of+')</option>';
-                } else {
-                    fuzzy_html = fuzzy_html + '<option value="' + verifyResponse.fuzzy[i].matches[j].name + '">' + verifyResponse.fuzzy[i].matches[j].name + '</option>';
+            if ( verifyResponse.fuzzy[i].matches ) {
+                for(j=0; j < verifyResponse.fuzzy[i].matches.length; j++){
+                    if (verifyResponse.fuzzy[i].matches[j].is_synonym){
+                        fuzzy_html = fuzzy_html + '<option value="' + verifyResponse.fuzzy[i].matches[j].synonym_of + '">' + verifyResponse.fuzzy[i].matches[j].name + ' (SYNONYM OF: '+verifyResponse.fuzzy[i].matches[j].synonym_of+')</option>';
+                    } else {
+                        fuzzy_html = fuzzy_html + '<option value="' + verifyResponse.fuzzy[i].matches[j].name + '">' + verifyResponse.fuzzy[i].matches[j].name + '</option>';
+                    }
                 }
             }
             fuzzy_html = fuzzy_html + '</select></td><td><select class="form-control" name="fuzzy_option"><option value="keep">Continue saving name in your list</option><option value="replace">Replace name in your list with selected existing name</option><option value="remove">Remove name in your list and ignore</option><option value="synonymize">Add name in your list as a synonym to selected existing name</option></select></td></tr>';
@@ -574,7 +582,464 @@ function review_verification_results(doFuzzySearch, verifyResponse, accession_li
         process_fuzzy_options(accession_list_id);
     });
 
+    // Display separate dialog for synonym search, if enabled
+    if ( doSynonymSearch ) {
+        let terms = [];
+        if ( verifyResponse && verifyResponse.full_data ) {
+            terms = Object.keys(verifyResponse.full_data);
+        }
+        else if ( verifyResponse.absent && verifyResponse.found ) {
+            terms = terms.concat(verifyResponse.absent);
+            for ( let i = 0; i < verifyResponse.found.length; i++ ) {
+                terms.push(verifyResponse.found[i].matched_string);
+            }
+        }
+        if ( updateSynonymSearchCache ) {
+            update_synonym_search_cache(terms);
+        }
+        else {
+            perform_synonym_search(terms);
+        }
+    }
 }
+
+
+/**
+ * Check if this server is cached by the Synonym Search Tool
+ * - Display the Date of the last cache update
+ */
+function check_synonym_search_cache() {
+    jQuery.ajax({
+        type: 'GET',
+        url: `${SYNONYM_SEARCH_HOST}/api/cache?address=${location.protocol}//${location.host}/brapi/v1/`,
+        dataType: "json",
+        success: function(response) {
+            if ( response && response.response && response.response.saved ) {
+                jQuery(".synonym_search_tool_last_updated").html(
+                    new Date(response.response.saved).toLocaleString()
+                );
+            }
+        },
+        error: function() {
+            jQuery(".synonym_search_tool_last_updated").html("<em>Cache does not exist</em>");
+            jQuery("#synonym_search_update_upload_accessions").attr("checked", true);
+            jQuery("#synonym_search_update").attr("checked", true);
+        }
+    });
+}
+
+
+/**
+ * Update the Synonym Search Tool's cache of this server
+ * - Monitor the progress of the update
+ * - Perform a search of the specified terms when complete
+ * @param {String[]} terms Search Terms (User's Accession Names)
+ */
+function update_synonym_search_cache(terms) {
+
+    // Display the dialog
+    jQuery("#synonym_search_dialog_starting").show();
+    jQuery("#synonym_search_dialog_working").hide();
+    jQuery("#synonym_search_dialog_results").hide();
+    jQuery("#synonym_search_dialog_continue").attr("disabled", true);
+    jQuery("#synonym_search_dialog").modal("show");
+
+    // Start the Update
+    let body = {
+        address: `${location.protocol}//${location.host}/brapi/v1/`,
+        version: "v1.3",
+        auth_token: "",
+        call_limit: 10
+    }
+    jQuery.ajax({
+        type: 'PUT',
+        url: `${SYNONYM_SEARCH_HOST}/api/cache`,
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(body),
+        success: function (response) {
+            if ( response && response.status && response.status === 'queued' ) {
+                monitor_synonym_search(response.job.id, function() {
+                    perform_synonym_search(terms);
+                });
+            }
+            else {
+                alert("ERROR: Could not update synonym search cache!");
+                jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+            }
+        },
+        error: function () {
+            alert("ERROR: Could not update synonym search cache!");
+            jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+        }
+    });
+
+}
+
+
+/**
+ * Perform a search using the specified terms
+ * - Monitor the progress of the search
+ * - Display the results when complete
+ * @param {String[]} terms Search Terms (User's Accession Names)
+ */
+function perform_synonym_search(terms) {
+
+    // Display the dialog
+    jQuery("#synonym_search_dialog_starting").show();
+    jQuery("#synonym_search_dialog_working").hide();
+    jQuery("#synonym_search_dialog_results").hide();
+    jQuery("#synonym_search_dialog_continue").attr("disabled", true);
+    jQuery("#synonym_search_dialog").modal("show");
+
+    // Start the Search
+    let body = {
+        database: {
+            address: `${location.protocol}//${location.host}/brapi/v1/`,
+            version: "v1.3",
+            auth_token: "",
+            call_limit: 10
+        },
+        terms: terms,
+        config: {
+            database_terms: {
+                name: true,
+                synonyms: true,
+                accession_numbers: true
+            },
+            search_routines: {
+                name: true,
+                punctuation: true,
+                substring: true,
+                prefix: false,
+                edit_distance: false
+            },
+            return_records: false,
+            case_sensitive: true
+        }
+    }
+    jQuery.ajax({
+        type: 'POST',
+        url: `${SYNONYM_SEARCH_HOST}/api/search`,
+        dataType: "json",
+        contentType: "application/json",
+        data: JSON.stringify(body),
+        success: function (response) {
+            if ( response && response.status && response.status === 'queued' ) {
+                monitor_synonym_search(response.job.id, function(response) {
+                    display_synonym_search(response);
+                });
+            }
+            else {
+                alert("ERROR: Could not start synonym search!");
+                jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+            }
+        },
+        error: function () {
+            alert("ERROR: Could not start synonym search!");
+            jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+        }
+    });
+
+    // Continue with the accession upload
+    jQuery("#synonym_search_dialog_continue").off('click').on('click', complete_synonym_search);
+
+}
+
+
+/**
+ * Monitor the status of the specified job (cache update or search)
+ * @param {String} job Job ID
+ * @param {Function} callback Callback function(response)
+ * @param {int} [count=0] Counter of the number of times the job is checked 
+ */
+function monitor_synonym_search(job, callback, count=0) {
+
+    // Get current status of Job
+    jQuery.ajax({
+        type: 'GET',
+        url: `${SYNONYM_SEARCH_HOST}/api/job/${job}?results=true`,
+        dataType: "json",
+        success: function (response) {
+            
+            // Job is pending/running --> continue checking status
+            if ( response && response.status && (response.status === 'pending' || response.status === 'running') ) {
+                if ( response.job.message ) {
+                    jQuery("#synonym_search_dialog_working_message").html(`<strong>${response.job.message.title}</strong><br />${response.job.message.subtitle}`);
+                }
+                if ( response.job.progress ) {
+                    jQuery("#synonym_search_dialog_working_progress").css("width", response.job.progress + '%');
+                }
+                jQuery("#synonym_search_dialog_starting").hide();
+                jQuery("#synonym_search_dialog_working").show();
+                jQuery("#synonym_search_dialog_results").hide();
+                setTimeout(function() {
+                    monitor_synonym_search(job, callback, count+1);
+                }, 500+(250*count));
+            }
+
+            // Job is complete --> send the results to the callback
+            else if ( response && response.status && response.status === 'complete' ) {
+                return callback(response);
+            }
+
+            // Job status is unknown --> error
+            else {
+                alert("ERROR: Could not get search results!");
+                jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+            }
+
+        },
+        error: function () {
+            alert("ERROR: Could not get search results!");
+            jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+        }
+    });
+
+}
+
+
+/**
+ * Display the results of the Synonym Search
+ * - Build a table that displays potential matches
+ * @param {Object} response Search Results
+ */
+function display_synonym_search(response) {
+
+    // Sort search terms
+    let search_terms = Object.keys(response.job.results);
+    search_terms.sort();
+
+    // Parse the results
+    let html = "<table class='table table-bordered table-hover'>";
+    html += "<thead><tr><th>Your Accession Name</th><th>Match Type<th>Database Matches</th><th width='250'>Add Synonym?</th></tr></thead>";
+    html += "<tbody>";
+    for ( let st of search_terms ) {
+        let results = response.job.results[st];
+        let search_term = results.search_term;
+        let exact_match = results.exact_match;
+        let matches = results.matches;
+        let match_count = Object.keys(matches).length;
+
+        // Set match type
+        let match_key = "";
+        let match_type = "";
+        let match_icon = "";
+        if ( match_count === 0 ) {
+            match_key = "none";
+            match_type = "None";
+            match_icon = "<span class='glyphicon glyphicon-minus-sign' style='color: #a94442'></span>";
+        }
+        else if ( exact_match && match_count === 1 ) {
+            match_key = "exact";
+            match_type = "Exact";
+            match_icon = "<span class='glyphicon glyphicon-ok-sign' style='color: #3c763d'></span>";
+        }
+        else if ( exact_match && match_count > 1 ) {
+            match_key = "exact_potential";
+            match_type = "Exact &amp; Potential";
+            match_icon = "<span class='glyphicon glyphicon-plus-sign' style='color: #3c763d'></span>";
+        }
+        else if ( match_count > 0 ) {
+            match_key = "potential";
+            match_type = "Potential";
+            match_icon = "<span class='glyphicon glyphicon-question-sign' style='color: #8a6d3b'></span>";
+        }
+
+        // Build Results row
+        html += "<tr class='match-row match-row-" + match_key + "'>";
+        html += "<td>" + search_term + "</td>";
+
+        // Match Type
+        html += "<td>" + match_icon + "&nbsp;&nbsp;" + match_type + "</td>";
+
+        // Display the matches
+        html += "<td>";
+        for ( let db_term of Object.keys(matches) ) {
+            let match = matches[db_term];
+            let selected = exact_match && exact_match === db_term ? 'checked' : '';
+            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='" + db_term + "' data-stock-id='" + match.germplasmDbId + "' " + selected + ">&nbsp;&nbsp;";
+            html += "<a href='/stock/" + match.germplasmDbId + "/view' target='_blank'><strong>" + match.germplasmName + ":</strong></a>";
+            html += "<ul>";
+            for ( let i = 0; i < match.matched_db_terms.length; i++ ) {
+                let d = match.matched_db_terms[i];
+                html += "<li>";
+                html += d.db_term.term + "&nbsp;";
+                html += "(" + d.db_term.type + ")&nbsp;";
+                html += (d.search_routine.key === 'exact' ? '<strong>' : '') + "(" + d.search_routine.name + ")" + (d.search_routine.key === 'exact' ? '</strong>' : '');
+                html += "</li>";
+            }
+            html += "</ul>";
+        }
+
+        // No exact match found, create new entry
+        if ( !exact_match || match_count === 0 ) {
+            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='' data-stock-id='' checked>&nbsp;&nbsp;";
+            html += "<em>Create New Accession Entry</em>";
+        }
+
+        // Add Synonym Checkbox
+        html += "<td>";
+        html += "<input type='checkbox' class='synonym_search_checkbox' name='" + search_term + "' disabled>&nbsp;&nbsp;";
+        html += "<span class='synonym_search_checkbox_label' name='" + search_term + "'></span>";
+        html += "</td>";
+
+        html += "</td>";
+        html += "</tr>";
+    }
+    html += "</tbody>";
+    html += "</html>";
+
+    jQuery("#synonym_search_dialog_results_table").html(html);
+    jQuery(".match-row-exact").hide();
+    jQuery(".match-row-none").hide();
+    if ( jQuery(".match-row-exact_potential,.match-row-potential").length === 0 ) {
+        jQuery("#synonym_search_dialog_results_none").show();
+    }
+
+    jQuery('.synonym_search_dialog_filter').off('click').on('click', toggle_match_type);
+    jQuery('.synonym_search_radio').off('click').on('click', toggle_synonym_search_checkbox);
+
+    jQuery("#synonym_search_dialog_starting").hide();
+    jQuery("#synonym_search_dialog_working").hide();
+    jQuery("#synonym_search_dialog_results").show();
+    jQuery("#synonym_search_dialog_continue").attr("disabled", false);
+}
+
+
+function toggle_match_type() {
+    let type = jQuery(this).data('match-type');
+    jQuery("#synonym_search_dialog_results_none").hide();
+    if ( type === 'all' ) {
+        jQuery(".match-row").show();
+    }
+    else {
+        jQuery(".match-row").hide();
+        jQuery(".match-row-" + type).show();
+    }
+}
+
+
+function toggle_synonym_search_checkbox() {
+    let radio = jQuery(this);
+    let search_term = radio.attr('name');
+    let db_term = radio.attr('value');
+    if ( db_term && db_term !== '' && db_term !== search_term ) {
+        jQuery(".synonym_search_checkbox[name='" + search_term + "']").attr('disabled', false).attr('checked', true);
+        jQuery(".synonym_search_checkbox_label[name='" + search_term + "']").html("Add synonym <strong>\"" + search_term + "\"</strong> to existing Database Accession entry <strong>\"" + db_term + "\"</strong>");
+    }
+    else {
+        jQuery(".synonym_search_checkbox[name='" + search_term + "']").attr('checked', false).attr('disabled', true);
+        jQuery(".synonym_search_checkbox_label[name='" + search_term + "']").html("");
+    }
+}
+
+
+function complete_synonym_search() {
+    let selections = jQuery('.synonym_search_radio:checked');
+    
+    // Pull out replacements, existing, and new entries
+    let replacements = [];
+    let create = [];
+    let existing = [];
+    
+    // Parse the user's selections
+    for ( let i = 0; i < selections.length; i++ ) {
+        let selection = jQuery(selections[i]);
+        let user_name = selection.attr('name');
+        let db_name = selection.attr('value');
+        let db_id = selection.data("stock-id");
+        if ( !db_name || db_name === '' ) {
+            create.push(user_name);
+        }
+        else if ( db_name === user_name ) {
+            existing.push(user_name);
+        }
+        else if ( db_name !== user_name ) {
+            replacements.push({
+                user_name: user_name,
+                db_name: db_name,
+                db_id: db_id,
+                add_synonym: jQuery(".synonym_search_checkbox[name='" + user_name + "']").is(':checked')
+            });
+        }
+    }
+
+    // Sort the selections
+    replacements.sort(function(a, b) { (a.user_name > b.user_name) ? 1 : -1 });
+    create.sort();
+    existing.sort();
+
+    // Display Replacements
+    let r_html = '';
+    if ( replacements.length === 0 ) {
+        r_html += "<p><em>No replacements selected</em></p>";
+    }
+    else {
+        r_html += "<table class='table table-bordered table-hover'>";
+        r_html += "<thead><tr><th>Your Accession Name</th><th>Replacement Database Accession Name</th><th>Add Synonym?</th></tr></thead>";
+        r_html += "<tbody>";
+        for ( let i = 0; i < replacements.length; i++ ) {
+            let r = replacements[i];
+            let s = r.add_synonym ? "<span class='glyphicon glyphicon-plus-sign' style='color: #3c763d'></span>&nbsp;&nbsp;Add Synonym" : "";
+            r_html += "<tr><td>" + r.user_name + "</td><td>" + r.db_name + "</td><td>" + s + "</td></tr>";
+        }
+        r_html += "</tbody>";
+        r_html += "</table>";
+    }
+    jQuery("#review_synonym_search_dialog_replacements").html(r_html);
+
+    // Display New Entries
+    let c_html = '';
+    if ( create.length === 0 ) {
+        c_html += "<p><em>No new Accession entries will be created</em></p>";
+    }
+    else {
+        c_html += "<p>" + create.join(', ') + "</p>";
+    }
+    jQuery("#review_synonym_search_dialog_create").html(c_html);
+
+    // Display Existing Entries
+    let e_html = '';
+    if ( existing.length === 0 ) {
+        e_html += "<p><em>No existing Accession entries will be updated</em></p>";
+    }
+    else {
+        e_html += "<p>" + existing.join(', ') + "</p>";
+    }
+    jQuery("#review_synonym_search_dialog_existing").html(e_html);
+
+    jQuery('#review_synonym_search_dialog').modal('show');
+    
+    jQuery('#review_synonym_search_dialog_back').off('click').on('click', function() {
+        jQuery("#synonym_search_dialog").modal('show');
+    });
+    jQuery('#review_synonym_search_dialog_continue').off('click').on('click', function() {
+        store_synonym_search(replacements)
+    });
+}
+
+
+function store_synonym_search(replacements) {
+
+    // Make replacements
+    for ( let i = 0; i < infoToAdd.length; i++ ) {
+        for ( let j = 0; j < replacements.length; j++ ) {
+            if ( infoToAdd[i].germplasmName === replacements[j].user_name ) {
+                infoToAdd[i].germplasmName = replacements[j].db_name;
+                infoToAdd[i].defaultDisplayName = replacements[j].db_name;
+                infoToAdd[i].stock_id = replacements[j].db_id;
+                if ( !infoToAdd[i].synonyms ) infoToAdd[i].synonyms = [];
+                if ( replacements[j].add_synonym ) infoToAdd[i].synonyms.push(replacements[j].user_name);
+            }
+        }
+    }
+
+    // Add the accessions
+    add_accessions(infoToAdd, speciesNames)
+
+}
+
 
 function populate_review_absent_dialog(absent, infoToAdd){
     console.log(infoToAdd);

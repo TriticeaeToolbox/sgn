@@ -85,10 +85,6 @@ sub verify_accession_list_POST : Args(0) {
     my @organism_list = $organism_list_json ? @{_parse_list_from_json($c, $organism_list_json)} : [];
 
     my $do_fuzzy_search = $c->req->param('do_fuzzy_search');
-    if ($user_role ne 'curator' && !$do_fuzzy_search) {
-        $c->stash->{rest} = {error=>'Only a curator can add accessions without using the fuzzy search!'};
-        $c->detach();
-    }
 
     if ($do_fuzzy_search) {
         $self->do_fuzzy_search($c, \@accession_list, \@organism_list);
@@ -233,12 +229,7 @@ sub verify_accessions_file_POST : Args(0) {
 
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $upload = $c->req->upload('new_accessions_upload_file');
-    my $do_fuzzy_search = $user_role eq 'curator' && !$c->req->param('fuzzy_check_upload_accessions') ? 0 : 1;
-
-    if ($user_role ne 'curator' && !$do_fuzzy_search) {
-        $c->stash->{rest} = {error=>'Only a curator can add accessions without using the fuzzy search!'};
-        $c->detach();
-    }
+    my $do_fuzzy_search = $c->req->param('fuzzy_check_upload_accessions');
 
     # These roles are required by CXGN::UploadFile
     if ($user_role ne 'curator' && $user_role ne 'submitter' && $user_role ne 'sequencer' ) {
