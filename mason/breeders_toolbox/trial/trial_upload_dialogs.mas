@@ -107,6 +107,7 @@ $design_types => ()
                                                     <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
                                                   </div>
                                                 </div>
+                                                <input type="hidden" id="multi_trial_synonym_search_replacements" name="multi_trial_synonym_search_replacements">
                                               </div>
                                             </form>
 

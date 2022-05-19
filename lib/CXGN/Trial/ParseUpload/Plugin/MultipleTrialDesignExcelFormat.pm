@@ -18,6 +18,7 @@ sub _validate_with_plugin {
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
   my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my %errors;
   my @error_messages;
   my %warnings;
@@ -362,6 +363,9 @@ sub _validate_with_plugin {
       push @error_messages, "Cell N$row_name: accession name missing";
     } else {
       $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+      if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+        $accession_name = $accession_replacements->{$accession_name};
+      }
       $seen_accession_names{$accession_name}++;
     }
 
@@ -593,6 +597,7 @@ sub _parse_with_plugin {
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
   my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my $parser   = Spreadsheet::ParseExcel->new();
   my $excel_obj;
   my $worksheet;
@@ -619,6 +624,9 @@ sub _parse_with_plugin {
       if ($worksheet->get_cell($row,13)) {
           $accession_name = $worksheet->get_cell($row,13)->value();
           $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+          if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+            $accession_name = $accession_replacements->{$accession_name};
+          }
           $seen_accession_names{$accession_name}++;
       }
   }
@@ -745,6 +753,9 @@ sub _parse_with_plugin {
       $accession_name = $worksheet->get_cell($row,13)->value();
     }
     $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+    if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+      $accession_name = $accession_replacements->{$accession_name};
+    }
     if ($worksheet->get_cell($row,14)) {
       $plot_number =  $worksheet->get_cell($row,14)->value();
     }

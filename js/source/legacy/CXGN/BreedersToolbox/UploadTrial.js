@@ -131,6 +131,7 @@ jQuery(document).ready(function ($) {
     }
 
     function upload_multiple_trial_designs_file() {
+      $("multi_trial_synonym_search_replacements").val('');
       $("#upload_multiple_trials_warning_messages").html('');
       $("#upload_multiple_trials_error_messages").html('');
       $("#upload_multiple_trials_success_messages").html('');
@@ -671,7 +672,6 @@ function trial_display_synonym_search(response) {
     }
 
     jQuery('.synonym_search_dialog_filter').off('click').on('click', trial_toggle_match_type);
-    jQuery('.synonym_search_radio').off('click').on('click', trial_toggle_synonym_search_checkbox);
 
     jQuery("#trial_synonym_search_dialog_starting").hide();
     jQuery("#trial_synonym_search_dialog_working").hide();
@@ -689,21 +689,6 @@ function trial_toggle_match_type() {
     else {
         jQuery(".match-row").hide();
         jQuery(".match-row-" + type).show();
-    }
-}
-
-
-function trial_toggle_synonym_search_checkbox() {
-    let radio = jQuery(this);
-    let search_term = radio.attr('name');
-    let db_term = radio.attr('value');
-    if ( db_term && db_term !== '' && db_term !== search_term ) {
-        jQuery(".synonym_search_checkbox[name='" + search_term + "']").attr('disabled', false).attr('checked', true);
-        jQuery(".synonym_search_checkbox_label[name='" + search_term + "']").html("Add synonym <strong>\"" + search_term + "\"</strong> to existing Database Accession entry <strong>\"" + db_term + "\"</strong>");
-    }
-    else {
-        jQuery(".synonym_search_checkbox[name='" + search_term + "']").attr('checked', false).attr('disabled', true);
-        jQuery(".synonym_search_checkbox_label[name='" + search_term + "']").html("");
     }
 }
 
@@ -732,8 +717,7 @@ function trial_complete_synonym_search() {
             replacements.push({
                 user_name: user_name,
                 db_name: db_name,
-                db_id: db_id,
-                add_synonym: jQuery(".synonym_search_checkbox[name='" + user_name + "']").is(':checked')
+                db_id: db_id
             });
         }
     }
@@ -750,12 +734,11 @@ function trial_complete_synonym_search() {
     }
     else {
         r_html += "<table class='table table-bordered table-hover'>";
-        r_html += "<thead><tr><th>Your Accession Name</th><th>Replacement Database Accession Name</th><th>Add Synonym?</th></tr></thead>";
+        r_html += "<thead><tr><th>Your Accession Name</th><th>Replacement Database Accession Name</th></tr></thead>";
         r_html += "<tbody>";
         for ( let i = 0; i < replacements.length; i++ ) {
             let r = replacements[i];
-            let s = r.add_synonym ? "<span class='glyphicon glyphicon-plus-sign' style='color: #3c763d'></span>&nbsp;&nbsp;Add Synonym" : "";
-            r_html += "<tr><td>" + r.user_name + "</td><td>" + r.db_name + "</td><td>" + s + "</td></tr>";
+            r_html += "<tr><td>" + r.user_name + "</td><td>" + r.db_name + "</td></tr>";
         }
         r_html += "</tbody>";
         r_html += "</table>";
@@ -796,5 +779,9 @@ function trial_complete_synonym_search() {
 
 function trial_store_synonym_search(replacements) {
     console.log(replacements);
-    
+    let init_synonym_search_check = jQuery("#multi_trial_synonym_search_check").prop("checked");
+    jQuery("#multi_trial_synonym_search_check").prop("checked", false);
+    jQuery("#multi_trial_synonym_search_replacements").val(encodeURIComponent(JSON.stringify(replacements)));
+    jQuery("#upload_multiple_trial_designs_form").submit();
+    jQuery("#multi_trial_synonym_search_check").prop("checked", init_synonym_search_check);
 }

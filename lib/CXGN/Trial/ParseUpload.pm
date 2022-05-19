@@ -32,6 +32,12 @@ has 'skip_accession_checks' => (
     required => 0
 );
 
+has 'accession_replacements' => (
+    is => 'ro',
+    isa => 'HashRef|Undef',
+    required => 0
+);
+
 has 'parse_warnings' => (
     is => 'ro',
     isa => 'HashRef',

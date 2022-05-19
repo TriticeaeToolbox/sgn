@@ -29,6 +29,8 @@ use File::Spec::Functions;
 use Digest::MD5;
 use List::MoreUtils qw /any /;
 use Data::Dumper;
+use URI::Escape;
+use JSON qw /decode_json/;
 use CXGN::Trial;
 use CXGN::Trial::TrialDesign;
 use CXGN::Trial::TrialCreate;
@@ -1110,6 +1112,7 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     my $ignore_warnings = $c->req->param('upload_multiple_trials_ignore_warnings');
     my $synonym_search_check = $c->req->param('multi_trial_synonym_search_check');
     my $synonym_search_update = $c->req->param('multi_trial_synonym_search_update');
+    my $replacements_encoded = $c->req->param('multi_trial_synonym_search_replacements');
     my $parser;
     my $parsed_data;
     my $upload_original_name = $upload->filename();
@@ -1173,12 +1176,22 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     $upload_metadata{'user_id'}=$user_id;
     $upload_metadata{'date'}="$timestamp";
 
+    # set replacements from request, if provided
+    my %replacements;
+    if ( $replacements_encoded ) {
+        my $replacements_string = uri_unescape($replacements_encoded);
+        my $replacements_json = decode_json($replacements_string);
+        foreach my $i (@$replacements_json) {
+            $replacements{$i->{user_name}} = $i->{db_name};
+        }
+    }
 
     #parse uploaded file with appropriate plugin
     $parser = CXGN::Trial::ParseUpload->new(
         chado_schema => $chado_schema, 
         filename => $archived_filename_with_path, 
-        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on'
+        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
+        accession_replacements => \%replacements
     );
     $parser->load_plugin('MultipleTrialDesignExcelFormat');
     $parsed_data = $parser->parse();
@@ -1219,6 +1232,8 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
         };
         return;
     }
+
+    return;
 
     # print STDERR "Check 4: ".localtime()."\n";
     my %all_designs = %{$parsed_data};
