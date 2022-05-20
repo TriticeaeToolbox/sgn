@@ -131,7 +131,7 @@ jQuery(document).ready(function ($) {
     }
 
     function upload_multiple_trial_designs_file() {
-      $("multi_trial_synonym_search_replacements").val('');
+      $("#multi_trial_synonym_search_replacements").val('');
       $("#upload_multiple_trials_warning_messages").html('');
       $("#upload_multiple_trials_error_messages").html('');
       $("#upload_multiple_trials_success_messages").html('');

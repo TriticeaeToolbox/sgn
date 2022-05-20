@@ -1233,8 +1233,6 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
         return;
     }
 
-    return;
-
     # print STDERR "Check 4: ".localtime()."\n";
     my %all_designs = %{$parsed_data};
     my %save;
