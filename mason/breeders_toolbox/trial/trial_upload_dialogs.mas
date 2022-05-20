@@ -860,6 +860,10 @@ $design_types => ()
             <p><strong>Missing Accessions:</strong></p>
             <p>The following Accession entries will <strong>need to be added to the Database before adding the Trial(s)</strong>.</p>
             <div id="trial_review_synonym_search_dialog_create"></div>
+            <div style="margin-top: 25px">
+                <button id="trial_review_synonym_search_dialog_create_download" class='btn btn-primary'>Download Accession Template</button>
+                <p style="margin-top: 5px;"><em>Download an Accession Template to fill in and upload to add the missing Accessions to the Database</em></p>
+            </div>
           </div>
         </div>
       </div>

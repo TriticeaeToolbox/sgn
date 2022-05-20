@@ -680,6 +680,9 @@ function trial_display_synonym_search(response) {
 }
 
 
+/**
+ * Toggle the display of the Synonym Search by match type
+ */
 function trial_toggle_match_type() {
     let type = jQuery(this).data('match-type');
     jQuery("#trial_synonym_search_dialog_results_none").hide();
@@ -693,6 +696,11 @@ function trial_toggle_match_type() {
 }
 
 
+/**
+ * Complete the Synonym Search
+ * - parse the user's selections to display selected replacements, 
+ *   existing, and missing accessions
+ */
 function trial_complete_synonym_search() {
     let selections = jQuery('.synonym_search_radio:checked');
     
@@ -774,11 +782,39 @@ function trial_complete_synonym_search() {
     jQuery('#trial_review_synonym_search_dialog_continue').off('click').on('click', function() {
         trial_store_synonym_search(replacements)
     });
+    jQuery('#trial_review_synonym_search_dialog_create_download').off('click').on('click', function() {
+        var oReq = new XMLHttpRequest();
+        oReq.open("POST", "/ajax/trial/download_missing_accession_template");
+        oReq.responseType = "blob";
+        oReq.onload = function(oEvent) {
+            if (this.status == 200) {
+                let blob = new Blob([this.response], {type: 'application/vnd.ms-excel'});
+                let url = window.URL.createObjectURL(blob);
+
+                let a = document.createElement("a");
+                a.style = "display: none";
+                a.href = url;
+                a.download = 'missing_accessions.xls';
+
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
+            else {
+                alert("ERROR: Could not create accessions template!");
+            }
+        };
+        oReq.send(JSON.stringify({missing_accessions: create}));
+    });
 }
 
-
+/**
+ * Store the accessions
+ * - Set the user's replacement in the form (URL-encoded JSON string)
+ * - Re-submit the form to store the accessions
+ * @param {Object[]} replacements User's selected accession replacements
+ */
 function trial_store_synonym_search(replacements) {
-    console.log(replacements);
     let init_synonym_search_check = jQuery("#multi_trial_synonym_search_check").prop("checked");
     jQuery("#multi_trial_synonym_search_check").prop("checked", false);
     jQuery("#multi_trial_synonym_search_replacements").val(encodeURIComponent(JSON.stringify(replacements)));

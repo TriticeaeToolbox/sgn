@@ -31,6 +31,7 @@ use List::MoreUtils qw /any /;
 use Data::Dumper;
 use URI::Escape;
 use JSON qw /decode_json/;
+use Spreadsheet::WriteExcel;
 use CXGN::Trial;
 use CXGN::Trial::TrialDesign;
 use CXGN::Trial::TrialCreate;
@@ -1328,4 +1329,58 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
 
 }
 
+
+sub download_missing_accession_template : Path('/ajax/trial/download_missing_accession_template') : ActionClass('REST') { }
+sub download_missing_accession_template_POST : Args(0) {
+    my ($self, $c) = @_;
+    my @accession_names;
+    if ($c->req->data->{missing_accessions}) {
+        @accession_names = @{$c->req->data->{missing_accessions}};
+    }
+    if (!@accession_names) {
+        $c->stash->{rest} = {error => "No accession names supplied"};
+        $c->detach();
+    }
+
+    # Setup Stock Props
+    my @editable_stock_props = split ',', $c->config->{editable_stock_props};
+    my @stock_props = ("organization", "synonym", "PUI");
+    foreach my $esp (@editable_stock_props) {
+        if ( !grep(/^$esp$/, @stock_props) ) {
+            push(@stock_props, $esp)
+        }
+    }
+
+    # Build Header
+    my @accession_headers = ("accession_name", "species_name", "population_name");
+    push(@accession_headers, @stock_props);
+
+    # Add Rows
+    my @accession_rows = ();
+    push(@accession_rows, \@accession_headers);
+    foreach my $accession (@accession_names) {
+        push(@accession_rows, [$accession]);
+    }
+
+    # Create Tempfile
+    my ($tempfile, $uri) = $c->tempfile(TEMPLATE => "download_accessions_XXXXX", UNLINK=> 0);
+    my $file_path = $tempfile . ".xls";
+    my $file_name = basename($file_path);
+
+    # Write to the xls file
+    my $workbook = Spreadsheet::WriteExcel->new($file_path);
+    my $worksheet = $workbook->add_worksheet();
+    for ( my $i = 0; $i < scalar(@accession_rows); $i++ ) {
+        my $row = $accession_rows[$i];
+        print STDERR Dumper $row;
+        $worksheet->write_row($i, 0, $accession_rows[$i]);
+    }
+    $workbook->close();
+
+    # Return the xls file
+    $c->res->content_type('Application/xls');
+    $c->res->header('Content-Disposition', qq[attachment; filename="$file_name"]);
+    my $output = read_file($file_path);
+    $c->res->body($output);
+}
 1;
