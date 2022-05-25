@@ -29,6 +29,9 @@ use File::Spec::Functions;
 use Digest::MD5;
 use List::MoreUtils qw /any /;
 use Data::Dumper;
+use URI::Escape;
+use JSON qw /decode_json/;
+use Spreadsheet::WriteExcel;
 use CXGN::Trial;
 use CXGN::Trial::TrialDesign;
 use CXGN::Trial::TrialCreate;
@@ -904,6 +907,9 @@ sub upload_trial_file_POST : Args(0) {
     my $add_project_trial_genotype_trial_select = [$add_project_trial_genotype_trial];
     my $add_project_trial_crossing_trial_select = [$add_project_trial_crossing_trial];
     my $trial_stock_type = $c->req->param('trial_upload_trial_stock_type');
+    my $synonym_search_check = $c->req->param('trial_synonym_search_check');
+    my $synonym_search_update = $c->req->param('trial_synonym_search_update');
+    my $replacements_encoded = $c->req->param('trial_synonym_search_replacements');
 
     my $upload = $c->req->upload('trial_uploaded_file');
     my $parser;
@@ -971,8 +977,27 @@ sub upload_trial_file_POST : Args(0) {
     $upload_metadata{'user_id'}=$user_id;
     $upload_metadata{'date'}="$timestamp";
 
+    # set replacements from request, if provided
+    my %replacements;
+    if ( $replacements_encoded ) {
+        my $replacements_string = uri_unescape($replacements_encoded);
+        my $replacements_json = decode_json($replacements_string);
+        foreach my $i (@$replacements_json) {
+            $replacements{$i->{user_name}} = $i->{db_name};
+        }
+    }
+
+    print STDERR "PARSED REPLACEMENTS:\n";
+    print STDERR Dumper \%replacements;
+
     #parse uploaded file with appropriate plugin
-    $parser = CXGN::Trial::ParseUpload->new(chado_schema => $chado_schema, filename => $archived_filename_with_path, trial_stock_type => $trial_stock_type);
+    $parser = CXGN::Trial::ParseUpload->new(
+        chado_schema => $chado_schema, 
+        filename => $archived_filename_with_path, 
+        trial_stock_type => $trial_stock_type,
+        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
+        accession_replacements => \%replacements
+    );
     $parser->load_plugin('TrialExcelFormat');
     $parsed_data = $parser->parse();
 
@@ -1002,6 +1027,19 @@ sub upload_trial_file_POST : Args(0) {
         foreach my $warning_string (@{$warnings->{'warning_messages'}}){
             $return_warnings=$return_warnings.$warning_string."<br>";
         }
+    }
+
+    ###
+    # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
+    # Do not continue to save the trials...
+    ###
+    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
+        $c->stash->{rest} = {
+            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
+            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
+            parsed_data => $parsed_data
+        };
+        return;
     }
 
     print STDERR "Check 4: ".localtime()."\n";
@@ -1108,6 +1146,9 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     my $dbh = $c->dbc->dbh;
     my $upload = $c->req->upload('multiple_trial_designs_upload_file');
     my $ignore_warnings = $c->req->param('upload_multiple_trials_ignore_warnings');
+    my $synonym_search_check = $c->req->param('multi_trial_synonym_search_check');
+    my $synonym_search_update = $c->req->param('multi_trial_synonym_search_update');
+    my $replacements_encoded = $c->req->param('multi_trial_synonym_search_replacements');
     my $parser;
     my $parsed_data;
     my $upload_original_name = $upload->filename();
@@ -1171,9 +1212,23 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     $upload_metadata{'user_id'}=$user_id;
     $upload_metadata{'date'}="$timestamp";
 
+    # set replacements from request, if provided
+    my %replacements;
+    if ( $replacements_encoded ) {
+        my $replacements_string = uri_unescape($replacements_encoded);
+        my $replacements_json = decode_json($replacements_string);
+        foreach my $i (@$replacements_json) {
+            $replacements{$i->{user_name}} = $i->{db_name};
+        }
+    }
 
     #parse uploaded file with appropriate plugin
-    $parser = CXGN::Trial::ParseUpload->new(chado_schema => $chado_schema, filename => $archived_filename_with_path);
+    $parser = CXGN::Trial::ParseUpload->new(
+        chado_schema => $chado_schema, 
+        filename => $archived_filename_with_path, 
+        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
+        accession_replacements => \%replacements
+    );
     $parser->load_plugin('MultipleTrialDesignExcelFormat');
     $parsed_data = $parser->parse();
 
@@ -1199,6 +1254,19 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
             $c->stash->{rest} = {warnings => $warnings->{'warning_messages'}};
             return;
         }
+    }
+
+    ###
+    # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
+    # Do not continue to save the trials...
+    ###
+    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
+        $c->stash->{rest} = {
+            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
+            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
+            parsed_data => $parsed_data
+        };
+        return;
     }
 
     # print STDERR "Check 4: ".localtime()."\n";
@@ -1296,4 +1364,58 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
 
 }
 
+
+sub download_missing_accession_template : Path('/ajax/trial/download_missing_accession_template') : ActionClass('REST') { }
+sub download_missing_accession_template_POST : Args(0) {
+    my ($self, $c) = @_;
+    my @accession_names;
+    if ($c->req->data->{missing_accessions}) {
+        @accession_names = @{$c->req->data->{missing_accessions}};
+    }
+    if (!@accession_names) {
+        $c->stash->{rest} = {error => "No accession names supplied"};
+        $c->detach();
+    }
+
+    # Setup Stock Props
+    my @editable_stock_props = split ',', $c->config->{editable_stock_props};
+    my @stock_props = ("organization", "synonym", "PUI");
+    foreach my $esp (@editable_stock_props) {
+        if ( !grep(/^$esp$/, @stock_props) ) {
+            push(@stock_props, $esp)
+        }
+    }
+
+    # Build Header
+    my @accession_headers = ("accession_name", "species_name", "population_name");
+    push(@accession_headers, @stock_props);
+
+    # Add Rows
+    my @accession_rows = ();
+    push(@accession_rows, \@accession_headers);
+    foreach my $accession (@accession_names) {
+        push(@accession_rows, [$accession]);
+    }
+
+    # Create Tempfile
+    my ($tempfile, $uri) = $c->tempfile(TEMPLATE => "download_accessions_XXXXX", UNLINK=> 0);
+    my $file_path = $tempfile . ".xls";
+    my $file_name = basename($file_path);
+
+    # Write to the xls file
+    my $workbook = Spreadsheet::WriteExcel->new($file_path);
+    my $worksheet = $workbook->add_worksheet();
+    for ( my $i = 0; $i < scalar(@accession_rows); $i++ ) {
+        my $row = $accession_rows[$i];
+        print STDERR Dumper $row;
+        $worksheet->write_row($i, 0, $accession_rows[$i]);
+    }
+    $workbook->close();
+
+    # Return the xls file
+    $c->res->content_type('Application/xls');
+    $c->res->header('Content-Disposition', qq[attachment; filename="$file_name"]);
+    my $output = read_file($file_path);
+    $c->res->body($output);
+}
 1;

@@ -5,6 +5,13 @@ $locations
 $design_types => ()
 </%args>
 
+<%perl>
+    my $user_role = '';
+    if ($c->user) {
+        $user_role = $c->user->get_object()->get_user_type();
+    }
+</%perl>
+
 <& /util/import_javascript.mas, classes => [ 'CXGN.TrialTreeFolders' ] &>
 
 <div class="modal fade" id="upload_trial_dialog" name="upload_trial_dialog" tabindex="-1" role="dialog" aria-labelledby="uploadTrialDialog">
@@ -69,13 +76,38 @@ $design_types => ()
                                               <div class="form-group">
                                                   <input type="file" name="multiple_trial_designs_upload_file" id="multiple_trial_designs_upload_file" encoding="multipart/form-data" />
                                               </div>
-                                              <div class="form-group">
-                                                  <div class="col-sm-4"></div>
-                                                  <label class="col-sm-2 control-label">Ignore Warnings: </label>
-                                                  <div class="col-sm-2" >
+                                              <br /><br />
+                                              <div class="well">
+                                                <div class="form-group">
+                                                  <label class="col-sm-4 control-label">Ignore Warnings: </label>
+                                                  <div class="col-sm-8" style="text-align: left">
                                                       <input id="upload_multiple_trials_ignore_warnings" name="upload_multiple_trials_ignore_warnings" type="checkbox" data-toggle="toggle" encoding="multipart/form-data">
+                                                      <br />
+                                                      <small>Upload and store the trial design(s), ignoring any warnings that are found.</small>
                                                   </div>
-                                                  <div class="col-sm-4"></div>
+                                                </div>
+                                                <div class="form-group">
+                                                  <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                                                  <div class="col-sm-8" style="text-align: left">
+% if ( $user_role eq 'curator' ) {
+                                                    <input type="checkbox" id="multi_trial_synonym_search_check" name="multi_trial_synonym_search_check" checked>
+% } else { 
+                                                    <input type="checkbox" id="multi_trial_synonym_search_check" name="multi_trial_synonym_search_check" checked disabled>
+% }
+                                                    <br/>
+                                                    <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                  <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                                                  <div class="col-sm-8" style="text-align: left">
+                                                    <input type="checkbox" id="multi_trial_synonym_search_update" name="multi_trial_synonym_search_update">
+                                                    <br/>
+                                                    <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                                    <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
+                                                  </div>
+                                                </div>
+                                                <input type="hidden" id="multi_trial_synonym_search_replacements" name="multi_trial_synonym_search_replacements">
                                               </div>
                                             </form>
 
@@ -260,11 +292,12 @@ $design_types => ()
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">Plants per Plot: </label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" id="trial_upload_plant_entries" name="trial_upload_plant_entries" type="text" />
-                                        <p><i>Creates plant entries for each plot. Ignore if not adding plant entries.</i></p>
+                                        <input class="form-control" id="trial_upload_plant_entries" name="trial_upload_plant_entries" type="number" />
+                                        <p><i>Create the specified number plant entries for each plot. Leave blank if not adding plant entries.</i></p>
                                     </div>
-                                    <label style="font-size: 80%;" class="col-sm-3 control-label">Inherits Management Factor(s) From Plots: </label>
-                                    <div class="col-sm-8" >
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        <label style="font-size: 80%;" class="control-label">New Plant Entries Inherit Management Factor(s) From Plots</label>
                                         <input name="trial_upload_plants_per_plot_inherit_treatments" id="trial_upload_plants_per_plot_inherit_treatments" type="checkbox" checked disabled/>
                                     </div>
                                 </div>
@@ -325,6 +358,30 @@ $design_types => ()
                                         <input type="file" name="trial_uploaded_file" id="trial_uploaded_file" encoding="multipart/form-data" />
                                     </div>
                                 </div>
+                                <div class="well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                                        <div class="col-sm-8" style="text-align: left">
+% if ( $user_role eq 'curator' ) {
+                                        <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked>
+% } else { 
+                                        <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked disabled>
+% }
+                                        <br/>
+                                        <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                                        <div class="col-sm-8" style="text-align: left">
+                                        <input type="checkbox" id="trial_synonym_search_update" name="trial_synonym_search_update">
+                                        <br/>
+                                        <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                        <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="trial_synonym_search_replacements" name="trial_synonym_search_replacements">
+                                    </div>
 
                                 <br/><br/>
                                 <center>
@@ -758,6 +815,98 @@ $design_types => ()
     </div>
 </div>
 
+
+<!-- Synonym Search Tool Dialog for Trial Uploads -->
+<div class="modal fade" id="trial_synonym_search_dialog" name="trial_synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="trialSynonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="trialSynonymSearchDialog">Synonym Search</h4>
+      </div>
+      <div class="modal-body">
+  	    <div id="trial_synonym_search_dialog_starting" style="width: 100%">
+          <p style="margin: 25px auto; text-align: center">Starting Synonym Search....</p>
+        </div>
+        <div id="trial_synonym_search_dialog_working" style="display: none; width: 100%">
+          <p id="trial_synonym_search_dialog_working_message" style="margin: 25px auto; text-align: center">Searching...</p>
+          <div class="progress">
+            <div id="trial_synonym_search_dialog_working_progress" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+          </div>
+        </div>
+        <div id="trial_synonym_search_dialog_results" style="display: none; width: 100%">
+          <p><strong>Search Results:</strong></p>
+          <p>The table below lists the Accession names used in your Trials that have potential matches to existing Accession entries in the database.</p>
+          <p>
+            <strong>Your Accession names <em>need to be an EXACT match</em> with a Database entry in order for the Trial(s) to be created.  Any missing Accessions will need to be added to the Database before the Trial(s) can be added.</strong>
+            For each of your Accession names with a potential match, you can select a Database entry to use as a replacement.  This will replace your 
+            Accession name with the selected Database name in all of the Plots that it is used in your Trials.  If there are any missing Accessions, you can download an Accession upload template to fill in to add the new Accessions to the Database.
+          </p>
+          <br />
+          <p>
+            <strong>Filter by Match Type:</strong>&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="all">All</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="exact">Exact</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="exact_potential">Exact &amp; Potential</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="potential">Potential</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="none">None</a>
+          </p>
+          <div id="trial_synonym_search_dialog_results_table"></div>
+          <div id="trial_synonym_search_dialog_results_none" style="display: none">
+            <p><strong>No potential matches or missing Accessions found</strong></p>
+            <p>There are no potential Database Accession entries matching your provided Accession names or missing Accession entries.  Click the <strong>Continue</strong> button below to store your Trial(s).</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="trial_synonym_search_dialog_cancel" id="trial_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" name="trial_synonym_search_dialog_continue" id="trial_synonym_search_dialog_continue" data-dismiss="modal" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="trial_review_synonym_search_dialog" name="trial_review_synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="trialReviewSynonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="trialReviewSynonymSearchDialog">Synonym Search Results</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="well">
+            <p><strong>Selected Replacements:</strong></p>
+            <p>The following existing Database Accession entries will replace your provided Accession name(s) in your Trial(s).</p>
+            <div id="trial_review_synonym_search_dialog_replacements"></div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>Existing Accessions:</strong></p>
+            <p>The following Accession entries already exist in the Database.</p>
+            <div id="trial_review_synonym_search_dialog_existing"></div>
+          </div>
+          <br />
+          <div id="trial_review_synonym_search_dialog_create_well" class="well well-warning">
+            <p><strong>Missing Accessions:</strong></p>
+            <p>The following Accession entries will <strong>need to be added to the Database before adding the Trial(s)</strong>.</p>
+            <div id="trial_review_synonym_search_dialog_create"></div>
+            <div style="margin-top: 25px">
+                <button id="trial_review_synonym_search_dialog_create_download" class='btn btn-primary'>Download Accession Template</button>
+                <p style="margin-top: 5px;"><em>Download an Accession Template to fill in and upload to add the missing Accessions to the Database</em></p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="trial_review_synonym_search_dialog_cancel" id="trial_review_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-default" name="trial_review_synonym_search_dialog_back" id="trial_review_synonym_search_dialog_back" data-dismiss="modal">Back</button>
+        <button type="button" class="btn btn-primary" name="trial_review_synonym_search_dialog_continue" id="trial_review_synonym_search_dialog_continue" data-dismiss="modal">Save Trial(s)</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 jQuery(document).ready(function(){
 
@@ -784,3 +933,10 @@ jQuery(document).ready(function(){
     });
 });
 </script>
+
+<style>
+    .well-warning {
+        border: 1px solid #dc3545;
+        background-color: #f8d7da;
+    }
+</style>

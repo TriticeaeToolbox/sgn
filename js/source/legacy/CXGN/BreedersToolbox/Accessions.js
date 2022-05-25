@@ -25,7 +25,7 @@ var infoToAdd;
 var accessionListFound;
 var speciesNames;
 var doFuzzySearch;
-const SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org/";
+const SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org";
 
 function disable_ui() {
     jQuery('#working_modal').modal("show");
@@ -907,6 +907,9 @@ function display_synonym_search(response) {
 }
 
 
+/**
+ * Toggle the display of the Synonym Search by match type
+ */
 function toggle_match_type() {
     let type = jQuery(this).data('match-type');
     jQuery("#synonym_search_dialog_results_none").hide();
@@ -920,6 +923,10 @@ function toggle_match_type() {
 }
 
 
+/**
+ * Handle the selection of a replacement
+ * - Change the display of the 'Add Synonym' column
+ */
 function toggle_synonym_search_checkbox() {
     let radio = jQuery(this);
     let search_term = radio.attr('name');
@@ -935,6 +942,11 @@ function toggle_synonym_search_checkbox() {
 }
 
 
+/**
+ * Complete the Synonym Search
+ * - parse the user's selections and display the selected replacements,
+ *   new accession to create, and existing accessions to update
+ */
 function complete_synonym_search() {
     let selections = jQuery('.synonym_search_radio:checked');
     
@@ -1020,6 +1032,12 @@ function complete_synonym_search() {
 }
 
 
+/**
+ * Store the accessions
+ * - Make the selected replacements
+ * - Store the accessions, using the existing add_accessions() function
+ * @param {Object[]} replacements User's selected accession replacements
+ */
 function store_synonym_search(replacements) {
 
     // Make replacements
