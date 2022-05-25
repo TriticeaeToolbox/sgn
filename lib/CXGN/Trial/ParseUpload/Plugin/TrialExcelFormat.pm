@@ -15,6 +15,7 @@ sub _validate_with_plugin {
   my $schema = $self->get_chado_schema();
   my $trial_stock_type = $self->get_trial_stock_type();
   my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my %errors;
   my @error_messages;
   my %warnings;
@@ -26,6 +27,10 @@ sub _validate_with_plugin {
   my %seen_plot_names;
   my %seen_seedlot_names;
   my %seen_entry_names;
+
+
+  print STDERR "RECEIVED REPLACEMENTS IN VALIDATE:\n";
+  print STDERR Dumper $accession_replacements;
 
 
   #try to open the excel file and report any errors
@@ -250,6 +255,9 @@ sub _validate_with_plugin {
         push @error_messages, "Cell B$row_name: entry name missing";
     } else {
         $stock_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+        if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
+          $stock_name = $accession_replacements->{$stock_name};
+        }
         $seen_entry_names{$stock_name}++;
     }
 
@@ -322,6 +330,10 @@ sub _validate_with_plugin {
 
   }
 
+
+    print STDERR "SEEN ENTRY NAMES:\n";
+    print STDERR Dumper \%seen_entry_names;
+
     if ( !$skip_accession_checks ) {
       my @entry_names = keys %seen_entry_names;
       my $entry_name_validator = CXGN::List::Validate->new();
@@ -385,6 +397,8 @@ sub _parse_with_plugin {
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
   my $trial_stock_type = $self->get_trial_stock_type();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my $parser   = Spreadsheet::ParseExcel->new();
   my $excel_obj;
   my $worksheet;
@@ -412,6 +426,9 @@ sub _parse_with_plugin {
       if ($worksheet->get_cell($row,1)) {
           $stock_name = $worksheet->get_cell($row,1)->value();
           $stock_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+          if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
+            $stock_name = $accession_replacements->{$stock_name};
+          }
           $seen_stock_names{$stock_name}++;
       }
   }
@@ -452,6 +469,9 @@ sub _parse_with_plugin {
       $stock_name = $worksheet->get_cell($row,1)->value();
     }
     $stock_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+    if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
+      $stock_name = $accession_replacements->{$stock_name};
+    }
     if ($worksheet->get_cell($row,2)) {
       $plot_number =  $worksheet->get_cell($row,2)->value();
     }
@@ -501,12 +521,14 @@ sub _parse_with_plugin {
         $treatment_col++;
     }
 
-    if ($stock_synonyms_lookup{$stock_name}){
-        my @stock_names = keys %{$stock_synonyms_lookup{$stock_name}};
-        if (scalar(@stock_names)>1){
-            print STDERR "There is more than one uniquename for this synonym $stock_name. this should not happen!\n";
-        }
-        $stock_name = $stock_names[0];
+    if ( !$skip_accession_checks ) {
+      if ($stock_synonyms_lookup{$stock_name}){
+          my @stock_names = keys %{$stock_synonyms_lookup{$stock_name}};
+          if (scalar(@stock_names)>1){
+              print STDERR "There is more than one uniquename for this synonym $stock_name. this should not happen!\n";
+          }
+          $stock_name = $stock_names[0];
+      }
     }
 
     my $key = $row;

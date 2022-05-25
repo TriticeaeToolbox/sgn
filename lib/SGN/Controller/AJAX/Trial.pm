@@ -909,6 +909,7 @@ sub upload_trial_file_POST : Args(0) {
     my $trial_stock_type = $c->req->param('trial_upload_trial_stock_type');
     my $synonym_search_check = $c->req->param('trial_synonym_search_check');
     my $synonym_search_update = $c->req->param('trial_synonym_search_update');
+    my $replacements_encoded = $c->req->param('trial_synonym_search_replacements');
 
     my $upload = $c->req->upload('trial_uploaded_file');
     my $parser;
@@ -976,12 +977,26 @@ sub upload_trial_file_POST : Args(0) {
     $upload_metadata{'user_id'}=$user_id;
     $upload_metadata{'date'}="$timestamp";
 
+    # set replacements from request, if provided
+    my %replacements;
+    if ( $replacements_encoded ) {
+        my $replacements_string = uri_unescape($replacements_encoded);
+        my $replacements_json = decode_json($replacements_string);
+        foreach my $i (@$replacements_json) {
+            $replacements{$i->{user_name}} = $i->{db_name};
+        }
+    }
+
+    print STDERR "PARSED REPLACEMENTS:\n";
+    print STDERR Dumper \%replacements;
+
     #parse uploaded file with appropriate plugin
     $parser = CXGN::Trial::ParseUpload->new(
         chado_schema => $chado_schema, 
         filename => $archived_filename_with_path, 
+        trial_stock_type => $trial_stock_type,
         skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
-        trial_stock_type => $trial_stock_type
+        accession_replacements => \%replacements
     );
     $parser->load_plugin('TrialExcelFormat');
     $parsed_data = $parser->parse();

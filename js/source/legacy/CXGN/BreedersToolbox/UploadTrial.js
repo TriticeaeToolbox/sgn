@@ -16,8 +16,7 @@ Jeremy D. Edwards <jde22@cornell.edu>
 */
 
 var $j = jQuery.noConflict();
-// const TRIAL_SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org";
-const TRIAL_SYNONYM_SEARCH_HOST = "http://localhost:3000";
+const TRIAL_SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org";
 
 jQuery(document).ready(function ($) {
 
