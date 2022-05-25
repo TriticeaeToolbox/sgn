@@ -907,6 +907,8 @@ sub upload_trial_file_POST : Args(0) {
     my $add_project_trial_genotype_trial_select = [$add_project_trial_genotype_trial];
     my $add_project_trial_crossing_trial_select = [$add_project_trial_crossing_trial];
     my $trial_stock_type = $c->req->param('trial_upload_trial_stock_type');
+    my $synonym_search_check = $c->req->param('trial_synonym_search_check');
+    my $synonym_search_update = $c->req->param('trial_synonym_search_update');
 
     my $upload = $c->req->upload('trial_uploaded_file');
     my $parser;
@@ -975,7 +977,12 @@ sub upload_trial_file_POST : Args(0) {
     $upload_metadata{'date'}="$timestamp";
 
     #parse uploaded file with appropriate plugin
-    $parser = CXGN::Trial::ParseUpload->new(chado_schema => $chado_schema, filename => $archived_filename_with_path, trial_stock_type => $trial_stock_type);
+    $parser = CXGN::Trial::ParseUpload->new(
+        chado_schema => $chado_schema, 
+        filename => $archived_filename_with_path, 
+        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
+        trial_stock_type => $trial_stock_type
+    );
     $parser->load_plugin('TrialExcelFormat');
     $parsed_data = $parser->parse();
 
@@ -1005,6 +1012,19 @@ sub upload_trial_file_POST : Args(0) {
         foreach my $warning_string (@{$warnings->{'warning_messages'}}){
             $return_warnings=$return_warnings.$warning_string."<br>";
         }
+    }
+
+    ###
+    # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
+    # Do not continue to save the trials...
+    ###
+    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
+        $c->stash->{rest} = {
+            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
+            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
+            parsed_data => $parsed_data
+        };
+        return;
     }
 
     print STDERR "Check 4: ".localtime()."\n";

@@ -270,6 +270,27 @@ jQuery(document).ready(function ($) {
                 $("#upload_trial_error_display_second_try").show();
                 $("#upload_trial_error_display_second_try tbody").html(response.error_string);
             }
+            else if ( response.synonym_search_check ) {
+                let terms = [];
+                if ( response && response.parsed_data ) {
+                    for ( let plot_number in response.parsed_data ) {
+                        if ( response.parsed_data.hasOwnProperty(plot_number) ) {
+                            let plot = response.parsed_data[plot_number];
+                            let accession_name = plot.stock_name;
+                            if ( accession_name && !terms.includes(accession_name) ) {
+                                terms.push(accession_name);
+                            }
+                        }
+                    }
+                }
+                if ( response.synonym_search_update ) {
+                    trial_update_synonym_search_cache(terms, trial_store_synonym_search);
+                }
+                else {
+                    trial_perform_synonym_search(terms, trial_store_synonym_search);
+                }
+            }
+
             if (response.missing_accessions){
                 Workflow.focus("#trial_upload_workflow", 4);
             } else if(response.missing_seedlots){
@@ -345,10 +366,10 @@ jQuery(document).ready(function ($) {
                     }
                 }
                 if ( response.synonym_search_update ) {
-                    trial_update_synonym_search_cache(terms);
+                    trial_update_synonym_search_cache(terms, multi_trial_store_synonym_search);
                 }
                 else {
-                    trial_perform_synonym_search(terms);
+                    trial_perform_synonym_search(terms, multi_trial_store_synonym_search);
                 }
             }
             if (response.success) {
@@ -405,6 +426,7 @@ jQuery(document).ready(function ($) {
         error: function() {
             jQuery(".trial_synonym_search_tool_last_updated").html("<em>Cache does not exist</em>");
             jQuery("#multi_trial_synonym_search_update").attr("checked", true);
+            jQuery("#trial_synonym_search_update").attr("checked", true);
         }
     });
 }
@@ -414,8 +436,9 @@ jQuery(document).ready(function ($) {
  * - Monitor the progress of the update
  * - Perform a search of the specified terms when complete
  * @param {String[]} terms Search Terms (User's Accession Names)
+ * @param {function} callback The callback function(replacements) to use when finished
  */
-function trial_update_synonym_search_cache(terms) {
+function trial_update_synonym_search_cache(terms, callback) {
 
     // Display the dialog
     jQuery("#trial_synonym_search_dialog_starting").show();
@@ -440,7 +463,7 @@ function trial_update_synonym_search_cache(terms) {
         success: function (response) {
             if ( response && response.status && response.status === 'queued' ) {
                 trial_monitor_synonym_search(response.job.id, function() {
-                    trial_perform_synonym_search(terms);
+                    trial_perform_synonym_search(terms, callback);
                 });
             }
             else {
@@ -462,8 +485,9 @@ function trial_update_synonym_search_cache(terms) {
  * - Monitor the progress of the search
  * - Display the results when complete
  * @param {String[]} terms Search Terms (User's Accession Names)
+ * @param {function} callback The callback function(replacements) to use when finished
  */
- function trial_perform_synonym_search(terms) {
+ function trial_perform_synonym_search(terms, callback) {
 
     // Display the dialog
     jQuery("#trial_synonym_search_dialog_starting").show();
@@ -522,7 +546,9 @@ function trial_update_synonym_search_cache(terms) {
     });
 
     // Continue with the accession upload
-    jQuery("#trial_synonym_search_dialog_continue").off('click').on('click', trial_complete_synonym_search);
+    jQuery("#trial_synonym_search_dialog_continue").off('click').on('click', function() {
+        trial_complete_synonym_search(callback)
+    });
 
 }
 
@@ -700,8 +726,9 @@ function trial_toggle_match_type() {
  * Complete the Synonym Search
  * - parse the user's selections to display selected replacements, 
  *   existing, and missing accessions
+ * @param {function} callback The callback function(replacements) to use when finished
  */
-function trial_complete_synonym_search() {
+function trial_complete_synonym_search(callback) {
     let selections = jQuery('.synonym_search_radio:checked');
     
     // Pull out replacements, existing, and new entries
@@ -780,7 +807,7 @@ function trial_complete_synonym_search() {
         jQuery("#trial_synonym_search_dialog").modal('show');
     });
     jQuery('#trial_review_synonym_search_dialog_continue').off('click').on('click', function() {
-        trial_store_synonym_search(replacements)
+        callback(replacements)
     });
     jQuery('#trial_review_synonym_search_dialog_create_download').off('click').on('click', function() {
         var oReq = new XMLHttpRequest();
@@ -809,15 +836,29 @@ function trial_complete_synonym_search() {
 }
 
 /**
- * Store the accessions
+ * Re-upload the multi-trial template, including the user's selected replacements
  * - Set the user's replacement in the form (URL-encoded JSON string)
- * - Re-submit the form to store the accessions
+ * - Re-submit the form to upload the trials
  * @param {Object[]} replacements User's selected accession replacements
  */
-function trial_store_synonym_search(replacements) {
+function multi_trial_store_synonym_search(replacements) {
     let init_synonym_search_check = jQuery("#multi_trial_synonym_search_check").prop("checked");
     jQuery("#multi_trial_synonym_search_check").prop("checked", false);
     jQuery("#multi_trial_synonym_search_replacements").val(encodeURIComponent(JSON.stringify(replacements)));
     jQuery("#upload_multiple_trial_designs_form").submit();
     jQuery("#multi_trial_synonym_search_check").prop("checked", init_synonym_search_check);
+}
+
+/**
+ * Re-upload the single trial template, including the user's selected replacements
+ * - Set the user's replacement in the form (URL-encoded JSON string)
+ * - Re-submit the form to upload the trials
+ * @param {Object[]} replacements User's selected accession replacements
+ */
+function trial_store_synonym_search(replacements) {
+    let init_synonym_search_check = jQuery("#trial_synonym_search_check").prop("checked");
+    jQuery("#trial_synonym_search_check").prop("checked", false);
+    jQuery("#trial_synonym_search_replacements").val(encodeURIComponent(JSON.stringify(replacements)));
+    jQuery("#upload_trial_form").submit();
+    jQuery("#trial_synonym_search_check").prop("checked", init_synonym_search_check);
 }

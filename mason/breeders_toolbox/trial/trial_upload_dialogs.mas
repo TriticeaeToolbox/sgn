@@ -292,11 +292,12 @@ $design_types => ()
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">Plants per Plot: </label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" id="trial_upload_plant_entries" name="trial_upload_plant_entries" type="text" />
-                                        <p><i>Creates plant entries for each plot. Ignore if not adding plant entries.</i></p>
+                                        <input class="form-control" id="trial_upload_plant_entries" name="trial_upload_plant_entries" type="number" />
+                                        <p><i>Create the specified number plant entries for each plot. Leave blank if not adding plant entries.</i></p>
                                     </div>
-                                    <label style="font-size: 80%;" class="col-sm-3 control-label">Inherits Management Factor(s) From Plots: </label>
-                                    <div class="col-sm-8" >
+                                    <div class="col-sm-3"></div>
+                                    <div class="col-sm-9">
+                                        <label style="font-size: 80%;" class="control-label">New Plant Entries Inherit Management Factor(s) From Plots</label>
                                         <input name="trial_upload_plants_per_plot_inherit_treatments" id="trial_upload_plants_per_plot_inherit_treatments" type="checkbox" checked disabled/>
                                     </div>
                                 </div>
@@ -357,6 +358,30 @@ $design_types => ()
                                         <input type="file" name="trial_uploaded_file" id="trial_uploaded_file" encoding="multipart/form-data" />
                                     </div>
                                 </div>
+                                <div class="well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                                        <div class="col-sm-8" style="text-align: left">
+% if ( $user_role eq 'curator' ) {
+                                        <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked>
+% } else { 
+                                        <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked disabled>
+% }
+                                        <br/>
+                                        <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                                        <div class="col-sm-8" style="text-align: left">
+                                        <input type="checkbox" id="trial_synonym_search_update" name="trial_synonym_search_update">
+                                        <br/>
+                                        <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                        <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="trial_synonym_search_replacements" name="trial_synonym_search_replacements">
+                                    </div>
 
                                 <br/><br/>
                                 <center>

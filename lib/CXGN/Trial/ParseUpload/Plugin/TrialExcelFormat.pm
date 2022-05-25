@@ -14,6 +14,7 @@ sub _validate_with_plugin {
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
   my $trial_stock_type = $self->get_trial_stock_type();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
   my %errors;
   my @error_messages;
   my %warnings;
@@ -321,13 +322,15 @@ sub _validate_with_plugin {
 
   }
 
-    my @entry_names = keys %seen_entry_names;
-    my $entry_name_validator = CXGN::List::Validate->new();
-    my @entry_names_missing = @{$entry_name_validator->validate($schema,'accessions_or_crosses_or_familynames',\@entry_names)->{'missing'}};
+    if ( !$skip_accession_checks ) {
+      my @entry_names = keys %seen_entry_names;
+      my $entry_name_validator = CXGN::List::Validate->new();
+      my @entry_names_missing = @{$entry_name_validator->validate($schema,'accessions_or_crosses_or_familynames',\@entry_names)->{'missing'}};
 
-    if (scalar(@entry_names_missing) > 0) {
-        $errors{'missing_stocks'} = \@entry_names_missing;
-        push @error_messages, "The following entry names are not in the database as uniquenames or synonyms: ".join(',',@entry_names_missing);
+      if (scalar(@entry_names_missing) > 0) {
+          $errors{'missing_stocks'} = \@entry_names_missing;
+          push @error_messages, "The following entry names are not in the database as uniquenames or synonyms: ".join(',',@entry_names_missing);
+      }
     }
 
 
