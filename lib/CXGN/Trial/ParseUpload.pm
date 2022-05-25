@@ -26,6 +26,18 @@ has 'filename' => (
     required => 1
 );
 
+has 'skip_accession_checks' => (
+    is => 'ro',
+    isa => 'Int|Undef',
+    required => 0
+);
+
+has 'accession_replacements' => (
+    is => 'ro',
+    isa => 'HashRef|Undef',
+    required => 0
+);
+
 has 'parse_warnings' => (
     is => 'ro',
     isa => 'HashRef',
