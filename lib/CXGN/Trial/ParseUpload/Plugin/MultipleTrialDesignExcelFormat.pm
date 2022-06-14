@@ -247,7 +247,7 @@ sub _validate_with_plugin {
       my $h = $worksheet->get_cell(0,24)->value();
       if ( $h eq 'is_private' ) {
         $is_private = $worksheet->get_cell($row,24)->value();
-        $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+        $is_private = defined($is_private) && ($is_private eq "1" || $is_private eq "true" || $is_private eq "yes");
       }
     }
 
@@ -803,7 +803,7 @@ sub _parse_with_plugin {
       my $h = $worksheet->get_cell(0,24)->value();
       if ( $h eq 'is_private' ) {
         $is_private = $worksheet->get_cell($row,24)->value();
-        $is_private = defined($is_private) && ($is_private == "1" || $is_private == "true" || $is_private == "yes");
+        $is_private = defined($is_private) && ($is_private eq "1" || $is_private eq "true" || $is_private eq "yes");
       }
     }
 
