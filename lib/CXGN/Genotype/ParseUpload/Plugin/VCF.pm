@@ -69,6 +69,7 @@ sub _validate_with_plugin {
         my @formats;
         my $line_count = 1;
         while (<$F>) {
+            $_ =~ s/\r//g;
             chomp;
 
             if ($_ =~ m/^##/){
