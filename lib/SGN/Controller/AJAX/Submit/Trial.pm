@@ -133,7 +133,7 @@ sub submit_trial_data_GET : Args(0) {
 
 sub submit_trial_data_POST : Args(0) {
     my ($self, $c) = @_;
-    my $trial_id = $c->req->param("trial_id");
+    my $trial_id_str = $c->req->param("trial_id");
     my $comments = $c->req->param("comments");
 
     my $user = $c->user();
@@ -154,53 +154,73 @@ sub submit_trial_data_POST : Args(0) {
     }
 
     # Trial ID is required
-    if ( !$trial_id || $trial_id eq "" ) {
-        $self->submit_error($c, undef, "Trial ID is required");
+    if ( !$trial_id_str || $trial_id_str eq "" ) {
+        $self->submit_error($c, undef, "Trial ID(s) required");
     }
 
-    # Get Trial by ID
-    my $trial = undef;
-    eval {
-        $trial = new CXGN::Trial({bcs_schema => $schema, trial_id => $trial_id});
-        1;    
-    } or do {
-        $self->submit_error($c, undef, "The requested Trial could not be found");
-    };
+    # Split Multiple Trial IDs
+    my @trial_ids = split(/, ?/, $trial_id_str);
 
-    # Set file directory
-    my $ts = strftime "%Y%m%d_%H%M%S", localtime;
-    my $user_id = $user->get_object()->get_sp_person_id();
-    my $trial_dir = $ts . "_" . $trial_id;
-    my $dir = $submission_path . "/" . $user_id . '/' . $trial_dir;
-    unless (-d $dir) {
-        mkpath($dir) or die "Couldn't mkdir $dir: $!";
+    # Export each trial separately
+    my %info;    # Hash of trial_id->{dir, trial_dir, name}
+    my @names;   # List of trial names
+    my $ts = strftime "%Y%m%d_%H%M%S", localtime;               # Timestamp to use in directory name
+    my $user_id = $user->get_object()->get_sp_person_id();      # User ID to use in directory name
+    for my $trial_id (@trial_ids) {
+
+        # Get Trial by ID
+        my $trial = undef;
+        eval {
+            $trial = new CXGN::Trial({bcs_schema => $schema, trial_id => $trial_id});
+            1;
+        } or do {
+            $self->submit_error($c, undef, "The requested Trial could not be found");
+        };
+
+        # Set file directory
+        my $trial_dir = $ts . "_" . $trial_id;
+        my $dir = $submission_path . "/" . $user_id . '/' . $trial_dir;
+        unless (-d $dir) {
+            mkpath($dir) or die "Couldn't mkdir $dir: $!";
+        }
+        $info{$trial_id} = {
+            'name' => $trial->get_name(),
+            'dir' => $dir,
+            'trial_dir' => $trial_dir
+        };
+        push(@names, $trial->get_name());
+        print STDERR "==> Writing Trial $trial_id templates to: $dir\n";
+
+        # Write Individual Files
+        $self->generate_submission_file($c, $dir, $comments);
+        $self->generate_breeding_program_file($c, $dir, $trial);
+        $self->generate_location_file($c, $dir, $trial);
+        $self->generate_trial_details_file($c, $dir, $trial);
+        $self->generate_accessions_file($c, $dir, $trial);
+        $self->generate_trial_layout_file($c, $dir, $trial);
+        $self->generate_trial_observations_file($c, $dir, $trial);
+
     }
-    print STDERR "==> Writing Trial $trial_id templates to: $dir\n";
-
-    # Write Individual Files
-    $self->generate_submission_file($c, $dir, $comments);
-    $self->generate_breeding_program_file($c, $dir, $trial);
-    $self->generate_location_file($c, $dir, $trial);
-    $self->generate_trial_details_file($c, $dir, $trial);
-    $self->generate_accessions_file($c, $dir, $trial);
-    $self->generate_trial_layout_file($c, $dir, $trial);
-    $self->generate_trial_observations_file($c, $dir, $trial);
 
     # Send email notification
     if ( $submission_email ) {
-        my $subject = "[Trial Submission] " . $trial->get_name();
+        my $subject = "[Trial Submission] " . scalar(@names) . " Trial(s) Submitted";
 
         my $body = "TRIAL SUBMISSION\n";
         $body .= "================\n\n";
-        $body .= "Phenotyping trial " . $trial->get_name() . " has been submitted for curation.\n\n";
+        $body .= "Phenotyping trial(s) " . join(', ', @names) . " have been submitted for curation.\n\n";
         if ( $comments ) {
             $body .= $comments . "\n\n";
         }
-        $body .= "Trial: " . $trial->get_name() . " (" . $trial_id . ")\n";
         $body .= "User: " . $user->get_first_name() . " " . $user->get_last_name() . " <" . $user->get_private_email() . ">\n";
-        $body .= "Site: " . $main_production_site_url . "\n";
-        $body .= "Directory: " . $dir . "\n";
-        $body .= "View Files: " . $main_production_site_url . "/submit/view/" . $user_id . "/" . $trial_dir;
+        $body .= "Site: " . $main_production_site_url . "\n\n";
+
+        $body .= "Trials:\n";
+        while ( my($k, $v) = each %info ) {
+            $body .= " - " . $v->{'name'} . " (" . $k . ")\n";
+            $body .= "   Directory: " . $v->{'dir'} . "\n";
+            $body .= "   View Files: " . $main_production_site_url . "/submit/view" . $user_id . "/" . $v->{'trial_dir'} . "\n";
+        }
 
         CXGN::Contact::send_email($subject, $body, $submission_email, $user->get_private_email());
     }
