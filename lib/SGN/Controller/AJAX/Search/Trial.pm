@@ -151,7 +151,7 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
         $h = $schema->storage->dbh()->prepare($q);
         $h->execute($_->{trial_id});
         my @row_col_counts = $h->fetchrow_array();
-        my $has_trial_layout = $row_col_counts[0] != 0 && $row_col_counts[1] != 0;
+        my $has_trial_layout = $row_col_counts[0] && $row_col_counts[1] && $row_col_counts[0] != 0 && $row_col_counts[1] != 0;
 
         push @res, (
             "<a href=\"/breeders_toolbox/trial/$_->{trial_id}\">$_->{trial_name}</a>",
