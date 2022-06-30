@@ -132,7 +132,7 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
 	$q = "SELECT projectprop.value FROM projectprop WHERE projectprop.type_id = ? AND projectprop.project_id = ?";
         $h = $schema->storage->dbh()->prepare($q);
         $h->execute($copied_to_t3_cvterm_id, $_->{trial_id});
-        my @info = $h->fetchrow_array();
+        @info = $h->fetchrow_array();
         $transferred = $info[0];
 
         push @res, (
