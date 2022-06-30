@@ -107,12 +107,12 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
         if ($checkbox_select_name){
             push @res, "<input type='checkbox' name='$checkbox_select_name' value='$_->{trial_id}'>";
         }
-	my $q = "select create_date from project where project_id = ?";
+        my $q = "select create_date from project where project_id = ?";
         my $h = $schema->storage->dbh()->prepare($q);
         $h->execute($_->{trial_id});
         my @info = $h->fetchrow_array();
         $create_date = $info[0];
-	my $dt1 = DateTime->now;
+        my $dt1 = DateTime->now;
         my $dt2 = $dt1 - DateTime::Duration->new( years => 2 );
         if ($create_date =~ /(\d+)-(\d+)-(\d+)/) {
             my $dt3 = DateTime->new(
@@ -129,11 +129,29 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
             }
         }
 
-	$q = "SELECT projectprop.value FROM projectprop WHERE projectprop.type_id = ? AND projectprop.project_id = ?";
+        $q = "SELECT projectprop.value FROM projectprop WHERE projectprop.type_id = ? AND projectprop.project_id = ?";
         $h = $schema->storage->dbh()->prepare($q);
         $h->execute($copied_to_t3_cvterm_id, $_->{trial_id});
         @info = $h->fetchrow_array();
         $transferred = $info[0];
+
+        # Query to get the count of defined row and col numbers in the trial layout
+        # The layout is defined if the number of row and col numbers are not 0
+        # (See the CXGN::Project->has_col_and_row_numbers() function)
+        $q = "SELECT 
+                SUM(CASE WHEN sub.row_number IS NULL THEN 0 ELSE 1 END) AS row_count, 
+                SUM(CASE WHEN sub.col_number IS NULL THEN 0 ELSE 1 END) AS col_count
+                FROM (
+                    SELECT sub.key AS plot, sub.value->'row_number' AS row_number, sub.value->'col_number' AS col_number
+                    FROM public.projectprop
+                    CROSS JOIN LATERAL json_each(value::json) sub
+                    WHERE project_id = ?
+                    AND type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'trial_layout_json')
+                ) AS sub;";
+        $h = $schema->storage->dbh()->prepare($q);
+        $h->execute($_->{trial_id});
+        my @row_col_counts = $h->fetchrow_array();
+        my $has_trial_layout = $row_col_counts[0] && $row_col_counts[1] && $row_col_counts[0] != 0 && $row_col_counts[1] != 0;
 
         push @res, (
             "<a href=\"/breeders_toolbox/trial/$_->{trial_id}\">$_->{trial_name}</a>",
@@ -142,9 +160,10 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
             $_->{year},
             $_->{project_planting_date},
             $_->{project_harvest_date},
-	    $create_date,
-	    $public_date,
-	    $transferred
+            $has_trial_layout ? '<span class="glyphicon glyphicon-ok-sign" style="color: #3c7d3d; font-size: 150%"></span>' : '',
+            $create_date,
+            $public_date,
+            $transferred
         );
         push @result, \@res;
     }

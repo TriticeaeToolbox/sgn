@@ -1,8 +1,8 @@
 format-version: 1.2
-date: 12:01:2022 12:27
-saved-by: djw64
+date: 03:02:2022 16:05
+saved-by: DJW
 auto-generated-by: convert_obo.pl/1.1
-remark: This file was converted to an SGN-compatible obo file from a standard obo file [./oat.obo]
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [oat.obo]
 default-namespace: oat_trait
 ontology: CO_350
 
@@ -84,7 +84,7 @@ id: CO_350:0000081
 name: Barley yellow dwarf virus incidence
 namespace: oat_trait
 def: "Percentage of plants in a plot showing symptoms of barley yellow dwarf virus." []
-synonym: "1" EXACT []
+synonym: "BYDV incidence" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -92,7 +92,7 @@ id: CO_350:0000036
 name: Beta-glucan content
 namespace: oat_trait
 def: "Amount of beta-glucan present in the groat expressed as a percentage of the entire groat." []
-synonym: "1" EXACT []
+synonym: "BeGlCnt" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -100,7 +100,7 @@ id: CO_350:0000039
 name: Broken groats
 namespace: oat_trait
 def: "The amount of broken groats after de-hulling, expressed as a percentage of the weight of the entire whole grain sample." []
-synonym: "1" EXACT []
+synonym: "BrGrt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -108,7 +108,7 @@ id: CO_350:0000042
 name: Dietary fiber content
 namespace: oat_trait
 def: "Dietary fiber content" []
-synonym: "1" EXACT []
+synonym: "DietFibCnt" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -116,7 +116,7 @@ id: CO_350:0000093
 name: Fusarium head blight incidence
 namespace: oat_trait
 def: "Percentage of plants in a plot showing Fusarium head blight symptoms." []
-synonym: "1" EXACT []
+synonym: "FHB incidence" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -124,7 +124,7 @@ id: CO_350:0000066
 name: Grain plumpness
 namespace: oat_trait
 def: "The amount of a grain sample that does not pass through the holes of a sieve of defined size, expressed as a percentage weight of the entire sample." []
-synonym: "1" EXACT []
+synonym: "GrPlum" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -132,7 +132,7 @@ id: CO_350:0000048
 name: Grain protein content
 namespace: oat_trait
 def: "The amount of protein in the grain, expressed as a percentage of the whole grain." []
-synonym: "1" EXACT []
+synonym: "GrPtnCnt" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -140,7 +140,7 @@ id: CO_350:0000009
 name: Groat content
 namespace: oat_trait
 def: "Groat content" []
-synonym: "1" EXACT []
+synonym: "GrtCnt" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -148,7 +148,7 @@ id: CO_350:0000051
 name: Groat oil content
 namespace: oat_trait
 def: "The amount of oil in the groat, expressed as a percentage of the groat." []
-synonym: "1" EXACT []
+synonym: "GrtOilCnt" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -156,7 +156,7 @@ id: CO_350:0000054
 name: Groat protein content
 namespace: oat_trait
 def: "The amount of protein in the groat, expressed as a percentage of the groat." []
-synonym: "1" EXACT []
+synonym: "GrtPtnCnt" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -164,7 +164,7 @@ id: CO_350:0000015
 name: Lodging incidence
 namespace: oat_trait
 def: "Measure of the percentage of the stems of plants in a plot that have been permanently bent, usually as a result of adverse weather." []
-synonym: "1" EXACT []
+synonym: "Lodg" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -172,7 +172,7 @@ id: CO_350:0000099
 name: Powdery mildew incidence
 namespace: oat_trait
 def: "Percentage of plants in a plot showing symptoms of powdery mildew." []
-synonym: "1" EXACT []
+synonym: "Pwinc" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -180,7 +180,7 @@ id: CO_350:0000102
 name: Root rot incidence
 namespace: oat_trait
 def: "Percentage of plants in a plot showing symptoms of root rot." []
-synonym: "1" EXACT []
+synonym: "RRInc" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -188,7 +188,7 @@ id: CO_350:0000105
 name: Smut incidence
 namespace: oat_trait
 def: "Percentage of plants in a plot showing symptoms of smut." []
-synonym: "1" EXACT []
+synonym: "SmutInc" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -196,7 +196,7 @@ id: CO_350:0000108
 name: Stem rust incidence
 namespace: oat_trait
 def: "Percentage of plants in a plot showing symptoms of stem rust." []
-synonym: "1" EXACT []
+synonym: "Srinc" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -204,7 +204,7 @@ id: CO_350:0000030
 name: Winter survival
 namespace: oat_trait
 def: "Percentage of plants in a plot sown in fall that are still growing in spring." []
-synonym: "1" EXACT []
+synonym: "WS" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -212,7 +212,7 @@ id: CO_350:0000117
 name: Lodging severity
 namespace: oat_trait
 def: "Severity of lodging symptoms observed in a plot: lodged plants do not stand erect." []
-synonym: "1" EXACT []
+synonym: "LodgSev" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -220,7 +220,7 @@ id: CO_350:0000084
 name: Barley yellow dwarf virus severity
 namespace: oat_trait
 def: "Severity of barley yellow dwarf virus symptoms observed in a plot." []
-synonym: "1" EXACT []
+synonym: "BYDV severity" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -228,7 +228,7 @@ id: CO_350:0000090
 name: Crown rust severity
 namespace: oat_trait
 def: "Crown rust severity." []
-synonym: "1" EXACT []
+synonym: "CrnRst" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -236,7 +236,7 @@ id: CO_350:0000096
 name: Leaf blotch severity
 namespace: oat_trait
 def: "Severity of leaf blotch symptoms observed in a plot." []
-synonym: "1" EXACT []
+synonym: "Lbsev" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -244,7 +244,7 @@ id: CO_350:0000003
 name: Breakage incidence
 namespace: oat_trait
 def: "Proportion of the stems in a plot that are snapped/broken." []
-synonym: "1" EXACT []
+synonym: "Break" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -252,7 +252,7 @@ id: CO_350:0000072
 name: Groat color
 namespace: oat_trait
 def: "Color of the de-hulled grain: the groat." []
-synonym: "1" EXACT []
+synonym: "GrtCol" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -260,7 +260,7 @@ id: CO_350:0000000
 name: Agronomic score
 namespace: oat_trait
 def: "Rating of overall agronomical attributes and health of oat plants in a plot." []
-synonym: "1" EXACT []
+synonym: "AgrSc" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -268,7 +268,7 @@ id: CO_350:0000114
 name: Stem rust severity
 namespace: oat_trait
 def: "Stem rust severity." []
-synonym: "1" EXACT []
+synonym: "StmRst" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -276,7 +276,7 @@ id: CO_350:0000024
 name: Relative canopy development
 namespace: oat_trait
 def: "Relative canopy development, each genotype is rated against the earliest genotypes, when those genotypes have a completely closed canopy." []
-synonym: "1" EXACT []
+synonym: "RelCan" EXACT []
 is_a: CO_350:Phenological
 
 [Term]
@@ -284,7 +284,7 @@ id: CO_350:0000027
 name: Snapback
 namespace: oat_trait
 def: "Snapback, or recovery to a vertical position, of the plant after being held at a 45 degree angle." []
-synonym: "1" EXACT []
+synonym: "Snap" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -292,7 +292,7 @@ id: CO_350:0000021
 name: Plant height
 namespace: oat_trait
 def: "Height of plant from ground to top of flag leaf ligule." []
-synonym: "1" EXACT []
+synonym: "PlntHtLig" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -300,7 +300,7 @@ id: CO_350:0000012
 name: Heading time
 namespace: oat_trait
 def: "The time when heading occurs." []
-synonym: "1" EXACT []
+synonym: "HdDays" EXACT []
 is_a: CO_350:Phenological
 
 [Term]
@@ -308,7 +308,7 @@ id: CO_350:0000018
 name: Maturity time
 namespace: oat_trait
 def: "The time when maturity occurs" []
-synonym: "1" EXACT []
+synonym: "MatDays" EXACT []
 is_a: CO_350:Phenological
 
 [Term]
@@ -316,7 +316,7 @@ id: CO_350:0000087
 name: Crown rust infection type
 namespace: oat_trait
 def: "A qualitative analysis of the type of crown rust symptoms that are exhibited." []
-synonym: "1" EXACT []
+synonym: "CRItype" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -324,7 +324,7 @@ id: CO_350:0000111
 name: Stem rust infection type
 namespace: oat_trait
 def: "A qualitative analysis of the type of stem rust symptoms that are exhibited." []
-synonym: "1" EXACT []
+synonym: "Srinftype" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -332,7 +332,7 @@ id: CO_350:0000078
 name: Thousand grain weight
 namespace: oat_trait
 def: "The thousand grain weight." []
-synonym: "1" EXACT []
+synonym: "TGW" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -340,7 +340,7 @@ id: CO_350:0000063
 name: Undehulled seed
 namespace: oat_trait
 def: "Amount of undehulled seed remaining after dehulling." []
-synonym: "1" EXACT []
+synonym: "UndehulledS" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -348,7 +348,7 @@ id: CO_350:0000075
 name: Test weight
 namespace: oat_trait
 def: "A measure of the density or weight per unit volume of a grain at a standardized moisture level." []
-synonym: "1" EXACT []
+synonym: "TstW" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -356,7 +356,7 @@ id: CO_350:0000006
 name: Grain yield
 namespace: oat_trait
 def: "Total weight of grains harvested per unit area." []
-synonym: "1" EXACT []
+synonym: "GrYie" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -364,7 +364,7 @@ id: CO_350:0000523
 name: Downy mildew severity
 namespace: oat_trait
 def: "Downy mildew severity." []
-synonym: "1" EXACT []
+synonym: "DnyMd" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -372,7 +372,7 @@ id: CO_350:0000120
 name: Grain moisture content
 namespace: oat_trait
 def: "Moisture content of grain." []
-synonym: "1" EXACT []
+synonym: "MoiCon" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -380,7 +380,7 @@ id: CO_350:0000572
 name: Lipid content
 namespace: oat_trait
 def: "The lipid content of the grain." []
-synonym: "1" EXACT []
+synonym: "LpCnt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -388,7 +388,7 @@ id: CO_350:0000045
 name: Deoxynivalenol concentration
 namespace: oat_trait
 def: "Amount of the mycotoxin deoxynivalenol found in the grain after an infection by Fusarium sp." []
-synonym: "1" EXACT []
+synonym: "DON concentration" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -396,7 +396,7 @@ id: CO_350:0000033
 name: Avenanthramide content
 namespace: oat_trait
 def: "Avenanthramide content" []
-synonym: "1" EXACT []
+synonym: "AveCnt" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -404,7 +404,7 @@ id: CO_350:0000060
 name: Tocopherol concentration
 namespace: oat_trait
 def: "Tocopherol concentration" []
-synonym: "1" EXACT []
+synonym: "TocophCtn" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -412,7 +412,7 @@ id: CO_350:0000057
 name: Tocotrienol concentration
 namespace: oat_trait
 def: "Tocotrienol concentration" []
-synonym: "1" EXACT []
+synonym: "TocotrCtn" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -420,7 +420,7 @@ id: CO_350:0005401
 name: Freeze damage severity
 namespace: oat_trait
 def: "Severity of the symptoms of freeze damage observed in a plot" []
-synonym: "1" EXACT []
+synonym: "FDS" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -428,7 +428,7 @@ id: CO_350:0005402
 name: Storm damage severity
 namespace: oat_trait
 def: "Severity of the damage inflicted by stormy weather" []
-synonym: "1" EXACT []
+synonym: "SDS" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -436,7 +436,7 @@ id: CO_350:0005403
 name: Winter stress severity
 namespace: oat_trait
 def: "Mid-winter rating of the severity of the symptoms of winter stress observed in a plot" []
-synonym: "1" EXACT []
+synonym: "WSS" EXACT []
 is_a: CO_350:Abiotic_stress
 
 [Term]
@@ -444,7 +444,7 @@ id: CO_350:0005404
 name: Emergence
 namespace: oat_trait
 def: "Percentage of plants in a plot that have emerged" []
-synonym: "1" EXACT []
+synonym: "PE" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -452,7 +452,7 @@ id: CO_350:0005405
 name: Forage rating
 namespace: oat_trait
 def: "Yield potential in spring" []
-synonym: "1" EXACT []
+synonym: "FR" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -460,7 +460,7 @@ id: CO_350:0005406
 name: Phenotype score
 namespace: oat_trait
 def: "Relative rating of visual appeal that takes in to account plant vigor, diseases, etc." []
-synonym: "1" EXACT []
+synonym: "PS" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -468,7 +468,7 @@ id: CO_350:0005407
 name: Silage yield
 namespace: oat_trait
 def: "Total weight of silage per unit area" []
-synonym: "1" EXACT []
+synonym: "SY" EXACT []
 is_a: CO_350:Agronomic
 
 [Term]
@@ -476,7 +476,7 @@ id: CO_350:0005408
 name: Bird damage severity
 namespace: oat_trait
 def: "Severity of the symptoms of bird damage observed in a plot" []
-synonym: "1" EXACT []
+synonym: "BDS" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -484,7 +484,7 @@ id: CO_350:0005409
 name: Cereal leaf beetle damage severity
 namespace: oat_trait
 def: "Severity of larval feeding damage caused by cereal leaf beetle (Oulema malanopus)." []
-synonym: "1" EXACT []
+synonym: "CLBS" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -492,7 +492,7 @@ id: CO_350:0005410
 name: Stagonospora severity
 namespace: oat_trait
 def: "Severity of Stagonospora avenae f. sp. avenaria symptoms. Stagonospora causes leaf blotch and black stem of oat." []
-synonym: "1" EXACT []
+synonym: "SAS" EXACT []
 is_a: CO_350:Biotic_stress
 
 [Term]
@@ -500,7 +500,7 @@ id: CO_350:0005411
 name: GC-MS
 namespace: oat_trait
 def: "Gas chromatography mass spectrometry" []
-synonym: "1" EXACT []
+synonym: "GCMS" EXACT []
 is_a: CO_350:Metabolite
 
 [Term]
@@ -508,7 +508,7 @@ id: CO_350:0005412
 name: LC-MS
 namespace: oat_trait
 def: "Liquid chromatography mass spectrometry" []
-synonym: "1" EXACT []
+synonym: "LCMS" EXACT []
 is_a: CO_350:Metabolite
 
 [Term]
@@ -516,7 +516,7 @@ id: CO_350:0005413
 name: Growth habit
 namespace: oat_trait
 def: "Growth habit rating ranging from very upright spring type to very prostrate winter type" []
-synonym: "1" EXACT []
+synonym: "GH" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -524,7 +524,7 @@ id: CO_350:0005414
 name: Hull color
 namespace: oat_trait
 def: "Hull color" []
-synonym: "1" EXACT []
+synonym: "HC" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -532,7 +532,7 @@ id: CO_350:0005415
 name: Kernels per spikelet
 namespace: oat_trait
 def: "Average number of kernels per spikelet" []
-synonym: "1" EXACT []
+synonym: "KPS" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -540,7 +540,7 @@ id: CO_350:0005416
 name: Leaf biomass
 namespace: oat_trait
 def: "An estimation of the leaf biomass" []
-synonym: "1" EXACT []
+synonym: "LBM" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -548,7 +548,7 @@ id: CO_350:0005417
 name: Panicle length
 namespace: oat_trait
 def: "Average panicle length " []
-synonym: "1" EXACT []
+synonym: "PL" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -556,7 +556,7 @@ id: CO_350:0005418
 name: Spikelets per panicle
 namespace: oat_trait
 def: "Average number of spikelets per panicle" []
-synonym: "1" EXACT []
+synonym: "SPP" EXACT []
 is_a: CO_350:Morphological
 
 [Term]
@@ -564,7 +564,7 @@ id: CO_350:0005419
 name: Avenanthramide relative abundance
 namespace: oat_trait
 def: "Relative abundance of avenanthramide estimated by UPLC" []
-synonym: "1" EXACT []
+synonym: "AveAbd" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -572,7 +572,7 @@ id: CO_350:0005420
 name: Dehulling efficiency
 namespace: oat_trait
 def: "Efficiency of dehulling seed by a machine" []
-synonym: "1" EXACT []
+synonym: "DHE" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -580,7 +580,7 @@ id: CO_350:0005421
 name: 3-acetyl-deoxynivalenol concentration
 namespace: oat_trait
 def: "Amount of the mycotoxin 3-acetyl-deoxynivalenol found in the grain after an infection by Fusarium sp." []
-synonym: "1" EXACT []
+synonym: "DON3-acetyl" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -588,7 +588,7 @@ id: CO_350:0005422
 name: Fatty acid content
 namespace: oat_trait
 def: "Fatty acid content of the grain" []
-synonym: "1" EXACT []
+synonym: "FAC" EXACT []
 is_a: CO_350:Biochemical
 
 [Term]
@@ -596,7 +596,7 @@ id: CO_350:0005423
 name: Groat flour falling number
 namespace: oat_trait
 def: "Flour falling number is used as an indirect measurement of the alpha amylase content of the groat" []
-synonym: "1" EXACT []
+synonym: "FFN" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -604,7 +604,7 @@ id: CO_350:0005424
 name: Lutein content
 namespace: oat_trait
 def: "Lutein content" []
-synonym: "1" EXACT []
+synonym: "LutCnt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -612,7 +612,7 @@ id: CO_350:0005425
 name: Phytoene content
 namespace: oat_trait
 def: "Phytoene content" []
-synonym: "1" EXACT []
+synonym: "PhyeCnt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -620,7 +620,7 @@ id: CO_350:0005426
 name: Phytofluene content
 namespace: oat_trait
 def: "Phytofluene content" []
-synonym: "1" EXACT []
+synonym: "PhyfCnt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -628,7 +628,7 @@ id: CO_350:0005427
 name: Seed quality
 namespace: oat_trait
 def: "Seed quality" []
-synonym: "1" EXACT []
+synonym: "SQ" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -636,7 +636,7 @@ id: CO_350:0005428
 name: Silage moisture content
 namespace: oat_trait
 def: "Moisture content of silage." []
-synonym: "1" EXACT []
+synonym: "SMQ" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -644,7 +644,7 @@ id: CO_350:0005429
 name: Total toco concentration
 namespace: oat_trait
 def: "Measure of the total -tocopherol and -tocotrienol content" []
-synonym: "1" EXACT []
+synonym: "TocoCtn" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -652,7 +652,7 @@ id: CO_350:0005430
 name: Tunaxanthin content
 namespace: oat_trait
 def: "Tunaxanthin content" []
-synonym: "1" EXACT []
+synonym: "TaxCnt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -660,7 +660,7 @@ id: CO_350:0005431
 name: Violaxanthin content
 namespace: oat_trait
 def: "Violaxanthin content" []
-synonym: "1" EXACT []
+synonym: "VaxCnt" EXACT []
 is_a: CO_350:Quality
 
 [Term]
@@ -668,19 +668,27 @@ id: CO_350:0005432
 name: Zeaxanthin content
 namespace: oat_trait
 def: "Zeaxanthin content" []
-synonym: "1" EXACT []
+synonym: "ZaxCnt" EXACT []
 is_a: CO_350:Quality
+
+[Term]
+id: CO_350:0005433
+name: Grain oil content
+namespace: oat_trait
+def: "The amount of oil in the grain, expressed as a percentage of the whole grain." []
+synonym: "GrOilCnt" EXACT []
+is_a: CO_350:Biochemical
 
 [Term]
 id: CO_350:0000082
 name: Disease incidence observation
 namespace: oat_trait_method
 def: "Visual assessment of the percentage of plants in a plot showing symptoms of a specific disease." []
+relationship: method_of CO_350:0000105
+relationship: method_of CO_350:0000102
+relationship: method_of CO_350:0000081
 relationship: method_of CO_350:0000108
 relationship: method_of CO_350:0000099
-relationship: method_of CO_350:0000102
-relationship: method_of CO_350:0000105
-relationship: method_of CO_350:0000081
 
 [Term]
 id: CO_350:0000037
@@ -1376,83 +1384,6 @@ def: "Computation of the 3-acetyl-deoxynivalenol content" []
 relationship: method_of CO_350:0005421
 
 [Term]
-id: CO_350:0005671
-name: Fatty acid C14:0 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C14:0 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005672
-name: Fatty acid C16:0 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C16:0 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005673
-name: Fatty acid C16:1 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C16:1 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005674
-name: Fatty acid C18:0 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C18:0 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005675
-name: Fatty acid C18:1(9) content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C18:1(9) content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005676
-name: Fatty acid C18:1* content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C18:1* content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005677
-name: Fatty acid C18:2 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C18:2 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005678
-name: Fatty acid C18:3 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C18:3 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005679
-name: Fatty acid C19:0 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C19:0 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005680
-name: Fatty acid C20:0 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C20:0 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
-id: CO_350:0005681
-name: Fatty acid C20:1 content measurement
-namespace: oat_trait_method
-def: "Measurement of fatty acid C20:1 content" []
-relationship: method_of CO_350:0005422
-
-[Term]
 id: CO_350:0005682
 name: Groat flour falling number determination
 namespace: oat_trait_method
@@ -1593,54 +1524,128 @@ def: "Calculate the percentage of undehulled seed" []
 relationship: method_of CO_350:0000063
 
 [Term]
+id: CO_350:0005702
+name: Grain oil content determination
+namespace: oat_trait_method
+def: "Computation of the percentage of oil in the whole grain as obtained using near-infrared spectroscopy (NIR)." []
+relationship: method_of CO_350:0005433
+
+[Term]
+id: CO_350:0005703
+name: Fatty acid C14:0 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C14:0 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005704
+name: Fatty acid C16:0 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C16:0 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005705
+name: Fatty acid C16:1 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C16:1 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005706
+name: Fatty acid C18:0 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C18:0 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005707
+name: Fatty acid C18:1(9) concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C18:1(9) content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005708
+name: Fatty acid C18:1* concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C18:1* content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005709
+name: Fatty acid C18:2 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C18:2 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005710
+name: Fatty acid C18:3 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C18:3 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005711
+name: Fatty acid C19:0 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C19:0 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005712
+name: Fatty acid C20:0 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C20:0 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
+id: CO_350:0005713
+name: Fatty acid C20:1 concentration measurement
+namespace: oat_trait_method
+def: "Measurement of the concentration of fatty acid C20:1 content" []
+relationship: method_of CO_350:0005422
+
+[Term]
 id: CO_350:0000011
 name: percent
 namespace: oat_trait_scale
+relationship: scale_of CO_350:0005604
+relationship: scale_of CO_350:0005667
+relationship: scale_of CO_350:0000055
+relationship: scale_of CO_350:0005685
+relationship: scale_of CO_350:0005687
+relationship: scale_of CO_350:0000016
+relationship: scale_of CO_350:0005699
+relationship: scale_of CO_350:0005649
+relationship: scale_of CO_350:0005650
+relationship: scale_of CO_350:0005698
+relationship: scale_of CO_350:0005697
+relationship: scale_of CO_350:0005668
+relationship: scale_of CO_350:0000040
+relationship: scale_of CO_350:0000626
+relationship: scale_of CO_350:0005702
+relationship: scale_of CO_350:0000049
+relationship: scale_of CO_350:0005684
+relationship: scale_of CO_350:0005669
+relationship: scale_of CO_350:0000010
+relationship: scale_of CO_350:0005666
+relationship: scale_of CO_350:0005665
+relationship: scale_of CO_350:0005701
+relationship: scale_of CO_350:0005664
+relationship: scale_of CO_350:0000037
+relationship: scale_of CO_350:0005683
+relationship: scale_of CO_350:0000043
+relationship: scale_of CO_350:0005648
+relationship: scale_of CO_350:0005606
+relationship: scale_of CO_350:0000031
+relationship: scale_of CO_350:0000082
+relationship: scale_of CO_350:0005700
 relationship: scale_of CO_350:0005628
 relationship: scale_of CO_350:0000573
-relationship: scale_of CO_350:0005665
-relationship: scale_of CO_350:0005687
-relationship: scale_of CO_350:0005604
-relationship: scale_of CO_350:0005701
-relationship: scale_of CO_350:0005649
-relationship: scale_of CO_350:0005676
-relationship: scale_of CO_350:0000535
-relationship: scale_of CO_350:0005666
-relationship: scale_of CO_350:0005699
-relationship: scale_of CO_350:0005679
-relationship: scale_of CO_350:0005671
-relationship: scale_of CO_350:0005684
-relationship: scale_of CO_350:0000043
 relationship: scale_of CO_350:0000052
-relationship: scale_of CO_350:0005677
-relationship: scale_of CO_350:0005673
-relationship: scale_of CO_350:0005681
-relationship: scale_of CO_350:0005668
-relationship: scale_of CO_350:0005680
-relationship: scale_of CO_350:0000626
-relationship: scale_of CO_350:0005685
-relationship: scale_of CO_350:0005683
-relationship: scale_of CO_350:0005675
-relationship: scale_of CO_350:0000082
-relationship: scale_of CO_350:0005697
-relationship: scale_of CO_350:0000016
-relationship: scale_of CO_350:0005669
-relationship: scale_of CO_350:0005664
-relationship: scale_of CO_350:0005672
-relationship: scale_of CO_350:0005674
-relationship: scale_of CO_350:0000049
-relationship: scale_of CO_350:0005698
-relationship: scale_of CO_350:0000055
-relationship: scale_of CO_350:0000010
-relationship: scale_of CO_350:0000037
-relationship: scale_of CO_350:0005667
-relationship: scale_of CO_350:0005648
-relationship: scale_of CO_350:0000031
-relationship: scale_of CO_350:0005650
-relationship: scale_of CO_350:0005678
-relationship: scale_of CO_350:0005700
-relationship: scale_of CO_350:0005606
-relationship: scale_of CO_350:0000040
+relationship: scale_of CO_350:0000535
 
 [Term]
 id: CO_350:0000086
@@ -1753,8 +1758,8 @@ relationship: scale_of CO_350:0000028
 id: CO_350:0000023
 name: cm
 namespace: oat_trait_scale
-relationship: scale_of CO_350:0005655
 relationship: scale_of CO_350:0000022
+relationship: scale_of CO_350:0005655
 
 [Term]
 id: CO_350:0000144
@@ -1792,45 +1797,45 @@ relationship: scale_of CO_350:0000013
 id: CO_350:0000047
 name: ppm
 namespace: oat_trait_scale
-relationship: scale_of CO_350:0005670
 relationship: scale_of CO_350:0000046
+relationship: scale_of CO_350:0005670
 
 [Term]
 id: CO_350:0000035
 name: ug/g
 namespace: oat_trait_scale
-relationship: scale_of CO_350:0005657
 relationship: scale_of CO_350:0005688
-relationship: scale_of CO_350:0005690
-relationship: scale_of CO_350:0005692
-relationship: scale_of CO_350:0005658
-relationship: scale_of CO_350:0005695
-relationship: scale_of CO_350:0000034
-relationship: scale_of CO_350:0005660
-relationship: scale_of CO_350:0005691
-relationship: scale_of CO_350:0005689
+relationship: scale_of CO_350:0005657
 relationship: scale_of CO_350:0005659
+relationship: scale_of CO_350:0005692
+relationship: scale_of CO_350:0000034
+relationship: scale_of CO_350:0005689
 relationship: scale_of CO_350:0005693
 relationship: scale_of CO_350:0005694
 relationship: scale_of CO_350:0005696
+relationship: scale_of CO_350:0005690
+relationship: scale_of CO_350:0005691
+relationship: scale_of CO_350:0005695
+relationship: scale_of CO_350:0005658
+relationship: scale_of CO_350:0005660
 
 [Term]
 id: CO_350:0005901
 name: 0-9 rating scale
 namespace: oat_trait_scale
-relationship: scale_of CO_350:0005611
+relationship: scale_of CO_350:0005610
+relationship: scale_of CO_350:0005603
 relationship: scale_of CO_350:0000118
 relationship: scale_of CO_350:0005645
+relationship: scale_of CO_350:0005611
 relationship: scale_of CO_350:0005651
-relationship: scale_of CO_350:0005605
-relationship: scale_of CO_350:0005633
-relationship: scale_of CO_350:0005603
-relationship: scale_of CO_350:0005610
-relationship: scale_of CO_350:0005629
-relationship: scale_of CO_350:0005607
-relationship: scale_of CO_350:0005631
 relationship: scale_of CO_350:0005601
+relationship: scale_of CO_350:0005633
+relationship: scale_of CO_350:0005629
+relationship: scale_of CO_350:0005631
 relationship: scale_of CO_350:0005654
+relationship: scale_of CO_350:0005605
+relationship: scale_of CO_350:0005607
 
 [Term]
 id: CO_350:0005902
@@ -1842,8 +1847,8 @@ relationship: scale_of CO_350:0005602
 id: CO_350:0005903
 name: t/ac
 namespace: oat_trait_scale
-relationship: scale_of CO_350:0005608
 relationship: scale_of CO_350:0005609
+relationship: scale_of CO_350:0005608
 
 [Term]
 id: CO_350:0005904
@@ -1934,30 +1939,30 @@ id: CO_350:0005906
 name: Murphy Infection Type Rating (0-4)
 namespace: oat_trait_scale
 def: "0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible" []
-relationship: scale_of CO_350:0005618
-relationship: scale_of CO_350:0005640
-relationship: scale_of CO_350:0005622
-relationship: scale_of CO_350:0005614
-relationship: scale_of CO_350:0005626
-relationship: scale_of CO_350:0005616
+relationship: scale_of CO_350:0005638
 relationship: scale_of CO_350:0005639
-relationship: scale_of CO_350:0005623
+relationship: scale_of CO_350:0005616
+relationship: scale_of CO_350:0005644
+relationship: scale_of CO_350:0005626
+relationship: scale_of CO_350:0005618
+relationship: scale_of CO_350:0005627
+relationship: scale_of CO_350:0005643
+relationship: scale_of CO_350:0005621
+relationship: scale_of CO_350:0005622
+relationship: scale_of CO_350:0005617
 relationship: scale_of CO_350:0005637
 relationship: scale_of CO_350:0005635
-relationship: scale_of CO_350:0005643
-relationship: scale_of CO_350:0005619
-relationship: scale_of CO_350:0005615
-relationship: scale_of CO_350:0005621
-relationship: scale_of CO_350:0005638
-relationship: scale_of CO_350:0005627
-relationship: scale_of CO_350:0005625
-relationship: scale_of CO_350:0005641
+relationship: scale_of CO_350:0005614
+relationship: scale_of CO_350:0005623
 relationship: scale_of CO_350:0005636
-relationship: scale_of CO_350:0005644
-relationship: scale_of CO_350:0005617
+relationship: scale_of CO_350:0005625
 relationship: scale_of CO_350:0005620
 relationship: scale_of CO_350:0005624
+relationship: scale_of CO_350:0005619
 relationship: scale_of CO_350:0005642
+relationship: scale_of CO_350:0005641
+relationship: scale_of CO_350:0005640
+relationship: scale_of CO_350:0005615
 
 [Term]
 id: CO_350:0005906/0
@@ -2044,8 +2049,8 @@ relationship: scale_of CO_350:0005656
 id: CO_350:0005912
 name: relative abundance
 namespace: oat_trait_scale
-relationship: scale_of CO_350:0005661
 relationship: scale_of CO_350:0005663
+relationship: scale_of CO_350:0005661
 relationship: scale_of CO_350:0005662
 
 [Term]
@@ -2076,12 +2081,28 @@ synonym: "7" EXACT []
 is_a: CO_350:0005914
 
 [Term]
+id: CO_350:0005915
+name: mg/g
+namespace: oat_trait_scale
+relationship: scale_of CO_350:0005710
+relationship: scale_of CO_350:0005711
+relationship: scale_of CO_350:0005705
+relationship: scale_of CO_350:0005707
+relationship: scale_of CO_350:0005708
+relationship: scale_of CO_350:0005704
+relationship: scale_of CO_350:0005706
+relationship: scale_of CO_350:0005709
+relationship: scale_of CO_350:0005713
+relationship: scale_of CO_350:0005712
+relationship: scale_of CO_350:0005703
+
+[Term]
 id: CO_350:0000155
 name: Barley yellow dwarf virus incidence - percent
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot showing symptoms of barley yellow dwarf virus. METHOD: Visual assessment of the percentage of plants in a plot showing symptoms of a specific disease. SCALE: percent" []
-relationship: variable_of CO_350:0000081
 relationship: variable_of CO_350:0000011
+relationship: variable_of CO_350:0000081
 relationship: variable_of CO_350:0000082
 
 [Term]
@@ -2089,18 +2110,18 @@ id: CO_350:0000156
 name: Beta-glucan content - dry weight basis - percent
 namespace: oat_trait
 def: "TRAIT: Amount of beta-glucan present in the groat expressed as a percentage of the entire groat. METHOD: Measurement of beta glucan content on a dry weight basis using a lichenase enzymatic procedure. SCALE: percent" []
+relationship: variable_of CO_350:0000037
 relationship: variable_of CO_350:0000036
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000037
 
 [Term]
 id: CO_350:0000157
 name: Broken groats - percent
 namespace: oat_trait
 def: "TRAIT: The amount of broken groats after de-hulling, expressed as a percentage of the weight of the entire whole grain sample. METHOD: Computation of the percentage of broken groats by weight after dehulling; calculated as the weight of broken groats divided by the total groat weight, multiplied by 100. SCALE: percent" []
-relationship: variable_of CO_350:0000040
-relationship: variable_of CO_350:0000039
 relationship: variable_of CO_350:0000011
+relationship: variable_of CO_350:0000039
+relationship: variable_of CO_350:0000040
 
 [Term]
 id: CO_350:0000158
@@ -2108,25 +2129,25 @@ name: Dietary fiber content - total - percent
 namespace: oat_trait
 def: "TRAIT: Dietary fiber content METHOD: Computation of total dietary fiber content  on a dry weight basis using wet chemistry. SCALE: percent" []
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000042
 relationship: variable_of CO_350:0000043
+relationship: variable_of CO_350:0000042
 
 [Term]
 id: CO_350:0000161
 name: Grain protein content - percent
 namespace: oat_trait
 def: "TRAIT: The amount of protein in the grain, expressed as a percentage of the whole grain. METHOD: Computation of the percentage of protein in the whole grain as obtained using near-infrared spectroscopy (NIR). SCALE: percent" []
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000048
 relationship: variable_of CO_350:0000049
+relationship: variable_of CO_350:0000048
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0000162
 name: Groat content (machine dehulled) - percent
 namespace: oat_trait
 def: "TRAIT: Groat content METHOD: Calculated as the weight of the groat divided by the weight of the whole grain, multiplied by 100. Kernels are typically dehulled using a Codema oat dehuller, which processes a 50 gram sample. SCALE: percent" []
-relationship: variable_of CO_350:0000010
 relationship: variable_of CO_350:0000011
+relationship: variable_of CO_350:0000010
 relationship: variable_of CO_350:0000009
 
 [Term]
@@ -2134,8 +2155,8 @@ id: CO_350:0000163
 name: Groat oil content - percent
 namespace: oat_trait
 def: "TRAIT: The amount of oil in the groat, expressed as a percentage of the groat. METHOD: Computation of the percentage of oil in the groat. SCALE: percent" []
-relationship: variable_of CO_350:0000052
 relationship: variable_of CO_350:0000051
+relationship: variable_of CO_350:0000052
 relationship: variable_of CO_350:0000011
 
 [Term]
@@ -2143,18 +2164,18 @@ id: CO_350:0000164
 name: Groat protein content - percent
 namespace: oat_trait
 def: "TRAIT: The amount of protein in the groat, expressed as a percentage of the groat. METHOD: Computation of the percentage of protein in the groat. SCALE: percent" []
+relationship: variable_of CO_350:0000055
 relationship: variable_of CO_350:0000054
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000055
 
 [Term]
 id: CO_350:0000165
 name: Lodging incidence - percent
 namespace: oat_trait
 def: "TRAIT: Measure of the percentage of the stems of plants in a plot that have been permanently bent, usually as a result of adverse weather. METHOD: Visual assessement of the percentage of plants that lodged in a plot. SCALE: percent" []
-relationship: variable_of CO_350:0000015
 relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000016
+relationship: variable_of CO_350:0000015
 
 [Term]
 id: CO_350:0000166
@@ -2162,35 +2183,35 @@ name: Powdery mildew incidence - percent
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot showing symptoms of powdery mildew. METHOD: Visual assessment of the percentage of plants in a plot showing symptoms of a specific disease. SCALE: percent" []
 relationship: variable_of CO_350:0000099
-relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000082
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0000167
 name: Root rot incidence - percent
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot showing symptoms of root rot. METHOD: Visual assessment of the percentage of plants in a plot showing symptoms of a specific disease. SCALE: percent" []
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000102
 relationship: variable_of CO_350:0000082
+relationship: variable_of CO_350:0000102
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0000168
 name: Smut incidence - percent
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot showing symptoms of smut. METHOD: Visual assessment of the percentage of plants in a plot showing symptoms of a specific disease. SCALE: percent" []
-relationship: variable_of CO_350:0000082
 relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000105
+relationship: variable_of CO_350:0000082
 
 [Term]
 id: CO_350:0000169
 name: Stem rust incidence - percent
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot showing symptoms of stem rust. METHOD: Visual assessment of the percentage of plants in a plot showing symptoms of a specific disease. SCALE: percent" []
-relationship: variable_of CO_350:0000082
 relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000108
+relationship: variable_of CO_350:0000082
 
 [Term]
 id: CO_350:0000170
@@ -2216,16 +2237,16 @@ name: Breakage incidence - 1-10 breakage incidence scale
 namespace: oat_trait
 def: "TRAIT: Proportion of the stems in a plot that are snapped/broken. METHOD: Rating based on the proportion of stems in a plot that are broken/snapped. SCALE: 1-10 breakage incidence scale" []
 relationship: variable_of CO_350:0000004
-relationship: variable_of CO_350:0000005
 relationship: variable_of CO_350:0000003
+relationship: variable_of CO_350:0000005
 
 [Term]
 id: CO_350:0000184
 name: Groat color - 1-4 groat color scale
 namespace: oat_trait
 def: "TRAIT: Color of the de-hulled grain: the groat. METHOD: Visual assessement of the color of the groat. SCALE: 1-4 groat color scale (1= light red, 2= light brown, 3= medium brown, 4= dark brown)" []
-relationship: variable_of CO_350:0000073
 relationship: variable_of CO_350:0000074
+relationship: variable_of CO_350:0000073
 relationship: variable_of CO_350:0000072
 
 [Term]
@@ -2233,18 +2254,18 @@ id: CO_350:0000185
 name: Agronomic score - 1-5 agronomic score scale
 namespace: oat_trait
 def: "TRAIT: Rating of overall agronomical attributes and health of oat plants in a plot. METHOD: Scored based on observance of factors limiting yield. SCALE: 1-5 agronomic score scale" []
-relationship: variable_of CO_350:0000001
-relationship: variable_of CO_350:0000000
 relationship: variable_of CO_350:0000002
+relationship: variable_of CO_350:0000000
+relationship: variable_of CO_350:0000001
 
 [Term]
 id: CO_350:0000212
 name: Relative canopy development - 1-9 relative canopy development scale
 namespace: oat_trait
 def: "TRAIT: Relative canopy development, each genotype is rated against the earliest genotypes, when those genotypes have a completely closed canopy. METHOD: Visual assessment of the development of the canopy of a plot relative to genotypes with a closed canopy. SCALE: 1-9 relative canopy development scale" []
-relationship: variable_of CO_350:0000025
-relationship: variable_of CO_350:0000024
 relationship: variable_of CO_350:0000026
+relationship: variable_of CO_350:0000024
+relationship: variable_of CO_350:0000025
 
 [Term]
 id: CO_350:0000217
@@ -2260,9 +2281,9 @@ id: CO_350:0000232
 name: Plant height - cm
 namespace: oat_trait
 def: "TRAIT: Height of plant from ground to top of flag leaf ligule. METHOD: Measurement of the height of the whole plant from the soil surface to the tip of the panicle. SCALE: cm" []
-relationship: variable_of CO_350:0000022
-relationship: variable_of CO_350:0000021
 relationship: variable_of CO_350:0000023
+relationship: variable_of CO_350:0000021
+relationship: variable_of CO_350:0000022
 
 [Term]
 id: CO_350:0000242
@@ -2278,9 +2299,9 @@ id: CO_350:0000251
 name: Thousand grain weight - g
 namespace: oat_trait
 def: "TRAIT: The thousand grain weight. METHOD: Measurement of the weight of 1000 well-developed whole grains. SCALE: g" []
-relationship: variable_of CO_350:0000249
 relationship: variable_of CO_350:0000078
 relationship: variable_of CO_350:0000079
+relationship: variable_of CO_350:0000249
 
 [Term]
 id: CO_350:0000258
@@ -2288,16 +2309,16 @@ name: Undehulled seed - g
 namespace: oat_trait
 def: "TRAIT: Amount of undehulled seed remaining after dehulling. METHOD: Amount of undehulled seed remaining after passing a 50 gram sample through a Codema dehuller, under standard conditions, for 90 seconds. SCALE: g" []
 relationship: variable_of CO_350:0000063
-relationship: variable_of CO_350:0000249
 relationship: variable_of CO_350:0000064
+relationship: variable_of CO_350:0000249
 
 [Term]
 id: CO_350:0000259
 name: Test weight - g/L
 namespace: oat_trait
 def: "TRAIT: A measure of the density or weight per unit volume of a grain at a standardized moisture level. SCALE: g/L" []
-relationship: variable_of CO_350:0000076
 relationship: variable_of CO_350:0000075
+relationship: variable_of CO_350:0000076
 relationship: variable_of CO_350:0000077
 
 [Term]
@@ -2305,8 +2326,8 @@ id: CO_350:0000260
 name: Grain yield - g/m2
 namespace: oat_trait
 def: "TRAIT: Total weight of grains harvested per unit area. METHOD: Measurement of the total weight of whole grains harvested per unit area. SCALE: g/m2" []
-relationship: variable_of CO_350:0000007
 relationship: variable_of CO_350:0000006
+relationship: variable_of CO_350:0000007
 relationship: variable_of CO_350:0000008
 
 [Term]
@@ -2314,18 +2335,18 @@ id: CO_350:0000270
 name: Heading date - Julian day
 namespace: oat_trait
 def: "TRAIT: The time when heading occurs. METHOD: Record of the date on which heading occurs. SCALE: Julian day" []
-relationship: variable_of CO_350:0000013
-relationship: variable_of CO_350:0000012
 relationship: variable_of CO_350:0000014
+relationship: variable_of CO_350:0000012
+relationship: variable_of CO_350:0000013
 
 [Term]
 id: CO_350:0000271
 name: Maturity date - Julian day
 namespace: oat_trait
 def: "TRAIT: The time when maturity occurs METHOD: Record of the date on which maturity occurs. SCALE: Julian day" []
-relationship: variable_of CO_350:0000018
 relationship: variable_of CO_350:0000014
 relationship: variable_of CO_350:0000019
+relationship: variable_of CO_350:0000018
 
 [Term]
 id: CO_350:0000536
@@ -2350,8 +2371,8 @@ id: CO_350:0000627
 name: Stem rust severity (plant) - percent
 namespace: oat_trait
 def: "TRAIT: Stem rust severity. METHOD: Observe relative or absolute area of plant tissue affected by Stem rust and record it. Often severity is represented as a proportion or percentage of plant surface affected. SCALE: percent" []
-relationship: variable_of CO_350:0000626
 relationship: variable_of CO_350:0000114
+relationship: variable_of CO_350:0000626
 relationship: variable_of CO_350:0000011
 
 [Term]
@@ -2359,8 +2380,8 @@ id: CO_350:0000646
 name: Deoxynivalenol concentration - ppm
 namespace: oat_trait
 def: "TRAIT: Amount of the mycotoxin deoxynivalenol found in the grain after an infection by Fusarium sp. METHOD: Computation of the deoxynivalenol content SCALE: ppm" []
-relationship: variable_of CO_350:0000045
 relationship: variable_of CO_350:0000047
+relationship: variable_of CO_350:0000045
 relationship: variable_of CO_350:0000046
 
 [Term]
@@ -2368,8 +2389,8 @@ id: CO_350:0000671
 name: Avenanthramide content - ug/g
 namespace: oat_trait
 def: "TRAIT: Avenanthramide content METHOD: Direct measurement of the total avenanthramide content SCALE: ug/g" []
-relationship: variable_of CO_350:0000034
 relationship: variable_of CO_350:0000035
+relationship: variable_of CO_350:0000034
 relationship: variable_of CO_350:0000033
 
 [Term]
@@ -2377,36 +2398,36 @@ id: CO_350:0005001
 name: Freeze damage severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of the symptoms of freeze damage observed in a plot METHOD: Estimation of the freeze damage severity using a 0-9 scale: 0= no freeze damage, 9= severe freeze damage. SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005401
 relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0005601
+relationship: variable_of CO_350:0005401
 
 [Term]
 id: CO_350:0005002
 name: Storm damage severity - 1-5 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of the damage inflicted by stormy weather METHOD: Estimation of the storm damage severity using a 1-5 scale: 1= no damage, 5= total damage and loss of plot. SCALE: 1-5 rating scale" []
-relationship: variable_of CO_350:0005602
 relationship: variable_of CO_350:0005902
 relationship: variable_of CO_350:0005402
+relationship: variable_of CO_350:0005602
 
 [Term]
 id: CO_350:0005003
 name: Winter stress severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Mid-winter rating of the severity of the symptoms of winter stress observed in a plot METHOD: Estimation of the winter stress severity using a 0-9 scale: 0= no signs of winter stress, 9= severe leaf damage or leaves that are purple in color.	 SCALE: 0-9 rating scale" []
+relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0005603
 relationship: variable_of CO_350:0005403
-relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005004
 name: Emergence - %
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot that have emerged METHOD: Measurement of the percentage of plants in a plot that have emerged SCALE: percent" []
+relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0005604
 relationship: variable_of CO_350:0005404
-relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0005005
@@ -2414,8 +2435,8 @@ name: Forage rating - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Yield potential in spring METHOD: Estimation of the forage rating using a 0-9 scale: 0= low, 9= high SCALE: 0-9 rating scale" []
 relationship: variable_of CO_350:0005405
-relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0005605
+relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005006
@@ -2431,18 +2452,18 @@ id: CO_350:0005007
 name: Lodging severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of lodging symptoms observed in a plot: lodged plants do not stand erect. METHOD: Visual assessment of the severity of lodging observed in a plot. SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005901
-relationship: variable_of CO_350:0000117
 relationship: variable_of CO_350:0000118
+relationship: variable_of CO_350:0000117
+relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005008
 name: Phenotype score - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Relative rating of visual appeal that takes in to account plant vigor, diseases, etc. METHOD: Visual assessment of the phenotype score using a 0-9 scale: 0= perfect, 1= excellent, 4= good, 5= borderline, 6= poor, 9= unadapted SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005607
-relationship: variable_of CO_350:0005406
 relationship: variable_of CO_350:0005901
+relationship: variable_of CO_350:0005406
+relationship: variable_of CO_350:0005607
 
 [Term]
 id: CO_350:0005009
@@ -2450,26 +2471,26 @@ name: Silage yield (65% moisture) - t/ac
 namespace: oat_trait
 def: "TRAIT: Total weight of silage per unit area METHOD: Silage yield at 65% moisture content SCALE: t/ac" []
 relationship: variable_of CO_350:0005407
-relationship: variable_of CO_350:0005903
 relationship: variable_of CO_350:0005608
+relationship: variable_of CO_350:0005903
 
 [Term]
 id: CO_350:0005010
 name: Silage yield (dry matter) - t/ac
 namespace: oat_trait
 def: "TRAIT: Total weight of silage per unit area METHOD: Yield of dry matter for use as silage SCALE: t/ac" []
+relationship: variable_of CO_350:0005609
 relationship: variable_of CO_350:0005407
 relationship: variable_of CO_350:0005903
-relationship: variable_of CO_350:0005609
 
 [Term]
 id: CO_350:0005011
 name: Barley yellow dwarf virus severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of barley yellow dwarf virus symptoms observed in a plot. METHOD: Estimation of the severity of barley yellow dwarf virus symptoms observed in a plot; plots rated 0 exhibit essentially no chlorosis, no stunted tillers, and no blasting, plots rated 9 do not head and are very severely stunted. SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0000084
 relationship: variable_of CO_350:0005610
+relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005012
@@ -2477,8 +2498,8 @@ name: Bird damage severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of the symptoms of bird damage observed in a plot METHOD: Estimation of the severity of the symptoms of bird damage on a 0-9 scale: 0= no bird damage, 9= severe bird damage SCALE: 0-9 rating scale" []
 relationship: variable_of CO_350:0005611
-relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0005408
+relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005013
@@ -2486,8 +2507,8 @@ name: Cereal leaf beetle damage severity - 0-3 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of larval feeding damage caused by cereal leaf beetle (Oulema malanopus). METHOD: Estimation of the severity of cereal leaf beetle damage on a 0-3 scale: 0= no larval feeding, 1= 1-15% foliage eaten, 2= 15-40% foliage eaten, 3= over 40% foliage eaten SCALE: 1-3 rating scale" []
 relationship: variable_of CO_350:0005409
-relationship: variable_of CO_350:0005904
 relationship: variable_of CO_350:0005612
+relationship: variable_of CO_350:0005904
 
 [Term]
 id: CO_350:0005014
@@ -2495,16 +2516,16 @@ name: Crown rust infection response - 0-1 Disease Infection Response Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: Estimation of the crown rust infection response. 	A qualitative analysis of the type of crown rust (Puccinia coronata f. sp. avenae) symptoms that are exhibited. Infection responses are limited to: Resistant (R): chlorotic fleck reaction with no sporulation; Moderately resistant (MR): Very small, non- or low-sporulating pustule surrounded by chlorosis; Moderately susceptible (MS): moderate to large pustule surrounded by extensive chlorosis, and; Susceptible (S): large pustule with little or no chlorosis. The following numerical scale has been used to quantify conventional notations of infection type: R= 0.2, R-MR= 0.3, MR= 0.4, R-MS= 0.45, R-S= 0.5, MR-MS= 0.6, MR-S= 0.7, MS= 0.8, MS-S= 0.9, S=1. Crown rust infection response is typically recorded in conjunction with crown rust severity. SCALE: Disease Infection Response Rating (0-1) (0.2= R, 0.3= R-MR, 0.4= MR, 0.45= R-MS, 0.5= R-S, 0.6= MR-MS, 0.7= MR-S, 0.8= MS, 0.9= MS-S, 1.0= S)" []
 relationship: variable_of CO_350:0000087
-relationship: variable_of CO_350:0005905
 relationship: variable_of CO_350:0005613
+relationship: variable_of CO_350:0005905
 
 [Term]
 id: CO_350:0005015
 name: Crown rust infection type - BQBC - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race BQBC during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005614
 relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005614
 relationship: variable_of CO_350:0005906
 
 [Term]
@@ -2512,27 +2533,27 @@ id: CO_350:0005016
 name: Crown rust infection type - BRBG-94 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race BRBG-94 during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005615
 relationship: variable_of CO_350:0005906
 relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005615
 
 [Term]
 id: CO_350:0005017
 name: Crown rust infection type - Composite/Unknown - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) composite race / unknown race during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005616
+relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005906
 
 [Term]
 id: CO_350:0005018
 name: Crown rust infection type - DQBB - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race DQBB during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005617
 relationship: variable_of CO_350:0005906
 relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005617
 
 [Term]
 id: CO_350:0005019
@@ -2548,36 +2569,36 @@ id: CO_350:0005020
 name: Crown rust infection type - DSGB - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race DSGB during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005619
+relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005906
 
 [Term]
 id: CO_350:0005021
 name: Crown rust infection type - LQCB-91 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race LQCB-91 during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
+relationship: variable_of CO_350:0005620
 relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0005620
 
 [Term]
 id: CO_350:0005022
 name: Crown rust infection type - LRBG - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race LRBG during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
+relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005621
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000087
 
 [Term]
 id: CO_350:0005023
 name: Crown rust infection type - MHBB - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race MHBB during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005906
 relationship: variable_of CO_350:0005622
+relationship: variable_of CO_350:0000087
 
 [Term]
 id: CO_350:0005024
@@ -2585,16 +2606,16 @@ name: Crown rust infection type - NBFB - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race NBFB during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005623
+relationship: variable_of CO_350:0000087
 
 [Term]
 id: CO_350:0005025
 name: Crown rust infection type - NGCC-94 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race NGCC-94 during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005906
+relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005624
 
 [Term]
@@ -2602,18 +2623,18 @@ id: CO_350:0005026
 name: Crown rust infection type - NQBB - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race NQBB during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005625
+relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005906
 
 [Term]
 id: CO_350:0005027
 name: Crown rust infection type - NTGG - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of crown rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with crown rust (Puccinia coronata f. sp. avenae) race NTGG during greenhouse trials. Ratings made using the scale from Murphy (1935); immune/nearly immune= 0, highly resistant= 1, moderately resistant= 2, moderately susceptible= 3, and completely susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005626
-relationship: variable_of CO_350:0000087
 relationship: variable_of CO_350:0005906
+relationship: variable_of CO_350:0000087
+relationship: variable_of CO_350:0005626
 
 [Term]
 id: CO_350:0005028
@@ -2629,44 +2650,44 @@ id: CO_350:0005029
 name: Crown rust severity (flag leaf) - percent
 namespace: oat_trait
 def: "TRAIT: Crown rust severity. METHOD: Estimation of the percentage of the area of the flag leaf occupied by crown rust (Puccinia coronata f. sp. avenae) pustules or necrosis, following the modified Cobb scale (Peterson et al. 1948) and recorded in conjunction with crown rust infection response. Common intervals: trace (0.1 in T3), 5, 10, 20, 40, 60, and 100 percent infection. SCALE: percent" []
-relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000090
 relationship: variable_of CO_350:0005628
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0005030
 name: Crown rust severity (plot) - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Crown rust severity. METHOD: Estimation of the severity of crown rust (Puccinia coronata f. sp. avenae) symptoms observed in a plot; plots rated 0 exhibit no symptoms, plots rated 9 show severe symptoms. SCALE: 0-9 rating scale" []
+relationship: variable_of CO_350:0000090
 relationship: variable_of CO_350:0005629
 relationship: variable_of CO_350:0005901
-relationship: variable_of CO_350:0000090
 
 [Term]
 id: CO_350:0005031
 name: Crown rust severity (whole plant) - 9-1 Rating
 namespace: oat_trait
 def: "TRAIT: Crown rust severity. METHOD: Estimation of the severity of crown rust (Puccinia coronata f. sp. avenae) symptoms. Ratings based on the percent infection of the whole plant; 79-100%= 1, 90-97%= 2, 75-90%= 3, 60-75%= 4, 40-60%= 5, 25-40%= 6, 10-25%= 7, 3-10%= 8, 0-3%= 9. SCALE: 9-1 rating scale (9= low, 1= high)" []
-relationship: variable_of CO_350:0005907
 relationship: variable_of CO_350:0000090
 relationship: variable_of CO_350:0005630
+relationship: variable_of CO_350:0005907
 
 [Term]
 id: CO_350:0005032
 name: Downy mildew severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Downy mildew severity. METHOD: Estimation of the severity of downy mildew (Sclerophthora macrospora) symptoms observed in a plot; plots rated 0 exhibit no symptoms, plots rated 9 show severe symptoms.	 SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005631
 relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0000523
+relationship: variable_of CO_350:0005631
 
 [Term]
 id: CO_350:0005033
 name: Fusarium head blight incidence - 0-4 Rating
 namespace: oat_trait
 def: "TRAIT: Percentage of plants in a plot showing Fusarium head blight symptoms. METHOD: Estimation of the incidence of Fusarium head blight (Fusarium spp.; FHB) symptoms observed in a plot; plots rated 0 exhibit no FHB symptoms, plots rated 1 contain a few blighted spikelets, while a rating of 4 indicates that the whole plot is blighted. SCALE: 0-4 rating scale" []
-relationship: variable_of CO_350:0005632
 relationship: variable_of CO_350:0000093
+relationship: variable_of CO_350:0005632
 relationship: variable_of CO_350:0005908
 
 [Term]
@@ -2674,17 +2695,17 @@ id: CO_350:0005034
 name: Stagonospora severity - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Severity of Stagonospora avenae f. sp. avenaria symptoms. Stagonospora causes leaf blotch and black stem of oat. METHOD: Estimation of the severity Stagonospora avenae f. sp. avenaria symptoms in a plot using a 0-9 scale: 0= no symptoms, 9= high symptoms. SCALE: 0-9 rating scale" []
+relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0005633
 relationship: variable_of CO_350:0005410
-relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005035
 name: Stem rust infection response - 0-1 Disease Infection Response Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: Estimation of the stem rust infection response. A qualitative analysis of the type of stem rust (Puccinia graminis f. sp. avenae) symptoms that are exhibited. Infection responses are limited to: Resistant (R): chlorotic fleck reaction with no sporulation; Moderately resistant (MR): Very small, non- or low-sporulating pustule surrounded by chlorosis; Moderately susceptible (MS): moderate to large pustule surrounded by extensive chlorosis, and; Susceptible (S): large pustule with little or no chlorosis. The following numerical scale has been used to quantify conventional notations of infection type: R= 0.2, R-MR= 0.3, MR= 0.4, R-MS= 0.45, R-S= 0.5, MR-MS= 0.6, MR-S= 0.7, MS= 0.8, MS-S= 0.9, S=1. Stem rust infection response is typically recorded in conjunction with stem rust severity. SCALE: Disease Infection Response Rating (0-1) (0.2= R, 0.3= R-MR, 0.4= MR, 0.45= R-MS, 0.5= R-S, 0.6= MR-MS, 0.7= MR-S, 0.8= MS, 0.9= MS-S, 1.0= S)" []
-relationship: variable_of CO_350:0005634
 relationship: variable_of CO_350:0005905
+relationship: variable_of CO_350:0005634
 relationship: variable_of CO_350:0000111
 
 [Term]
@@ -2692,17 +2713,17 @@ id: CO_350:0005036
 name: Stem rust infection type - Composite - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with a composite collection or unknown race of stem rust (Puccinia graminis f. sp. avenae) during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4. SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
+relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005635
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000111
 
 [Term]
 id: CO_350:0005037
 name: Stem rust infection type - NA1 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA1 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005636
 relationship: variable_of CO_350:0000111
+relationship: variable_of CO_350:0005636
 relationship: variable_of CO_350:0005906
 
 [Term]
@@ -2719,9 +2740,9 @@ id: CO_350:0005039
 name: Stem rust infection type - NA25 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA25 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
+relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005638
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000111
 
 [Term]
 id: CO_350:0005040
@@ -2737,17 +2758,17 @@ id: CO_350:0005041
 name: Stem rust infection type - NA28 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA28 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005906
 relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005640
+relationship: variable_of CO_350:0005906
 
 [Term]
 id: CO_350:0005042
 name: Stem rust infection type - NA29 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA29 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005906
+relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005641
 
 [Term]
@@ -2755,17 +2776,17 @@ id: CO_350:0005043
 name: Stem rust infection type - NA55 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA55 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
+relationship: variable_of CO_350:0005642
 relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0005642
 
 [Term]
 id: CO_350:0005044
 name: Stem rust infection type - NA67 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA67 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
-relationship: variable_of CO_350:0005643
 relationship: variable_of CO_350:0000111
+relationship: variable_of CO_350:0005643
 relationship: variable_of CO_350:0005906
 
 [Term]
@@ -2773,17 +2794,17 @@ id: CO_350:0005045
 name: Stem rust infection type - NA8 - 0-4 Murphy Infection Type Rating
 namespace: oat_trait
 def: "TRAIT: A qualitative analysis of the type of stem rust symptoms that are exhibited. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. avenae) race NA8 during greenhouse trials. Ratings made using the scale from Stakman et al. (1962); immune= 0, very resistant= 1, moderately resistant= 2, moderately susceptible= 3, and very susceptible= 4.  SCALE: Murphy Infection Type Rating (0-4) (0= immune/nearly immune, 1= highly resistant, 2= moderately resistant, 3= moderately susceptible, 4= completely susceptible)" []
+relationship: variable_of CO_350:0000111
 relationship: variable_of CO_350:0005644
 relationship: variable_of CO_350:0005906
-relationship: variable_of CO_350:0000111
 
 [Term]
 id: CO_350:0005046
 name: Stem rust severity (plot) - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Stem rust severity. METHOD: Estimation of the severity of stem rust (Puccinia graminis f. sp. avenae) symptoms observed in a plot; plots rated 0 exhibit no symptoms, plots rated 9 show severe symptoms. SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0000114
 relationship: variable_of CO_350:0005901
+relationship: variable_of CO_350:0000114
 relationship: variable_of CO_350:0005645
 
 [Term]
@@ -2791,17 +2812,17 @@ id: CO_350:0005047
 name: GC-MS - intensity
 namespace: oat_trait
 def: "TRAIT: Gas chromatography mass spectrometry METHOD: Direct measurement of a gas chromatography mass spectrum SCALE: mass spectrometry intensity" []
-relationship: variable_of CO_350:0005909
 relationship: variable_of CO_350:0005411
 relationship: variable_of CO_350:0005646
+relationship: variable_of CO_350:0005909
 
 [Term]
 id: CO_350:0005048
 name: LC-MS - intensity
 namespace: oat_trait
 def: "TRAIT: Liquid chromatography mass spectrometry METHOD: Direct measurement of a liquid chromatography mass spectrum SCALE: mass spectrometry intensity" []
-relationship: variable_of CO_350:0005647
 relationship: variable_of CO_350:0005412
+relationship: variable_of CO_350:0005647
 relationship: variable_of CO_350:0005909
 
 [Term]
@@ -2809,9 +2830,9 @@ id: CO_350:0005049
 name: Grain plumpness - 5.0/64 plump - %
 namespace: oat_trait
 def: "TRAIT: The amount of a grain sample that does not pass through the holes of a sieve of defined size, expressed as a percentage weight of the entire sample. METHOD: Measurement of the percentage of grain that did not pass through a 5.0/64" sieve. SCALE: percent" []
-relationship: variable_of CO_350:0005648
 relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000066
+relationship: variable_of CO_350:0005648
 
 [Term]
 id: CO_350:0005050
@@ -2819,25 +2840,25 @@ name: Grain plumpness - 5.0/64 thin - %
 namespace: oat_trait
 def: "TRAIT: The amount of a grain sample that does not pass through the holes of a sieve of defined size, expressed as a percentage weight of the entire sample. METHOD: Measurement of the percentage of grain that passed through a 5.0/64" sieve. SCALE: percent" []
 relationship: variable_of CO_350:0005649
-relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000066
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0005051
 name: Grain plumpness - 5.5/64 plump - %
 namespace: oat_trait
 def: "TRAIT: The amount of a grain sample that does not pass through the holes of a sieve of defined size, expressed as a percentage weight of the entire sample. METHOD: Measurement of the percentage of grain that did not pass through a 5.5/64" sieve. SCALE: percent" []
+relationship: variable_of CO_350:0000066
 relationship: variable_of CO_350:0005650
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000066
 
 [Term]
 id: CO_350:0005052
 name: Growth habit - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: Growth habit rating ranging from very upright spring type to very prostrate winter type METHOD: A visual assessment of the growth habit:  very upright spring type= 0, very prostrate winter type= 9. SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005651
 relationship: variable_of CO_350:0005901
+relationship: variable_of CO_350:0005651
 relationship: variable_of CO_350:0005413
 
 [Term]
@@ -2845,27 +2866,27 @@ id: CO_350:0005053
 name: Hull color - 1-10 grain color scale
 namespace: oat_trait
 def: "TRAIT: Hull color METHOD: A visual assessment of the hull color using a 1-10 rating: white= 1, cream= 2, light tan= 3, yellow= 6, black= 10. SCALE: 1-10 grain color scale (1= white, 2= cream, 3= light tan, 6= yellow, 10= black)" []
-relationship: variable_of CO_350:0000071
-relationship: variable_of CO_350:0005414
 relationship: variable_of CO_350:0005652
+relationship: variable_of CO_350:0005414
+relationship: variable_of CO_350:0000071
 
 [Term]
 id: CO_350:0005054
 name: Kernels per spikelet - kernels/spikelet
 namespace: oat_trait
 def: "TRAIT: Average number of kernels per spikelet METHOD: Calculation of the average number of kernels per spikelet, based on five typical spikelets. SCALE: kernels/spikelet" []
-relationship: variable_of CO_350:0005653
-relationship: variable_of CO_350:0005415
 relationship: variable_of CO_350:0005910
+relationship: variable_of CO_350:0005415
+relationship: variable_of CO_350:0005653
 
 [Term]
 id: CO_350:0005055
 name: Leaf biomass - 0-9 Rating
 namespace: oat_trait
 def: "TRAIT: An estimation of the leaf biomass METHOD: Estimation of the leaf biomass as a 'leafiness' rating on a 0-9 scale: very leafy= 3, few leaves=9. SCALE: 0-9 rating scale" []
-relationship: variable_of CO_350:0005901
 relationship: variable_of CO_350:0005416
 relationship: variable_of CO_350:0005654
+relationship: variable_of CO_350:0005901
 
 [Term]
 id: CO_350:0005056
@@ -2882,17 +2903,17 @@ name: Spikelets per panicle - spikelets/panicle
 namespace: oat_trait
 def: "TRAIT: Average number of spikelets per panicle METHOD: Calculation of the average number of spikelets per panicle, based on five mature panicles SCALE: spikelets/panicle" []
 relationship: variable_of CO_350:0005418
-relationship: variable_of CO_350:0005911
 relationship: variable_of CO_350:0005656
+relationship: variable_of CO_350:0005911
 
 [Term]
 id: CO_350:0005058
 name: Avenanthramide content - 2c - ug/g
 namespace: oat_trait
 def: "TRAIT: Avenanthramide content METHOD: Direct measurement of the avenanthramide 2c content SCALE: ug/g" []
-relationship: variable_of CO_350:0000035
-relationship: variable_of CO_350:0000033
 relationship: variable_of CO_350:0005657
+relationship: variable_of CO_350:0000033
+relationship: variable_of CO_350:0000035
 
 [Term]
 id: CO_350:0005059
@@ -2900,35 +2921,35 @@ name: Avenanthramide content - 2f - ug/g
 namespace: oat_trait
 def: "TRAIT: Avenanthramide content METHOD: Direct measurement of the avenanthramide 2f content SCALE: ug/g" []
 relationship: variable_of CO_350:0005658
-relationship: variable_of CO_350:0000035
 relationship: variable_of CO_350:0000033
+relationship: variable_of CO_350:0000035
 
 [Term]
 id: CO_350:0005060
 name: Avenanthramide content - 2p - ug/g
 namespace: oat_trait
 def: "TRAIT: Avenanthramide content METHOD: Direct measurement of the avenanthramide 2p content SCALE: ug/g" []
-relationship: variable_of CO_350:0000035
 relationship: variable_of CO_350:0000033
 relationship: variable_of CO_350:0005659
+relationship: variable_of CO_350:0000035
 
 [Term]
 id: CO_350:0005061
 name: Avenanthramide content - 5p - ug/g
 namespace: oat_trait
 def: "TRAIT: Avenanthramide content METHOD: Direct measurement of the avenanthramide 5p content SCALE: ug/g" []
-relationship: variable_of CO_350:0000035
 relationship: variable_of CO_350:0000033
 relationship: variable_of CO_350:0005660
+relationship: variable_of CO_350:0000035
 
 [Term]
 id: CO_350:0005062
 name: Avenanthramide relative abundance - A - relative abundance
 namespace: oat_trait
 def: "TRAIT: Relative abundance of avenanthramide estimated by UPLC METHOD: Estimation of the avenanthramide A relative abundance by UPLC SCALE: relative abundance" []
-relationship: variable_of CO_350:0005661
 relationship: variable_of CO_350:0005912
 relationship: variable_of CO_350:0005419
+relationship: variable_of CO_350:0005661
 
 [Term]
 id: CO_350:0005063
@@ -2944,8 +2965,8 @@ id: CO_350:0005064
 name: Avenanthramide relative abundance - C - relative abundance
 namespace: oat_trait
 def: "TRAIT: Relative abundance of avenanthramide estimated by UPLC METHOD: Estimation of the avenanthramide C relative abundance by UPLC SCALE: relative abundance" []
-relationship: variable_of CO_350:0005419
 relationship: variable_of CO_350:0005912
+relationship: variable_of CO_350:0005419
 relationship: variable_of CO_350:0005663
 
 [Term]
@@ -2954,8 +2975,8 @@ name: Beta-glucan content - NIRS - percent
 namespace: oat_trait
 def: "TRAIT: Amount of beta-glucan present in the groat expressed as a percentage of the entire groat. METHOD: Measurement of beta-glucan content obtained using near-infrared spectroscopy (NIR). SCALE: percent" []
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000036
 relationship: variable_of CO_350:0005664
+relationship: variable_of CO_350:0000036
 
 [Term]
 id: CO_350:0005066
@@ -2963,16 +2984,16 @@ name: Dehulling efficiency - %
 namespace: oat_trait
 def: "TRAIT: Efficiency of dehulling seed by a machine METHOD: Computation of the percentage of seed that is effectively dehulled by a Codema dehuller; calculated as the mass of seed before dehulling minus the amount of undehulled seed after processing, divided by the total mass before dehulling, and multiplied by 100 to give the percentage of seed that was successfully dehulled. SCALE: percent" []
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005420
 relationship: variable_of CO_350:0005665
+relationship: variable_of CO_350:0005420
 
 [Term]
 id: CO_350:0005067
 name: Dietary fiber content - HMW / Ethanol-insoluble - percent
 namespace: oat_trait
 def: "TRAIT: Dietary fiber content METHOD: Computation of the ethanol-insoluble high molecular weight dietary fiber content; measured on a dry weight basis using wet chemistry. SCALE: percent" []
-relationship: variable_of CO_350:0000042
 relationship: variable_of CO_350:0000011
+relationship: variable_of CO_350:0000042
 relationship: variable_of CO_350:0005666
 
 [Term]
@@ -2980,9 +3001,9 @@ id: CO_350:0005068
 name: Dietary fiber content - HMW / Ethanol-soluble - percent
 namespace: oat_trait
 def: "TRAIT: Dietary fiber content METHOD: Computation of the ethanol-soluble high molecular weight dietary fiber content; measured on a dry weight basis using wet chemistry. SCALE: percent" []
-relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0000042
 relationship: variable_of CO_350:0005667
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0005069
@@ -2990,8 +3011,8 @@ name: Dietary fiber content - HMW - percent
 namespace: oat_trait
 def: "TRAIT: Dietary fiber content METHOD: Computation of the high molecular weight dietary fiber content; measured on a dry weight basis using wet chemistry. SCALE: percent" []
 relationship: variable_of CO_350:0000042
-relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0005668
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0005070
@@ -2999,125 +3020,26 @@ name: Dietary fiber content - LMW - percent
 namespace: oat_trait
 def: "TRAIT: Dietary fiber content METHOD: Computation of the low molecular weight dietary fiber content; measured on a dry weight basis using wet chemistry. SCALE: percent" []
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0000042
 relationship: variable_of CO_350:0005669
+relationship: variable_of CO_350:0000042
 
 [Term]
 id: CO_350:0005071
 name: 3-acetyl-deoxynivalenol concentration - ppm
 namespace: oat_trait
 def: "TRAIT: Amount of the mycotoxin 3-acetyl-deoxynivalenol found in the grain after an infection by Fusarium sp. METHOD: Computation of the 3-acetyl-deoxynivalenol content SCALE: ppm" []
-relationship: variable_of CO_350:0000047
-relationship: variable_of CO_350:0005421
 relationship: variable_of CO_350:0005670
-
-[Term]
-id: CO_350:0005072
-name: Fatty acid content - C14:0 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C14:0 content SCALE: percent" []
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005671
-
-[Term]
-id: CO_350:0005073
-name: Fatty acid content - C16:0 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C16:0 content SCALE: percent" []
-relationship: variable_of CO_350:0005672
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005422
-
-[Term]
-id: CO_350:0005074
-name: Fatty acid content - C16:1 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C16:1 content SCALE: percent" []
-relationship: variable_of CO_350:0005673
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005422
-
-[Term]
-id: CO_350:0005075
-name: Fatty acid content - C18:0 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C18:0 content SCALE: percent" []
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005674
-
-[Term]
-id: CO_350:0005076
-name: Fatty acid content - C18:1(9) - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C18:1(9) content SCALE: percent" []
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005675
-
-[Term]
-id: CO_350:0005077
-name: Fatty acid content - C18:1* - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C18:1* content SCALE: percent" []
-relationship: variable_of CO_350:0005676
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0000011
-
-[Term]
-id: CO_350:0005078
-name: Fatty acid content - C18:2 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C18:2 content SCALE: percent" []
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0005677
-
-[Term]
-id: CO_350:0005079
-name: Fatty acid content - C18:3 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C18:3 content SCALE: percent" []
-relationship: variable_of CO_350:0005678
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0000011
-
-[Term]
-id: CO_350:0005080
-name: Fatty acid content - C19:0 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C19:0 content SCALE: percent" []
-relationship: variable_of CO_350:0005679
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005422
-
-[Term]
-id: CO_350:0005081
-name: Fatty acid content - C20:0 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C20:0 content SCALE: percent" []
-relationship: variable_of CO_350:0005680
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0000011
-
-[Term]
-id: CO_350:0005082
-name: Fatty acid content - C20:1 - %
-namespace: oat_trait
-def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of fatty acid C20:1 content SCALE: percent" []
-relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005422
-relationship: variable_of CO_350:0005681
+relationship: variable_of CO_350:0005421
+relationship: variable_of CO_350:0000047
 
 [Term]
 id: CO_350:0005083
 name: Groat flour falling number - seconds
 namespace: oat_trait
 def: "TRAIT: Flour falling number is used as an indirect measurement of the alpha amylase content of the groat METHOD: Measurement of the amount of time it takes for a viscometer stirrer to fall a set distance through an aqueous gel created using groat flour. This indirectly measures the alpha amylase content of the groat, which becomes more abundant in grains that have suffered pre-harvest sprouting. An increase in alpha amylase in groat flour, along with other hydrolytic enzymes that are associated with pre-harvest sprouting, reduces the quality of the flour. SCALE: seconds" []
-relationship: variable_of CO_350:0005913
-relationship: variable_of CO_350:0005423
 relationship: variable_of CO_350:0005682
+relationship: variable_of CO_350:0005423
+relationship: variable_of CO_350:0005913
 
 [Term]
 id: CO_350:0005084
@@ -3143,35 +3065,35 @@ name: Phytofluene content - %
 namespace: oat_trait
 def: "TRAIT: Phytofluene content METHOD: Measurement of the phytofluene content SCALE: percent" []
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005426
 relationship: variable_of CO_350:0005685
+relationship: variable_of CO_350:0005426
 
 [Term]
 id: CO_350:0005087
 name: Seed quality - 1-7 seed quality scale
 namespace: oat_trait
 def: "TRAIT: Seed quality METHOD: Estimation of the seed qulaity on a 1-7 scale: 1= excellent, 7= poor SCALE: 1-7 seed quality scale (1= excellent, 7= poor)" []
-relationship: variable_of CO_350:0005686
 relationship: variable_of CO_350:0005914
 relationship: variable_of CO_350:0005427
+relationship: variable_of CO_350:0005686
 
 [Term]
 id: CO_350:0005088
 name: Silage moisture content - %
 namespace: oat_trait
 def: "TRAIT: Moisture content of silage. METHOD: Measurement of the moisture content of silage. SCALE: percent" []
+relationship: variable_of CO_350:0005687
 relationship: variable_of CO_350:0005428
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005687
 
 [Term]
 id: CO_350:0005089
 name: Total -tocopherol and -tocotrienol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Measure of the total -tocopherol and -tocotrienol content METHOD: Measurement of the total -tocopherol and -tocotrienol content SCALE: ug/g" []
-relationship: variable_of CO_350:0000035
 relationship: variable_of CO_350:0005429
 relationship: variable_of CO_350:0005688
+relationship: variable_of CO_350:0000035
 
 [Term]
 id: CO_350:0005090
@@ -3179,8 +3101,8 @@ name: Alpha-tocopherol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Tocopherol concentration METHOD: Measurement of the alpha-tocopherol content SCALE: ug/g" []
 relationship: variable_of CO_350:0005689
-relationship: variable_of CO_350:0000035
 relationship: variable_of CO_350:0000060
+relationship: variable_of CO_350:0000035
 
 [Term]
 id: CO_350:0005091
@@ -3196,8 +3118,8 @@ id: CO_350:0005092
 name: Delta-tocopherol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Tocopherol concentration METHOD: Measurement of the delta-tocopherol content SCALE: ug/g" []
-relationship: variable_of CO_350:0000060
 relationship: variable_of CO_350:0000035
+relationship: variable_of CO_350:0000060
 relationship: variable_of CO_350:0005691
 
 [Term]
@@ -3205,8 +3127,8 @@ id: CO_350:0005093
 name: Gamma-tocopherol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Tocopherol concentration METHOD: Measurement of the gamma-tocopherol content SCALE: ug/g" []
-relationship: variable_of CO_350:0005692
 relationship: variable_of CO_350:0000035
+relationship: variable_of CO_350:0005692
 relationship: variable_of CO_350:0000060
 
 [Term]
@@ -3215,8 +3137,8 @@ name: Alpha-tocotrienol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Tocotrienol concentration METHOD: Measurement of the alpha-tocotrienol content SCALE: ug/g" []
 relationship: variable_of CO_350:0000035
-relationship: variable_of CO_350:0000057
 relationship: variable_of CO_350:0005693
+relationship: variable_of CO_350:0000057
 
 [Term]
 id: CO_350:0005095
@@ -3232,35 +3154,35 @@ id: CO_350:0005096
 name: Delta-tocotrienol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Tocotrienol concentration METHOD: Measurement of the delta-tocotrienol content SCALE: ug/g" []
-relationship: variable_of CO_350:0005695
 relationship: variable_of CO_350:0000035
 relationship: variable_of CO_350:0000057
+relationship: variable_of CO_350:0005695
 
 [Term]
 id: CO_350:0005097
 name: Gamma-tocotrienol content - ug/g
 namespace: oat_trait
 def: "TRAIT: Tocotrienol concentration METHOD: Measurement of the gamma-tocotrienol content SCALE: ug/g" []
-relationship: variable_of CO_350:0005696
-relationship: variable_of CO_350:0000057
 relationship: variable_of CO_350:0000035
+relationship: variable_of CO_350:0000057
+relationship: variable_of CO_350:0005696
 
 [Term]
 id: CO_350:0005098
 name: Tunaxanthin content - %
 namespace: oat_trait
 def: "TRAIT: Tunaxanthin content METHOD: Measurement of the tunaxanthin content SCALE: percent" []
-relationship: variable_of CO_350:0005697
 relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0005430
+relationship: variable_of CO_350:0005697
 
 [Term]
 id: CO_350:0005099
 name: Violaxanthin content - %
 namespace: oat_trait
 def: "TRAIT: Violaxanthin content METHOD: Measurement of the Violaxanthin content SCALE: percent" []
-relationship: variable_of CO_350:0005431
 relationship: variable_of CO_350:0000011
+relationship: variable_of CO_350:0005431
 relationship: variable_of CO_350:0005698
 
 [Term]
@@ -3269,23 +3191,131 @@ name: Zeaxanthin content - %
 namespace: oat_trait
 def: "TRAIT: Zeaxanthin content METHOD: Measurement of the Zeaxanthin content SCALE: percent" []
 relationship: variable_of CO_350:0005699
-relationship: variable_of CO_350:0000011
 relationship: variable_of CO_350:0005432
+relationship: variable_of CO_350:0000011
 
 [Term]
 id: CO_350:0005101
 name: Beta-glucan content - FIA - percent
 namespace: oat_trait
 def: "TRAIT: Amount of beta-glucan present in the groat expressed as a percentage of the entire groat. METHOD: Measurement of beta-glucan content obtained using fluid injection analysis (FIA). SCALE: percent" []
+relationship: variable_of CO_350:0005700
 relationship: variable_of CO_350:0000036
 relationship: variable_of CO_350:0000011
-relationship: variable_of CO_350:0005700
 
 [Term]
 id: CO_350:0005102
 name: Undehulled seed - %
 namespace: oat_trait
 def: "TRAIT: Amount of undehulled seed remaining after dehulling. METHOD: Calculate the percentage of undehulled seed SCALE: percent" []
-relationship: variable_of CO_350:0005701
 relationship: variable_of CO_350:0000011
+relationship: variable_of CO_350:0005701
 relationship: variable_of CO_350:0000063
+
+[Term]
+id: CO_350:0005103
+name: Grain oil content - percent
+namespace: oat_trait
+def: "TRAIT: The amount of oil in the grain, expressed as a percentage of the whole grain. METHOD: Computation of the percentage of oil in the whole grain as obtained using near-infrared spectroscopy (NIR). SCALE: percent" []
+relationship: variable_of CO_350:0005433
+relationship: variable_of CO_350:0005702
+relationship: variable_of CO_350:0000011
+
+[Term]
+id: CO_350:0005104
+name: Fatty acid content - C14:0 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C14:0 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005915
+relationship: variable_of CO_350:0005703
+relationship: variable_of CO_350:0005422
+
+[Term]
+id: CO_350:0005105
+name: Fatty acid content - C16:0 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C16:0 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005704
+relationship: variable_of CO_350:0005915
+
+[Term]
+id: CO_350:0005106
+name: Fatty acid content - C16:1 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C16:1 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005915
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005705
+
+[Term]
+id: CO_350:0005107
+name: Fatty acid content - C18:0 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C18:0 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005915
+relationship: variable_of CO_350:0005706
+relationship: variable_of CO_350:0005422
+
+[Term]
+id: CO_350:0005108
+name: Fatty acid content - C18:1(9) - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C18:1(9) content SCALE: mg/g" []
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005707
+relationship: variable_of CO_350:0005915
+
+[Term]
+id: CO_350:0005109
+name: Fatty acid content - C18:1* - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C18:1* content SCALE: mg/g" []
+relationship: variable_of CO_350:0005708
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005915
+
+[Term]
+id: CO_350:0005110
+name: Fatty acid content - C18:2 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C18:2 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005709
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005915
+
+[Term]
+id: CO_350:0005111
+name: Fatty acid content - C18:3 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C18:3 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005915
+relationship: variable_of CO_350:0005710
+relationship: variable_of CO_350:0005422
+
+[Term]
+id: CO_350:0005112
+name: Fatty acid content - C19:0 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C19:0 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005711
+relationship: variable_of CO_350:0005915
+
+[Term]
+id: CO_350:0005113
+name: Fatty acid content - C20:0 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C20:0 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005915
+relationship: variable_of CO_350:0005712
+relationship: variable_of CO_350:0005422
+
+[Term]
+id: CO_350:0005114
+name: Fatty acid content - C20:1 - mg/g
+namespace: oat_trait
+def: "TRAIT: Fatty acid content of the grain METHOD: Measurement of the concentration of fatty acid C20:1 content SCALE: mg/g" []
+relationship: variable_of CO_350:0005915
+relationship: variable_of CO_350:0005422
+relationship: variable_of CO_350:0005713
