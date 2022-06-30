@@ -2,6 +2,8 @@
 package SGN::Controller::AJAX::Dataset;
 
 use Moose;
+use strict;
+use warnings;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -33,7 +35,7 @@ sub store_dataset :Path('/ajax/dataset/save') Args(0) {
 
     my $people_schema =  $c->dbic_schema("CXGN::People::Schema");
     if (CXGN::Dataset->exists_dataset_name($people_schema, $dataset_name)) {
-	$c->stash->{rest} = { error => "The dataset with name $dataset_name already exists. Please chose another name." };
+	$c->stash->{rest} = { error => "The dataset with name $dataset_name already exists. Please choose another name." };
 	return;
     }
 
@@ -63,6 +65,30 @@ sub store_dataset :Path('/ajax/dataset/save') Args(0) {
     $c->stash->{rest} = { message => "Stored Dataset Successfully!" };
 }
 
+sub store_outliers_in_dataset :Path('/ajax/dataset/store_outliers') Args(1) {
+    my $self = shift;
+    my $c = shift;
+    my $dataset_id = shift;
+    my $string_outliers = $c->req->param('outliers');
+    my $string_outlier_cutoffs = $c->req->param('outlier_cutoffs');
+
+    my @outliers = split(',',$string_outliers);
+    my @outlier_cutoffs = split(',', $string_outlier_cutoffs);
+    my $dataset = CXGN::Dataset->new(
+	{
+	    schema => $c->dbic_schema("Bio::Chado::Schema"),
+	    people_schema => $c->dbic_schema("CXGN::People::Schema"),
+	    sp_dataset_id => $dataset_id,
+        outliers => \@outliers,
+        outlier_cutoffs => \@outlier_cutoffs
+	});
+
+
+    $dataset->store();
+    $c->stash->{rest} = { success => 1 };
+    
+}
+
 sub get_datasets_by_user :Path('/ajax/dataset/by_user') Args(0) {
     my $self = shift;
     my $c = shift;
@@ -77,8 +103,13 @@ sub get_datasets_by_user :Path('/ajax/dataset/by_user') Args(0) {
 	$c->dbic_schema("CXGN::People::Schema"),
 	$user->get_object()->get_sp_person_id()
 	);
-
-    $c->stash->{rest} = $datasets;
+    my @result;
+    foreach (@$datasets) {
+	my @res;
+	push @res, ("<a href=\"/dataset/$_->[0]\">$_->[1]</a>", $_->[2]);
+	push @result , \@res;
+    }
+    $c->stash->{rest} = { data => \@result };
 }
 
 sub get_datasets_public :Path('/ajax/dataset/get_public') {
@@ -141,6 +172,39 @@ sub get_dataset :Path('/ajax/dataset/get') Args(1) {
     my $dataset_data = $dataset->get_dataset_data();
 
     $c->stash->{rest} = { dataset => $dataset_data };
+}
+
+
+sub retrieve_dataset_dimension :Path('/ajax/dataset/retrieve') Args(2) {
+    my $self = shift;
+    my $c = shift;
+    my $dataset_id = shift;
+    my $dimension = shift;
+    my $include_phenotype_primary_key = $c->req->param('include_phenotype_primary_key');
+    
+    my $dataset = CXGN::Dataset->new(
+	{
+	    schema => $c->dbic_schema("Bio::Chado::Schema"),
+	    people_schema => $c->dbic_schema("CXGN::People::Schema"),
+	    sp_dataset_id=> $dataset_id,
+        include_phenotype_primary_key => $include_phenotype_primary_key,
+	});
+
+
+    my $dimension_data;
+    my $function_name = 'retrieve_'.$dimension;
+    if ($dataset->can($function_name)) {
+	
+	$dimension_data = $dataset->$function_name();
+    }
+    else {
+	$c->stash->{rest} = { error => "The specified dimension '$dimension' does not exist" };
+	return;
+    }
+
+    $c->stash->{rest} = { dataset_id => $dataset_id,
+			  $dimension => $dimension_data,
+    };
 }
 
 sub delete_dataset :Path('/ajax/dataset/delete') Args(1) {
