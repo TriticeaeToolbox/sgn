@@ -219,7 +219,7 @@ sub submit_trial_data_POST : Args(0) {
         while ( my($k, $v) = each %info ) {
             $body .= " - " . $v->{'name'} . " (" . $k . ")\n";
             $body .= "   Directory: " . $v->{'dir'} . "\n";
-            $body .= "   View Files: " . $main_production_site_url . "/submit/view" . $user_id . "/" . $v->{'trial_dir'} . "\n";
+            $body .= "   View Files: " . $main_production_site_url . "/submit/view/" . $user_id . "/" . $v->{'trial_dir'} . "\n";
         }
 
         CXGN::Contact::send_email($subject, $body, $submission_email, $user->get_private_email());
