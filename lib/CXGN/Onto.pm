@@ -176,7 +176,7 @@ sub store_breeder_term {
     my $cv= $schema->resultset('Cv::Cv')->find_or_create({ name => 'composed_trait' });
 
     ## Add dbxref term
-    my $accession_query = "SELECT nextval('composed_trait_ids')";
+    my $accession_query = "SELECT nextval('public.composed_trait_ids')";
     my $h = $dbh->prepare($accession_query);
     $h->execute();
     my $accession = $h->fetchrow_array();
