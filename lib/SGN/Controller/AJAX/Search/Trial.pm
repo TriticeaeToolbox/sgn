@@ -102,6 +102,39 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
     my @result;
     my %selected_columns = ('plot_name'=>1, 'plot_id'=>1, 'block_number'=>1, 'plot_number'=>1, 'rep_number'=>1, 'row_number'=>1, 'col_number'=>1, 'accession_name'=>1, 'is_a_control'=>1);
     my $selected_columns_json = encode_json \%selected_columns;
+
+    # Query the DB to get the number of plots with assigned row and col numbers for each trial
+    # The layout is defined if the number of row and col numbers are not 0
+    # (See the CXGN::Project->has_col_and_row_numbers() function)
+    my %has_trial_layout;
+    my $q1 = "SELECT 
+                t2.project_id, 
+                SUM(CASE WHEN t1.row IS NULL THEN 0 ELSE 1 END) AS row_count, 
+                SUM(CASE WHEN t1.col IS NULL THEN 0 ELSE 1 END) AS col_count
+              FROM (
+                SELECT stock.stock_id, rsp.value AS row, csp.value AS col
+                FROM public.stock
+                LEFT JOIN public.stockprop AS rsp ON (rsp.stock_id = stock.stock_id) AND rsp.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'row_number')
+                LEFT JOIN public.stockprop AS csp ON (csp.stock_id = stock.stock_id) AND csp.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'col_number')
+              ) AS t1,
+              (
+                SELECT s1.project_id, stock_id
+                FROM nd_experiment_stock,
+                (
+                    SELECT project_id, nd_experiment_id 
+                    FROM nd_experiment_project 
+                    WHERE project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview WHERE trial_id IS NOT NULL)
+                ) AS s1
+                WHERE nd_experiment_stock.nd_experiment_id IN (s1.nd_experiment_id)
+              ) AS t2
+              WHERE t1.stock_id = t2.stock_id
+              GROUP BY t2.project_id;";
+    my $h1 = $schema->storage->dbh()->prepare($q1);
+    $h1->execute();
+    while (my ($trial_id, $row_count, $col_count) = $h1->fetchrow_array()) {
+        $has_trial_layout{$trial_id} = $row_count != 0 && $col_count != 0;
+    }
+
     foreach (@$data){
         my @res;
         if ($checkbox_select_name){
@@ -135,24 +168,6 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
         @info = $h->fetchrow_array();
         $transferred = $info[0];
 
-        # Query to get the count of defined row and col numbers in the trial layout
-        # The layout is defined if the number of row and col numbers are not 0
-        # (See the CXGN::Project->has_col_and_row_numbers() function)
-        $q = "SELECT 
-                SUM(CASE WHEN sub.row_number IS NULL THEN 0 ELSE 1 END) AS row_count, 
-                SUM(CASE WHEN sub.col_number IS NULL THEN 0 ELSE 1 END) AS col_count
-                FROM (
-                    SELECT sub.key AS plot, sub.value->'row_number' AS row_number, sub.value->'col_number' AS col_number
-                    FROM public.projectprop
-                    CROSS JOIN LATERAL json_each(value::json) sub
-                    WHERE project_id = ?
-                    AND type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'trial_layout_json')
-                ) AS sub;";
-        $h = $schema->storage->dbh()->prepare($q);
-        $h->execute($_->{trial_id});
-        my @row_col_counts = $h->fetchrow_array();
-        my $has_trial_layout = $row_col_counts[0] && $row_col_counts[1] && $row_col_counts[0] != 0 && $row_col_counts[1] != 0;
-
         push @res, (
             "<a href=\"/breeders_toolbox/trial/$_->{trial_id}\">$_->{trial_name}</a>",
             $_->{description},
@@ -160,7 +175,7 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
             $_->{year},
             $_->{project_planting_date},
             $_->{project_harvest_date},
-            $has_trial_layout ? '<span class="glyphicon glyphicon-ok-sign" style="color: #3c7d3d; font-size: 150%"></span>' : '',
+            $has_trial_layout{$_->{trial_id}} ? '<span class="glyphicon glyphicon-ok-sign" style="color: #3c7d3d; font-size: 150%"></span>' : '',
             $create_date,
             $public_date,
             $transferred
