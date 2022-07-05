@@ -327,12 +327,18 @@ sub _validate_with_plugin {
           push @error_messages, "Cell K$row_name: planting_date <b>$planting_date</b> must be in the format YYYY-MM-DD.";
         }
       }
+      else {
+        push @warning_messages, "Trial $trial_name does not have a planting date set.";
+      }
 
       ## HARVEST DATE CHECK
       if ($harvest_date) {
         unless ($calendar_funcs->check_value_format($harvest_date)) {
           push @error_messages, "Cell L$row_name: harvest_date <b>$harvest_date</b> must be in the format YYYY-MM-DD.";
         }
+      }
+      else {
+        push @warning_messages, "Trial $trial_name does not have a harvest date set.";
       }
 
       $working_on_new_trial = 0;
