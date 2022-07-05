@@ -34,8 +34,8 @@ $design_types => ()
                             </&>
                             <&| /util/workflow.mas:step, title=> "File Formatting" &>
                                 <ul class="nav nav-pills nav-justified" id="upload_trial_designs_tab_select">
-                                    <li class="active" id="upload_single_trial_design_tab"><a data-toggle="tab" href="#single_tab">Single Trial Design</a></li>
-                                    <li id="upload_multiple_trial_designs_tab"><a data-toggle="tab" href="#multiple_tab">Multiple Trial Designs</a></li>
+                                    <li id="upload_single_trial_design_tab"><a data-toggle="tab" href="#single_tab">Single Trial Design</a></li>
+                                    <li class="active" id="upload_multiple_trial_designs_tab"><a data-toggle="tab" href="#multiple_tab">Multiple Trial Designs</a></li>
                                 </ul>
                                 <div class="tab-content">
 
