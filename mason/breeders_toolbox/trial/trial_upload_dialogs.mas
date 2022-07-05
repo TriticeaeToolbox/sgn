@@ -41,12 +41,12 @@ $design_types => ()
                             </&>
                             <&| /util/workflow.mas:step, title=> "File Formatting" &>
                                 <ul class="nav nav-pills nav-justified" id="upload_trial_designs_tab_select">
-                                    <li class="active" id="upload_single_trial_design_tab"><a data-toggle="tab" href="#single_tab">Single Trial Design</a></li>
-                                    <li id="upload_multiple_trial_designs_tab"><a data-toggle="tab" href="#multiple_tab">Multiple Trial Designs</a></li>
+                                    <li id="upload_single_trial_design_tab"><a data-toggle="tab" href="#single_tab">Single Trial Design</a></li>
+                                    <li class="active" id="upload_multiple_trial_designs_tab"><a data-toggle="tab" href="#multiple_tab">Multiple Trial Designs</a></li>
                                 </ul>
                                 <div class="tab-content">
 
-                                    <div id="single_tab" class="tab-pane fade in active">
+                                    <div id="single_tab" class="tab-pane fade">
                                         <hr>
                                         <center>
                                             <&| /page/explanation.mas, title=>'Template information' &>
@@ -60,7 +60,7 @@ $design_types => ()
                                         </center>
                                     </div>
 
-                                    <div id="multiple_tab" class="tab-pane fade">
+                                    <div id="multiple_tab" class="tab-pane fade in active">
                                         <hr>
                                         <center>
                                             <&| /page/explanation.mas, title=>'Template information' &>
@@ -111,9 +111,9 @@ $design_types => ()
                                               </div>
                                             </form>
 
-                                            <div style="display:none" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
+                                            <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
                                             </div>
-                                            <div style="display:none" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert">
+                                            <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert">
                                             </div>
                                             <div style="display:none" id="upload_multiple_trials_success_messages" class="alert-success" role="alert">
                                             </div>
