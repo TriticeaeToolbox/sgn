@@ -39,7 +39,7 @@ $design_types => ()
                                 </ul>
                                 <div class="tab-content">
 
-                                    <div id="single_tab" class="tab-pane fade in active">
+                                    <div id="single_tab" class="tab-pane fade">
                                         <hr>
                                         <center>
                                             <&| /page/explanation.mas, title=>'Template information' &>
@@ -53,7 +53,7 @@ $design_types => ()
                                         </center>
                                     </div>
 
-                                    <div id="multiple_tab" class="tab-pane fade">
+                                    <div id="multiple_tab" class="tab-pane fade in active">
                                         <hr>
                                         <center>
                                             <&| /page/explanation.mas, title=>'Template information' &>
