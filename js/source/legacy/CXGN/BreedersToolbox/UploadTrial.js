@@ -310,20 +310,20 @@ jQuery(document).ready(function ($) {
 
             if (response.warnings) {
                 warnings = response.warnings;
-                warning_html = "<li>"+warnings.join("</li><li>")+"</li>"
+                warning_html = "<li> - "+warnings.join("</li><li> - ")+"</li>"
                 $("#upload_multiple_trials_warning_messages").show();
-                $("#upload_multiple_trials_warning_messages").html('<b>Warnings. Fix or ignore the following warnings and try again.</b><br><br>'+warning_html);
+                $("#upload_multiple_trials_warning_messages").html('<strong>Warnings</strong><br />You can either fix the following warning(s) or select the "Ignore Warnings" option above and then reupload the file.<br><br>'+warning_html);
                 return;
             }
             if (response.errors) {
                 errors = response.errors;
                 if (Array.isArray(errors)) {
-                    error_html = "<li>"+errors.join("</li><li>")+"</li>";
+                    error_html = "<li> - "+errors.join("</li><li> - ")+"</li>";
                 } else {
                     error_html = "<li>"+errors+"</li>";
                 }
                 $("#upload_multiple_trials_error_messages").show();
-                $("#upload_multiple_trials_error_messages").html('<b>Errors found. Fix the following problems and try again.</b><br><br>'+error_html);
+                $("#upload_multiple_trials_error_messages").html('<strong>Errors</strong><br />You need to fix the following error(s) before uploading the file again.<br><br>'+error_html);
                 return;
             }
             if (response.success) {

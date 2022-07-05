@@ -79,9 +79,9 @@ $design_types => ()
                                               </div>
                                             </form>
 
-                                            <div style="display:none" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
+                                            <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
                                             </div>
-                                            <div style="display:none" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert">
+                                            <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert">
                                             </div>
                                             <div style="display:none" id="upload_multiple_trials_success_messages" class="alert-success" role="alert">
                                             </div>

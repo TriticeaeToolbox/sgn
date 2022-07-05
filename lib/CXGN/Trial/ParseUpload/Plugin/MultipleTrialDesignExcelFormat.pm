@@ -90,6 +90,8 @@ sub _validate_with_plugin {
   my $field_size;
   my $planting_date;
   my $harvest_date;
+  my %trial_locations;
+  my %trial_years;
 
   for my $row ( 1 .. $row_max ) {
 
@@ -279,11 +281,15 @@ sub _validate_with_plugin {
       else {
         $location =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
         $seen_locations{$location}=$row_name;
+        $trial_locations{$trial_name}=$location;
       }
 
       ## YEAR CHECK
       if (!($year =~ /^\d{4}$/)) {
           push @error_messages, "Cell D$row_name: <b>$year</b> is not a valid year, must be a 4 digit positive integer.";
+      }
+      else {
+        $trial_years{$trial_name}=$year;
       }
 
       ## DESIGN TYPE CHECK
@@ -328,7 +334,7 @@ sub _validate_with_plugin {
         }
       }
       else {
-        push @warning_messages, "Trial $trial_name does not have a planting date set.";
+        push @warning_messages, "Trial $trial_name does not have a planting date set.  Please add a planting date (YYYY-MM-DD format) if your trial has already been planted.";
       }
 
       ## HARVEST DATE CHECK
@@ -338,7 +344,7 @@ sub _validate_with_plugin {
         }
       }
       else {
-        push @warning_messages, "Trial $trial_name does not have a harvest date set.";
+        push @warning_messages, "Trial $trial_name does not have a harvest date set.  Please add a harvest date (YYYY-MM-DD format) if your trial has already been harvested.";
       }
 
       $working_on_new_trial = 0;
@@ -451,6 +457,43 @@ sub _validate_with_plugin {
     # $errors{'invalid_trial_names'} = \@already_used_trial_names;
     push @error_messages, "Trial name(s) <b>".join(',',@already_used_trial_names)."</b> are invalid because they are already used in the database.";
   }
+
+  ## Check trial name format
+  foreach my $trial_name (@trial_names) {
+    my $location = $trial_locations{$trial_name};
+    my $year = $trial_years{$trial_name};
+    my @loc1 = split(',', $location);
+    my $town = $loc1[0];
+    my @loc2 = split(/- ?/, $location);
+    my $field = $loc2[1];
+    my $year_short = substr($year, 2);
+
+    # check for town and/or field name in the trial name
+    if ( $trial_name !~ /$town/i ) {
+      if ( !$field || $trial_name !~ /$field/i ) {
+        my $msg = "Trial name $trial_name does not reference the location $location";
+        if ( $town ) {
+          $msg .= " (town=$town)";
+        }
+        if ( $field ) {
+          $msg .= " (field=$field)";
+        }
+        $msg .= ". It is recommended that the trial name include either the town or field name.";
+        push @warning_messages, $msg;
+      }
+    }
+
+    # check for year in the trial name
+    if ( $trial_name !~ /$year_short/ ) {
+      push @warning_messages, "Trial name $trial_name does not reference the trial year $year.  It is recommended that the trial name include the trial year.";
+    }
+
+    # check the length of the trial name
+    if ( length($trial_name) < 8 ) {
+      push @warning_messages, "Trial name $trial_name is less than 8 characters long.  It is recommended to have a longer trial name that contains an experiment code, the trial location, and year to create a unique trial name that will not conflict with other trials."
+    }
+  }
+
 
   ## BREEDING PROGRAMS OVERALL VALIDATION
   my @breeding_programs = keys %seen_breeding_programs;
