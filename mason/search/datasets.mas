@@ -27,7 +27,7 @@ $location_id => 'not_provided'
 jQuery(document).ready(function () {
 
    var trial_table = jQuery('#dataset_search_results').DataTable( {
-       'ajax': '/ajax/dataset/by_user',
+       'ajax': '/ajax/dataset/by_user_html',
        "scrollX": true
    });
 
