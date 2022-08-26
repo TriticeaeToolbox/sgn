@@ -501,7 +501,7 @@ sub query {
     $query .= ((@where) ? " AND " : " WHERE ") . " (feature.type_id = (SELECT cvterm_id FROM public.cvterm WHERE name = 'markers') OR feature.type_id IS NULL)";
     $query .= " AND (featureprop.type_id IN (SELECT cvterm_id FROM public.cvterm WHERE name = 'flanking_region') OR featureprop.type_id IS NULL)";
     
-    $query .= " ORDER BY marker_name";
+    $query .= " ORDER BY chrom, pos";
     if ( defined $limit ) {
         $query .= " LIMIT ?";
         push(@args, $limit);

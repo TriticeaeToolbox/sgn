@@ -33,17 +33,30 @@ David Waring <djw64@cornell.edu>
         <div id="genotyped-marker-results" class="well">
             <table id="genotyped-marker-results-table" class="display"></table>
             <br />
-            <div id="genotyped-marker-results-status">
-                <span style="float: left">
+            <div id="genotyped-marker-results-status" style="display: flex; justify-content: space-between">
+                <div>
                     <span id="genotyped-marker-results-displayed"></span><br />
                     <span id="genotyped-marker-results-pages"></span>
-                </span>
-                <div class="btn-group" style="float: right">
+                </div>
+                <div class="btn-group">
                     <button id="genotyped-marker-page-prev" type="button" class="btn btn-default" disabled><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Prev</button>
                     <button id="genotyped-marker-page-next" type="button" class="btn btn-default" disabled>Next&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
                 </div>
             </div>
-            <br /><br />
+            <br />
+            <div style="display: flex; flex-wrap: wrap; gap: 25px; align-items: baseline">
+                <p><strong>Download:</strong></p>
+                <div>
+                    <select id="genotyped-marker-results-download-type" class="form-control">
+                        <option value="page">This Page</option>
+                        <option value="all">All Results</option>
+                    </select>
+                </div>
+                <button id="genotyped-marker-results-download" type="button" class="btn btn-default" disabled>
+                    <span class="glyphicon glyphicon-download"></span>
+                    &nbsp;&nbsp;Download CSV
+                </button>
+            </div>
         </div>
     </&>
 </div>
@@ -55,17 +68,30 @@ David Waring <djw64@cornell.edu>
         <div id="mapped-marker-results" class="well">
             <table id="mapped-marker-results-table" class="display"></table>
             <br />
-            <div id="mapped-marker-results-status">
-                <span style="float: left">
+            <div id="mapped-marker-results-status" style="display: flex; justify-content: space-between">
+                <div>
                     <span id="mapped-marker-results-displayed"></span><br />
                     <span id="mapped-marker-results-pages"></span>
-                </span>
-                <div class="btn-group" style="float: right">
+                </div>
+                <div class="btn-group">
                     <button id="mapped-marker-page-prev" type="button" class="btn btn-default" disabled><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Prev</button>
                     <button id="mapped-marker-page-next" type="button" class="btn btn-default" disabled>Next&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
                 </div>
             </div>
-            <br /><br />
+            <br />
+            <div style="display: flex; flex-wrap: wrap; gap: 25px; align-items: baseline">
+                <p><strong>Download:</strong></p>
+                <div>
+                    <select id="mapped-marker-results-download-type" class="form-control">
+                        <option value="page">This Page</option>
+                        <option value="all">All Results</option>
+                    </select>
+                </div>
+                <button id="mapped-marker-results-download" type="button" class="btn btn-default" disabled>
+                    <span class="glyphicon glyphicon-download"></span>
+                    &nbsp;&nbsp;Download CSV
+                </button>
+            </div>
         </div>
     </&>
 </div>
@@ -104,34 +130,18 @@ let REFMAP, SPECIES, CHROM, START, END;
 let PROTOCOL;
 
 let GENOTYPED_MARKERS_PAGE = 1;         // Current page of genotyped marker results
+let GENOTYPED_MARKERS_TOTAL = 0;        // Maximum number of genotyped marker results
 const GENOTYPED_MARKERS_LIMIT = 50;     // Limit of markers for the genotyped marker search
 let MAPPED_MARKERS_PAGE = 1;            // Current page of mapped marker results
+let MAPPED_MARKERS_TOTAL = 0;           // Maximum number of mapped marker results
 const MAPPED_MARKERS_LIMIT = 50;        // Limit of markers for the mapped marker search
 
 
 jQuery(document).ready(function() {
 
-    // Shared Download Buttons
-    let buttons = [
-        {
-            extend: 'excelHtml5',
-            title: 'markers',
-            exportOptions: {
-                orthogonal: 'export'
-            }
-        },
-        {
-            extend: 'csvHtml5',
-            title: 'markers',
-            exportOptions: {
-                orthogonal: 'export'
-            }
-        }
-    ];
-
     // Init Genotyped DataTable
     jQuery('#genotyped-marker-results-table').DataTable({
-        dom: 'Bfrt',
+        dom: 'rt',
         autoWidth: false,
         pageLength: GENOTYPED_MARKERS_LIMIT,
         language: {
@@ -165,13 +175,12 @@ jQuery(document).ready(function() {
                 render: renderFlankingSequence
             }
         ],
-        order: [[ 0, "asc" ], [ 2, "asc" ]],
-        buttons: buttons
+        order: [[ 4, "asc" ], [ 5, "asc" ]],
     });
 
     // Init Mapped DataTable
     jQuery('#mapped-marker-results-table').DataTable({
-        dom: 'Bfrt',
+        dom: 'rt',
         autoWidth: false,
         pageLength: GENOTYPED_MARKERS_LIMIT,
         language: {
@@ -198,8 +207,7 @@ jQuery(document).ready(function() {
                 render: renderFlankingSequence
             }
         ],
-        order: [[ 0, "asc" ], [ 2, "asc" ]],
-        buttons: buttons
+        order: [[ 4, "asc" ], [ 5, "asc" ]],
     });
 
     // Click Listeners
@@ -219,8 +227,9 @@ jQuery(document).ready(function() {
         jQuery("#genotyped-marker-flanking-sequence-snp").html(fs_snp);
         jQuery("#genotyped-marker-flanking-sequence-ref").html(fs_ref);
         jQuery("#genotyped-marker-flanking-sequence-dialog").modal('show');
-
     });
+    jQuery("#genotyped-marker-results-download").click(downloadGenotypedMarkers);
+    jQuery("#mapped-marker-results-download").click(downloadMappedMarkers);
 
     // Start the Marker Search
     parseArgs();
@@ -320,6 +329,7 @@ function searchGenotypedMarkers() {
     jQuery("#genotyped-marker-results-table .dataTables_empty").html("Searching...");
     jQuery("#genotyped-marker-page-prev").attr('disabled', true);
     jQuery("#genotyped-marker-page-next").attr('disabled', true);
+    jQuery("#genotyped-marker-results-download").attr('disabled', true);
 
     // Query genotyped markers
     jQuery.ajax({
@@ -405,11 +415,58 @@ function displayGenotypedMarkers(dt, data) {
     let displayed = start + " - " + end + " / " + total;
     let max_page = Math.ceil(total/GENOTYPED_MARKERS_LIMIT);
     let page = GENOTYPED_MARKERS_PAGE + " / " + max_page;
+    GENOTYPED_MARKERS_TOTAL = total;
     jQuery("#genotyped-marker-results-displayed").html("<strong>MARKERS:</strong> " + displayed);
     jQuery("#genotyped-marker-results-pages").html("<strong>PAGE:</strong> " + page);
     jQuery("#genotyped-marker-page-prev").attr('disabled', GENOTYPED_MARKERS_PAGE === 1);
     jQuery("#genotyped-marker-page-next").attr('disabled', GENOTYPED_MARKERS_PAGE === max_page || max_page === 0);
+    jQuery("#genotyped-marker-results-download").attr('disabled', false);
     
+}
+
+
+/**
+ * Download a CSV file of the genotyped markers (either the current page or all)
+ */
+function downloadGenotypedMarkers() {
+    let download_page = jQuery("#genotyped-marker-results-download-type option:selected").val() === 'page';
+
+    jQuery("#working_modal").modal("show");
+    jQuery.ajax({
+        type: 'GET',
+        url: '/ajax/markers/genotyped/query',
+        data: {
+            name: MARKER_NAME,
+            name_match: MARKER_NAME_MATCH,
+            species: SPECIES,
+            reference_genome: REFMAP,
+            chrom: CHROM,
+            start: START,
+            end: END,
+            nd_protocol_id: PROTOCOL,
+            page: download_page ? GENOTYPED_MARKERS_PAGE : 1,
+            limit: download_page ? GENOTYPED_MARKERS_LIMIT : GENOTYPED_MARKERS_TOTAL,
+            download: true
+        },
+        dataType: 'text',
+        cache: false,
+        success: function(data) {
+            jQuery("#working_modal").modal("hide");
+
+            var blob = new Blob([data], { type: "text/plain;charset=utf-8" });
+            var blobURL = URL.createObjectURL(blob);
+            var link = document.createElement("a");
+            link.href = blobURL;
+            link.download = "genotyped_markers.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        error: function() {
+            jQuery("#working_modal").modal("hide");
+            alert("ERROR: Could not download genotyped markers!");
+        }
+    });
 }
 
 
@@ -435,6 +492,7 @@ function searchMappedMarkers() {
     jQuery("#mapped-marker-results-table .dataTables_empty").html("Searching...");
     jQuery("#mapped-marker-page-prev").attr('disabled', true);
     jQuery("#mapped-marker-page-next").attr('disabled', true);
+    jQuery("#mapped-marker-results-download").attr('disabled', true);
 
     // Query mapped markers
     jQuery.ajax({
@@ -511,12 +569,58 @@ function displayMappedMarkers(dt, data) {
     let displayed = start + " - " + end + " / " + total;
     let max_page = Math.ceil(total/MAPPED_MARKERS_LIMIT);
     let page = MAPPED_MARKERS_PAGE + " / " + max_page;
+    MAPPED_MARKERS_TOTAL = total;
     jQuery("#mapped-marker-results-displayed").html("<strong>MARKERS:</strong> " + displayed);
     jQuery("#mapped-marker-results-pages").html("<strong>PAGE:</strong> " + page);
     jQuery("#mapped-marker-page-prev").attr('disabled', MAPPED_MARKERS_PAGE === 1);
     jQuery("#mapped-marker-page-next").attr('disabled', MAPPED_MARKERS_PAGE === max_page || max_page === 0);
+    jQuery("#mapped-marker-results-download").attr('disabled', false);
 
 }
+
+/**
+ * Download a CSV file of the mapped markers (either the current page or all)
+ */
+function downloadMappedMarkers() {
+    let download_page = jQuery("#mapped-marker-results-download-type option:selected").val() === 'page';
+
+    jQuery("#working_modal").modal("show");
+    jQuery.ajax({
+        type: 'GET',
+        url: '/ajax/markers/mapped/query',
+        data: {
+            name: MARKER_NAME,
+            name_match: MARKER_NAME_MATCH,
+            species: SPECIES,
+            map_id: REFMAP,
+            chrom: CHROM,
+            start: START,
+            end: END,
+            page: download_page ? MAPPED_MARKERS_PAGE : 1,
+            limit: download_page ? MAPPED_MARKERS_LIMIT : MAPPED_MARKERS_TOTAL,
+            download: true
+        },
+        dataType: 'text',
+        cache: false,
+        success: function(data) {
+            jQuery("#working_modal").modal("hide");
+
+            var blob = new Blob([data], { type: "text/plain;charset=utf-8" });
+            var blobURL = URL.createObjectURL(blob);
+            var link = document.createElement("a");
+            link.href = blobURL;
+            link.download = "mapped_markers.csv";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        },
+        error: function() {
+            jQuery("#working_modal").modal("hide");
+            alert("ERROR: Could not download mapped markers!");
+        }
+    });
+}
+
 </script>
 
 

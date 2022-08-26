@@ -299,6 +299,7 @@ sub query_mapped_markers_GET : Args(0) {
     my $end = $c->req->param('end');
     my $limit = $c->req->param('limit');
     my $page = $c->req->param('page');
+    my $download = $c->req->param('download');
 
     # Check required parameters
     if ( defined $page && !defined $limit ) {
@@ -403,7 +404,7 @@ sub query_mapped_markers_GET : Args(0) {
     my ($marker_count) = $count_h->fetchrow_array();
 
     # Add limit and offset to full query
-    $query .= " ORDER BY marker_alias.alias, map.short_name";
+    $query .= " ORDER BY subq.lg_name, subq.position";
     if ( defined $limit ) {
         $query .= " LIMIT ?";
         push(@$places, $limit);
@@ -444,13 +445,44 @@ sub query_mapped_markers_GET : Args(0) {
         push(@markers, \%marker);
     }
 
-    # Return the results as JSON
-    $c->stash->{rest} = {
-        results => {
-            markers => \@markers,
-            marker_count => $marker_count
+    # RETURN DOWNLOAD
+    if ( $download ) {
+        my @rows;
+        my @headers = ("Marker", "Protocol", "Species", "Map", "Chromosome", "Position", "Map Units", "Flanking Sequence");
+        push(@rows, \@headers);
+
+        foreach my $m (@markers) {
+            my @row = (
+                $m->{'marker_name'},
+                $m->{'protocol'},
+                $m->{'species_name'},
+                $m->{'map_name'},
+                $m->{'lg_name'},
+                $m->{'position'},
+                $m->{'map_units'},
+                $m->{'flanking_sequence_snp'}
+            );
+            push(@rows, \@row);
         }
-    };
+
+        $c->res->content_type('text/csv');
+        $c->res->headers->push_header('Content-disposition', 'attachment; filename=genotyped_markers.csv');
+        $c->res->body(
+            join '', map "$_\n",
+            map { join ',', map qq|"$_"|, @$_ }
+            @rows
+        );
+    }
+
+    # RETURN JSON
+    else {
+        $c->stash->{rest} = {
+            results => {
+                markers => \@markers,
+                marker_count => $marker_count
+            }
+        };
+    }
 }
 
 
