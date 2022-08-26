@@ -24,21 +24,25 @@ David Waring <djw64@cornell.edu>
 
 <!-- FILTER BY NAME -->
 <&| /page/info_section.mas, title=>'Filter By Name', collapsible=>1, collapsed=>0 &>
-    <div class="well">
+    <div id="marker-name-well" class="well" style="min-height: 150px">
 
         <!-- Marker Name -->
         <div class="form-group">
             <label class="col-sm-3 control-label">Marker Name: </label>
             <div class="col-sm-4">
                 <select id="marker-name-match" class="form-control">
-                    <option value="exactly">Exactly</option>
+                    <option value="exact">Exactly</option>
                     <option value="contains">Contains</option>
                     <option value="starts_with">Starts With</option>
                     <option value="ends_with">Ends With</option>
+                    <option value="list">Multiple Marker Names</option>
                 </select>
             </div>
-            <div class="col-sm-5">
+            <div id="marker-name-single" class="col-sm-5">
                 <input id="marker-name" class="form-control" type="text" placeholder="Any Name" />
+            </div>
+            <div id="marker-name-list" class="col-sm-5" style="display: none">
+                <textarea id="marker-names" class="form-control" type="text" placeholder="Marker Names (one per line)" rows=5></textarea>
             </div>
         </div>
 
@@ -134,7 +138,7 @@ David Waring <djw64@cornell.edu>
 </&>
 
 
-<button class="btn btn-primary btn-block marker-search-button">Search</button>
+<button class="btn btn-primary btn-block marker-search-button" disabled>Search</button>
 
 
 
@@ -154,17 +158,27 @@ let PROTOCOLS = undefined;              // Protocols retrieved from the database
 jQuery(document).ready(function() {
 
     // Search Setup Functions
+    let setup_count = 0;
+    let setup_total = 3;
     parseArgs();
-    getRefMaps();
-    getChromosomes();
-    getProtocols();
+    getRefMaps(_finishSetup);
+    getChromosomes(_finishSetup);
+    getProtocols(_finishSetup);
 
     // Click / Change Listeners
+    jQuery('#marker-name-match').change(updateMarkerNames);
     jQuery('#marker-refmap').change(updateChromosomes).change(updatePositions).change(updateSpecies).change(updateProtocols);
     jQuery('#marker-chromosome').change(updatePositions);
     jQuery('#marker-species').change(updateRefMaps).change(updateProtocols);
     jQuery('#marker-protocol').change(updateSpecies).change(updateRefMaps);
     jQuery('.marker-search-button').click(search);
+
+    function _finishSetup() {
+        setup_count++;
+        if ( setup_count >= setup_total ) {
+            jQuery(".marker-search-button").attr("disabled", false);
+        }
+    }
 
 });
 
@@ -184,8 +198,10 @@ function parseArgs() {
     SEL_PROTOCOL = _getValue("protocol");
 
     // Set the initial value of items that do need to be fetched from the DB
-    if ( SEL_MARKER_NAME ) jQuery("#marker-name").val(SEL_MARKER_NAME);
     if ( SEL_MARKER_NAME_MATCH ) jQuery("#marker-name-match").val(SEL_MARKER_NAME_MATCH);
+    updateMarkerNames();
+    if ( SEL_MARKER_NAME && SEL_MARKER_NAME_MATCH !== 'list' ) jQuery("#marker-name").val(SEL_MARKER_NAME);
+    if ( SEL_MARKER_NAME && SEL_MARKER_NAME_MATCH === 'list' ) jQuery("#marker-names").val(SEL_MARKER_NAME.replaceAll(",", "\n"));
     if ( SEL_REFMAP && SEL_CHROM && SEL_START ) jQuery("#marker-position-start").val(SEL_START);
     if ( SEL_REFMAP && SEL_CHROM && SEL_END ) jQuery("#marker-position-end").val(SEL_END);
 
@@ -205,8 +221,9 @@ function parseArgs() {
  * - call getReferences()
  * - call getMaps()
  * - call updateRefMaps()
+ * @param {Function} [callback] Callback function()
  */
-function getRefMaps() {
+function getRefMaps(callback) {
     let references = undefined;
     let maps = undefined;
 
@@ -226,6 +243,7 @@ function getRefMaps() {
                 mapped: maps
             };
             updateRefMaps();
+            if ( callback ) return callback();
         }
     }
 }
@@ -274,8 +292,9 @@ function getMaps(callback) {
  * - Call getMappedChromosomes()
  * - Set the CHROMOSOMES objects
  * - Call updateChromosomes()
+ * @param {Function} [callback] Callback function()
  */
-function getChromosomes() {
+function getChromosomes(callback) {
     let genotyped = undefined;
     let mapped = undefined;
 
@@ -295,6 +314,7 @@ function getChromosomes() {
                 mapped: mapped
             }
             updateChromosomes();
+            if ( callback ) return callback();
         }
     }
 }
@@ -344,8 +364,9 @@ function getMappedChromosomes(callback) {
  * - Call getMappedProtocols()
  * - Set the PROTOCOLS objects
  * - Call updateProtocols()
+ * @param {Function} [callback] Callback function()
  */
-function getProtocols() {
+function getProtocols(callback) {
     let genotyped = undefined;
     let mapped = undefined;
 
@@ -365,6 +386,7 @@ function getProtocols() {
                 mapped: mapped
             }
             updateProtocols();
+            if ( callback ) return callback();
         }
     }
 }
@@ -412,6 +434,15 @@ function getMappedProtocols(callback) {
 //
 // DISPLAY FUNCTIONS
 //
+
+/**
+ * Toggle the display of the single / multiple marker name entry
+ */
+function updateMarkerNames() {
+    let match = jQuery("#marker-name-match").val();
+    jQuery("#marker-name-single").css("display", match !== 'list' ? 'block' : 'none');
+    jQuery("#marker-name-list").css("display", match === 'list' ? 'block' : 'none');
+}
 
 /**
  * Display the reference genomes and maps in the position filter
@@ -659,8 +690,9 @@ function updateProtocols() {
 function search() {
 
     // Get user inputs
-    let marker_name = jQuery('#marker-name').val();
     let marker_name_match = jQuery('#marker-name-match').val();
+    let marker_name = jQuery('#marker-name').val();
+    let marker_names = jQuery("#marker-names").val();
     let refmap = jQuery("#marker-refmap").val();
     let refmap_type = jQuery("#marker-refmap option:selected").data("type");
     let refmap_species = jQuery("#marker-refmap option:selected").data("species");
@@ -679,7 +711,8 @@ function search() {
 
     // Set search params
     let params = {};
-    if ( marker_name ) params.marker_name = marker_name;
+    if ( marker_name_match !== 'list' && marker_name ) params.marker_name = marker_name;
+    if ( marker_name_match === 'list' && marker_names ) params.marker_name = marker_names.split("\n");
     if ( marker_name_match ) params.marker_name_match = marker_name_match;
     if ( refmap_type || protocol_type ) params.type = refmap_type || protocol_type;
     if ( refmap ) params.refmap = refmap;
