@@ -31,6 +31,20 @@ David Waring <djw64@cornell.edu>
 <div id="genotyped-markers" style="display: none">
     <&| /page/info_section.mas, title=>'Markers From Genotype Projects', collapsible=>1, collapsed=>0 &>
         <div id="genotyped-marker-results" class="well">
+            <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 25px; align-items: baseline">
+                <p><strong>DOWNLOAD:</strong></p>
+                <div>
+                    <select id="genotyped-marker-results-download-type" class="form-control">
+                        <option id="genotyped-marker-results-download-count-page" value="page">This Page</option>
+                        <option id="genotyped-marker-results-download-count-total" value="all">All Results</option>
+                    </select>
+                </div>
+                <button id="genotyped-marker-results-download" type="button" class="btn btn-default" disabled>
+                    <span class="glyphicon glyphicon-download"></span>
+                    &nbsp;&nbsp;Download CSV
+                </button>
+            </div>
+            <br />
             <table id="genotyped-marker-results-table" class="display"></table>
             <br />
             <div id="genotyped-marker-results-status" style="display: flex; justify-content: space-between">
@@ -43,20 +57,6 @@ David Waring <djw64@cornell.edu>
                     <button id="genotyped-marker-page-next" type="button" class="btn btn-default" disabled>Next&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
                 </div>
             </div>
-            <br />
-            <div style="display: flex; flex-wrap: wrap; gap: 25px; align-items: baseline">
-                <p><strong>Download:</strong></p>
-                <div>
-                    <select id="genotyped-marker-results-download-type" class="form-control">
-                        <option value="page">This Page</option>
-                        <option value="all">All Results</option>
-                    </select>
-                </div>
-                <button id="genotyped-marker-results-download" type="button" class="btn btn-default" disabled>
-                    <span class="glyphicon glyphicon-download"></span>
-                    &nbsp;&nbsp;Download CSV
-                </button>
-            </div>
         </div>
     </&>
 </div>
@@ -66,6 +66,20 @@ David Waring <djw64@cornell.edu>
 <div id="mapped-markers" style="display: none">
     <&| /page/info_section.mas, title=>'Markers from Maps', collapsible=>1, collapsed=>0 &>
         <div id="mapped-marker-results" class="well">
+            <div style="display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 25px; align-items: baseline">
+                <p><strong>DOWNLOAD:</strong></p>
+                <div>
+                    <select id="mapped-marker-results-download-type" class="form-control">
+                        <option id="mapped-marker-results-download-count-page" value="page">This Page</option>
+                        <option id="mapped-marker-results-download-count-total" value="all">All Results</option>
+                    </select>
+                </div>
+                <button id="mapped-marker-results-download" type="button" class="btn btn-default" disabled>
+                    <span class="glyphicon glyphicon-download"></span>
+                    &nbsp;&nbsp;Download CSV
+                </button>
+            </div>
+            <br />
             <table id="mapped-marker-results-table" class="display"></table>
             <br />
             <div id="mapped-marker-results-status" style="display: flex; justify-content: space-between">
@@ -77,20 +91,6 @@ David Waring <djw64@cornell.edu>
                     <button id="mapped-marker-page-prev" type="button" class="btn btn-default" disabled><span class="glyphicon glyphicon-chevron-left"></span>&nbsp;Prev</button>
                     <button id="mapped-marker-page-next" type="button" class="btn btn-default" disabled>Next&nbsp;<span class="glyphicon glyphicon-chevron-right"></span></button>
                 </div>
-            </div>
-            <br />
-            <div style="display: flex; flex-wrap: wrap; gap: 25px; align-items: baseline">
-                <p><strong>Download:</strong></p>
-                <div>
-                    <select id="mapped-marker-results-download-type" class="form-control">
-                        <option value="page">This Page</option>
-                        <option value="all">All Results</option>
-                    </select>
-                </div>
-                <button id="mapped-marker-results-download" type="button" class="btn btn-default" disabled>
-                    <span class="glyphicon glyphicon-download"></span>
-                    &nbsp;&nbsp;Download CSV
-                </button>
             </div>
         </div>
     </&>
@@ -415,13 +415,15 @@ function displayGenotypedMarkers(dt, data) {
     let displayed = start + " - " + end + " / " + total;
     let max_page = Math.ceil(total/GENOTYPED_MARKERS_LIMIT);
     let page = GENOTYPED_MARKERS_PAGE + " / " + max_page;
+    let page_count = end - start + 1;
     GENOTYPED_MARKERS_TOTAL = total;
     jQuery("#genotyped-marker-results-displayed").html("<strong>MARKERS:</strong> " + displayed);
     jQuery("#genotyped-marker-results-pages").html("<strong>PAGE:</strong> " + page);
     jQuery("#genotyped-marker-page-prev").attr('disabled', GENOTYPED_MARKERS_PAGE === 1);
     jQuery("#genotyped-marker-page-next").attr('disabled', GENOTYPED_MARKERS_PAGE === max_page || max_page === 0);
     jQuery("#genotyped-marker-results-download").attr('disabled', false);
-    
+    jQuery("#genotyped-marker-results-download-count-page").html("This page (" + page_count + " markers)");
+    jQuery("#genotyped-marker-results-download-count-total").html("All results (" + total + " markers)");
 }
 
 
@@ -569,13 +571,15 @@ function displayMappedMarkers(dt, data) {
     let displayed = start + " - " + end + " / " + total;
     let max_page = Math.ceil(total/MAPPED_MARKERS_LIMIT);
     let page = MAPPED_MARKERS_PAGE + " / " + max_page;
+    let page_count = end - start + 1;
     MAPPED_MARKERS_TOTAL = total;
     jQuery("#mapped-marker-results-displayed").html("<strong>MARKERS:</strong> " + displayed);
     jQuery("#mapped-marker-results-pages").html("<strong>PAGE:</strong> " + page);
     jQuery("#mapped-marker-page-prev").attr('disabled', MAPPED_MARKERS_PAGE === 1);
     jQuery("#mapped-marker-page-next").attr('disabled', MAPPED_MARKERS_PAGE === max_page || max_page === 0);
     jQuery("#mapped-marker-results-download").attr('disabled', false);
-
+    jQuery("#mapped-marker-results-download-count-page").html("This page (" + page_count + " markers)");
+    jQuery("#mapped-marker-results-download-count-total").html("All results (" + total + " markers)");
 }
 
 /**
