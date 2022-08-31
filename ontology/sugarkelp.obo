@@ -1,8 +1,8 @@
 format-version: 1.2
-date: 14:08:2019 14:51
-saved-by: djw64
-auto-generated-by: convert_obo.pl/1.0
-remark: This file was converted to an SGN-compatible obo file from a standard obo file [/Users/djw64/Kelp/traits/traits.obo]
+date: 28:03:2022 10:49
+saved-by: DJW
+auto-generated-by: convert_obo.pl/1.1
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [traits.obo]
 default-namespace: sugar_kelp_trait
 ontology: CO_360
 
@@ -92,26 +92,10 @@ synonym: "SL" EXACT []
 is_a: CO_360:Morphological
 
 [Term]
-id: CO_360:0000032
-name: Growth rate
-namespace: sugar_kelp_trait
-def: "Growth rate " []
-synonym: "GR" EXACT []
-is_a: CO_360:Physiological
-
-[Term]
-id: CO_360:0000036
-name: Maturity
-namespace: sugar_kelp_trait
-def: "Maturity" []
-synonym: "M" EXACT []
-is_a: CO_360:Phenological
-
-[Term]
 id: CO_360:0000040
 name: Carbohydrate / fiber content
 namespace: sugar_kelp_trait
-def: "Carbohydrate / fiber content " []
+def: "Carbohydrate / fiber content" []
 synonym: "CFC" EXACT []
 is_a: CO_360:Biochemical
 
@@ -119,15 +103,15 @@ is_a: CO_360:Biochemical
 id: CO_360:0000044
 name: Protein content
 namespace: sugar_kelp_trait
-def: "Protein content " []
-synonym: "PC" EXACT []
+def: "Protein content" []
+synonym: "PRC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
 id: CO_360:0000048
 name: Lipid content
 namespace: sugar_kelp_trait
-def: "Lipid content " []
+def: "Lipid content" []
 synonym: "LC" EXACT []
 is_a: CO_360:Biochemical
 
@@ -135,7 +119,7 @@ is_a: CO_360:Biochemical
 id: CO_360:0000052
 name: Ash content
 namespace: sugar_kelp_trait
-def: "Ash content " []
+def: "Ash content" []
 synonym: "AC" EXACT []
 is_a: CO_360:Biochemical
 
@@ -164,14 +148,6 @@ synonym: "NC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
-id: CO_360:0000068
-name: Li content
-namespace: sugar_kelp_trait
-def: "Li content" []
-synonym: "LIC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
 id: CO_360:0000072
 name: Na content
 namespace: sugar_kelp_trait
@@ -196,27 +172,11 @@ synonym: "OC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
-id: CO_360:0000084
-name: Cl content
-namespace: sugar_kelp_trait
-def: "Cl content" []
-synonym: "CLC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
 id: CO_360:0000088
 name: Ca content
 namespace: sugar_kelp_trait
 def: "Ca content" []
 synonym: "CAC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
-id: CO_360:0000092
-name: SO content
-namespace: sugar_kelp_trait
-def: "SO content" []
-synonym: "SOC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
@@ -292,14 +252,6 @@ synonym: "CDC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
-id: CO_360:0000132
-name: Pb content
-namespace: sugar_kelp_trait
-def: "Pb content" []
-synonym: "PBC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
 id: CO_360:0000136
 name: B content
 namespace: sugar_kelp_trait
@@ -332,14 +284,6 @@ synonym: "KC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
-id: CO_360:0000156
-name: Cr content
-namespace: sugar_kelp_trait
-def: "Cr content" []
-synonym: "CRC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
 id: CO_360:0000160
 name: Mn content
 namespace: sugar_kelp_trait
@@ -356,27 +300,11 @@ synonym: "NIC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
-id: CO_360:0000168
-name: Ga content
-namespace: sugar_kelp_trait
-def: "Ga content" []
-synonym: "GAC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
 id: CO_360:0000172
 name: Rb content
 namespace: sugar_kelp_trait
 def: "Rb content" []
 synonym: "RBC" EXACT []
-is_a: CO_360:Biochemical
-
-[Term]
-id: CO_360:0000176
-name: In content
-namespace: sugar_kelp_trait
-def: "In content" []
-synonym: "INC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
@@ -437,17 +365,17 @@ is_a: CO_360:Morphological
 
 [Term]
 id: CO_360:0000226
-name: Presence of sori
+name: Presence of sorus tissue
 namespace: sugar_kelp_trait
-def: "Presence of sori" []
+def: "Presence of sorus tissue" []
 synonym: "SOP" EXACT []
 is_a: CO_360:Morphological
 
 [Term]
 id: CO_360:0000227
-name: Sori area
+name: Sorus tissue area
 namespace: sugar_kelp_trait
-def: "Sori area" []
+def: "Sorus tissue area" []
 synonym: "SOA" EXACT []
 is_a: CO_360:Morphological
 
@@ -457,14 +385,6 @@ name: Tissue sample weight
 namespace: sugar_kelp_trait
 def: "Tissue sample weight" []
 synonym: "TSW" EXACT []
-is_a: CO_360:Morphological
-
-[Term]
-id: CO_360:0000229
-name: Percent dry weight of tissue sample
-namespace: sugar_kelp_trait
-def: "Percent dry weight of tissue sample" []
-synonym: "TSPDW" EXACT []
 is_a: CO_360:Morphological
 
 [Term]
@@ -508,27 +428,11 @@ synonym: "WPP" EXACT []
 is_a: CO_360:BioticStress
 
 [Term]
-id: CO_360:0000266
-name: Blade count
-namespace: sugar_kelp_trait
-def: "Blade count" []
-synonym: "BN" EXACT []
-is_a: CO_360:Agronomical
-
-[Term]
 id: CO_360:0000272
 name: Plot weight
 namespace: sugar_kelp_trait
 def: "Weight of all individuals in the entire plot" []
 synonym: "PTW" EXACT []
-is_a: CO_360:Agronomical
-
-[Term]
-id: CO_360:0000273
-name: Subplot weight
-namespace: sugar_kelp_trait
-def: "Weight of all individuals in a single subplot (1cm subsample)" []
-synonym: "SPTW" EXACT []
 is_a: CO_360:Agronomical
 
 [Term]
@@ -540,22 +444,6 @@ synonym: "PTL" EXACT []
 is_a: CO_360:Agronomical
 
 [Term]
-id: CO_360:0000283
-name: Combined subplot weight
-namespace: sugar_kelp_trait
-def: "Weight of all individuals in all sampled subplots (1cm subsamples)" []
-synonym: "CSPTW" EXACT []
-is_a: CO_360:Agronomical
-
-[Term]
-id: CO_360:0000284
-name: Sampled subplot count
-namespace: sugar_kelp_trait
-def: "The count of the number of sampled subplots (1cm subsamples)" []
-synonym: "SPTC" EXACT []
-is_a: CO_360:Agronomical
-
-[Term]
 id: CO_360:0000295
 name: Moisture content
 namespace: sugar_kelp_trait
@@ -564,158 +452,264 @@ synonym: "MC" EXACT []
 is_a: CO_360:Biochemical
 
 [Term]
+id: CO_360:0000299
+name: Photo score
+namespace: sugar_kelp_trait
+def: "Photo rating of the kelp growth within a plot" []
+synonym: "PS" EXACT []
+is_a: CO_360:Agronomical
+
+[Term]
+id: CO_360:0000303
+name: Yield
+namespace: sugar_kelp_trait
+def: "Weight of a plot per unit length" []
+synonym: "YLD" EXACT []
+is_a: CO_360:Agronomical
+
+[Term]
+id: CO_360:0000315
+name: Sporophyte density
+namespace: sugar_kelp_trait
+def: "The count of the number of sporophytes per unit length" []
+synonym: "SPD" EXACT []
+is_a: CO_360:Agronomical
+
+[Term]
+id: CO_360:0000319
+name: Successful release
+namespace: sugar_kelp_trait
+def: "Successful release" []
+synonym: "SR" EXACT []
+is_a: CO_360:Agronomical
+
+[Term]
+id: CO_360:0000421
+name: Total sugar content
+namespace: sugar_kelp_trait
+def: "Total sugar content" []
+synonym: "TSC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000338
+name: Mannuronic acid content
+namespace: sugar_kelp_trait
+def: "Mannuronic acid content" []
+synonym: "MAAC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000339
+name: Guluronic acid content
+namespace: sugar_kelp_trait
+def: "Guluronic acid content" []
+synonym: "GUAC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000340
+name: Glucuronic acid content
+namespace: sugar_kelp_trait
+def: "Glucuronic acid content" []
+synonym: "GLAC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000341
+name: Mannitol content
+namespace: sugar_kelp_trait
+def: "Mannitol content" []
+synonym: "MATC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000342
+name: Fucose content
+namespace: sugar_kelp_trait
+def: "Fucose content" []
+synonym: "FUCC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000343
+name: Glucan content
+namespace: sugar_kelp_trait
+def: "Glucan content" []
+synonym: "GLUC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000344
+name: Xylan content
+namespace: sugar_kelp_trait
+def: "Xylan content" []
+synonym: "XYLC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000345
+name: Mannan content
+namespace: sugar_kelp_trait
+def: "Mannan content" []
+synonym: "MANC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000346
+name: Galactan content
+namespace: sugar_kelp_trait
+def: "Galactan content" []
+synonym: "GALC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000372
+name: C:N ratio
+namespace: sugar_kelp_trait
+def: "Ratio of C to N" []
+synonym: "CNR" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000377
+name: P content
+namespace: sugar_kelp_trait
+def: "P content" []
+synonym: "PC" EXACT []
+is_a: CO_360:Biochemical
+
+[Term]
+id: CO_360:0000409
+name: Painting density
+namespace: sugar_kelp_trait
+def: "The density of the initial painting" []
+synonym: "PD" EXACT []
+is_a: CO_360:Agronomical
+
+[Term]
+id: CO_360:0000415
+name: Presence of holdfast
+namespace: sugar_kelp_trait
+def: "Presence of holdfast attached to sporophyte" []
+synonym: "HFP" EXACT []
+is_a: CO_360:Morphological
+
+[Term]
 id: CO_360:0000188
 name: Blade length - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct length measurement of randomly sampled blades" []
+def: "Direct length measurement of a blade" []
 relationship: method_of CO_360:0000008
-
-[Term]
-id: CO_360:0000189
-name: Blade width - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct width measurement of randomly sampled blades" []
-relationship: method_of CO_360:0000016
 
 [Term]
 id: CO_360:0000190
 name: Blade width - at 10cm - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct width measurement (at 10 cm) of randomly sampled blades" []
+def: "Direct width measurement (at 10 cm) of a blade" []
 relationship: method_of CO_360:0000016
 
 [Term]
 id: CO_360:0000193
 name: Blade width - at widest - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct width measurement (at widest) of randomly sampled blades" []
+def: "Direct width measurement (at widest) of a blade" []
 relationship: method_of CO_360:0000016
 
 [Term]
 id: CO_360:0000196
 name: Blade thickness - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct thickness measurement of randomly sampled blades" []
+def: "Direct thickness measurement of a blade" []
 relationship: method_of CO_360:0000222
 
 [Term]
 id: CO_360:0000197
 name: Stipe length - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct measurement of stipe length" []
+def: "Direct measurement of stipe length from a blade" []
 relationship: method_of CO_360:0000024
 
 [Term]
-id: CO_360:0000033
-name: Growth rate - Computation
-namespace: sugar_kelp_trait_method
-def: "Calculation of growth rate based at harvest" []
-relationship: method_of CO_360:0000032
-
-[Term]
-id: CO_360:0000198
-name: Maturity - Estimation
-namespace: sugar_kelp_trait_method
-def: "Visual estimation of percent maturity at harvest" []
-relationship: method_of CO_360:0000036
-
-[Term]
 id: CO_360:0000041
-name: Carbohydrate / fiber content - Measurement 
+name: Carbohydrate / fiber content - NJFL - Measurement 
 namespace: sugar_kelp_trait_method
-def: "Done by New Jersey Feed Labs " []
+def: "Carbohydrate / fiber content by New Jersey Feed Labs" []
 relationship: method_of CO_360:0000040
 
 [Term]
 id: CO_360:0000045
-name: Protein content - Measurement
+name: Protein content - NJFL - Measurement
 namespace: sugar_kelp_trait_method
-def: "Done by New Jersey Feed Labs " []
+def: "Protein content by New Jersey Feed Labs" []
 relationship: method_of CO_360:0000044
 
 [Term]
 id: CO_360:0000049
-name: Lipid content - Measurement
+name: Lipid content - NJFL - Measurement
 namespace: sugar_kelp_trait_method
-def: "Done by New Jersey Feed Labs " []
+def: "Lipid content by New Jersey Feed Labs" []
 relationship: method_of CO_360:0000048
 
 [Term]
 id: CO_360:0000053
-name: Ash content - Measurement
+name: Ash content - NJFL - Measurement
 namespace: sugar_kelp_trait_method
-def: "Done by New Jersey Feed Labs " []
+def: "Ash content by New Jersey Feed Labs" []
 relationship: method_of CO_360:0000052
 
 [Term]
-id: CO_360:0000199
-name: CHN content - Measurement
-namespace: sugar_kelp_trait_method
-def: "Done by UC Davis or UConn " []
-relationship: method_of CO_360:0000060
-relationship: method_of CO_360:0000056
-relationship: method_of CO_360:0000064
-
-[Term]
 id: CO_360:0000200
-name: Mineral content - Measurement
+name: Element content - Danforth - Measurement
 namespace: sugar_kelp_trait_method
-def: "Ionomics facility, Donald Danforth Center" []
-relationship: method_of CO_360:0000152
-relationship: method_of CO_360:0000160
-relationship: method_of CO_360:0000168
-relationship: method_of CO_360:0000068
-relationship: method_of CO_360:0000120
-relationship: method_of CO_360:0000100
-relationship: method_of CO_360:0000104
-relationship: method_of CO_360:0000132
+def: "Element content by the Ionomics facility, Donald Danforth Center" []
+relationship: method_of CO_360:0000377
 relationship: method_of CO_360:0000172
-relationship: method_of CO_360:0000084
-relationship: method_of CO_360:0000136
-relationship: method_of CO_360:0000076
+relationship: method_of CO_360:0000144
+relationship: method_of CO_360:0000104
 relationship: method_of CO_360:0000088
-relationship: method_of CO_360:0000092
-relationship: method_of CO_360:0000156
-relationship: method_of CO_360:0000080
-relationship: method_of CO_360:0000180
-relationship: method_of CO_360:0000112
-relationship: method_of CO_360:0000176
+relationship: method_of CO_360:0000120
+relationship: method_of CO_360:0000160
+relationship: method_of CO_360:0000108
+relationship: method_of CO_360:0000148
+relationship: method_of CO_360:0000136
+relationship: method_of CO_360:0000100
 relationship: method_of CO_360:0000128
+relationship: method_of CO_360:0000124
 relationship: method_of CO_360:0000096
 relationship: method_of CO_360:0000164
-relationship: method_of CO_360:0000148
-relationship: method_of CO_360:0000108
-relationship: method_of CO_360:0000144
+relationship: method_of CO_360:0000152
 relationship: method_of CO_360:0000116
-relationship: method_of CO_360:0000124
 relationship: method_of CO_360:0000072
+relationship: method_of CO_360:0000112
+relationship: method_of CO_360:0000076
 
 [Term]
 id: CO_360:0000202
 name: Wet weight of sporophyte - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct measurement of the wet weight of randomly sampled blades or all blades within 3 5cm plots" []
+def: "Direct measurement of the wet weight of a blade" []
 relationship: method_of CO_360:0000220
 
 [Term]
 id: CO_360:0000203
 name: Dry weight of sporophyte - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct measurement of the dried weight of randomly sampled blades or all blades within 3 5cm plots" []
+def: "Direct measurement of the dried weight of a blade, after drying at 50C for 30 min" []
 relationship: method_of CO_360:0000220
 
 [Term]
 id: CO_360:0000204
 name: Stipe weight - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct measurement of the weight of the stipe" []
+def: "Direct measurement of the weight of the stipe from a blade" []
 relationship: method_of CO_360:0000221
 
 [Term]
 id: CO_360:0000205
 name: Stipe diameter - Measurement
 namespace: sugar_kelp_trait_method
-def: "Direct measurement of the diameter of the stipe" []
+def: "Direct measurement of the diameter of the stipe from a blade" []
 relationship: method_of CO_360:0000223
 
 [Term]
@@ -734,16 +728,16 @@ relationship: method_of CO_360:0000225
 
 [Term]
 id: CO_360:0000208
-name: Presence of sori - Measurement
+name: Presence of sorus tissue - Measurement
 namespace: sugar_kelp_trait_method
-def: "Presence or absence of sori" []
+def: "Presence or absence of sorus tissue" []
 relationship: method_of CO_360:0000226
 
 [Term]
 id: CO_360:0000209
-name: Sorus area - Estimation
+name: Sorus tissue area - Estimation
 namespace: sugar_kelp_trait_method
-def: "Visual estimation of area covered by sori" []
+def: "Visual estimation of the sorus tissue area" []
 relationship: method_of CO_360:0000227
 
 [Term]
@@ -772,7 +766,7 @@ id: CO_360:0000213
 name: Percent dry weight of tissue sample - Computation
 namespace: sugar_kelp_trait_method
 def: "Calculation of the percent dry weight of a tissue sample" []
-relationship: method_of CO_360:0000229
+relationship: method_of CO_360:0000228
 
 [Term]
 id: CO_360:0000214
@@ -817,46 +811,11 @@ def: "Direct measurement of the wet weight of the entire plot" []
 relationship: method_of CO_360:0000272
 
 [Term]
-id: CO_360:0000270
-name: Wet weight of subplot - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct measurement of the wet weight of a 1cm subsample of a plot" []
-relationship: method_of CO_360:0000273
-
-[Term]
-id: CO_360:0000271
-name: Dry weight of subplot - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct measurement of the dry weight of a 1cm subsample of a plot" []
-relationship: method_of CO_360:0000273
-
-[Term]
 id: CO_360:0000277
 name: Plot length - Measurement
 namespace: sugar_kelp_trait_method
 def: "Direct measurement of the length of the plot containing kelp growth" []
 relationship: method_of CO_360:0000278
-
-[Term]
-id: CO_360:0000280
-name: Wet weight of combined subplots - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct measurement of the wet weight of all sampled 1cm subplots" []
-relationship: method_of CO_360:0000283
-
-[Term]
-id: CO_360:0000281
-name: Dry weight of combined subplots - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct measurement of the dry weight of all sampled 1cm subplots" []
-relationship: method_of CO_360:0000283
-
-[Term]
-id: CO_360:0000282
-name: Sampled subplot count - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct count of the number of subplots sampled from within a plot" []
-relationship: method_of CO_360:0000284
 
 [Term]
 id: CO_360:0000288
@@ -866,76 +825,272 @@ def: "Direct measurement of the dry weight of the entire plot" []
 relationship: method_of CO_360:0000272
 
 [Term]
-id: CO_360:0000289
-name: Plot blade count - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct count of the number of blades in the entire plot" []
-relationship: method_of CO_360:0000266
-
-[Term]
-id: CO_360:0000290
-name: Subplot blade count - Measurement
-namespace: sugar_kelp_trait_method
-def: "Direct count of the number of blades in a 1cm subsample of a plot" []
-relationship: method_of CO_360:0000266
-
-[Term]
 id: CO_360:0000294
-name: Moisture content - Measurement
+name: Moisture content - NJFL - Measurement
 namespace: sugar_kelp_trait_method
-def: "Done by New Jersey Feed Labs " []
+def: "Moisture content by New Jersey Feed Labs " []
 relationship: method_of CO_360:0000295
+
+[Term]
+id: CO_360:0000298
+name: Photo score - Estimation
+namespace: sugar_kelp_trait_method
+def: "Estimation of kelp growth based on a photo" []
+relationship: method_of CO_360:0000299
+
+[Term]
+id: CO_360:0000302
+name: Wet yield - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of a plot's wet weight standardized to unit length in meters" []
+relationship: method_of CO_360:0000303
+
+[Term]
+id: CO_360:0000305
+name: Percent dry weight - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of a plot's percent dry weight based on subsamples" []
+relationship: method_of CO_360:0000272
+
+[Term]
+id: CO_360:0000308
+name: Dry yield - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of a plot's dry yield from the wet yield and percent dry weight" []
+relationship: method_of CO_360:0000303
+
+[Term]
+id: CO_360:0000311
+name: Ash-free dry yield - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of a plot's ash-free dry yield from the dry yield and ash content" []
+relationship: method_of CO_360:0000303
+
+[Term]
+id: CO_360:0000314
+name: Sporophyte density - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the number of sporophytes per unit length in meters" []
+relationship: method_of CO_360:0000315
+
+[Term]
+id: CO_360:0000318
+name: Successful release - Measurement
+namespace: sugar_kelp_trait_method
+def: "Direct observation of a successful release" []
+relationship: method_of CO_360:0000319
+
+[Term]
+id: CO_360:0000321
+name: Blade length - average - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the average blade length from blades in a plot" []
+relationship: method_of CO_360:0000008
+
+[Term]
+id: CO_360:0000322
+name: Blade width - at widest - average - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the average blade width (at widest) from blades in a plot" []
+relationship: method_of CO_360:0000016
+
+[Term]
+id: CO_360:0000323
+name: Blade thickness - average - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the average blade thickness from blades in a plot" []
+relationship: method_of CO_360:0000222
+
+[Term]
+id: CO_360:0000327
+name: Stipe length - average - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the average stipe length from blades in a plot" []
+relationship: method_of CO_360:0000024
+
+[Term]
+id: CO_360:0000328
+name: Stipe diameter - average - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the average stipe diameter from blades in a plot" []
+relationship: method_of CO_360:0000223
+
+[Term]
+id: CO_360:0000331
+name: Protein content - MW Labs - Measurement
+namespace: sugar_kelp_trait_method
+def: "Protein content by MW Labs" []
+relationship: method_of CO_360:0000044
+
+[Term]
+id: CO_360:0000332
+name: Lipid content - MW Labs - Measurement
+namespace: sugar_kelp_trait_method
+def: "Lipid content by MW Labs" []
+relationship: method_of CO_360:0000048
+
+[Term]
+id: CO_360:0000333
+name: Carbohydrate / fiber content - MW Labs - Measurement 
+namespace: sugar_kelp_trait_method
+def: "Carbohydrate / fiber content by MW Labs" []
+relationship: method_of CO_360:0000040
+
+[Term]
+id: CO_360:0000337
+name: Carbohydrate content - Celignis - Measurement
+namespace: sugar_kelp_trait_method
+def: "Carbohydrate content by Celignis Analytical" []
+relationship: method_of CO_360:0000339
+relationship: method_of CO_360:0000343
+relationship: method_of CO_360:0000338
+relationship: method_of CO_360:0000345
+relationship: method_of CO_360:0000421
+relationship: method_of CO_360:0000342
+relationship: method_of CO_360:0000346
+relationship: method_of CO_360:0000344
+relationship: method_of CO_360:0000340
+relationship: method_of CO_360:0000341
+
+[Term]
+id: CO_360:0000357
+name: Ash content - Celingis - Measurement
+namespace: sugar_kelp_trait_method
+def: "Ash content by Celingis Analytical" []
+relationship: method_of CO_360:0000052
+
+[Term]
+id: CO_360:0000359
+name: CHN content - Celingis - Measurement
+namespace: sugar_kelp_trait_method
+def: "CHN content by Celingis Analytical" []
+relationship: method_of CO_360:0000056
+relationship: method_of CO_360:0000064
+relationship: method_of CO_360:0000060
+
+[Term]
+id: CO_360:0000363
+name: Element content - Celingis - Measurement
+namespace: sugar_kelp_trait_method
+def: "Element content by Celingis Analytical" []
+relationship: method_of CO_360:0000080
+relationship: method_of CO_360:0000148
+
+[Term]
+id: CO_360:0000366
+name: CHN content - UConn - Measurement
+namespace: sugar_kelp_trait_method
+def: "CHN content by UConn" []
+relationship: method_of CO_360:0000056
+relationship: method_of CO_360:0000060
+relationship: method_of CO_360:0000064
+
+[Term]
+id: CO_360:0000371
+name: C:N ratio - UConn - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of the ratio of C to N by UConn" []
+relationship: method_of CO_360:0000372
+
+[Term]
+id: CO_360:0000374
+name: Ash content - WHOI - Measurement
+namespace: sugar_kelp_trait_method
+def: "Ash content by WHOI" []
+relationship: method_of CO_360:0000052
+
+[Term]
+id: CO_360:0000398
+name: Element content - FDA - Measurement
+namespace: sugar_kelp_trait_method
+def: "Element content by the FDA" []
+relationship: method_of CO_360:0000180
+
+[Term]
+id: CO_360:0000408
+name: Painting density - Measurement
+namespace: sugar_kelp_trait_method
+def: "Direct measurement of the initial painting density" []
+relationship: method_of CO_360:0000409
+
+[Term]
+id: CO_360:0000411
+name: Sporophyte percent dry weight - Computation
+namespace: sugar_kelp_trait_method
+def: "Calculation of a sporophyte's percent dry weight" []
+relationship: method_of CO_360:0000220
+
+[Term]
+id: CO_360:0000414
+name: Presence of holdfast - Measurement
+namespace: sugar_kelp_trait_method
+def: "Presence or absence of the holdfast attached to the sporophyte" []
+relationship: method_of CO_360:0000415
+
+[Term]
+id: CO_360:0000417
+name: Total As content - FDA - Measurement
+namespace: sugar_kelp_trait_method
+def: "Total As content by the FDA" []
+relationship: method_of CO_360:0000112
+
+[Term]
+id: CO_360:0000418
+name: Inorganic As content - FDA - Measurement
+namespace: sugar_kelp_trait_method
+def: "Inorganic As content by the FDA" []
+relationship: method_of CO_360:0000112
+
+[Term]
+id: CO_360:0000419
+name: Total As content - Dartmouth - Measurement
+namespace: sugar_kelp_trait_method
+def: "Total As content by Darthmouth College" []
+relationship: method_of CO_360:0000112
+
+[Term]
+id: CO_360:0000420
+name: Inorganic As content - Dartmouth - Measurement
+namespace: sugar_kelp_trait_method
+def: "Inorganic As content by Dartmouth College" []
+relationship: method_of CO_360:0000112
 
 [Term]
 id: CO_360:0000002
 name: g
 namespace: sugar_kelp_trait_scale
-relationship: scale_of CO_360:0000281
-relationship: scale_of CO_360:0000280
-relationship: scale_of CO_360:0000202
 relationship: scale_of CO_360:0000212
-relationship: scale_of CO_360:0000204
 relationship: scale_of CO_360:0000211
-relationship: scale_of CO_360:0000203
 relationship: scale_of CO_360:0000210
-relationship: scale_of CO_360:0000270
-relationship: scale_of CO_360:0000271
+relationship: scale_of CO_360:0000204
+relationship: scale_of CO_360:0000203
+relationship: scale_of CO_360:0000202
 
 [Term]
 id: CO_360:0000010
 name: cm
 namespace: sugar_kelp_trait_scale
-relationship: scale_of CO_360:0000197
+relationship: scale_of CO_360:0000327
+relationship: scale_of CO_360:0000322
 relationship: scale_of CO_360:0000190
-relationship: scale_of CO_360:0000277
 relationship: scale_of CO_360:0000193
-relationship: scale_of CO_360:0000189
+relationship: scale_of CO_360:0000197
 relationship: scale_of CO_360:0000188
-
-[Term]
-id: CO_360:0000034
-name: cm/day
-namespace: sugar_kelp_trait_scale
-relationship: scale_of CO_360:0000033
-
-[Term]
-id: CO_360:0000042
-name: mg
-namespace: sugar_kelp_trait_scale
-relationship: scale_of CO_360:0000200
-relationship: scale_of CO_360:0000199
+relationship: scale_of CO_360:0000277
+relationship: scale_of CO_360:0000321
 
 [Term]
 id: CO_360:0000038
 name: 0-1 Absence/Presence
 namespace: sugar_kelp_trait_scale
 def: "0= Absent, 1= Present" []
-relationship: scale_of CO_360:0000207
-relationship: scale_of CO_360:0000218
-relationship: scale_of CO_360:0000214
-relationship: scale_of CO_360:0000217
 relationship: scale_of CO_360:0000216
+relationship: scale_of CO_360:0000214
+relationship: scale_of CO_360:0000414
 relationship: scale_of CO_360:0000208
+relationship: scale_of CO_360:0000218
+relationship: scale_of CO_360:0000217
+relationship: scale_of CO_360:0000207
 
 [Term]
 id: CO_360:0000038/0
@@ -956,7 +1111,9 @@ id: CO_360:0000184
 name: mm
 namespace: sugar_kelp_trait_scale
 relationship: scale_of CO_360:0000196
+relationship: scale_of CO_360:0000328
 relationship: scale_of CO_360:0000205
+relationship: scale_of CO_360:0000323
 
 [Term]
 id: CO_360:0000185
@@ -983,13 +1140,24 @@ is_a: CO_360:0000185
 id: CO_360:0000186
 name: %
 namespace: sugar_kelp_trait_scale
-relationship: scale_of CO_360:0000049
+relationship: scale_of CO_360:0000333
 relationship: scale_of CO_360:0000041
 relationship: scale_of CO_360:0000294
-relationship: scale_of CO_360:0000053
-relationship: scale_of CO_360:0000045
 relationship: scale_of CO_360:0000213
-relationship: scale_of CO_360:0000198
+relationship: scale_of CO_360:0000359
+relationship: scale_of CO_360:0000332
+relationship: scale_of CO_360:0000049
+relationship: scale_of CO_360:0000411
+relationship: scale_of CO_360:0000363
+relationship: scale_of CO_360:0000045
+relationship: scale_of CO_360:0000366
+relationship: scale_of CO_360:0000305
+relationship: scale_of CO_360:0000311
+relationship: scale_of CO_360:0000357
+relationship: scale_of CO_360:0000337
+relationship: scale_of CO_360:0000331
+relationship: scale_of CO_360:0000374
+relationship: scale_of CO_360:0000053
 
 [Term]
 id: CO_360:0000187
@@ -999,14 +1167,6 @@ relationship: scale_of CO_360:0000215
 relationship: scale_of CO_360:0000209
 
 [Term]
-id: CO_360:0000264
-name: count
-namespace: sugar_kelp_trait_scale
-relationship: scale_of CO_360:0000289
-relationship: scale_of CO_360:0000290
-relationship: scale_of CO_360:0000282
-
-[Term]
 id: CO_360:0000268
 name: kg
 namespace: sugar_kelp_trait_scale
@@ -1014,406 +1174,214 @@ relationship: scale_of CO_360:0000288
 relationship: scale_of CO_360:0000269
 
 [Term]
-id: CO_360:0000035
-name: Growth rate computation cm/day
-namespace: sugar_kelp_trait
-def: "Calculation of growth rate based at harvest (cm/day)" []
-relationship: variable_of CO_360:0000032
-relationship: variable_of CO_360:0000034
-relationship: variable_of CO_360:0000033
+id: CO_360:0000297
+name: 0-3 photo score
+namespace: sugar_kelp_trait_scale
+def: "0=  No growth,  1= < 33% coverage, 2= 33-66% coverage, 3= >66% coverage" []
+relationship: scale_of CO_360:0000298
 
 [Term]
-id: CO_360:0000235
-name: Maturity estimation %
-namespace: sugar_kelp_trait
-def: "Visual estimation of percent maturity at harvest (%)" []
-relationship: variable_of CO_360:0000198
-relationship: variable_of CO_360:0000186
-relationship: variable_of CO_360:0000036
+id: CO_360:0000297/0
+name: No growth
+namespace: sugar_kelp_trait_scale
+synonym: "0" EXACT []
+is_a: CO_360:0000297
+
+[Term]
+id: CO_360:0000297/1
+name: < 33% coverage
+namespace: sugar_kelp_trait_scale
+synonym: "1" EXACT []
+is_a: CO_360:0000297
+
+[Term]
+id: CO_360:0000297/2
+name: 33-66% coverage
+namespace: sugar_kelp_trait_scale
+synonym: "2" EXACT []
+is_a: CO_360:0000297
+
+[Term]
+id: CO_360:0000297/3
+name: >66% coverage
+namespace: sugar_kelp_trait_scale
+synonym: "3" EXACT []
+is_a: CO_360:0000297
+
+[Term]
+id: CO_360:0000301
+name: kg/m
+namespace: sugar_kelp_trait_scale
+relationship: scale_of CO_360:0000308
+relationship: scale_of CO_360:0000302
+
+[Term]
+id: CO_360:0000313
+name: count/m
+namespace: sugar_kelp_trait_scale
+relationship: scale_of CO_360:0000314
+
+[Term]
+id: CO_360:0000317
+name: 0-1 unsuccessful/successful
+namespace: sugar_kelp_trait_scale
+def: "0= unsuccessful, 1= successful" []
+relationship: scale_of CO_360:0000318
+
+[Term]
+id: CO_360:0000317/0
+name: unsuccessful
+namespace: sugar_kelp_trait_scale
+synonym: "0" EXACT []
+is_a: CO_360:0000317
+
+[Term]
+id: CO_360:0000317/1
+name: successful
+namespace: sugar_kelp_trait_scale
+synonym: "1" EXACT []
+is_a: CO_360:0000317
+
+[Term]
+id: CO_360:0000370
+name: C:N ratio
+namespace: sugar_kelp_trait_scale
+relationship: scale_of CO_360:0000371
+
+[Term]
+id: CO_360:0000376
+name: ug/g
+namespace: sugar_kelp_trait_scale
+relationship: scale_of CO_360:0000200
+relationship: scale_of CO_360:0000419
+relationship: scale_of CO_360:0000420
+relationship: scale_of CO_360:0000417
+relationship: scale_of CO_360:0000418
+relationship: scale_of CO_360:0000398
+
+[Term]
+id: CO_360:0000407
+name: painting density
+namespace: sugar_kelp_trait_scale
+def: "1= low denisty, 2= medium density, 3= high density" []
+relationship: scale_of CO_360:0000408
+
+[Term]
+id: CO_360:0000407/0
+name: low denisty
+namespace: sugar_kelp_trait_scale
+synonym: "1" EXACT []
+is_a: CO_360:0000407
+
+[Term]
+id: CO_360:0000407/1
+name: medium density
+namespace: sugar_kelp_trait_scale
+synonym: "2" EXACT []
+is_a: CO_360:0000407
+
+[Term]
+id: CO_360:0000407/2
+name: high density
+namespace: sugar_kelp_trait_scale
+synonym: "3" EXACT []
+is_a: CO_360:0000407
 
 [Term]
 id: CO_360:0000043
-name: Carbohydrate / fiber content %
+name: Carbohydrate / fiber content - NFJL - %
 namespace: sugar_kelp_trait
-def: "Done by New Jersey Feed Labs  (%)" []
-relationship: variable_of CO_360:0000040
+def: "TRAIT: Carbohydrate / fiber content METHOD: Carbohydrate / fiber content by New Jersey Feed Labs SCALE: %" []
 relationship: variable_of CO_360:0000186
 relationship: variable_of CO_360:0000041
+relationship: variable_of CO_360:0000040
 
 [Term]
 id: CO_360:0000047
-name: Protein content %
+name: Protein content - NJFL - %
 namespace: sugar_kelp_trait
-def: "Done by New Jersey Feed Labs  (%)" []
+def: "TRAIT: Protein content METHOD: Protein content by New Jersey Feed Labs SCALE: %" []
 relationship: variable_of CO_360:0000186
-relationship: variable_of CO_360:0000045
 relationship: variable_of CO_360:0000044
+relationship: variable_of CO_360:0000045
 
 [Term]
 id: CO_360:0000051
-name: Lipid content %
+name: Lipid content - NJFL - %
 namespace: sugar_kelp_trait
-def: "Done by New Jersey Feed Labs  (%)" []
-relationship: variable_of CO_360:0000186
-relationship: variable_of CO_360:0000049
+def: "TRAIT: Lipid content METHOD: Lipid content by New Jersey Feed Labs SCALE: %" []
 relationship: variable_of CO_360:0000048
+relationship: variable_of CO_360:0000049
+relationship: variable_of CO_360:0000186
 
 [Term]
 id: CO_360:0000055
-name: Ash content %
+name: Ash content - NJFL - %
 namespace: sugar_kelp_trait
-def: "Done by New Jersey Feed Labs  (%)" []
+def: "TRAIT: Ash content METHOD: Ash content by New Jersey Feed Labs SCALE: %" []
 relationship: variable_of CO_360:0000053
-relationship: variable_of CO_360:0000186
 relationship: variable_of CO_360:0000052
-
-[Term]
-id: CO_360:0000059
-name: C content mg
-namespace: sugar_kelp_trait
-def: "Done by UC Davis or UConn  (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000199
-relationship: variable_of CO_360:0000056
-
-[Term]
-id: CO_360:0000063
-name: H content mg
-namespace: sugar_kelp_trait
-def: "Done by UC Davis or UConn  (mg)" []
-relationship: variable_of CO_360:0000060
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000199
-
-[Term]
-id: CO_360:0000067
-name: N content mg
-namespace: sugar_kelp_trait
-def: "Done by UC Davis or UConn  (mg)" []
-relationship: variable_of CO_360:0000064
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000199
-
-[Term]
-id: CO_360:0000071
-name: Li content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000068
-
-[Term]
-id: CO_360:0000075
-name: Na content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000072
-
-[Term]
-id: CO_360:0000079
-name: Mg content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000076
-
-[Term]
-id: CO_360:0000083
-name: O content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000080
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000087
-name: Cl content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000084
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000091
-name: Ca content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000088
-
-[Term]
-id: CO_360:0000095
-name: SO content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000092
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000099
-name: Fe content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000096
-
-[Term]
-id: CO_360:0000103
-name: Co content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000100
-
-[Term]
-id: CO_360:0000107
-name: Cu content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000104
-
-[Term]
-id: CO_360:0000111
-name: Zn content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000108
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000115
-name: As content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000112
-
-[Term]
-id: CO_360:0000119
-name: Se content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000116
-
-[Term]
-id: CO_360:0000123
-name: Sr content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000120
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-
-[Term]
-id: CO_360:0000127
-name: Mo content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000124
-
-[Term]
-id: CO_360:0000131
-name: Cd content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000128
-
-[Term]
-id: CO_360:0000135
-name: Pb content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000132
-
-[Term]
-id: CO_360:0000139
-name: B content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000136
-
-[Term]
-id: CO_360:0000147
-name: Al content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000144
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000151
-name: S content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000148
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-
-[Term]
-id: CO_360:0000155
-name: K content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000152
-
-[Term]
-id: CO_360:0000159
-name: Cr content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000156
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000163
-name: Mn content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000160
-
-[Term]
-id: CO_360:0000167
-name: Ni content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000164
-
-[Term]
-id: CO_360:0000171
-name: Ga content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000168
-
-[Term]
-id: CO_360:0000175
-name: Rb content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000172
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000042
-
-[Term]
-id: CO_360:0000179
-name: In content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000176
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-
-[Term]
-id: CO_360:0000183
-name: I content mg
-namespace: sugar_kelp_trait
-def: "Ionomics facility, Donald Danforth Center (mg)" []
-relationship: variable_of CO_360:0000042
-relationship: variable_of CO_360:0000200
-relationship: variable_of CO_360:0000180
+relationship: variable_of CO_360:0000186
 
 [Term]
 id: CO_360:0000237
 name: Sporophyte wet weight g
 namespace: sugar_kelp_trait
-def: "Direct measurement of the wet weight of randomly sampled blades or all blades within 3 5cm plots (g)" []
+def: "TRAIT: Weight of a single sporophyte METHOD: Direct measurement of the wet weight of a blade SCALE: g" []
+relationship: variable_of CO_360:0000002
 relationship: variable_of CO_360:0000220
 relationship: variable_of CO_360:0000202
-relationship: variable_of CO_360:0000002
 
 [Term]
 id: CO_360:0000238
 name: Sporophyte dry weight g
 namespace: sugar_kelp_trait
-def: "Direct measurement of the dried weight of randomly sampled blades or all blades within 3 5cm plots (g)" []
-relationship: variable_of CO_360:0000220
+def: "TRAIT: Weight of a single sporophyte METHOD: Direct measurement of the dried weight of a blade, after drying at 50C for 30 min SCALE: g" []
 relationship: variable_of CO_360:0000203
+relationship: variable_of CO_360:0000220
 relationship: variable_of CO_360:0000002
 
 [Term]
 id: CO_360:0000239
 name: Stipe weight g
 namespace: sugar_kelp_trait
-def: "Direct measurement of the weight of the stipe (g)" []
+def: "TRAIT: Stipe weight METHOD: Direct measurement of the weight of the stipe from a blade SCALE: g" []
 relationship: variable_of CO_360:0000221
-relationship: variable_of CO_360:0000002
 relationship: variable_of CO_360:0000204
+relationship: variable_of CO_360:0000002
 
 [Term]
 id: CO_360:0000240
 name: Blade length cm
 namespace: sugar_kelp_trait
-def: "Direct length measurement of randomly sampled blades (cm)" []
-relationship: variable_of CO_360:0000188
-relationship: variable_of CO_360:0000010
+def: "TRAIT: Blade length METHOD: Direct length measurement of a blade SCALE: cm" []
 relationship: variable_of CO_360:0000008
-
-[Term]
-id: CO_360:0000241
-name: Blade width cm
-namespace: sugar_kelp_trait
-def: "Direct width measurement of randomly sampled blades (cm)" []
-relationship: variable_of CO_360:0000016
-relationship: variable_of CO_360:0000189
+relationship: variable_of CO_360:0000188
 relationship: variable_of CO_360:0000010
 
 [Term]
 id: CO_360:0000242
 name: Blade width at 10cm cm
 namespace: sugar_kelp_trait
-def: "Direct width measurement (at 10 cm) of randomly sampled blades (cm)" []
+def: "TRAIT: Blade width METHOD: Direct width measurement (at 10 cm) of a blade SCALE: cm" []
 relationship: variable_of CO_360:0000016
-relationship: variable_of CO_360:0000010
 relationship: variable_of CO_360:0000190
+relationship: variable_of CO_360:0000010
 
 [Term]
 id: CO_360:0000245
 name: Blade width at widest cm
 namespace: sugar_kelp_trait
-def: "Direct width measurement (at widest) of randomly sampled blades (cm)" []
-relationship: variable_of CO_360:0000193
+def: "TRAIT: Blade width METHOD: Direct width measurement (at widest) of a blade SCALE: cm" []
 relationship: variable_of CO_360:0000010
+relationship: variable_of CO_360:0000193
 relationship: variable_of CO_360:0000016
 
 [Term]
 id: CO_360:0000248
 name: Blade thickness mm
 namespace: sugar_kelp_trait
-def: "Direct thickness measurement of randomly sampled blades (mm)" []
+def: "TRAIT: Blade thickness METHOD: Direct thickness measurement of a blade SCALE: mm" []
 relationship: variable_of CO_360:0000184
 relationship: variable_of CO_360:0000196
 relationship: variable_of CO_360:0000222
@@ -1422,7 +1390,7 @@ relationship: variable_of CO_360:0000222
 id: CO_360:0000249
 name: Stipe length cm
 namespace: sugar_kelp_trait
-def: "Direct measurement of stipe length (cm)" []
+def: "TRAIT: Stipe length METHOD: Direct measurement of stipe length from a blade SCALE: cm" []
 relationship: variable_of CO_360:0000024
 relationship: variable_of CO_360:0000197
 relationship: variable_of CO_360:0000010
@@ -1431,16 +1399,16 @@ relationship: variable_of CO_360:0000010
 id: CO_360:0000250
 name: Stipe diameter mm
 namespace: sugar_kelp_trait
-def: "Direct measurement of the diameter of the stipe (mm)" []
+def: "TRAIT: Stipe diameter METHOD: Direct measurement of the diameter of the stipe from a blade SCALE: mm" []
+relationship: variable_of CO_360:0000205
 relationship: variable_of CO_360:0000223
 relationship: variable_of CO_360:0000184
-relationship: variable_of CO_360:0000205
 
 [Term]
 id: CO_360:0000251
 name: Stipe composition hollow/solid
 namespace: sugar_kelp_trait
-def: "Composition of the stipe (either hollow if there is any hollow portion, or solid if completely solid) (stipe composition)" []
+def: "TRAIT: Stipe composition METHOD: Composition of the stipe (either hollow if there is any hollow portion, or solid if completely solid) SCALE: stipe composition (0= Hollow, 1= Solid)" []
 relationship: variable_of CO_360:0000224
 relationship: variable_of CO_360:0000206
 relationship: variable_of CO_360:0000185
@@ -1449,205 +1417,718 @@ relationship: variable_of CO_360:0000185
 id: CO_360:0000252
 name: Presence of bullations abs/pres
 namespace: sugar_kelp_trait
-def: "Presence or absence of bullations (0-1 Absence/Presence)" []
-relationship: variable_of CO_360:0000225
-relationship: variable_of CO_360:0000207
+def: "TRAIT: Presence of bullations METHOD: Presence or absence of bullations SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
 relationship: variable_of CO_360:0000038
+relationship: variable_of CO_360:0000207
+relationship: variable_of CO_360:0000225
 
 [Term]
 id: CO_360:0000253
-name: Presence of sori abs/pres
+name: Presence of sorus tissue abs/pres
 namespace: sugar_kelp_trait
-def: "Presence or absence of sori (0-1 Absence/Presence)" []
-relationship: variable_of CO_360:0000038
+def: "TRAIT: Presence of sorus tissue METHOD: Presence or absence of sorus tissue SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
 relationship: variable_of CO_360:0000208
 relationship: variable_of CO_360:0000226
+relationship: variable_of CO_360:0000038
 
 [Term]
 id: CO_360:0000254
-name: Sorus area sq cm
+name: Sorus tissue area sq cm
 namespace: sugar_kelp_trait
-def: "Visual estimation of area covered by sori (sq cm)" []
+def: "TRAIT: Sorus tissue area METHOD: Visual estimation of the sorus tissue area SCALE: sq cm" []
 relationship: variable_of CO_360:0000209
-relationship: variable_of CO_360:0000187
 relationship: variable_of CO_360:0000227
+relationship: variable_of CO_360:0000187
 
 [Term]
 id: CO_360:0000255
 name: Tissue sample wet weight g
 namespace: sugar_kelp_trait
-def: "Direct measurement of the wet weight of a tissue sample (g)" []
+def: "TRAIT: Tissue sample weight METHOD: Direct measurement of the wet weight of a tissue sample SCALE: g" []
 relationship: variable_of CO_360:0000210
-relationship: variable_of CO_360:0000002
 relationship: variable_of CO_360:0000228
+relationship: variable_of CO_360:0000002
 
 [Term]
 id: CO_360:0000256
 name: Tissue sample towel-dried weight g
 namespace: sugar_kelp_trait
-def: "Direct measurement of the towel-dried weight of a tissue sample (g)" []
+def: "TRAIT: Tissue sample weight METHOD: Direct measurement of the towel-dried weight of a tissue sample SCALE: g" []
+relationship: variable_of CO_360:0000002
 relationship: variable_of CO_360:0000228
 relationship: variable_of CO_360:0000211
-relationship: variable_of CO_360:0000002
 
 [Term]
 id: CO_360:0000257
 name: Tissue sample dry weight g
 namespace: sugar_kelp_trait
-def: "Direct measurement of the dried weight of a tissue sample (g)" []
-relationship: variable_of CO_360:0000228
+def: "TRAIT: Tissue sample weight METHOD: Direct measurement of the dried weight of a tissue sample SCALE: g" []
 relationship: variable_of CO_360:0000002
 relationship: variable_of CO_360:0000212
+relationship: variable_of CO_360:0000228
 
 [Term]
 id: CO_360:0000258
 name: Tissue sample percent dry weight %
 namespace: sugar_kelp_trait
-def: "Calculation of the percent dry weight of a tissue sample (%)" []
+def: "TRAIT: Tissue sample weight METHOD: Calculation of the percent dry weight of a tissue sample SCALE: %" []
 relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000228
 relationship: variable_of CO_360:0000213
-relationship: variable_of CO_360:0000229
 
 [Term]
 id: CO_360:0000259
 name: Presence of fouling abs/pres
 namespace: sugar_kelp_trait
-def: "Presence or absence of any fouling (0-1 Absence/Presence)" []
+def: "TRAIT: Presence of fouling METHOD: Presence or absence of any fouling SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
+relationship: variable_of CO_360:0000214
 relationship: variable_of CO_360:0000230
 relationship: variable_of CO_360:0000038
-relationship: variable_of CO_360:0000214
 
 [Term]
 id: CO_360:0000260
 name: Fouling area sq cm
 namespace: sugar_kelp_trait
-def: "Visual estimation of area fouled (sq cm)" []
-relationship: variable_of CO_360:0000215
+def: "TRAIT: Fouling area METHOD: Visual estimation of area fouled SCALE: sq cm" []
 relationship: variable_of CO_360:0000187
 relationship: variable_of CO_360:0000231
+relationship: variable_of CO_360:0000215
 
 [Term]
 id: CO_360:0000261
 name: Presence of bryozoan abs/pres
 namespace: sugar_kelp_trait
-def: "Presence or absence of bryozoan (0-1 Absence/Presence)" []
-relationship: variable_of CO_360:0000232
+def: "TRAIT: Presence of bryozoan METHOD: Presence or absence of bryozoan SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
 relationship: variable_of CO_360:0000038
+relationship: variable_of CO_360:0000232
 relationship: variable_of CO_360:0000216
 
 [Term]
 id: CO_360:0000262
 name: Presence of herbivores abs/pres
 namespace: sugar_kelp_trait
-def: "Presence or absence of herbivores (0-1 Absence/Presence)" []
+def: "TRAIT: Presence of herbivores METHOD: Presence or absence of herbivores SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
+relationship: variable_of CO_360:0000233
 relationship: variable_of CO_360:0000217
 relationship: variable_of CO_360:0000038
-relationship: variable_of CO_360:0000233
 
 [Term]
 id: CO_360:0000263
 name: Presence of white patches abs/pres
 namespace: sugar_kelp_trait
-def: "Presence or absence of white patches (0-1 Absence/Presence)" []
-relationship: variable_of CO_360:0000038
-relationship: variable_of CO_360:0000218
+def: "TRAIT: Presence of white patches METHOD: Presence or absence of white patches SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
 relationship: variable_of CO_360:0000234
+relationship: variable_of CO_360:0000218
+relationship: variable_of CO_360:0000038
 
 [Term]
 id: CO_360:0000274
 name: Plot wet weight kg
 namespace: sugar_kelp_trait
-def: "Direct measurement of the wet weight of the entire plot (kg)" []
-relationship: variable_of CO_360:0000268
+def: "TRAIT: Weight of all individuals in the entire plot METHOD: Direct measurement of the wet weight of the entire plot SCALE: kg" []
 relationship: variable_of CO_360:0000269
 relationship: variable_of CO_360:0000272
-
-[Term]
-id: CO_360:0000275
-name: Subplot wet weight g
-namespace: sugar_kelp_trait
-def: "Direct measurement of the wet weight of a 1cm subsample of a plot (g)" []
-relationship: variable_of CO_360:0000273
-relationship: variable_of CO_360:0000002
-relationship: variable_of CO_360:0000270
-
-[Term]
-id: CO_360:0000276
-name: Subplot dry weight g
-namespace: sugar_kelp_trait
-def: "Direct measurement of the dry weight of a 1cm subsample of a plot (g)" []
-relationship: variable_of CO_360:0000273
-relationship: variable_of CO_360:0000271
-relationship: variable_of CO_360:0000002
+relationship: variable_of CO_360:0000268
 
 [Term]
 id: CO_360:0000279
 name: Plot length cm
 namespace: sugar_kelp_trait
-def: "Direct measurement of the length of the plot containing kelp growth (cm)" []
-relationship: variable_of CO_360:0000278
+def: "TRAIT: Length of the line within a plot containing kelp growth METHOD: Direct measurement of the length of the plot containing kelp growth SCALE: cm" []
 relationship: variable_of CO_360:0000010
+relationship: variable_of CO_360:0000278
 relationship: variable_of CO_360:0000277
-
-[Term]
-id: CO_360:0000285
-name: Combined subplot wet weight g
-namespace: sugar_kelp_trait
-def: "Direct measurement of the wet weight of all sampled 1cm subplots (g)" []
-relationship: variable_of CO_360:0000283
-relationship: variable_of CO_360:0000002
-relationship: variable_of CO_360:0000280
-
-[Term]
-id: CO_360:0000286
-name: Combined subplot dry weight g
-namespace: sugar_kelp_trait
-def: "Direct measurement of the dry weight of all sampled 1cm subplots (g)" []
-relationship: variable_of CO_360:0000283
-relationship: variable_of CO_360:0000002
-relationship: variable_of CO_360:0000281
-
-[Term]
-id: CO_360:0000287
-name: Subplot count
-namespace: sugar_kelp_trait
-def: "Direct count of the number of subplots sampled from within a plot (count)" []
-relationship: variable_of CO_360:0000264
-relationship: variable_of CO_360:0000282
-relationship: variable_of CO_360:0000284
 
 [Term]
 id: CO_360:0000291
 name: Plot dry weight kg
 namespace: sugar_kelp_trait
-def: "Direct measurement of the dry weight of the entire plot (kg)" []
-relationship: variable_of CO_360:0000288
+def: "TRAIT: Weight of all individuals in the entire plot METHOD: Direct measurement of the dry weight of the entire plot SCALE: kg" []
 relationship: variable_of CO_360:0000268
 relationship: variable_of CO_360:0000272
-
-[Term]
-id: CO_360:0000292
-name: Plot blade count
-namespace: sugar_kelp_trait
-def: "Direct count of the number of blades in the entire plot (count)" []
-relationship: variable_of CO_360:0000264
-relationship: variable_of CO_360:0000289
-relationship: variable_of CO_360:0000266
-
-[Term]
-id: CO_360:0000293
-name: Subplot blade count
-namespace: sugar_kelp_trait
-def: "Direct count of the number of blades in a 1cm subsample of a plot (count)" []
-relationship: variable_of CO_360:0000264
-relationship: variable_of CO_360:0000290
-relationship: variable_of CO_360:0000266
+relationship: variable_of CO_360:0000288
 
 [Term]
 id: CO_360:0000296
-name: Moisture content %
+name: Moisture content - NJFL - %
 namespace: sugar_kelp_trait
-def: "Done by New Jersey Feed Labs  (%)" []
-relationship: variable_of CO_360:0000186
+def: "TRAIT: Moisture content METHOD: Moisture content by New Jersey Feed Labs  SCALE: %" []
 relationship: variable_of CO_360:0000294
 relationship: variable_of CO_360:0000295
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000300
+name: Photo score 0-3
+namespace: sugar_kelp_trait
+def: "TRAIT: Photo rating of the kelp growth within a plot METHOD: Estimation of kelp growth based on a photo SCALE: 0-3 photo score (0=  No growth,  1= < 33% coverage, 2= 33-66% coverage, 3= >66% coverage)" []
+relationship: variable_of CO_360:0000297
+relationship: variable_of CO_360:0000298
+relationship: variable_of CO_360:0000299
+
+[Term]
+id: CO_360:0000304
+name: Wet yield kg/m
+namespace: sugar_kelp_trait
+def: "TRAIT: Weight of a plot per unit length METHOD: Calculation of a plot's wet weight standardized to unit length in meters SCALE: kg/m" []
+relationship: variable_of CO_360:0000301
+relationship: variable_of CO_360:0000303
+relationship: variable_of CO_360:0000302
+
+[Term]
+id: CO_360:0000307
+name: Plot percent dry weight %
+namespace: sugar_kelp_trait
+def: "TRAIT: Weight of all individuals in the entire plot METHOD: Calculation of a plot's percent dry weight based on subsamples SCALE: %" []
+relationship: variable_of CO_360:0000305
+relationship: variable_of CO_360:0000272
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000310
+name: Dry yield kg/m
+namespace: sugar_kelp_trait
+def: "TRAIT: Weight of a plot per unit length METHOD: Calculation of a plot's dry yield from the wet yield and percent dry weight SCALE: kg/m" []
+relationship: variable_of CO_360:0000301
+relationship: variable_of CO_360:0000308
+relationship: variable_of CO_360:0000303
+
+[Term]
+id: CO_360:0000312
+name: Ash-free dry yield kg/m
+namespace: sugar_kelp_trait
+def: "TRAIT: Weight of a plot per unit length METHOD: Calculation of a plot's ash-free dry yield from the dry yield and ash content SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000303
+relationship: variable_of CO_360:0000311
+
+[Term]
+id: CO_360:0000316
+name: Sporophyte density count/m
+namespace: sugar_kelp_trait
+def: "TRAIT: The count of the number of sporophytes per unit length METHOD: Calculation of the number of sporophytes per unit length in meters SCALE: count/m" []
+relationship: variable_of CO_360:0000313
+relationship: variable_of CO_360:0000314
+relationship: variable_of CO_360:0000315
+
+[Term]
+id: CO_360:0000320
+name: Successful release unsucc/succ
+namespace: sugar_kelp_trait
+def: "TRAIT: Successful release METHOD: Direct observation of a successful release SCALE: 0-1 unsuccessful/successful (0= unsuccessful, 1= successful)" []
+relationship: variable_of CO_360:0000319
+relationship: variable_of CO_360:0000318
+relationship: variable_of CO_360:0000317
+
+[Term]
+id: CO_360:0000324
+name: Blade length - average - cm
+namespace: sugar_kelp_trait
+def: "TRAIT: Blade length METHOD: Calculation of the average blade length from blades in a plot SCALE: cm" []
+relationship: variable_of CO_360:0000010
+relationship: variable_of CO_360:0000321
+relationship: variable_of CO_360:0000008
+
+[Term]
+id: CO_360:0000325
+name: Blade width at widest - average - cm
+namespace: sugar_kelp_trait
+def: "TRAIT: Blade width METHOD: Calculation of the average blade width (at widest) from blades in a plot SCALE: cm" []
+relationship: variable_of CO_360:0000010
+relationship: variable_of CO_360:0000016
+relationship: variable_of CO_360:0000322
+
+[Term]
+id: CO_360:0000326
+name: Blade thickness - average - mm
+namespace: sugar_kelp_trait
+def: "TRAIT: Blade thickness METHOD: Calculation of the average blade thickness from blades in a plot SCALE: mm" []
+relationship: variable_of CO_360:0000184
+relationship: variable_of CO_360:0000222
+relationship: variable_of CO_360:0000323
+
+[Term]
+id: CO_360:0000329
+name: Stipe length - average - cm
+namespace: sugar_kelp_trait
+def: "TRAIT: Stipe length METHOD: Calculation of the average stipe length from blades in a plot SCALE: cm" []
+relationship: variable_of CO_360:0000010
+relationship: variable_of CO_360:0000024
+relationship: variable_of CO_360:0000327
+
+[Term]
+id: CO_360:0000330
+name: Stipe diameter - average - mm
+namespace: sugar_kelp_trait
+def: "TRAIT: Stipe diameter METHOD: Calculation of the average stipe diameter from blades in a plot SCALE: mm" []
+relationship: variable_of CO_360:0000184
+relationship: variable_of CO_360:0000328
+relationship: variable_of CO_360:0000223
+
+[Term]
+id: CO_360:0000334
+name: Protein content - MW Labs - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Protein content METHOD: Protein content by MW Labs SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000044
+relationship: variable_of CO_360:0000331
+
+[Term]
+id: CO_360:0000335
+name: Lipid content - MW Labs - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Lipid content METHOD: Lipid content by MW Labs SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000048
+relationship: variable_of CO_360:0000332
+
+[Term]
+id: CO_360:0000336
+name: Carbohydrate / fiber content - MW Labs - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Carbohydrate / fiber content METHOD: Carbohydrate / fiber content by MW Labs SCALE: %" []
+relationship: variable_of CO_360:0000040
+relationship: variable_of CO_360:0000333
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000347
+name: Total sugar content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Total sugar content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000421
+relationship: variable_of CO_360:0000337
+
+[Term]
+id: CO_360:0000348
+name: Mannuronic acid content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Mannuronic acid content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000338
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000349
+name: Guluronic acid content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Guluronic acid content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000339
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000350
+name: Glucuronic acid content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Glucuronic acid content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000340
+relationship: variable_of CO_360:0000337
+
+[Term]
+id: CO_360:0000351
+name: Mannitol content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Mannitol content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000341
+
+[Term]
+id: CO_360:0000352
+name: Fucose content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Fucose content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000342
+relationship: variable_of CO_360:0000337
+
+[Term]
+id: CO_360:0000353
+name: Glucan content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Glucan content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000343
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000354
+name: Xylan content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Xylan content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000344
+
+[Term]
+id: CO_360:0000355
+name: Mannan content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Mannan content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000345
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000356
+name: Galactan content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Galactan content METHOD: Carbohydrate content by Celignis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000346
+relationship: variable_of CO_360:0000337
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000358
+name: Ash content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Ash content METHOD: Ash content by Celingis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000052
+relationship: variable_of CO_360:0000357
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000360
+name: C content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: C content METHOD: CHN content by Celingis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000359
+relationship: variable_of CO_360:0000056
+
+[Term]
+id: CO_360:0000361
+name: H content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: H content METHOD: CHN content by Celingis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000060
+relationship: variable_of CO_360:0000359
+
+[Term]
+id: CO_360:0000362
+name: N content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: N content METHOD: CHN content by Celingis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000064
+relationship: variable_of CO_360:0000359
+
+[Term]
+id: CO_360:0000364
+name: S content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: S content METHOD: Element content by Celingis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000363
+relationship: variable_of CO_360:0000148
+
+[Term]
+id: CO_360:0000365
+name: O content - Celingis - %
+namespace: sugar_kelp_trait
+def: "TRAIT: O content METHOD: Element content by Celingis Analytical SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000363
+relationship: variable_of CO_360:0000080
+
+[Term]
+id: CO_360:0000367
+name: C content - UConn - %
+namespace: sugar_kelp_trait
+def: "TRAIT: C content METHOD: CHN content by UConn SCALE: %" []
+relationship: variable_of CO_360:0000366
+relationship: variable_of CO_360:0000056
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000368
+name: H content - UConn - %
+namespace: sugar_kelp_trait
+def: "TRAIT: H content METHOD: CHN content by UConn SCALE: %" []
+relationship: variable_of CO_360:0000366
+relationship: variable_of CO_360:0000060
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000369
+name: N content - UConn - %
+namespace: sugar_kelp_trait
+def: "TRAIT: N content METHOD: CHN content by UConn SCALE: %" []
+relationship: variable_of CO_360:0000366
+relationship: variable_of CO_360:0000064
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000373
+name: C:N content - UConn - ratio
+namespace: sugar_kelp_trait
+def: "TRAIT: Ratio of C to N METHOD: Calculation of the ratio of C to N by UConn SCALE: C:N ratio" []
+relationship: variable_of CO_360:0000371
+relationship: variable_of CO_360:0000372
+relationship: variable_of CO_360:0000370
+
+[Term]
+id: CO_360:0000375
+name: Ash content - WHOI - %
+namespace: sugar_kelp_trait
+def: "TRAIT: Ash content METHOD: Ash content by WHOI SCALE: %" []
+relationship: variable_of CO_360:0000374
+relationship: variable_of CO_360:0000052
+relationship: variable_of CO_360:0000186
+
+[Term]
+id: CO_360:0000378
+name: B content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: B content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000136
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000379
+name: Na content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Na content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000072
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000380
+name: Mg content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Mg content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000076
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000381
+name: Al content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Al content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000144
+
+[Term]
+id: CO_360:0000382
+name: P content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: P content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000377
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000383
+name: S content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: S content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000148
+
+[Term]
+id: CO_360:0000384
+name: K content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: K content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000152
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000385
+name: Ca content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Ca content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000088
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000386
+name: Fe content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Fe content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000096
+relationship: variable_of CO_360:0000200
+
+[Term]
+id: CO_360:0000387
+name: Mn content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Mn content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000160
+
+[Term]
+id: CO_360:0000388
+name: Co content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Co content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000100
+
+[Term]
+id: CO_360:0000389
+name: Ni content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Ni content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000164
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000390
+name: Cu content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Cu content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000104
+
+[Term]
+id: CO_360:0000391
+name: Zn content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Zn content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000108
+relationship: variable_of CO_360:0000200
+
+[Term]
+id: CO_360:0000392
+name: Total As content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: As content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000112
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000393
+name: Se content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Se content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000116
+
+[Term]
+id: CO_360:0000394
+name: Rb content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Rb content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000172
+
+[Term]
+id: CO_360:0000395
+name: Sr content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Sr content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000120
+
+[Term]
+id: CO_360:0000396
+name: Mo content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Mo content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000124
+relationship: variable_of CO_360:0000200
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000397
+name: Cd content - Danforth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: Cd content METHOD: Element content by the Ionomics facility, Donald Danforth Center SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000128
+relationship: variable_of CO_360:0000200
+
+[Term]
+id: CO_360:0000401
+name: Total As content - FDA - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: As content METHOD: Total As content by the FDA SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000112
+relationship: variable_of CO_360:0000417
+
+[Term]
+id: CO_360:0000402
+name: Inorganic As content - FDA - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: As content METHOD: Inorganic As content by the FDA SCALE: ug/g" []
+relationship: variable_of CO_360:0000112
+relationship: variable_of CO_360:0000418
+relationship: variable_of CO_360:0000376
+
+[Term]
+id: CO_360:0000403
+name: I content - FDA - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: I content METHOD: Element content by the FDA SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000398
+relationship: variable_of CO_360:0000180
+
+[Term]
+id: CO_360:0000405
+name: Total As content - Dartmouth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: As content METHOD: Total As content by Darthmouth College SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000112
+relationship: variable_of CO_360:0000419
+
+[Term]
+id: CO_360:0000406
+name: Inorganic As content - Dartmouth - ug/g
+namespace: sugar_kelp_trait
+def: "TRAIT: As content METHOD: Inorganic As content by Dartmouth College SCALE: ug/g" []
+relationship: variable_of CO_360:0000376
+relationship: variable_of CO_360:0000420
+relationship: variable_of CO_360:0000112
+
+[Term]
+id: CO_360:0000410
+name: Painting density 1-3
+namespace: sugar_kelp_trait
+def: "TRAIT: The density of the initial painting METHOD: Direct measurement of the initial painting density SCALE: painting density (1= low denisty, 2= medium density, 3= high density)" []
+relationship: variable_of CO_360:0000408
+relationship: variable_of CO_360:0000409
+relationship: variable_of CO_360:0000407
+
+[Term]
+id: CO_360:0000413
+name: Sporophyte percent dry weight %
+namespace: sugar_kelp_trait
+def: "TRAIT: Weight of a single sporophyte METHOD: Calculation of a sporophyte's percent dry weight SCALE: %" []
+relationship: variable_of CO_360:0000186
+relationship: variable_of CO_360:0000220
+relationship: variable_of CO_360:0000411
+
+[Term]
+id: CO_360:0000416
+name: Presence of holdfast abs/pres
+namespace: sugar_kelp_trait
+def: "TRAIT: Presence of holdfast attached to sporophyte METHOD: Presence or absence of the holdfast attached to the sporophyte SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
+relationship: variable_of CO_360:0000414
+relationship: variable_of CO_360:0000415
+relationship: variable_of CO_360:0000038
