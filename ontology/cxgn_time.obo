@@ -2981,4 +2981,10 @@ id: TIME:0011000
 name: after maturity
 synonym: "AftMat" EXACT []
 def: "" []
-is_a: TIME:0000477
+is_a: TIME:0000477 ! Event relations
+
+[Term]
+id: TIME:0000481
+name: at termination
+def: "End of life" []
+is_a: TIME:0000477 ! Event relations
