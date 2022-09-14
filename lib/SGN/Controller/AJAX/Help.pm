@@ -184,10 +184,10 @@ sub generate_trials :Private {
         my $loc_code = $location_name =~ /^Example/ ? "EXANY" : "SAMNY";
         foreach my $rep (@reps) {
             my @randomized_accessions = shuffle(@$accession_names);
-            my $plot_index = 0;
+            my $plot_index = 1;
             foreach my $accession_name (@randomized_accessions) {
                 my $trial_name = "SAMPLE_" . $loc_code . "_" . $prefix . "_2022";
-                my $plot_number = $rep . "0" . $plot_index;
+                my $plot_number = $plot_index < 10 ? $rep . "0" . $plot_index : $rep . $plot_index;
                 my $plot_name = $trial_name . "-PLOT_" . $plot_number;
                 my @r = (
                     $trial_name,
@@ -210,7 +210,7 @@ sub generate_trials :Private {
                     $rep,
                     "",
                     $rep,
-                    $plot_index+1,
+                    $plot_index,
                     "",
                     "",
                     ""
@@ -244,8 +244,8 @@ sub generate_observations :Private {
     my @rows;
     foreach my $loc (("EXANY", "SAMNY")) {
         foreach my $rep ((1..3)) {
-            foreach my $plot ((0..9)) {
-                my $plot_number = $rep . "0" . $plot;
+            foreach my $plot ((1..10)) {
+                my $plot_number = $plot < 10 ? $rep . "0" . $plot : $rep . $plot;
                 my $plot_name = "SAMPLE_" . $loc . "_" . $prefix . "_2022-PLOT_" . $plot_number;
                 my @r = ($plot_name);
                 foreach my $trait (@$traits) {
