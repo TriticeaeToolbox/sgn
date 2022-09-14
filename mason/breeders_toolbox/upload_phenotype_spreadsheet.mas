@@ -28,7 +28,7 @@
                     <div class="col-sm-9" >
                         <select class="form-control" id="upload_spreadsheet_phenotype_file_format" name="upload_spreadsheet_phenotype_file_format">
                             <option value="detailed">Detailed</option>
-                            <option value="simple">Simple</option>
+                            <option value="simple" selected>Simple</option>
                         </select>
                     </div>
                 </div>
@@ -38,7 +38,7 @@
                         <input type="checkbox" id="upload_spreadsheet_phenotype_timestamp_checkbox" name="upload_spreadsheet_phenotype_timestamp_checkbox" />
                     </div>
                 </div>
-                <div id="upload_spreadsheet_phenotype_data_level_div">
+                <div id="upload_spreadsheet_phenotype_data_level_div" style="display: none">
                     <div class="form-group">
                         <label class="col-sm-3 control-label">Data Level: </label>
                         <div class="col-sm-9" >
