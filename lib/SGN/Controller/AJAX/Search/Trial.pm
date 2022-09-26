@@ -135,6 +135,15 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
         $has_trial_layout{$trial_id} = $row_count != 0 && $col_count != 0;
     }
 
+    # Query the DB to get the number of observed traits for each trial via the materialized_phenoview table
+    my %observed_trait_counts;
+    my $q2 = "SELECT trial_id, COUNT(DISTINCT(trait_id)) AS observed_traits FROM public.materialized_phenoview GROUP BY trial_id;";
+    my $h2 = $schema->storage->dbh()->prepare($q2);
+    $h2->execute();
+    while (my ($trial_id, $observed_traits) = $h2->fetchrow_array()) {
+        $observed_trait_counts{$trial_id} = $observed_traits;
+    }
+
     foreach (@$data){
         my @res;
         if ($checkbox_select_name){
@@ -176,6 +185,7 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
             $_->{project_planting_date},
             $_->{project_harvest_date},
             $has_trial_layout{$_->{trial_id}} ? '<span class="glyphicon glyphicon-ok-sign" style="color: #3c7d3d; font-size: 150%"></span>' : '',
+            $observed_trait_counts{$_->{trial_id}} > 0 ? '<span class="glyphicon glyphicon-ok-sign" style="color: #3c7d3d; font-size: 150%"></span>' : '',
             $create_date,
             $public_date,
             $transferred
