@@ -25,6 +25,7 @@ sub _validate_with_plugin {
   my %seen_plot_names;
   my %seen_seedlot_names;
   my %seen_entry_names;
+  my $plots_missing_layout = 0;
 
 
   #try to open the excel file and report any errors
@@ -295,6 +296,9 @@ sub _validate_with_plugin {
     if ($col_number && !($col_number =~ /^\d+?$/)){
         push @error_messages, "Cell I$row_name: col_number must be a positive integer: $col_number";
     }
+    if ( !$row_number || !$col_number ) {
+      $plots_missing_layout = $plots_missing_layout + 1;
+    }
 
     if ($seedlot_name){
         $seedlot_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
@@ -356,6 +360,10 @@ sub _validate_with_plugin {
     });
     while (my $r=$rs->next){
         push @error_messages, "Cell A".$seen_plot_names{$r->uniquename}.": plot name already exists: ".$r->uniquename;
+    }
+
+    if ( $plots_missing_layout > 0 ) {
+      push @warning_messages, "There are " . $plots_missing_layout . " plots with missing layout information.  Please add row and column positions to the plots.";
     }
 
     if (scalar(@warning_messages) >= 1) {
