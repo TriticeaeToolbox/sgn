@@ -90,6 +90,7 @@ sub _validate_with_plugin {
   my $field_size;
   my $planting_date;
   my $harvest_date;
+  my %plots_missing_layout;
 
   for my $row ( 1 .. $row_max ) {
 
@@ -401,6 +402,14 @@ sub _validate_with_plugin {
     if ($col_number && !($col_number =~ /^\d+?$/)){
         push @error_messages, "Cell U$row_name: col_number <b>$col_number</b> must be a positive integer.";
     }
+    if ( !$row_number || !$col_number ) {
+      if ( !defined($plots_missing_layout{$trial_name}) ) {
+        $plots_missing_layout{$trial_name} = 1;
+      }
+      else {
+        $plots_missing_layout{$trial_name} = $plots_missing_layout{$trial_name} + 1;
+      }
+    }
 
     ## SEEDLOT CHECKS
     if ($seedlot_name){
@@ -565,6 +574,12 @@ sub _validate_with_plugin {
   });
   while (my $r=$rs->next){
       push @error_messages, "Cell M".$seen_plot_names{$r->uniquename}.": plot name <b>".$r->uniquename."</b> already exists.";
+  }
+
+  ## PLOT LAYOUT OVERALL VALIDATION
+  foreach my $t (keys %plots_missing_layout) {
+    my $c = $plots_missing_layout{$t};
+    push @warning_messages, "Trial " . $t . " has " . $c . " plots with missing layout information.  Please add row and column positions to the plots."
   }
 
   if (scalar(@warning_messages) >= 1) {
