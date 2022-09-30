@@ -47,50 +47,54 @@ jQuery(document).ready(function ($) {
 
     var plate_data = new Object();
     jQuery('#add_geno_trial_submit').click(function () {
-        plate_data = new Object();
-//        plate_data.breeding_program = jQuery('#breeding_program_select').val();
-//        plate_data.year = jQuery('#year_select').val();
-//        plate_data.location = jQuery('#location_select').val();
-        plate_data.description = jQuery('#genotyping_trial_description').val();
-//        plate_data.project_name = jQuery('#genotyping_project_name').val();
-        plate_data.genotyping_project_id = jQuery('#plate_genotyping_project_id').val();
-        plate_data.name = jQuery('#genotyping_trial_name').val();
-        plate_data.plate_format = jQuery('#genotyping_trial_plate_format').val();
-        plate_data.sample_type = jQuery('#genotyping_trial_plate_sample_type').val();
-        plate_data.blank_well = jQuery('#genotyping_blank_well').val();
-        plate_data.well_concentration = jQuery('#genotyping_well_concentration').val();
-        plate_data.ncbi_taxonomy_id = jQuery('#genotyping_well_ncbi_taxonomy_id').val();
-        plate_data.well_extraction = jQuery('#genotyping_well_extraction').val();
-        plate_data.well_date = jQuery('#genotyping_well_date').val();
-        plate_data.well_dna_person = jQuery('#genotyping_well_dna_person').val();
-        plate_data.well_volume = jQuery('#genotyping_well_volume').val();
-        plate_data.well_tissue = jQuery('#genotyping_well_tissue').val();
-        plate_data.well_notes = jQuery('#genotyping_well_notes').val();
-//        plate_data.genotyping_facility = jQuery('#genotyping_trial_facility_select').val();
-        plate_data.genotyping_facility_submit = jQuery('#genotyping_trial_facility_submit_select').val();
-        plate_data.include_facility_identifiers = jQuery('#upload_genotype_plate_include_facility_identifiers').val();
+        jQuery("#working_modal").modal('show');
+        setTimeout(() => {
+            plate_data = new Object();
+    //        plate_data.breeding_program = jQuery('#breeding_program_select').val();
+    //        plate_data.year = jQuery('#year_select').val();
+    //        plate_data.location = jQuery('#location_select').val();
+            plate_data.description = jQuery('#genotyping_trial_description').val();
+    //        plate_data.project_name = jQuery('#genotyping_project_name').val();
+            plate_data.genotyping_project_id = jQuery('#plate_genotyping_project_id').val();
+            plate_data.name = jQuery('#genotyping_trial_name').val();
+            plate_data.plate_format = jQuery('#genotyping_trial_plate_format').val();
+            plate_data.sample_type = jQuery('#genotyping_trial_plate_sample_type').val();
+            plate_data.blank_well = jQuery('#genotyping_blank_well').val();
+            plate_data.well_concentration = jQuery('#genotyping_well_concentration').val();
+            plate_data.ncbi_taxonomy_id = jQuery('#genotyping_well_ncbi_taxonomy_id').val();
+            plate_data.well_extraction = jQuery('#genotyping_well_extraction').val();
+            plate_data.well_date = jQuery('#genotyping_well_date').val();
+            plate_data.well_dna_person = jQuery('#genotyping_well_dna_person').val();
+            plate_data.well_volume = jQuery('#genotyping_well_volume').val();
+            plate_data.well_tissue = jQuery('#genotyping_well_tissue').val();
+            plate_data.well_notes = jQuery('#genotyping_well_notes').val();
+    //        plate_data.genotyping_facility = jQuery('#genotyping_trial_facility_select').val();
+            plate_data.genotyping_facility_submit = jQuery('#genotyping_trial_facility_submit_select').val();
+            plate_data.include_facility_identifiers = jQuery('#upload_genotype_plate_include_facility_identifiers').val();
 
-        if (plate_data.name == '') {
-            alert("A name is required and it should be unique in the database. Please try again.");
-            return;
-        }
+            if (plate_data.name == '') {
+                jQuery("#working_modal").modal('hide');
+                alert("A name is required and it should be unique in the database. Please try again.");
+                return;
+            }
 
-        var uploadFileXLS = jQuery("#genotyping_trial_layout_upload").val();
-        if (uploadFileXLS === ''){
-            var uploadFileCoordinate = jQuery("#genotyping_trial_layout_upload_coordinate").val();
-            if (uploadFileCoordinate === ''){
-                var uploadFileCoordinateCustom = jQuery("#genotyping_trial_layout_upload_coordinate_template").val();
-                if (uploadFileCoordinateCustom === ''){
-                    submit_genotype_trial_create(plate_data);
+            var uploadFileXLS = jQuery("#genotyping_trial_layout_upload").val();
+            if (uploadFileXLS === ''){
+                var uploadFileCoordinate = jQuery("#genotyping_trial_layout_upload_coordinate").val();
+                if (uploadFileCoordinate === ''){
+                    var uploadFileCoordinateCustom = jQuery("#genotyping_trial_layout_upload_coordinate_template").val();
+                    if (uploadFileCoordinateCustom === ''){
+                        submit_genotype_trial_create(plate_data);
+                    } else {
+                        submit_genotype_trial_upload(plate_data);
+                    }
                 } else {
                     submit_genotype_trial_upload(plate_data);
                 }
             } else {
                 submit_genotype_trial_upload(plate_data);
             }
-        } else {
-            submit_genotype_trial_upload(plate_data);
-        }
+        }, 500);
     });
 
     jQuery('#genotyping_trial_dialog').on('show.bs.modal', function (e) {
@@ -112,17 +116,20 @@ jQuery(document).ready(function ($) {
 
         var l = new CXGN.List();
         if (! l.legacy_validate(plate_data.list_id, 'accessions', true) && ! l.legacy_validate(plate_data.list_id, 'plots', true) && ! l.legacy_validate(plate_data.list_id, 'plants', true) && ! l.legacy_validate(plate_data.list_id, 'tissue_samples', true)) {
+            jQuery("#working_modal").modal('hide');
             alert('The list contains elements that are not accessions or plots or plants or tissue_samples.');
             return;
         }
 
         var elements = l.getList(plate_data.list_id);
         if (typeof elements == 'undefined' ) {
+            jQuery("#working_modal").modal('hide');
             alert("There are no elements in the list provided.");
             return;
         }
 
         if (elements.length > plate_data.plate_format) {
+            jQuery("#working_modal").modal('hide');
             alert("The list needs to have less than 96 or 384 elements depending on the plate format you selected");
             return;
         }
@@ -270,10 +277,12 @@ jQuery(document).ready(function ($) {
         complete: function (response) {
 
             if (response.error) {
+                jQuery("#working_modal").modal('hide');
                 alert(response.error);
                 return;
             }
             if (response.error_string) {
+                jQuery("#working_modal").modal('hide');
                 alert(response.error_string);
                 return;
             }
