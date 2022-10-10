@@ -222,25 +222,7 @@ export function init() {
         }
 
         set_meta_data() {
-            let unsorted_plot_arr = Object.values(this.plot_object);
-            let ordered_grouped_plot_arr = [];
-            for (let plot of unsorted_plot_arr) {
-                if (!ordered_grouped_plot_arr[plot.observationUnitPosition.positionCoordinateY - 1]) {
-                    ordered_grouped_plot_arr[plot.observationUnitPosition.positionCoordinateY - 1] = [];
-                    ordered_grouped_plot_arr[plot.observationUnitPosition.positionCoordinateY - 1][plot.observationUnitPosition.positionCoordinateX - 1] = plot;
-                } else {
-                    ordered_grouped_plot_arr[plot.observationUnitPosition.positionCoordinateY - 1][plot.observationUnitPosition.positionCoordinateX - 1] = plot;
-                }
-            }
-            let final_plot_arr = []
-            for (let ordered_plot_arr of ordered_grouped_plot_arr) {
-                if ( ordered_plot_arr ) {
-                    ordered_plot_arr.forEach((plot) => {
-                        if ( plot ) final_plot_arr.push(plot);
-                    });
-                }
-            }
-            this.plot_arr = final_plot_arr;
+            this.plot_arr = Object.values(this.plot_object);
             var min_col = 100000;
             var min_row = 100000;
             var max_col = 0;
@@ -261,6 +243,7 @@ export function init() {
             this.meta_data.num_cols = max_col - min_col + 1;
             this.meta_data.max_level_code = max_level_code;
             this.meta_data.display_borders = !jQuery("#include_linked_trials_checkmark").is(":checked");
+            this.meta_data.overlapping_plots = {};
         }
 
         fill_holes() {
@@ -314,31 +297,36 @@ export function init() {
             this.plot_arr = [
                 ...this.plot_arr.slice(0, Object.entries(this.plot_object).length),
             ];
-            var count = 0;
-            var column;
 
             if (this.meta_data.retain_layout == false) {
+                this.meta_data.max_row = rows + this.meta_data.min_row - 1;
+                this.meta_data.max_col = cols + this.meta_data.min_col - 1;
+                this.meta_data.plot_layout = this.meta_data.plot_layout ? this.meta_data.plot_layout : "serpentine";
+
                 this.plot_arr = this.plot_arr.filter(plot => plot.type == "data");
                 this.plot_arr.sort(function(a,b) { return parseFloat(a.observationUnitPosition.observationLevel.levelCode) - parseFloat(b.observationUnitPosition.observationLevel.levelCode) });
-                if (!this.meta_data.plot_layout) {
-                    this.meta_data.plot_layout = "serpentine";
-                }
-                for (let j = 0; j < (rows); j++) {
-                    for (let i = 0; i < (cols); i++) {
-                        column = this.meta_data.plot_layout == "serpentine" && j % 2 == 1 ? this.meta_data.max_col - i : this.meta_data.min_col + i;
-                        if (!this.plot_arr[count]) {
+
+                var plot_count = 0;
+                var row_count = 0;
+                for (let j = this.meta_data.min_row; j < (this.meta_data.min_row+rows); j++) {
+                    row_count++;
+                    var swap_columns = this.meta_data.plot_layout == "serpentine" && j % 2 === 0;
+                    var col_count = 0;
+                    for (let i = this.meta_data.min_col; i < (this.meta_data.min_col+cols); i++) {
+                        col_count++;
+                        var row = j;
+                        var col = swap_columns ? this.meta_data.max_col - col_count + 1 : i;
+                        if (plot_count >= this.plot_arr.length && this.meta_data.filler_accession_id) {
                             this.meta_data.post = true;
-                            this.plot_arr[count] = this.get_plot_format('filler', column, this.meta_data.min_row + j);
-                        } else if (this.plot_arr[count].observationUnitPosition) {
-                            this.plot_arr[count].observationUnitPosition.positionCoordinateX = column;
-                            this.plot_arr[count].observationUnitPosition.positionCoordinateY = this.meta_data.min_row + j;
+                            this.plot_arr[plot_count] = this.get_plot_format('filler', col, row);
+                        } else if (plot_count < this.plot_arr.length && this.plot_arr[plot_count].observationUnitPosition) {
+                            this.plot_arr[plot_count].observationUnitPosition.positionCoordinateX = col;
+                            this.plot_arr[plot_count].observationUnitPosition.positionCoordinateY = row;
                         }
-                            count += 1;
+                        plot_count++;
                     }
                 }
             }
-            this.meta_data.max_row = rows + this.meta_data.min_row - 1;
-            this.meta_data.max_col = cols + this.meta_data.min_col - 1;
         }
 
         add_corners() {
@@ -547,10 +535,21 @@ export function init() {
                 .range(colors);
             }
 
+            var is_plot_overlapping = function(plot) {
+                if ( plot.observationUnitPosition ) {
+                    let k = `${plot.observationUnitPosition.positionCoordinateX}-${plot.observationUnitPosition.positionCoordinateY}`;
+                    return Object.keys(local_this.meta_data.overlapping_plots).includes(k);
+                }
+                return false;
+            }
+
             var get_fieldmap_plot_color = function(plot) {
                 var color;
                 if (plot.observationUnitPosition.observationLevelRelationships) {
-                    if (plot.observationUnitPosition.entryType == "check") {
+                    if ( is_plot_overlapping(plot) ) {
+                        color = "#000";
+                    }
+                    else if (plot.observationUnitPosition.entryType == "check") {
                         color = "#6a5acd";
                     } else if (plot.observationUnitPosition.observationLevelRelationships[1].levelCode % 2 == 0) {
                         color = "#c7e9b4";
@@ -567,7 +566,10 @@ export function init() {
             
             var get_heatmap_plot_color = function(plot) {
                 var color;
-                if (!plot.observationUnitPosition.observationLevel) {
+                if ( is_plot_overlapping(plot) ) {
+                    color = "#000";
+                }
+                else if (!plot.observationUnitPosition.observationLevel) {
                     color = "lightgrey";
                 } else {
                     color = heatmap_object[trait_name][plot.observationUnitDbId] ? colorScale(heatmap_object[trait_name][plot.observationUnitDbId].val) : "white";
@@ -589,15 +591,28 @@ export function init() {
             }
 
             var get_plot_message = function(plot) {
-                let html = jQuery("#include_linked_trials_checkmark").is(":checked") ?
-                    `<strong>Trial Name:</strong> ${plot.studyName}<br />` :
-                    "";
-                html += `<strong>Plot Name:</strong> ${plot.observationUnitName}<br />`;
-                if ( plot.type == "data" ) {
-                    html += `<strong>Plot Number:</strong> ${plot.observationUnitPosition.observationLevel.levelCode}<br />
-                        <strong>Block Number:</strong> ${plot.observationUnitPosition.observationLevelRelationships[1].levelCode}<br />
-                        <strong>Rep Number:</strong> ${plot.observationUnitPosition.observationLevelRelationships[0].levelCode}<br />
-                        <strong>Accession Name:</strong> ${plot.germplasmName}`
+                let html = '';
+                if ( is_plot_overlapping(plot) ) {
+                    let k = `${plot.observationUnitPosition.positionCoordinateX}-${plot.observationUnitPosition.positionCoordinateY}`;
+                    let plots = local_this.meta_data.overlapping_plots[k];
+                    html += `<strong>Overlapping Plots:</strong> ${plots.join(', ')}`;
+                }
+                else {
+                    html += jQuery("#include_linked_trials_checkmark").is(":checked") ?
+                        `<strong>Trial Name:</strong> ${plot.studyName}<br />` :
+                        "";
+                    html += `<strong>Plot Name:</strong> ${plot.observationUnitName}<br />`;
+                    if ( plot.type == "data" ) {
+                        html += `<strong>Plot Number:</strong> ${plot.observationUnitPosition.observationLevel.levelCode}<br />
+                            <strong>Block Number:</strong> ${plot.observationUnitPosition.observationLevelRelationships[1].levelCode}<br />
+                            <strong>Rep Number:</strong> ${plot.observationUnitPosition.observationLevelRelationships[0].levelCode}<br />
+                            <strong>Accession Name:</strong> ${plot.germplasmName}`;
+                        if ( local_this.heatmap_selected ) {
+                            let v = heatmap_object[trait_name][plot.observationUnitDbId].val;
+                            v = Math.round((parseFloat(v) + Number.EPSILON) * 100) / 100
+                            html += `<br /><strong>Trait Value:</strong> ${v}`;
+                        }
+                    }
                 }
                 return html;
             }
@@ -663,6 +678,26 @@ export function init() {
                 1 : 
                 0;
 
+            // Check the fieldmap for any overlapping plots (plots that share the same x/y coordinates)
+            this.meta_data.overlapping_plots = {};
+            let plot_positions = {};
+            this.plot_arr.forEach((plot) => {
+                if ( plot.observationUnitPosition ) {
+                    let x = plot.observationUnitPosition.positionCoordinateX;
+                    let y = plot.observationUnitPosition.positionCoordinateY;
+                    let p = plot.observationUnitPosition.observationLevel ? plot.observationUnitPosition.observationLevel.levelCode : '';
+                    let t = plot.studyName;
+                    if ( x && y ) {
+                        let k = `${x}-${y}`;
+                        if ( !plot_positions.hasOwnProperty(k) ) plot_positions[k] = [];
+                        plot_positions[k].push(jQuery("#include_linked_trials_checkmark").is(":checked") ? `${p} (${t})` : p);
+                        if ( plot_positions[k].length > 1 ) {
+                            this.meta_data.overlapping_plots[k] = plot_positions[k];
+                        }
+                    }
+                }
+            });
+
             var min_row = this.meta_data.min_row;
             var max_row = this.meta_data.max_row;
             var min_col = this.meta_data.min_col;
@@ -715,8 +750,8 @@ export function init() {
             plots.enter().append("text")
                 .attr("x", (d) => { return plot_x_coord(d) * 50 + 10 })
                 .attr("y", (d) => { return plot_y_coord(d) * 50 + 50 + y_offset})
-                .text((d) => { 
-                    if (!(d.observationUnitName.includes(local_this.trial_id + " filler")) && d.type == "data") { 
+                .text((d) => {
+                    if (!(d.observationUnitName.includes(local_this.trial_id + " filler")) && d.type == "data" && !is_plot_overlapping(d) ) { 
                         return d.observationUnitPosition.observationLevel.levelCode;
                     }
                 })

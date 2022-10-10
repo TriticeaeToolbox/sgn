@@ -102,6 +102,7 @@ sub _validate_with_plugin {
   my %trial_locations;
   my %trial_years;
   my %plots_missing_layout;
+  my %seen_plot_keys;
 
   for my $row ( 1 .. $row_max ) {
 
@@ -253,6 +254,20 @@ sub _validate_with_plugin {
       if ( $h eq 'is_private' ) {
         $is_private = $worksheet->get_cell($row,24)->value();
         $is_private = defined($is_private) && ($is_private eq "1" || $is_private eq "true" || $is_private eq "yes");
+      }
+    }
+
+    if ( $row_number && $col_number ) {
+      my $tk = $current_trial_name;
+      my $pk = "$row_number-$col_number";
+      if ( !exists $seen_plot_keys{$tk} ) {
+        $seen_plot_keys{$tk} = {};
+      }
+      if ( !exists $seen_plot_keys{$tk}{$pk} ) {
+        $seen_plot_keys{$tk}{$pk} = [$plot_number];
+      }
+      else {
+        push @{$seen_plot_keys{$tk}{$pk}}, $plot_number;
       }
     }
 
@@ -661,6 +676,18 @@ sub _validate_with_plugin {
   if (scalar(@warning_messages) >= 1) {
       $warnings{'warning_messages'} = \@warning_messages;
       $self->_set_parse_warnings(\%warnings);
+  }
+
+  ## PLOT POSITION OVERALL VALIDATION
+  foreach my $tk (keys %seen_plot_keys) {
+      foreach my $pk (keys %{$seen_plot_keys{$tk}} ) {
+          my $plots = $seen_plot_keys{$tk}{$pk};
+          my $count = scalar(@{$plots});
+          if ( $count > 1 ) {
+              my @pos = split('-', $pk);
+              push @error_messages, "More than 1 plot is assigned to the position row=" . $pos[0] . " col=" . $pos[1] . " trial=" . $tk . " plots=" . join(',', @$plots);
+          }
+      }
   }
 
   #store any errors found in the parsed file to parse_errors accessor

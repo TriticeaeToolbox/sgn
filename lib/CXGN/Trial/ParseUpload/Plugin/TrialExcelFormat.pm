@@ -29,6 +29,7 @@ sub _validate_with_plugin {
   my %seen_entry_names;
   my $treatment_col_start = 12;
   my $plots_missing_layout = 0;
+  my %seen_plot_keys;
 
 
   #try to open the excel file and report any errors
@@ -319,6 +320,15 @@ sub _validate_with_plugin {
     if ( !$row_number || !$col_number ) {
       $plots_missing_layout = $plots_missing_layout + 1;
     }
+    if ($row_number && $col_number) {
+      my $k = "$row_number-$col_number";
+      if ( !exists $seen_plot_keys{$k} ) {
+        $seen_plot_keys{$k} = [$plot_number];
+      }
+      else {
+        push @{$seen_plot_keys{$k}}, $plot_number;
+      }
+    }
 
     if ($seedlot_name){
         $seedlot_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
@@ -394,8 +404,19 @@ sub _validate_with_plugin {
         push @error_messages, "Cell A".$seen_plot_names{$r->uniquename}.": plot name already exists: ".$r->uniquename;
     }
 
+    # check for plots with missing row/col positions
     if ( $plots_missing_layout > 0 ) {
       push @warning_messages, "There are " . $plots_missing_layout . " plots with missing layout information.  Please add row and column positions to the plots.";
+    }
+
+    # check for multiple plots at the same position
+    foreach my $key (keys %seen_plot_keys) {
+        my $plots = $seen_plot_keys{$key};
+        my $count = scalar(@{$plots});
+        if ( $count > 1 ) {
+            my @pos = split('-', $key);
+            push @error_messages, "More than 1 plot is assigned to the position row=" . $pos[0] . " col=" . $pos[1] . " plots=" . join(',', @$plots);
+        }
     }
 
     if (scalar(@warning_messages) >= 1) {
