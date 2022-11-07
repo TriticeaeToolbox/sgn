@@ -673,11 +673,6 @@ sub _validate_with_plugin {
     push @warning_messages, "Trial " . $t . " has " . $c . " plots with missing layout information.  Please add row and column positions to the plots."
   }
 
-  if (scalar(@warning_messages) >= 1) {
-      $warnings{'warning_messages'} = \@warning_messages;
-      $self->_set_parse_warnings(\%warnings);
-  }
-
   ## PLOT POSITION OVERALL VALIDATION
   foreach my $tk (keys %seen_plot_keys) {
       foreach my $pk (keys %{$seen_plot_keys{$tk}} ) {
@@ -685,9 +680,14 @@ sub _validate_with_plugin {
           my $count = scalar(@{$plots});
           if ( $count > 1 ) {
               my @pos = split('-', $pk);
-              push @error_messages, "More than 1 plot is assigned to the position row=" . $pos[0] . " col=" . $pos[1] . " trial=" . $tk . " plots=" . join(',', @$plots);
+              push @warning_messages, "More than 1 plot is assigned to the position row=" . $pos[0] . " col=" . $pos[1] . " trial=" . $tk . " plots=" . join(',', @$plots);
           }
       }
+  }
+
+  if (scalar(@warning_messages) >= 1) {
+      $warnings{'warning_messages'} = \@warning_messages;
+      $self->_set_parse_warnings(\%warnings);
   }
 
   #store any errors found in the parsed file to parse_errors accessor
