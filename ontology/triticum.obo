@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 08:11:2022 14:38
+date: 08:11:2022 15:17
 saved-by: DJW
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [./wheat.obo]
@@ -81,8 +81,8 @@ id: CO_321:0000162
 name: Agronomic score
 namespace: wheat_trait
 def: "Rating of overall agronomic attributes and health of plants." []
-synonym: "Phenotypic acceptability" EXACT []
 synonym: "AgrScr" EXACT []
+synonym: "Phenotypic acceptability" EXACT []
 is_a: CO_321:Agronomical
 
 [Term]
@@ -99,9 +99,9 @@ id: CO_321:0001019
 name: Bacterial leaf streak severity
 namespace: wheat_trait
 def: "Bacterial leaf streak severity in the plants caused by the agent Xanthomonas translucens. The disease, called black chaff when on the glumes." []
+synonym: "BLS" EXACT []
 synonym: "BLSSev" EXACT []
 synonym: "black chaff" EXACT []
-synonym: "BLS" EXACT []
 is_a: CO_321:Biotic_stress
 
 [Term]
@@ -197,8 +197,8 @@ id: CO_321:0000146
 name: Flour SDS sedimentation
 namespace: wheat_trait
 def: "Testing of refined flour quality by sds-sedimentation, a test estimating gluten-protein overall quality." []
-synonym: "FlrSDS" EXACT []
 synonym: "FLRSDS" EXACT []
+synonym: "FlrSDS" EXACT []
 is_a: CO_321:Quality
 
 [Term]
@@ -294,8 +294,8 @@ id: CO_321:0000037
 name: Grain color
 namespace: wheat_trait
 def: "Grain color." []
-synonym: "GCol" EXACT []
 synonym: "Kernel color" EXACT []
+synonym: "GCol" EXACT []
 is_a: CO_321:Quality
 
 [Term]
@@ -345,8 +345,8 @@ id: CO_321:0000038
 name: Grain number per spike
 namespace: wheat_trait
 def: "Number of grains per spike." []
-synonym: "Kernel number per spike" EXACT []
 synonym: "grains per spike" EXACT []
+synonym: "Kernel number per spike" EXACT []
 synonym: "GrnSpk" EXACT []
 is_a: CO_321:Agronomical
 
@@ -380,9 +380,9 @@ id: CO_321:0000159
 name: Grain test weight
 namespace: wheat_trait
 def: "Test weight or specific weight is the weight of a fixed volume of clean grains." []
-synonym: "TestWt" EXACT []
 synonym: "Test weight" EXACT []
 synonym: "Grain specific weigh" EXACT []
+synonym: "TestWt" EXACT []
 synonym: "Grain hectoliter weight" EXACT []
 is_a: CO_321:Quality
 
@@ -545,11 +545,11 @@ id: CO_321:0000187
 name: Plant stand
 namespace: wheat_trait
 def: "Plant population or plant density." []
-synonym: "Crop stand" EXACT []
-synonym: "Plant population" EXACT []
-synonym: "PlntStnd" EXACT []
-synonym: "Plant density" EXACT []
 synonym: "Plant establishment" EXACT []
+synonym: "PlntStnd" EXACT []
+synonym: "Crop stand" EXACT []
+synonym: "Plant density" EXACT []
+synonym: "Plant population" EXACT []
 is_a: CO_321:Agronomical
 
 [Term]
@@ -622,8 +622,8 @@ id: CO_321:0000081
 name: Sprouting tolerance
 namespace: wheat_trait
 def: "Tolerance of grain to sprout when in the spike." []
-synonym: "SproutTol" EXACT []
 synonym: "Pre-harvest sprouting tolerance" EXACT []
+synonym: "SproutTol" EXACT []
 is_a: CO_321:Abiotic_stress
 
 [Term]
@@ -631,9 +631,9 @@ id: CO_321:0000062
 name: Stem diameter
 namespace: wheat_trait
 def: "Stem outer diameter." []
-synonym: "Culm diameter" EXACT []
-synonym: "StmDia" EXACT []
 synonym: "Straw diameter" EXACT []
+synonym: "StmDia" EXACT []
+synonym: "Culm diameter" EXACT []
 is_a: CO_321:Morphological
 
 [Term]
@@ -641,9 +641,9 @@ id: CO_321:0000688
 name: Stem rust coefficient of infection
 namespace: wheat_trait
 def: "Stem rust (black rust) incidence/severity/response in the plants caused by the agent Puccinia graminis f.sp. tritici." []
-synonym: "Stem rust CI" EXACT []
 synonym: "Stem rust" EXACT []
 synonym: "PgramCI" EXACT []
+synonym: "Stem rust CI" EXACT []
 is_a: CO_321:Biotic_stress
 
 [Term]
@@ -687,8 +687,8 @@ id: CO_321:0000908
 name: Stripe rust severity
 namespace: wheat_trait
 def: "Stripe rust (yellow rust) severity in the plants caused by the agent Puccinia striiformis f.sp. tritici." []
-synonym: "PstriSev" EXACT []
 synonym: "Stripe rust" EXACT []
+synonym: "PstriSev" EXACT []
 is_a: CO_321:Biotic_stress
 
 [Term]
@@ -696,8 +696,8 @@ id: CO_321:0000164
 name: Winter kill damage
 namespace: wheat_trait
 def: "Plants killed as a result of winter conditions." []
-synonym: "WKill" EXACT []
 synonym: "Winter susceptibility" EXACT []
+synonym: "WKill" EXACT []
 is_a: CO_321:Abiotic_stress
 
 [Term]
@@ -1478,8 +1478,8 @@ id: CO_321:0000289
 name: Kjeldahl AACC 56-81B
 namespace: wheat_trait_method
 def: "Kjeldahl AACC 56-81B." []
-relationship: method_of CO_321:0000073
 relationship: method_of CO_321:0000067
+relationship: method_of CO_321:0000073
 
 [Term]
 id: CO_321:0000290
@@ -1563,8 +1563,8 @@ id: CO_321:0000364
 name: Canopy spectral reflectance Measurement
 namespace: wheat_trait_method
 def: "Standard method for spectral reflectance." []
-relationship: method_of CO_321:0000301
 relationship: method_of CO_321:0000200
+relationship: method_of CO_321:0000301
 
 [Term]
 id: CO_321:0000373
@@ -1641,8 +1641,8 @@ id: CO_321:0000693
 name: Rust severity Estimation
 namespace: wheat_trait_method
 def: "Severity of rust is recorded as a percentage, according to the modified Cobb scale. As this relies upon observation it cannot be absolutely accurate. Thus it is common to use the following intervals: 0, 5, 10, 20, 40, 60, and 100 percent infection." []
-relationship: method_of CO_321:0000902
 relationship: method_of CO_321:0000908
+relationship: method_of CO_321:0000902
 relationship: method_of CO_321:0000905
 
 [Term]
@@ -2616,12 +2616,12 @@ id: CO_321:0500248
 name: UASHub Trait Computation
 namespace: wheat_trait_method
 def: "Computation of the derived trait from drone imagery by Texas A&M UASHub" []
-relationship: method_of CO_321:0500067
-relationship: method_of CO_321:0000301
-relationship: method_of CO_321:0500068
-relationship: method_of CO_321:0500070
-relationship: method_of CO_321:0500066
 relationship: method_of CO_321:0500069
+relationship: method_of CO_321:0000301
+relationship: method_of CO_321:0500070
+relationship: method_of CO_321:0500067
+relationship: method_of CO_321:0500068
+relationship: method_of CO_321:0500066
 
 [Term]
 id: CO_321:0500249
@@ -2669,9 +2669,9 @@ relationship: method_of CO_321:0000193
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500156
-relationship: scale_of CO_321:0500183
 relationship: scale_of CO_321:0001028
+relationship: scale_of CO_321:0500183
+relationship: scale_of CO_321:0500156
 
 [Term]
 id: CO_321:0000412
@@ -2796,60 +2796,60 @@ is_a: CO_321:0000468
 id: CO_321:0000410
 name: %
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500102
-relationship: scale_of CO_321:0000693
-relationship: scale_of CO_321:0500252
-relationship: scale_of CO_321:0500104
-relationship: scale_of CO_321:0500154
-relationship: scale_of CO_321:0000316
-relationship: scale_of CO_321:0000278
-relationship: scale_of CO_321:0500155
-relationship: scale_of CO_321:0000990
-relationship: scale_of CO_321:0000699
-relationship: scale_of CO_321:0000702
-relationship: scale_of CO_321:0500192
-relationship: scale_of CO_321:0500209
-relationship: scale_of CO_321:0500246
-relationship: scale_of CO_321:0500134
-relationship: scale_of CO_321:0500125
-relationship: scale_of CO_321:0500248
 relationship: scale_of CO_321:0500124
-relationship: scale_of CO_321:0000359
-relationship: scale_of CO_321:0000290
-relationship: scale_of CO_321:0500236
-relationship: scale_of CO_321:0500160
-relationship: scale_of CO_321:0000696
-relationship: scale_of CO_321:0500237
-relationship: scale_of CO_321:0000319
-relationship: scale_of CO_321:0000235
-relationship: scale_of CO_321:0001026
-relationship: scale_of CO_321:0500226
-relationship: scale_of CO_321:0000355
-relationship: scale_of CO_321:0000352
-relationship: scale_of CO_321:0500199
-relationship: scale_of CO_321:0000289
-relationship: scale_of CO_321:0000363
-relationship: scale_of CO_321:0500238
 relationship: scale_of CO_321:0500158
-relationship: scale_of CO_321:0500177
-relationship: scale_of CO_321:0000968
-relationship: scale_of CO_321:0500159
-relationship: scale_of CO_321:0500133
-relationship: scale_of CO_321:0500243
-relationship: scale_of CO_321:0500197
-relationship: scale_of CO_321:0500190
-relationship: scale_of CO_321:0500157
+relationship: scale_of CO_321:0000359
+relationship: scale_of CO_321:0500154
 relationship: scale_of CO_321:0000879
+relationship: scale_of CO_321:0000352
+relationship: scale_of CO_321:0000363
+relationship: scale_of CO_321:0000702
+relationship: scale_of CO_321:0000355
+relationship: scale_of CO_321:0500209
+relationship: scale_of CO_321:0500248
+relationship: scale_of CO_321:0001026
+relationship: scale_of CO_321:0500160
+relationship: scale_of CO_321:0500102
+relationship: scale_of CO_321:0000290
+relationship: scale_of CO_321:0500246
+relationship: scale_of CO_321:0500237
+relationship: scale_of CO_321:0500134
+relationship: scale_of CO_321:0500155
+relationship: scale_of CO_321:0000968
+relationship: scale_of CO_321:0000289
+relationship: scale_of CO_321:0500192
+relationship: scale_of CO_321:0000316
+relationship: scale_of CO_321:0500252
+relationship: scale_of CO_321:0000699
+relationship: scale_of CO_321:0500125
+relationship: scale_of CO_321:0500197
+relationship: scale_of CO_321:0500226
+relationship: scale_of CO_321:0000235
+relationship: scale_of CO_321:0500190
+relationship: scale_of CO_321:0500133
+relationship: scale_of CO_321:0000990
+relationship: scale_of CO_321:0500238
+relationship: scale_of CO_321:0500159
+relationship: scale_of CO_321:0500243
+relationship: scale_of CO_321:0500199
+relationship: scale_of CO_321:0000278
+relationship: scale_of CO_321:0500157
+relationship: scale_of CO_321:0000319
+relationship: scale_of CO_321:0000696
 relationship: scale_of CO_321:0500193
+relationship: scale_of CO_321:0500236
+relationship: scale_of CO_321:0000693
+relationship: scale_of CO_321:0500177
+relationship: scale_of CO_321:0500104
 
 [Term]
 id: CO_321:0000434
 name: day
 namespace: wheat_trait_scale
+relationship: scale_of CO_321:0000838
 relationship: scale_of CO_321:0500148
 relationship: scale_of CO_321:0000231
 relationship: scale_of CO_321:0500152
-relationship: scale_of CO_321:0000838
 
 [Term]
 id: CO_321:0000457
@@ -2897,12 +2897,12 @@ is_a: CO_321:0000457
 id: CO_321:0000411
 name: cm
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500120
 relationship: scale_of CO_321:0000277
+relationship: scale_of CO_321:0001580
 relationship: scale_of CO_321:0000272
+relationship: scale_of CO_321:0500120
 relationship: scale_of CO_321:0001581
 relationship: scale_of CO_321:0000241
-relationship: scale_of CO_321:0001580
 
 [Term]
 id: CO_321:0000727
@@ -2915,21 +2915,21 @@ id: CO_321:0000446
 name: 0-9 percentage scale
 namespace: wheat_trait_scale
 def: "0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage" []
-relationship: scale_of CO_321:0500184
-relationship: scale_of CO_321:0500230
-relationship: scale_of CO_321:0500186
-relationship: scale_of CO_321:0000316
-relationship: scale_of CO_321:0500188
 relationship: scale_of CO_321:0000355
 relationship: scale_of CO_321:0500185
-relationship: scale_of CO_321:0000382
+relationship: scale_of CO_321:0500230
+relationship: scale_of CO_321:0500188
 relationship: scale_of CO_321:0500187
-relationship: scale_of CO_321:0000991
-relationship: scale_of CO_321:0000278
 relationship: scale_of CO_321:0500229
+relationship: scale_of CO_321:0000382
+relationship: scale_of CO_321:0500186
+relationship: scale_of CO_321:0000316
 relationship: scale_of CO_321:0000693
-relationship: scale_of CO_321:0000695
 relationship: scale_of CO_321:0500103
+relationship: scale_of CO_321:0500184
+relationship: scale_of CO_321:0000695
+relationship: scale_of CO_321:0000278
+relationship: scale_of CO_321:0000991
 
 [Term]
 id: CO_321:0000446/0
@@ -3081,13 +3081,13 @@ relationship: scale_of CO_321:0000386
 id: CO_321:0000421
 name: index
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500248
-relationship: scale_of CO_321:0000373
-relationship: scale_of CO_321:0500250
-relationship: scale_of CO_321:0000364
 relationship: scale_of CO_321:0001030
 relationship: scale_of CO_321:0500251
+relationship: scale_of CO_321:0500250
+relationship: scale_of CO_321:0000373
 relationship: scale_of CO_321:0500249
+relationship: scale_of CO_321:0000364
+relationship: scale_of CO_321:0500248
 
 [Term]
 id: CO_321:0000428
@@ -3106,26 +3106,26 @@ relationship: scale_of CO_321:0000389
 id: CO_321:0000425
 name: ppm
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500168
-relationship: scale_of CO_321:0500165
-relationship: scale_of CO_321:0500171
-relationship: scale_of CO_321:0500162
-relationship: scale_of CO_321:0500172
-relationship: scale_of CO_321:0500179
-relationship: scale_of CO_321:0000404
-relationship: scale_of CO_321:0000402
-relationship: scale_of CO_321:0500173
-relationship: scale_of CO_321:0000698
 relationship: scale_of CO_321:0500167
-relationship: scale_of CO_321:0500201
 relationship: scale_of CO_321:0500164
-relationship: scale_of CO_321:0500136
-relationship: scale_of CO_321:0500175
-relationship: scale_of CO_321:0500163
-relationship: scale_of CO_321:0500176
-relationship: scale_of CO_321:0500135
 relationship: scale_of CO_321:0000403
 relationship: scale_of CO_321:0500161
+relationship: scale_of CO_321:0500176
+relationship: scale_of CO_321:0500179
+relationship: scale_of CO_321:0500175
+relationship: scale_of CO_321:0500162
+relationship: scale_of CO_321:0000698
+relationship: scale_of CO_321:0500163
+relationship: scale_of CO_321:0000404
+relationship: scale_of CO_321:0500172
+relationship: scale_of CO_321:0500168
+relationship: scale_of CO_321:0500135
+relationship: scale_of CO_321:0500201
+relationship: scale_of CO_321:0000402
+relationship: scale_of CO_321:0500136
+relationship: scale_of CO_321:0500165
+relationship: scale_of CO_321:0500173
+relationship: scale_of CO_321:0500171
 
 [Term]
 id: CO_321:0000451
@@ -3756,11 +3756,11 @@ is_a: CO_321:0000476
 id: CO_321:0000855
 name: Julian date (JD)
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0000842
-relationship: scale_of CO_321:0500194
-relationship: scale_of CO_321:0000840
-relationship: scale_of CO_321:0500195
 relationship: scale_of CO_321:0000832
+relationship: scale_of CO_321:0500195
+relationship: scale_of CO_321:0000840
+relationship: scale_of CO_321:0500194
+relationship: scale_of CO_321:0000842
 
 [Term]
 id: CO_321:0000460
@@ -3821,20 +3821,20 @@ id: CO_321:0000440
 name: spikelet/spike
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0001530
-relationship: scale_of CO_321:0500123
 relationship: scale_of CO_321:0000279
+relationship: scale_of CO_321:0500123
 
 [Term]
 id: CO_321:0000466
 name: 0-9 Mc Neal scale
 namespace: wheat_trait_scale
 def: "I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible" []
-relationship: scale_of CO_321:0500204
+relationship: scale_of CO_321:0500206
+relationship: scale_of CO_321:0000375
 relationship: scale_of CO_321:0500207
 relationship: scale_of CO_321:0500239
-relationship: scale_of CO_321:0000375
-relationship: scale_of CO_321:0500206
 relationship: scale_of CO_321:0000706
+relationship: scale_of CO_321:0500204
 
 [Term]
 id: CO_321:0000466/0
@@ -3910,12 +3910,12 @@ is_a: CO_321:0000466
 id: CO_321:0001593
 name: g
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500182
 relationship: scale_of CO_321:0000229
+relationship: scale_of CO_321:0500182
+relationship: scale_of CO_321:0500200
+relationship: scale_of CO_321:0001582
 relationship: scale_of CO_321:0500232
 relationship: scale_of CO_321:0500180
-relationship: scale_of CO_321:0001582
-relationship: scale_of CO_321:0500200
 relationship: scale_of CO_321:0500181
 
 [Term]
@@ -3924,8 +3924,8 @@ name: 1-6 Grade Rating
 namespace: wheat_trait_scale
 def: "1= A, 2= B, 3= C, 4= D, 5= E, 6= F" []
 relationship: scale_of CO_321:0500196
-relationship: scale_of CO_321:0500198
 relationship: scale_of CO_321:0500101
+relationship: scale_of CO_321:0500198
 
 [Term]
 id: CO_321:0500517/0
@@ -4058,9 +4058,9 @@ id: CO_321:0500520
 name: 1-9 response scale
 namespace: wheat_trait_scale
 def: "1= Resistant, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Susceptible" []
-relationship: scale_of CO_321:0000703
-relationship: scale_of CO_321:0500108
 relationship: scale_of CO_321:0000309
+relationship: scale_of CO_321:0500108
+relationship: scale_of CO_321:0000703
 
 [Term]
 id: CO_321:0500520/0
@@ -4130,21 +4130,21 @@ id: CO_321:0500523
 name: celcius
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0500116
-relationship: scale_of CO_321:0500254
-relationship: scale_of CO_321:0500253
-relationship: scale_of CO_321:0500117
 relationship: scale_of CO_321:0500118
+relationship: scale_of CO_321:0500253
+relationship: scale_of CO_321:0500254
 relationship: scale_of CO_321:0500119
+relationship: scale_of CO_321:0500117
 
 [Term]
 id: CO_321:0500501
 name: -1 to 1 standard deviations
 namespace: wheat_trait_scale
-relationship: scale_of CO_321:0500235
-relationship: scale_of CO_321:0500191
-relationship: scale_of CO_321:0500121
 relationship: scale_of CO_321:0500153
+relationship: scale_of CO_321:0500235
 relationship: scale_of CO_321:0500225
+relationship: scale_of CO_321:0500121
+relationship: scale_of CO_321:0500191
 
 [Term]
 id: CO_321:0500519
@@ -4721,13 +4721,13 @@ id: CO_321:0500514
 name: 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait_scale
 def: "0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4" []
-relationship: scale_of CO_321:0500215
 relationship: scale_of CO_321:0500213
+relationship: scale_of CO_321:0500217
 relationship: scale_of CO_321:0500216
+relationship: scale_of CO_321:0500215
+relationship: scale_of CO_321:0500212
 relationship: scale_of CO_321:0500214
 relationship: scale_of CO_321:0500244
-relationship: scale_of CO_321:0500212
-relationship: scale_of CO_321:0500217
 
 [Term]
 id: CO_321:0500514/0
@@ -4958,8 +4958,8 @@ id: CO_321:0500518
 name: 1-9 Glaucousness Rating
 namespace: wheat_trait_scale
 def: "1= No glaucousness, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Very dense" []
-relationship: scale_of CO_321:0500233
 relationship: scale_of CO_321:0500166
+relationship: scale_of CO_321:0500233
 
 [Term]
 id: CO_321:0500518/0
@@ -5376,9 +5376,9 @@ name: Aboveground biomass at maturity - g/plot
 namespace: wheat_trait
 def: "TRAIT: All above-ground biomass at maturity. METHOD: Cut all aboveground biomass in a predetermined area (A). Avoid border effects by sampling away from edges of plot. Biomass as other yield components can be calculated or measured individually (Bell and Fischer, 1994, Reynolds et al., 2001, Pask et al., 2012), decide which method suit better for your objectives. SCALE: g/plot" []
 synonym: "BM_g_plot" EXACT []
-relationship: variable_of CO_321:0000229
-relationship: variable_of CO_321:0000005
 relationship: variable_of CO_321:0000412
+relationship: variable_of CO_321:0000005
+relationship: variable_of CO_321:0000229
 
 [Term]
 id: CO_321:0001043
@@ -5396,9 +5396,9 @@ name: Barley yellow dwarf incidence - %
 namespace: wheat_trait
 def: "TRAIT: Wheat yellow dwarf incidence in the plants caused by the agent wheat yellow dwarf virus. METHOD: Standard method for barley yellow dwarf incidence. SCALE: %" []
 synonym: "BYD_pct" EXACT []
+relationship: variable_of CO_321:0000316
 relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000096
-relationship: variable_of CO_321:0000316
 
 [Term]
 id: CO_321:0001069
@@ -5416,9 +5416,9 @@ name: Canopy NDVI - index
 namespace: wheat_trait
 def: "TRAIT: Normalized difference vegetation index is used to measure vegetative greenness and canopy photosynthetic size. METHOD: Standard method for spectral reflectance. SCALE: index" []
 synonym: "NDVI_index" EXACT []
-relationship: variable_of CO_321:0000364
-relationship: variable_of CO_321:0000301
 relationship: variable_of CO_321:0000421
+relationship: variable_of CO_321:0000301
+relationship: variable_of CO_321:0000364
 
 [Term]
 id: CO_321:0001085
@@ -5426,9 +5426,9 @@ name: Canopy normalized water index 3 - index
 namespace: wheat_trait
 def: "TRAIT: Normalized water index 3 is used track changes in rwc, leaf water potential, stomatal conductance, and foliage minus air temperature differences when plant water stress is well developed (rwc<0.85). METHOD: Standard method for spectral reflectance. SCALE: index" []
 synonym: "NWI3_index" EXACT []
-relationship: variable_of CO_321:0000364
 relationship: variable_of CO_321:0000200
 relationship: variable_of CO_321:0000421
+relationship: variable_of CO_321:0000364
 
 [Term]
 id: CO_321:0001100
@@ -5436,9 +5436,9 @@ name: Common bunt spike incidence - %
 namespace: wheat_trait
 def: "TRAIT: Common bunt (stinking bunt, covered smut, hill bunt, complete bunt, low bunt, high bunt) incidence in the plants caused by the agent Tilletia species. METHOD: Common bunt incidence is usually expressed as the percentage of bunted spikes within a row. SCALE: %" []
 synonym: "TILSP_pct" EXACT []
-relationship: variable_of CO_321:0000363
 relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000281
+relationship: variable_of CO_321:0000363
 
 [Term]
 id: CO_321:0001101
@@ -5446,8 +5446,8 @@ name: Common root rot incidence - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: Common root rot incidence in the plants caused by the agents Cochliobolus sativus, fusarium spp., and Pythium species. METHOD: Standard method for common root rot incidence. SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "ROOTROT_0_9" EXACT []
-relationship: variable_of CO_321:0000649
 relationship: variable_of CO_321:0000446
+relationship: variable_of CO_321:0000649
 relationship: variable_of CO_321:0000695
 
 [Term]
@@ -5457,8 +5457,8 @@ namespace: wheat_trait
 def: "TRAIT: Time required for the dough development from beginning of mixing flour and water to the dough reaches maximum consistency (peak). METHOD: 1. A sample of 35 grams of flour on a 14 percent moisture basis is weighed and placed in a mixograph bowl, 2. Water is added to the flour from a buret and the bowl is inserted into the mixograph, 3. The flour and water are mixed together to form a dough, 4. As the dough is mixed, the mixograph records a curve on graph paper. SCALE: min" []
 synonym: "MIXTIM_min" EXACT []
 relationship: variable_of CO_321:0000389
-relationship: variable_of CO_321:0000426
 relationship: variable_of CO_321:0000149
+relationship: variable_of CO_321:0000426
 
 [Term]
 id: CO_321:0001121
@@ -5467,8 +5467,8 @@ namespace: wheat_trait
 def: "TRAIT: Dwarf bunt incidence in the plants caused by the agent Tilletia controversa. METHOD: Standard method for dwarf bunt incidence. SCALE: %" []
 synonym: "TCONT_pct" EXACT []
 relationship: variable_of CO_321:0000319
-relationship: variable_of CO_321:0000101
 relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0000101
 
 [Term]
 id: CO_321:0001136
@@ -5486,17 +5486,17 @@ name: Flour SDS sedimentation - ml
 namespace: wheat_trait
 def: "TRAIT: Testing of refined flour quality by sds-sedimentation, a test estimating gluten-protein overall quality. METHOD: A small sample of flour or ground wheat (1.0 grams) is weighed and placed in 25-milliliter glass-stoppered graduated cylinder. This is mixed with different solutions for some minutes and then rested. Finally, the volume of the sediment is recorded after 21 minutes. SCALE: ml" []
 synonym: "FLRSDS_ml" EXACT []
-relationship: variable_of CO_321:0000386
-relationship: variable_of CO_321:0000146
 relationship: variable_of CO_321:0000427
+relationship: variable_of CO_321:0000146
+relationship: variable_of CO_321:0000386
 
 [Term]
 id: CO_321:0001141
 name: Flour yield score - %
 namespace: wheat_trait
 def: "TRAIT: Proportion of flour recovered during milling. METHOD: Standard method for flour yield. SCALE: %" []
-synonym: "FLRYLD" EXACT []
 synonym: "FLRYD" EXACT []
+synonym: "FLRYLD" EXACT []
 relationship: variable_of CO_321:0000290
 relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000068
@@ -5506,11 +5506,11 @@ id: CO_321:0001142
 name: Foliar disease development - 1-5 DMG scale
 namespace: wheat_trait
 def: "TRAIT: The plant damage caused by foliar diseases. METHOD: Standard method for foliar disease development. SCALE: 1-5 DMG scale (1= none (N), 2= trace (T), 3= slight (S), 4= moderate (M), 5= very severe (V))" []
-synonym: "FoliarDis_N_T_S_M_V" EXACT []
 synonym: "FOLDIS_1_5" EXACT []
-relationship: variable_of CO_321:0000655
-relationship: variable_of CO_321:0000457
+synonym: "FoliarDis_N_T_S_M_V" EXACT []
 relationship: variable_of CO_321:0000701
+relationship: variable_of CO_321:0000457
+relationship: variable_of CO_321:0000655
 
 [Term]
 id: CO_321:0001148
@@ -5528,9 +5528,9 @@ name: FHB incidence - %
 namespace: wheat_trait
 def: "TRAIT: Fusarium graminearum incidence in the plants. METHOD: Standard method for Fusarium graminearum incidence. SCALE: %" []
 synonym: "FGRAM_pct__INC" EXACT []
-relationship: variable_of CO_321:0000702
 relationship: variable_of CO_321:0000924
 relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0000702
 
 [Term]
 id: CO_321:0001153
@@ -5538,8 +5538,8 @@ name: FHB AUDPC - %
 namespace: wheat_trait
 def: "TRAIT: Fusarium head blight (scab) incidence/severity/response in the plants caused by the agent fusarium spp. METHOD: Calculate area under disease progress curve. SCALE: %" []
 synonym: "FHB_pct__AUDPC" EXACT []
-relationship: variable_of CO_321:0000651
 relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0000651
 relationship: variable_of CO_321:0000696
 
 [Term]
@@ -5548,8 +5548,8 @@ name: FHB DON content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of deoxynivalenol or don (vomitoxin) that is often associated with fhb (fusarium spp.) infected grains. METHOD: Standard method for content of deoxynivalenol or DON (vomitoxin) that is often associated with FHB (Fusarium spp.) infected grains. SCALE: ppm" []
 synonym: "FHB_ppm__DON" EXACT []
-relationship: variable_of CO_321:0000425
 relationship: variable_of CO_321:0000652
+relationship: variable_of CO_321:0000425
 relationship: variable_of CO_321:0000698
 
 [Term]
@@ -5608,9 +5608,9 @@ name: Grain Iron content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of iron in grain. METHOD: Standard method for grain iron content. SCALE: ppm" []
 synonym: "GRNIRON_ppm" EXACT []
-relationship: variable_of CO_321:0000402
 relationship: variable_of CO_321:0000222
 relationship: variable_of CO_321:0000425
+relationship: variable_of CO_321:0000402
 
 [Term]
 id: CO_321:0001198
@@ -5618,21 +5618,21 @@ name: Grain moisture content - %
 namespace: wheat_trait
 def: "TRAIT: Moisture content of grain. METHOD: Moisture content is determined by drying a grain wheat sample in an air oven and comparing the weight of the sample before and after heating. The amount of weight loss is the moisture content. Moisture content results are expressed as a percentage. SCALE: %" []
 synonym: "GRNH20_pct" EXACT []
-relationship: variable_of CO_321:0000235
-relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000012
+relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0000235
 
 [Term]
 id: CO_321:0001199
 name: Grain number - grain/m2
 namespace: wheat_trait
 def: "TRAIT: Number of grains expressed as per unit area or sample. METHOD: Grain number (GNO) as other yield components can be calculated or measured individually (Bell and Fischer, 1994, Reynolds et al., 2001, Pask et al., 2012), decide which method suit better for your objectives. GNO determines the sink size of the crop and under many conditions it is strongly correlated with yield. Grains/m2 (GNO) = yield (g/m2) / TGW (g) × 1000. SCALE: grain/m2" []
-synonym: "GNO" EXACT []
-synonym: "grains/m2" EXACT []
-synonym: "kernel/m2" EXACT []
 synonym: "KNO" EXACT []
 synonym: "GM2" EXACT []
+synonym: "kernel/m2" EXACT []
 synonym: "GNO_grains_m2" EXACT []
+synonym: "grains/m2" EXACT []
+synonym: "GNO" EXACT []
 relationship: variable_of CO_321:0000392
 relationship: variable_of CO_321:0000391
 relationship: variable_of CO_321:0000017
@@ -5643,11 +5643,11 @@ name: Grain number per spike - grain/spike
 namespace: wheat_trait
 def: "TRAIT: Number of grains per spike. METHOD: The number of grains per spike can be measured independently by threshing a known number of randomly selected spikes per plot (10-20 spikes per plot) or can be calculated as: Grains per spike (GSP) = grains m2 / spikes m2. SCALE: grain/spike" []
 synonym: "GRNSPK_num" EXACT []
-synonym: "grains/spike" EXACT []
 synonym: "GRNSPK" EXACT []
+synonym: "grains/spike" EXACT []
+relationship: variable_of CO_321:0000435
 relationship: variable_of CO_321:0000038
 relationship: variable_of CO_321:0000258
-relationship: variable_of CO_321:0000435
 
 [Term]
 id: CO_321:0001201
@@ -5655,11 +5655,11 @@ name: Grain number per spikelet - grain/spikelet
 namespace: wheat_trait
 def: "TRAIT: Number of grains per spikelet. METHOD: Sample as for spikelets per spike randomly select 5-10 spikes per plot, by selecting at the base of the culm. Count the spikelets, thresh, count grains, and calculate, or less accurately simply calculate from calculated grains per spike and measured spikelet number. SCALE: grain/spikelet" []
 synonym: "GRNSPL_num" EXACT []
-synonym: "GRNSPL" EXACT []
 synonym: "grains/spikelet" EXACT []
+synonym: "GRNSPL" EXACT []
+relationship: variable_of CO_321:0000436
 relationship: variable_of CO_321:0000261
 relationship: variable_of CO_321:0000041
-relationship: variable_of CO_321:0000436
 
 [Term]
 id: CO_321:0001203
@@ -5668,8 +5668,8 @@ namespace: wheat_trait
 def: "TRAIT: Content of phosphorus in grain. METHOD: Standard method for grain phosphorus content. SCALE: ppm" []
 synonym: "GRNPHOS_ppm" EXACT []
 relationship: variable_of CO_321:0000425
-relationship: variable_of CO_321:0000403
 relationship: variable_of CO_321:0000223
+relationship: variable_of CO_321:0000403
 
 [Term]
 id: CO_321:0001205
@@ -5677,9 +5677,9 @@ name: Grain protein content -  %
 namespace: wheat_trait
 def: "TRAIT: Content of protein (corrected to 12.5% moisture basis) in the whole wheat grain samples. METHOD: Kjeldahl AACC 56-81B. SCALE: %" []
 synonym: "GRNPROT_Kjl_pct" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000073
 relationship: variable_of CO_321:0000289
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0001210
@@ -5687,19 +5687,19 @@ name: Grain test weight - g/l
 namespace: wheat_trait
 def: "TRAIT: Test weight or specific weight is the weight of a fixed volume of clean grains. METHOD: Standard method for test weight. SCALE: g/l" []
 synonym: "TESTWT_g_l" EXACT []
+relationship: variable_of CO_321:0000867
 relationship: variable_of CO_321:0000159
 relationship: variable_of CO_321:0000397
-relationship: variable_of CO_321:0000867
 
 [Term]
 id: CO_321:0001213
 name: Grain weight - 1000 kernels - g/1000 grain
 namespace: wheat_trait
 def: "TRAIT: Grain weight usually expressed as weight of single, one hundred, two hundred or thousand grains. METHOD: Dry grains at 70oC and weigh. SCALE: g/1000 grain" []
-synonym: "THOUWT" EXACT []
 synonym: "TGW_g" EXACT []
-synonym: "TGW" EXACT []
 synonym: "TKW" EXACT []
+synonym: "TGW" EXACT []
+synonym: "THOUWT" EXACT []
 relationship: variable_of CO_321:0000246
 relationship: variable_of CO_321:0000025
 relationship: variable_of CO_321:0001033
@@ -5712,9 +5712,9 @@ def: "TRAIT: Amount (weight) of grains that was harvested. METHOD: Use formulae 
 synonym: "GRNYLD_kg_ha" EXACT []
 synonym: "Yld_kgha" EXACT []
 synonym: "GY_kgha" EXACT []
+relationship: variable_of CO_321:0000804
 relationship: variable_of CO_321:0001028
 relationship: variable_of CO_321:0000013
-relationship: variable_of CO_321:0000804
 
 [Term]
 id: CO_321:0001221
@@ -5732,20 +5732,20 @@ name: Grain Zinc content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of zinc in grain. METHOD: Standard method for grain zinc content. SCALE: ppm" []
 synonym: "GRNZINC_ppm" EXACT []
-relationship: variable_of CO_321:0000404
-relationship: variable_of CO_321:0000224
 relationship: variable_of CO_321:0000425
+relationship: variable_of CO_321:0000224
+relationship: variable_of CO_321:0000404
 
 [Term]
 id: CO_321:0001228
 name: Growth stage - Zadoks or decimal code (00-99)
 namespace: wheat_trait
 def: "TRAIT: Growth/developmental stages based on Zadoks decimal code. METHOD: Observe the growth stage or development stage (DS) of wheat plants using the Zadoks scale decimal code, based on 10 major stages, with each stage divided into sub-stages. SCALE: Zadoks or decimal code (00-99) (00= Germination, Dry seed, 01= Germination, Water uptake (imbibition) started, 03= Germination, Imbibition complete, 05= Germination, Radicle emerged from seed, 07= Germination, Coleoptile emerged from seed, 09= Germination, Leaf just at coleoptile tip, 10= Seedling development , First leaf emerged, 11= Seedling development , First leaf unfolded, 12= Seedling development , 2 leaves unfolded, 13= Seedling development , 3 leaves unfolded, 14= Seedling development , 4 leaves unfolded, 15= Seedling development , 5 leaves unfolded, 16= Seedling development , 6 leaves unfolded, 17= Seedling development , 7 leaves unfolded, 18= Seedling development , 8 leaves unfolded, 19= Seedling development , 9 or more leaves unfolded, 20= Tillering, Main shoot only, 21= Tillering, Main shoot and 1 Tiller, 22= Tillering, Main shoot and 2 Tillers, 23= Tillering, Main shoot and 3 Tillers, 24= Tillering, Main shoot and 4 Tillers, 25= Tillering, Main shoot and 5 Tillers, 26= Tillering, Main shoot and 6 Tillers, 27= Tillering, Main shoot and 7 Tillers, 28= Tillering, Main shoot and 8 Tillers, 29= Tillering, Main shoot and 9 or more Tillers 89 Late hard dough (difficult to dent), 30= Stem elongation or jointing, Pseudo stem erection, 31= Stem elongation or jointing, 1st node detectable, 32= Stem elongation or jointing, 2nd node detectable, 33= Stem elongation or jointing, 3rd node detectable, 34= Stem elongation or jointing, 4th node detectable, 35= Stem elongation or jointing, 5th node detectable, 36= Stem elongation or jointing, 6th node detectable, 37= Stem elongation or jointing, Flag leaf just visible, 39= Stem elongation or jointing, Flag leaf ligule/collar just visible, 41= Booting, Flag leaf sheath extending, 43= Booting, Boot just visibly swollen, 45= Booting, Boot swollen, 47= Booting, Flag leaf sheath opening, 49= Booting, First awns visible, 51= Heading, First spikelet of head visible, 53= Heading, ¼ of head emerged, 55= Heading, ½ of head emerged, 57= Heading, ¾ of head emerged, 59= Heading, Emergence of head complete, 61= Flowering or anthesis, Start of flowering, 65= Flowering or anthesis, Flowering half complete, 69= Flowering or anthesis, Flowering complete, 71= Kernel and milk development, Kernel watery ripe (clear liquid), 73= Kernel and milk development, Early milk (liquid off -white), 75= Kernel and milk development, Medium milk (milky liquid), 77= Kernel and milk development, Late milk (more solids in milk), 81= Dough development, Very early dough (slides when crushed), 83= Dough development, Early dough (elastic, dry and shiny), 85= Dough development, Soft dough (firm, thumbnail mark not held), 87= Dough development, Hard dough (thumbnail impression held), 91= Ripening, Kernel hard (difficult to divide, 16% water), 92= Ripening, Kernel hard (not dented by thumbnail), 93= Ripening, Kernel loosening in daytime, 94= Ripening, Overripe, straw dead and collapsing, 95= Ripening, Seed dormant, 96= Ripening, 50% of viable seed germinates, 97= Ripening, Seed not dormant, 98= Ripening, Secondary dormancy, 99= Ripening, Secondary dormancy lost)" []
-synonym: "DECODS" EXACT []
 synonym: "GRWSTG_00_99" EXACT []
+synonym: "DECODS" EXACT []
+relationship: variable_of CO_321:0000476
 relationship: variable_of CO_321:0000016
 relationship: variable_of CO_321:0000239
-relationship: variable_of CO_321:0000476
 
 [Term]
 id: CO_321:0001231
@@ -5762,11 +5762,11 @@ id: CO_321:0001233
 name: Heading time - Julian date (JD)
 namespace: wheat_trait
 def: "TRAIT: Heading time extends from the time of emergence of the tip of the spike from the flag leaf sheath to when the spike has completely emerged but has not yet started to flower. METHOD: Record date of heading (DS55) when 50% of the spike is emerged (i.e., middle of the spike at the flag leaf ligule) on 50% of all stems. SCALE: Julian date (JD)" []
-synonym: "HEADDATE" EXACT []
 synonym: "HEADD_jd" EXACT []
 synonym: "HEADD" EXACT []
-relationship: variable_of CO_321:0000840
+synonym: "HEADDATE" EXACT []
 relationship: variable_of CO_321:0000007
+relationship: variable_of CO_321:0000840
 relationship: variable_of CO_321:0000855
 
 [Term]
@@ -5774,13 +5774,13 @@ id: CO_321:0001235
 name: Heading time - day
 namespace: wheat_trait
 def: "TRAIT: Heading time extends from the time of emergence of the tip of the spike from the flag leaf sheath to when the spike has completely emerged but has not yet started to flower. METHOD: Number of days required from sowing to spike emergence from the flag leaf (DS55). However, when planting in dry soils in dryland areas it is counted from the first day of rainfall or irrigation which is sufficient for germination, or from emergence date. SCALE: day" []
-synonym: "DTH" EXACT []
-synonym: "DTH_days" EXACT []
 synonym: "DAYSHD" EXACT []
+synonym: "DTH_days" EXACT []
+synonym: "DTH" EXACT []
 synonym: "HEAD" EXACT []
-relationship: variable_of CO_321:0000434
-relationship: variable_of CO_321:0000007
 relationship: variable_of CO_321:0000231
+relationship: variable_of CO_321:0000007
+relationship: variable_of CO_321:0000434
 
 [Term]
 id: CO_321:0001263
@@ -5788,9 +5788,9 @@ name: Leaf rust incidence - 1-9 incidence scale
 namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) incidence in the plants caused by the agent Puccinia recondita. METHOD: Standard method for leaf rust incidence. SCALE: 1-9 incidence scale (1= none, 2= very low, 3= low, 4= low to medium, 5= medium, 6= medium to high, 7= high, 8= very high, 9= severe)" []
 synonym: "PRECO_1_9" EXACT []
+relationship: variable_of CO_321:0000465
 relationship: variable_of CO_321:0000707
 relationship: variable_of CO_321:0000898
-relationship: variable_of CO_321:0000465
 
 [Term]
 id: CO_321:0001270
@@ -5798,9 +5798,9 @@ name: Leaf rust severity - %
 namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) severity in the plants caused by the agent Puccinia recondita. METHOD: Severity of rust is recorded as a percentage, according to the modified Cobb scale. As this relies upon observation it cannot be absolutely accurate. Thus it is common to use the following intervals: 0, 5, 10, 20, 40, 60, and 100 percent infection. SCALE: %" []
 synonym: "PRECO_pct__SEV" EXACT []
-relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0000902
 relationship: variable_of CO_321:0000693
+relationship: variable_of CO_321:0000902
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0001280
@@ -5808,9 +5808,9 @@ name: Lodging incidence - %
 namespace: wheat_trait
 def: "TRAIT: Indicates incidence of lodged plants. METHOD: Estimate of the area lodged in the sampled plot. SCALE: %" []
 synonym: "LODG_pct" EXACT []
-relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0000167
 relationship: variable_of CO_321:0000355
+relationship: variable_of CO_321:0000167
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0001282
@@ -5827,9 +5827,9 @@ id: CO_321:0001288
 name: Maturity time - physiological - Julian date (JD)
 namespace: wheat_trait
 def: "TRAIT: Maturity time starts at hard dough stage (ds87) often called physiological maturity. METHOD: Record date of physiological maturity (approx. DS87). It is estimated as when the grain reaches the maximum dry weight and the grain becomes viable. It is most easily determined in-field when 50% of the peduncles are ripe (i.e., yellow). SCALE: Julian date (JD)" []
-synonym: "MATD" EXACT []
-synonym: "MATD_jd" EXACT []
 synonym: "MATDATE" EXACT []
+synonym: "MATD_jd" EXACT []
+synonym: "MATD" EXACT []
 relationship: variable_of CO_321:0000855
 relationship: variable_of CO_321:0000022
 relationship: variable_of CO_321:0000842
@@ -5841,9 +5841,9 @@ namespace: wheat_trait
 def: "TRAIT: Maturity time starts at hard dough stage (ds87) often called physiological maturity. METHOD: Assessment of physiological maturity (approx. DS87) compared to best local check which represents the best locally adopted germplasm at each location grown in standard or normal environment. SCALE: 1-5 Phenological relative scale (E= early (E), L= late (L), M= moderate (M), VE= very early (VE), VL= very late (VL))" []
 synonym: "RELTMT" EXACT []
 synonym: "RELTMT_1_5" EXACT []
-relationship: variable_of CO_321:0000460
-relationship: variable_of CO_321:0000022
 relationship: variable_of CO_321:0000243
+relationship: variable_of CO_321:0000022
+relationship: variable_of CO_321:0000460
 
 [Term]
 id: CO_321:0001296
@@ -5851,8 +5851,8 @@ name: Peduncle length - cm
 namespace: wheat_trait
 def: "TRAIT: Length of peduncle. METHOD: Standard method for peduncle length. SCALE: cm" []
 synonym: "PEDLNG _cm" EXACT []
-relationship: variable_of CO_321:0000052
 relationship: variable_of CO_321:0000272
+relationship: variable_of CO_321:0000052
 relationship: variable_of CO_321:0000411
 
 [Term]
@@ -5861,9 +5861,9 @@ name: Plant height - cm
 namespace: wheat_trait
 def: "TRAIT: Height of plant from ground to top of spike, excluding awns. METHOD: Measure the length of individual culms from soil surface to the tip of the spike (do not include awn) and record to the nearest centimeter. (Average of 4-10 plants/culms per plot). SCALE: cm" []
 synonym: "PH_cm" EXACT []
-relationship: variable_of CO_321:0000411
-relationship: variable_of CO_321:0000241
 relationship: variable_of CO_321:0000020
+relationship: variable_of CO_321:0000241
+relationship: variable_of CO_321:0000411
 
 [Term]
 id: CO_321:0001364
@@ -5871,8 +5871,8 @@ name: Spike length - cm
 namespace: wheat_trait
 def: "TRAIT: Length of spike. METHOD: Measured in centimeters from the base of the spike to the tip excluding the awns (average of 6-10 random spikes in plot). SCALE: cm" []
 synonym: "SPKLNG_cm" EXACT []
-relationship: variable_of CO_321:0000277
 relationship: variable_of CO_321:0000056
+relationship: variable_of CO_321:0000277
 relationship: variable_of CO_321:0000411
 
 [Term]
@@ -5881,18 +5881,18 @@ name: Spike shattering - %
 namespace: wheat_trait
 def: "TRAIT: Observation of grains dehiscence from spike at maturity. METHOD: Standard method for spike shattering. SCALE: %" []
 synonym: "SHATTERING_pct" EXACT []
-relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000057
 relationship: variable_of CO_321:0000278
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0001369
 name: Spikelet number - spikelet/spike
 namespace: wheat_trait
 def: "TRAIT: Number of spikelets per spike. METHOD: Both the total number of spikelets and the number of fertile spikelets (i.e., those containing grain) per spike should be counted towards the end of grain-filling, but before physiological maturity (to avoid losses due to movement through the plots). Randomly sample 5-10 spikes per plot, by selecting at the base of the culm. Count the total number of spikelets (pair-by-pair, from the base to the tip), then obtain the average. When sampling large numbers of samples or plots, time may be saved by randomly counting one side of the spike and multiplying by two. SCALE: spikelet/spike" []
+synonym: "spikelets/spike" EXACT []
 synonym: "SPLSPK_num" EXACT []
 synonym: "SPLSPK" EXACT []
-synonym: "spikelets/spike" EXACT []
 relationship: variable_of CO_321:0000440
 relationship: variable_of CO_321:0000279
 relationship: variable_of CO_321:0000058
@@ -5923,8 +5923,8 @@ name: Stem rust severity - %
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) severity in the plants caused by the agent Puccinia graminis f.sp. tritici. METHOD: Severity of rust is recorded as a percentage, according to the modified Cobb scale. As this relies upon observation it cannot be absolutely accurate. Thus it is common to use the following intervals: 0, 5, 10, 20, 40, 60, and 100 percent infection. SCALE: %" []
 synonym: "PGRAM_pct__SEV" EXACT []
-relationship: variable_of CO_321:0000693
 relationship: variable_of CO_321:0000905
+relationship: variable_of CO_321:0000693
 relationship: variable_of CO_321:0000410
 
 [Term]
@@ -5933,9 +5933,9 @@ name: Stripe rust plant response - 0-9 Mc Neal scale
 namespace: wheat_trait
 def: "TRAIT: Stripe rust (yellow rust) response in the plants caused by the agent Puccinia striiformis f.sp. tritici. METHOD: Response (type of disease reaction) in adult plant to stripe rust, refers to the infection type and is classified according to the MCNEAL scale. SCALE: 0-9 Mc Neal scale (I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible)" []
 synonym: "PSTRI_0_9__RESP" EXACT []
-relationship: variable_of CO_321:0000466
 relationship: variable_of CO_321:0000375
 relationship: variable_of CO_321:0000179
+relationship: variable_of CO_321:0000466
 
 [Term]
 id: CO_321:0001396
@@ -5972,8 +5972,8 @@ name: Septoria blotch severity - %
 namespace: wheat_trait
 def: "TRAIT: Septoria blotch severity in the plants caused by the agent Septoria species. METHOD: Standard method for Septoria species causing Septoria blotch severity. SCALE: %" []
 relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0000714
 relationship: variable_of CO_321:0000879
+relationship: variable_of CO_321:0000714
 
 [Term]
 id: CO_321:0001457
@@ -5990,8 +5990,8 @@ id: CO_321:0001458
 name: Rachis length - mm
 namespace: wheat_trait
 def: "TRAIT: Length of rachis. METHOD: Standard method for rachis length. SCALE: mm" []
-relationship: variable_of CO_321:0000970
 relationship: variable_of CO_321:0000993
+relationship: variable_of CO_321:0000970
 relationship: variable_of CO_321:0000428
 
 [Term]
@@ -6000,9 +6000,9 @@ name: Grain width - mm
 namespace: wheat_trait
 def: "TRAIT: Width of whole grain. METHOD: Standard method for whole grain width. SCALE: mm" []
 synonym: "GWID_mm" EXACT []
-relationship: variable_of CO_321:0001003
-relationship: variable_of CO_321:0000980
 relationship: variable_of CO_321:0000428
+relationship: variable_of CO_321:0000980
+relationship: variable_of CO_321:0001003
 
 [Term]
 id: CO_321:0001595
@@ -6020,17 +6020,17 @@ namespace: wheat_trait
 def: "TRAIT: Number of spikes (fertile culms) per unit area, sample or plant. METHOD: Calculated from yield components sampling. SCALE: spike/m2" []
 synonym: "SNO_spk_m2" EXACT []
 relationship: variable_of CO_321:0000441
-relationship: variable_of CO_321:0000958
 relationship: variable_of CO_321:0000166
+relationship: variable_of CO_321:0000958
 
 [Term]
 id: CO_321:0001645
 name: Flag leaf lamina length - cm
 namespace: wheat_trait
 def: "TRAIT: Length of flag leaf lamina. METHOD: Standard method for flag leaf lamina length. SCALE: cm" []
-relationship: variable_of CO_321:0000411
 relationship: variable_of CO_321:0001580
 relationship: variable_of CO_321:0001524
+relationship: variable_of CO_321:0000411
 
 [Term]
 id: CO_321:0001647
@@ -6047,9 +6047,9 @@ name: FHB DON content - 15-ADON  - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of deoxynivalenol or don (vomitoxin) that is often associated with fhb (fusarium spp.) infected grains. METHOD: Concentration of the mycotoxin deoxynivalenol (DON) in the acetylated form 15-ADON. SCALE: ppm" []
 synonym: "FHB_15ADON_ppm" EXACT []
+relationship: variable_of CO_321:0000425
 relationship: variable_of CO_321:0500135
 relationship: variable_of CO_321:0000652
-relationship: variable_of CO_321:0000425
 
 [Term]
 id: CO_321:0501039
@@ -6068,8 +6068,8 @@ namespace: wheat_trait
 def: "TRAIT: Grain weight usually expressed as weight of single, one hundred, two hundred or thousand grains. METHOD: Weight of seeds from 30 wheat spikes. SCALE: g" []
 synonym: "GW_30_g" EXACT []
 relationship: variable_of CO_321:0001593
-relationship: variable_of CO_321:0000025
 relationship: variable_of CO_321:0500181
+relationship: variable_of CO_321:0000025
 
 [Term]
 id: CO_321:0501063
@@ -6078,8 +6078,8 @@ namespace: wheat_trait
 def: "TRAIT: Content of Arsenic in grain. METHOD: Standard method for grain arsenic content. SCALE: ppm" []
 synonym: "GRNARSE_ppm" EXACT []
 relationship: variable_of CO_321:0000425
-relationship: variable_of CO_321:0500161
 relationship: variable_of CO_321:0500024
+relationship: variable_of CO_321:0500161
 
 [Term]
 id: CO_321:0501004
@@ -6097,9 +6097,9 @@ name: Baking quality rating - 1-6 Grade Rating
 namespace: wheat_trait
 def: "TRAIT: Baking quality assessment METHOD: The baking quality of a genotype relative to the standard variety used for that nursery. A= 1, B= 2, C= 3, D= 4, E= 5, F= 6. SCALE: 1-6 Grade Rating (1= A, 2= B, 3= C, 4= D, 5= E, 6= F)" []
 synonym: "BQ_RATING" EXACT []
-relationship: variable_of CO_321:0500001
-relationship: variable_of CO_321:0500101
 relationship: variable_of CO_321:0500517
+relationship: variable_of CO_321:0500101
+relationship: variable_of CO_321:0500001
 
 [Term]
 id: CO_321:0501006
@@ -6107,9 +6107,9 @@ name: Baking quality score - %
 namespace: wheat_trait
 def: "TRAIT: Baking quality assessment METHOD: Combined cookie diameter and sucrose SRC relative to a check variety. SCALE: %" []
 synonym: "BQ_SCORE" EXACT []
-relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500102
 relationship: variable_of CO_321:0500001
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501095
@@ -6117,8 +6117,8 @@ name: Infertile spike number - 0-10 Rating
 namespace: wheat_trait
 def: "TRAIT: Number of infertile spikelet per spike. METHOD: Estimation of the number of infertile spikelets per spike. SCALE: 0-10 Rating (0= 0%, 1= 10%, 2= 20%, 3= 30%, 4= 40%, 5= 50%, 6= 60%, 7= 70%, 8= 80%, 9= 90%, 10= 100%)" []
 synonym: "INFERTSPKN_0_10" EXACT []
-relationship: variable_of CO_321:0001484
 relationship: variable_of CO_321:0500189
+relationship: variable_of CO_321:0001484
 relationship: variable_of CO_321:0500507
 
 [Term]
@@ -6128,8 +6128,8 @@ namespace: wheat_trait
 def: "TRAIT: Wheat yellow dwarf incidence in the plants caused by the agent wheat yellow dwarf virus. METHOD: The mean BYDV incidence across multiple ratings. See BYDV incidence T1, BYDV incidence T2, and BYDV incidence T3. SCALE: %" []
 synonym: "BYD_avg_pct" EXACT []
 relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0000096
 relationship: variable_of CO_321:0500104
+relationship: variable_of CO_321:0000096
 
 [Term]
 id: CO_321:0501011
@@ -6137,9 +6137,9 @@ name: Barley yellow dwarf plant response - 1-9 response scale
 namespace: wheat_trait
 def: "TRAIT: Plant response to barley yellow dwarf virus. METHOD: Barley yellow dwarf virus plant response. Resistant= 1, susceptible= 9. SCALE: 1-9 response scale (1= Resistant, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Susceptible)" []
 synonym: "BYDRESP_1_9__RESP" EXACT []
+relationship: variable_of CO_321:0500520
 relationship: variable_of CO_321:0500002
 relationship: variable_of CO_321:0500108
-relationship: variable_of CO_321:0500520
 
 [Term]
 id: CO_321:0501065
@@ -6147,9 +6147,9 @@ name: Grain Calcium content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Calcium in grain. METHOD: Standard method for grain calcium content. SCALE: ppm" []
 synonym: "GRNCALC_ppm" EXACT []
-relationship: variable_of CO_321:0000425
-relationship: variable_of CO_321:0500027
 relationship: variable_of CO_321:0500163
+relationship: variable_of CO_321:0500027
+relationship: variable_of CO_321:0000425
 
 [Term]
 id: CO_321:0501156
@@ -6157,9 +6157,9 @@ name: Canopy senescence - %
 namespace: wheat_trait
 def: "TRAIT: Percentage (%) of leaf area (canopy) that has lost green color during the process of physiological maturity METHOD: Percentage (%) of leaf area (canopy) that has lost green color during the process of physiological maturity - average of observations. SCALE: %" []
 synonym: "CANOPYSEN_AVG_pct" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500003
 relationship: variable_of CO_321:0500238
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501019
@@ -6167,9 +6167,9 @@ name: Canopy temperature - Anthesis - degrees C
 namespace: wheat_trait
 def: "TRAIT: The surface temperature of the canopy is related to the amount of transpiration resulting in evaporative cooling. METHOD: Canopy temperature at anthesis (Feekes 10.5.1-10.5.3) measured using a hand-held infrared thermometer. SCALE: celcius" []
 synonym: "CANOPYTEMP_ANT_c" EXACT []
+relationship: variable_of CO_321:0500523
 relationship: variable_of CO_321:0500116
 relationship: variable_of CO_321:0000193
-relationship: variable_of CO_321:0500523
 
 [Term]
 id: CO_321:0501020
@@ -6177,8 +6177,8 @@ name: Canopy temperature - Grain Fill - degrees C
 namespace: wheat_trait
 def: "TRAIT: The surface temperature of the canopy is related to the amount of transpiration resulting in evaporative cooling. METHOD: Canopy temperature at grain fill (Feekes 11.1-11.2 ) measured using a hand-held infrared thermometer. SCALE: celcius" []
 synonym: "CANOPYTEMP_GF_c" EXACT []
-relationship: variable_of CO_321:0500119
 relationship: variable_of CO_321:0000193
+relationship: variable_of CO_321:0500119
 relationship: variable_of CO_321:0500523
 
 [Term]
@@ -6188,9 +6188,9 @@ namespace: wheat_trait
 def: "TRAIT: Difference between ambient temperature and canopy temperature. METHOD: Canopy temperature depression at anthesis (Feekes 10.5.1-10.5.3) SCALE: celcius" []
 synonym: "CTD_ANT_c" EXACT []
 synonym: "CANOPYTEMPDEP_ANT_c" EXACT []
+relationship: variable_of CO_321:0500523
 relationship: variable_of CO_321:0000006
 relationship: variable_of CO_321:0500117
-relationship: variable_of CO_321:0500523
 
 [Term]
 id: CO_321:0501022
@@ -6199,9 +6199,9 @@ namespace: wheat_trait
 def: "TRAIT: Difference between ambient temperature and canopy temperature. METHOD: Canopy temperature depression at grain fill (Feekes 11.1-11.2) SCALE: celcius" []
 synonym: "CTD_GF_c" EXACT []
 synonym: "CANOPYTEMPDEP_GF_c" EXACT []
+relationship: variable_of CO_321:0500523
 relationship: variable_of CO_321:0000006
 relationship: variable_of CO_321:0500118
-relationship: variable_of CO_321:0500523
 
 [Term]
 id: CO_321:0501064
@@ -6209,9 +6209,9 @@ name: Grain Cadmium content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Cadmium in grain. METHOD: Standard method for grain cadmium content. SCALE: ppm" []
 synonym: "GRNCADM_ppm" EXACT []
-relationship: variable_of CO_321:0500162
-relationship: variable_of CO_321:0500026
 relationship: variable_of CO_321:0000425
+relationship: variable_of CO_321:0500026
+relationship: variable_of CO_321:0500162
 
 [Term]
 id: CO_321:0501066
@@ -6229,8 +6229,8 @@ name: Cookie diameter - cm
 namespace: wheat_trait
 def: "TRAIT: Diameter of sugar snap cookie. Reflects genetic and environmental factors. Cookie diameters should be compared to those of standard cultivars. METHOD: Standard method for cookie diameter measurement. SCALE: cm" []
 synonym: "CD_cm" EXACT []
-relationship: variable_of CO_321:0500120
 relationship: variable_of CO_321:0500006
+relationship: variable_of CO_321:0500120
 relationship: variable_of CO_321:0000411
 
 [Term]
@@ -6239,9 +6239,9 @@ name: Cookie diameter rating - -1 to 1 standard deviations
 namespace: wheat_trait
 def: "TRAIT: Diameter of sugar snap cookie. Reflects genetic and environmental factors. Cookie diameters should be compared to those of standard cultivars. METHOD: Standard deviations from the mean cookie diameter of check varieties. questionable= -1, above average= 1. SCALE: -1 to 1 standard deviations" []
 synonym: "CD_RATING_sd" EXACT []
-relationship: variable_of CO_321:0500501
-relationship: variable_of CO_321:0500006
 relationship: variable_of CO_321:0500121
+relationship: variable_of CO_321:0500006
+relationship: variable_of CO_321:0500501
 
 [Term]
 id: CO_321:0501067
@@ -6261,8 +6261,8 @@ def: "TRAIT: Number of days required for 50% of the flag leaves to lose green co
 synonym: "FLEAFSENDAYS" EXACT []
 synonym: "FLEAFSENTIME_days" EXACT []
 relationship: variable_of CO_321:0000434
-relationship: variable_of CO_321:0500011
 relationship: variable_of CO_321:0500152
+relationship: variable_of CO_321:0500011
 
 [Term]
 id: CO_321:0501027
@@ -6281,8 +6281,8 @@ namespace: wheat_trait
 def: "TRAIT: Fusarium head blight (scab) disease index.  Index calculated as the disease incidence x severity/100, where incidence= % infected spikes in the sample (non-zero spikes/total spikes evaluated x 100), and severity= % of infected spikelets per spike. METHOD: For trials where the FHB disease index was calculated at multiple time points, this variable holds the average FHB disease index across each time point. SCALE: %" []
 synonym: "FHBDI_pct" EXACT []
 relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0500019
 relationship: variable_of CO_321:0500125
+relationship: variable_of CO_321:0500019
 
 [Term]
 id: CO_321:0501040
@@ -6290,9 +6290,9 @@ name: FHB diseased florets - %
 namespace: wheat_trait
 def: "TRAIT: Percentage of florets infected with Fusarium head blight (FHB) following point inoculation. METHOD: Percentage of florets infected with Fusarium head blight (FHB) following point inoculation. SCALE: %" []
 synonym: "FHBFLORETS_pct" EXACT []
-relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500133
 relationship: variable_of CO_321:0500020
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501029
@@ -6310,9 +6310,9 @@ name: FHB ISK index - %
 namespace: wheat_trait
 def: "TRAIT: Fusarium head blight (scab) ISK Index. METHOD: Fusarium disease index that combines FHB incidence, FHB severity, and FHB grain (kernel) incidence (ISK). Calculated as 0.3 * FHB incidence + 0.3 * FHB severity + 0.4 * FHB grain incidence. SCALE: %" []
 synonym: "FHBISK_pct" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500134
 relationship: variable_of CO_321:0500021
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501028
@@ -6320,9 +6320,9 @@ name: FHB plant response - 1-9 response scale
 namespace: wheat_trait
 def: "TRAIT: Fusarium graminearum response in the plants. METHOD: Standard method for Fusarium graminearum response. SCALE: 1-9 response scale (1= Resistant, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Susceptible)" []
 synonym: "FRAM_1_9__RESP" EXACT []
-relationship: variable_of CO_321:0500520
 relationship: variable_of CO_321:0000703
 relationship: variable_of CO_321:0000925
+relationship: variable_of CO_321:0500520
 
 [Term]
 id: CO_321:0501042
@@ -6330,9 +6330,9 @@ name: Flag leaf angle - 1-9 Leaf Angle Rating
 namespace: wheat_trait
 def: "TRAIT: Visual estimation of flag leaf angle METHOD: Flag leaf angle is scored based on the visual estimate of flag leaf angle at Zadock scale 50 (inflorescence emergence). Leaf angle score: 1=100% flag leaves full upright. 9=100% flag leaves very lax SCALE: 1-9 Leaf Angle Rating (1= 100% flag leaves full upright, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= 100% flag leaves very lax)" []
 synonym: "FLEAFANG_1_9" EXACT []
-relationship: variable_of CO_321:0500519
 relationship: variable_of CO_321:0500143
 relationship: variable_of CO_321:0500008
+relationship: variable_of CO_321:0500519
 
 [Term]
 id: CO_321:0501044
@@ -6340,9 +6340,9 @@ name: Flag leaf chlorophyll content - spad
 namespace: wheat_trait
 def: "TRAIT: Chlorophyll content of the flag leaf METHOD: Chlorophyll content of the flag leaf measured by a SPAD (Special Products Analysis Division of Minolta) meter. A SPAD unit is not directly related to optical transmission through a leaf. SCALE: spad" []
 synonym: "FLEAFCHL_spad" EXACT []
-relationship: variable_of CO_321:0500527
-relationship: variable_of CO_321:0500009
 relationship: variable_of CO_321:0500145
+relationship: variable_of CO_321:0500009
+relationship: variable_of CO_321:0500527
 
 [Term]
 id: CO_321:0501047
@@ -6360,9 +6360,9 @@ name: Flag leaf senescence score - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: Flag leaf senescence. METHOD: Rate using a scale from 0 (0% senescence) to 10 (100% senescence) using the guide, in increments of 10%. SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "FLEAFSEN_0_9" EXACT []
+relationship: variable_of CO_321:0000446
 relationship: variable_of CO_321:0000382
 relationship: variable_of CO_321:0000194
-relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501048
@@ -6371,9 +6371,9 @@ namespace: wheat_trait
 def: "TRAIT: Number of days between heading and flag leaf senescence (= flag leaf senescence - days to heading). METHOD: Number of days between heading and flag leaf senescence (= flag leaf senescence - days to heading). SCALE: day" []
 synonym: "FLEAFGREENDAYS" EXACT []
 synonym: "FLEAFGREENTIME_days" EXACT []
-relationship: variable_of CO_321:0000434
 relationship: variable_of CO_321:0500012
 relationship: variable_of CO_321:0500148
+relationship: variable_of CO_321:0000434
 
 [Term]
 id: CO_321:0501049
@@ -6401,9 +6401,9 @@ name: Anthesis time - Julian date (JD)
 namespace: wheat_trait
 def: "TRAIT: Anthesis or flowering time is the period during which a flower is fully open and functional. pollination and fertilization occur during this period. METHOD: Record date of anthesis (DS65) when 50% of spikes have flowered (i.e. at least 1 anther dehisced). SCALE: Julian date (JD)" []
 synonym: "ANT_jd" EXACT []
+relationship: variable_of CO_321:0000855
 relationship: variable_of CO_321:0000121
 relationship: variable_of CO_321:0000832
-relationship: variable_of CO_321:0000855
 
 [Term]
 id: CO_321:0501055
@@ -6412,8 +6412,8 @@ namespace: wheat_trait
 def: "TRAIT: Ash concentration of forage METHOD: Measurement of Forage Ash by NIR SCALE: %" []
 synonym: "FORASH_pct" EXACT []
 relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0500154
 relationship: variable_of CO_321:0500013
+relationship: variable_of CO_321:0500154
 
 [Term]
 id: CO_321:0501056
@@ -6421,9 +6421,9 @@ name: Forage fiber content - %
 namespace: wheat_trait
 def: "TRAIT: Fober concentration of forage METHOD: Measurement of Forage Fiber by NIR SCALE: %" []
 synonym: "FORFIB_pct" EXACT []
-relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0500155
 relationship: variable_of CO_321:0500014
+relationship: variable_of CO_321:0500155
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501058
@@ -6441,8 +6441,8 @@ name: Forage NDF content - %
 namespace: wheat_trait
 def: "TRAIT: Neutral detergent fiber concentration of forage METHOD: Measurement of Forage NDF by NIR SCALE: %" []
 synonym: "FORNDF_pct" EXACT []
-relationship: variable_of CO_321:0500016
 relationship: variable_of CO_321:0500158
+relationship: variable_of CO_321:0500016
 relationship: variable_of CO_321:0000410
 
 [Term]
@@ -6461,9 +6461,9 @@ name: Forage starch content - %
 namespace: wheat_trait
 def: "TRAIT: Starch concentration of forage METHOD: Measurement of Forage Starch by NIR SCALE: %" []
 synonym: "FORSTR_pct" EXACT []
-relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0500018
 relationship: variable_of CO_321:0500160
+relationship: variable_of CO_321:0500018
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501057
@@ -6471,9 +6471,9 @@ name: Forage dry matter - kg/ha
 namespace: wheat_trait
 def: "TRAIT: Forage dry matter. METHOD: Computation of above ground biomass, on dry weight basis, of plant material at heading (DS55). SCALE: kg/ha" []
 synonym: "FORGDM_kg_ha" EXACT []
+relationship: variable_of CO_321:0000804
 relationship: variable_of CO_321:0500156
 relationship: variable_of CO_321:0001032
-relationship: variable_of CO_321:0000804
 
 [Term]
 id: CO_321:0501062
@@ -6491,9 +6491,9 @@ name: Glume pubescence presence - 0-1 Absence/Presence
 namespace: wheat_trait
 def: "TRAIT: The presence of fine hairs on the external face of the glumes METHOD: Glume pubescence scored as absence/presence (0/1) SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
 synonym: "GLMPUB_0_1" EXACT []
+relationship: variable_of CO_321:0500502
 relationship: variable_of CO_321:0500169
 relationship: variable_of CO_321:0500023
-relationship: variable_of CO_321:0500502
 
 [Term]
 id: CO_321:0501068
@@ -6501,8 +6501,8 @@ name: Grain hardness - skcs index
 namespace: wheat_trait
 def: "TRAIT: Grain hardness is used as a grading factor to determine the type of wheat. It is a key determinant for classification of wheat and end product quality. METHOD: Grain hardness analysis using the single kernel characterization system 4100 (SKCS, Perten Instruments, Huddinge, Sweden). SCALE: skcs index" []
 synonym: "GHRD_skcs" EXACT []
-relationship: variable_of CO_321:0000072
 relationship: variable_of CO_321:0500227
+relationship: variable_of CO_321:0000072
 relationship: variable_of CO_321:0500526
 
 [Term]
@@ -6511,9 +6511,9 @@ name: Grain number - grain
 namespace: wheat_trait
 def: "TRAIT: Number of grains expressed as per unit area or sample. METHOD: Grain number counted from 10 spikes of the main tillers SCALE: grain" []
 synonym: "GN_10Spk_grain" EXACT []
-relationship: variable_of CO_321:0500524
-relationship: variable_of CO_321:0500174
 relationship: variable_of CO_321:0000017
+relationship: variable_of CO_321:0500174
+relationship: variable_of CO_321:0500524
 
 [Term]
 id: CO_321:0501085
@@ -6521,9 +6521,9 @@ name: Grain weight - g
 namespace: wheat_trait
 def: "TRAIT: Grain weight usually expressed as weight of single, one hundred, two hundred or thousand grains. METHOD: Grain yield (g dwt) from 1 m row cut at physiological maturity (DS87). SCALE: g" []
 synonym: "GW_g" EXACT []
-relationship: variable_of CO_321:0500182
-relationship: variable_of CO_321:0000025
 relationship: variable_of CO_321:0001593
+relationship: variable_of CO_321:0000025
+relationship: variable_of CO_321:0500182
 
 [Term]
 id: CO_321:0501088
@@ -6531,9 +6531,9 @@ name: Grain yield - main tillers - kg/ha
 namespace: wheat_trait
 def: "TRAIT: Amount (weight) of grains that was harvested. METHOD: Grain yield expressed in kilograms per hectare, measured from ten spikes on the main tillers. SCALE: kg/ha" []
 synonym: "GY_MAIN_kgha" EXACT []
-relationship: variable_of CO_321:0500183
-relationship: variable_of CO_321:0000013
 relationship: variable_of CO_321:0000804
+relationship: variable_of CO_321:0000013
+relationship: variable_of CO_321:0500183
 
 [Term]
 id: CO_321:0501081
@@ -6551,9 +6551,9 @@ name: Spike glaucousness - 0-1 Absence/Presence
 namespace: wheat_trait
 def: "TRAIT: Glaucousness on spike METHOD: Spike glaucousness scored as absence/presence (0/1) SCALE: 0-1 Absence/Presence (0= Absent, 1= Present)" []
 synonym: "SPKGLAU_0_1" EXACT []
-relationship: variable_of CO_321:0500502
-relationship: variable_of CO_321:0500052
 relationship: variable_of CO_321:0500234
+relationship: variable_of CO_321:0500052
+relationship: variable_of CO_321:0500502
 
 [Term]
 id: CO_321:0501089
@@ -6561,9 +6561,9 @@ name: Hessian fly damage - B - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: The plant damage caused by hessian fly, Maytiola destructor. METHOD: Plant response to hessian fly biotype B SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "HESFDMG_B_0_9__RESP" EXACT []
-relationship: variable_of CO_321:0000446
-relationship: variable_of CO_321:0500184
 relationship: variable_of CO_321:0000088
+relationship: variable_of CO_321:0500184
+relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501090
@@ -6572,8 +6572,8 @@ namespace: wheat_trait
 def: "TRAIT: The plant damage caused by hessian fly, Maytiola destructor. METHOD: Plant response to hessian fly biotype C SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "HESFDMG_C_0_9__RESP" EXACT []
 relationship: variable_of CO_321:0000446
-relationship: variable_of CO_321:0500185
 relationship: variable_of CO_321:0000088
+relationship: variable_of CO_321:0500185
 
 [Term]
 id: CO_321:0501091
@@ -6581,9 +6581,9 @@ name: Hessian fly damage - D - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: The plant damage caused by hessian fly, Maytiola destructor. METHOD: Plant response to hessian fly biotype D SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "HESFDMG_D_0_9__RESP" EXACT []
+relationship: variable_of CO_321:0000446
 relationship: variable_of CO_321:0500186
 relationship: variable_of CO_321:0000088
-relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501093
@@ -6591,9 +6591,9 @@ name: Hessian fly damage - L - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: The plant damage caused by hessian fly, Maytiola destructor. METHOD: Plant response to hessian fly biotype L SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "HESFDMG_L_0_9__RESP" EXACT []
-relationship: variable_of CO_321:0000446
 relationship: variable_of CO_321:0000088
 relationship: variable_of CO_321:0500187
+relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501094
@@ -6602,8 +6602,8 @@ namespace: wheat_trait
 def: "TRAIT: The plant damage caused by hessian fly, Maytiola destructor. METHOD: Plant response to hessian fly biotype O SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "HESFDMG_O_0_9__RESP" EXACT []
 relationship: variable_of CO_321:0000446
-relationship: variable_of CO_321:0500188
 relationship: variable_of CO_321:0000088
+relationship: variable_of CO_321:0500188
 
 [Term]
 id: CO_321:0501092
@@ -6612,8 +6612,8 @@ namespace: wheat_trait
 def: "TRAIT: The plant damage caused by hessian fly, Maytiola destructor. METHOD: Standard method for hessian fly damage. SCALE: 1-9 response scale (1= Resistant, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Susceptible)" []
 synonym: "HESFDMG_1_9__RESP" EXACT []
 relationship: variable_of CO_321:0500520
-relationship: variable_of CO_321:0000309
 relationship: variable_of CO_321:0000088
+relationship: variable_of CO_321:0000309
 
 [Term]
 id: CO_321:0501079
@@ -6621,9 +6621,9 @@ name: Grain Potassium content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Potasium in grain. METHOD: Standard method for grain potassium content. SCALE: ppm" []
 synonym: "GRNPOTA_ppm" EXACT []
-relationship: variable_of CO_321:0000425
 relationship: variable_of CO_321:0500176
 relationship: variable_of CO_321:0500036
+relationship: variable_of CO_321:0000425
 
 [Term]
 id: CO_321:0501096
@@ -6631,9 +6631,9 @@ name: Lactic Acid SRC rating - -1 to 1 standard deviations
 namespace: wheat_trait
 def: "TRAIT: Lactic acid solvent retention capacity METHOD: Lactic acid solvent retention capacity (SRC) rated as the standard deviations from the mean lactic acid SRC of check varieties. Questionable= -1, above average= 1. SCALE: -1 to 1 standard deviations" []
 synonym: "LASRC_RATING" EXACT []
-relationship: variable_of CO_321:0500501
 relationship: variable_of CO_321:0500191
 relationship: variable_of CO_321:0500039
+relationship: variable_of CO_321:0500501
 
 [Term]
 id: CO_321:0501097
@@ -6642,8 +6642,8 @@ namespace: wheat_trait
 def: "TRAIT: Lactic acid solvent retention capacity METHOD: Measure of gluten strength. Typical values are below 85% for weak soft varieties, and above 105% or 110% for strong soft varieties. SCALE: %" []
 synonym: "LASRC_SCORE" EXACT []
 relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0500039
 relationship: variable_of CO_321:0500190
+relationship: variable_of CO_321:0500039
 
 [Term]
 id: CO_321:0501025
@@ -6661,9 +6661,9 @@ name: Leaf rust plant response - 0-9 Mc Neal scale
 namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) response in the plants caused by the agent Puccinia recondita. METHOD: Standard method for leaf rust response. SCALE: 0-9 Mc Neal scale (I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible)" []
 synonym: "PRECO_0_9__RESP" EXACT []
-relationship: variable_of CO_321:0000466
 relationship: variable_of CO_321:0000706
 relationship: variable_of CO_321:0000178
+relationship: variable_of CO_321:0000466
 
 [Term]
 id: CO_321:0501125
@@ -6671,9 +6671,9 @@ name: Leaf rust seedling response - 0-4 disease rating with qualifiers
 namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) response in the plants caused by the agent Puccinia recondita. METHOD: Leaf rust seedling response SCALE: 0-4 disease rating with qualifiers (0= , 1= , 2= , 3= , 4= )" []
 synonym: "PRECO_0_4__SEEDRESP" EXACT []
+relationship: variable_of CO_321:0500510
 relationship: variable_of CO_321:0500205
 relationship: variable_of CO_321:0000901
-relationship: variable_of CO_321:0500510
 
 [Term]
 id: CO_321:0501124
@@ -6681,9 +6681,9 @@ name: Leaf rust seedling response - CA1.2 - 0-9 Mc Neal scale
 namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) response in the plants caused by the agent Puccinia recondita. METHOD: Leaf rust seedling response to CA1.2 SCALE: 0-9 Mc Neal scale (I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible)" []
 synonym: "PRECO_CA1.2_0_9__SEEDRESP" EXACT []
-relationship: variable_of CO_321:0000901
-relationship: variable_of CO_321:0500204
 relationship: variable_of CO_321:0000466
+relationship: variable_of CO_321:0500204
+relationship: variable_of CO_321:0000901
 
 [Term]
 id: CO_321:0501126
@@ -6692,8 +6692,8 @@ namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) response in the plants caused by the agent Puccinia recondita. METHOD: Leaf rust seedling response to Field Mix SCALE: 0-9 Mc Neal scale (I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible)" []
 synonym: "PRECO_FIELDMIX_0_9__SEEDRESP" EXACT []
 relationship: variable_of CO_321:0000466
-relationship: variable_of CO_321:0500206
 relationship: variable_of CO_321:0000901
+relationship: variable_of CO_321:0500206
 
 [Term]
 id: CO_321:0501127
@@ -6701,9 +6701,9 @@ name: Leaf rust seedling response - Race 1 - 0-9 Mc Neal scale
 namespace: wheat_trait
 def: "TRAIT: Leaf rust (brown rust) response in the plants caused by the agent Puccinia recondita. METHOD: Leaf rust seedling response to Race 1 SCALE: 0-9 Mc Neal scale (I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible)" []
 synonym: "PRECO_RACE1_0_9__SEEDRESP" EXACT []
-relationship: variable_of CO_321:0500207
-relationship: variable_of CO_321:0000901
 relationship: variable_of CO_321:0000466
+relationship: variable_of CO_321:0000901
+relationship: variable_of CO_321:0500207
 
 [Term]
 id: CO_321:0501122
@@ -6731,9 +6731,9 @@ name: Lodging incidence - Z50 - %
 namespace: wheat_trait
 def: "TRAIT: Indicates incidence of lodged plants. SCALE: %" []
 synonym: "LODG_Z50_pct" EXACT []
-relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0000167
 relationship: variable_of CO_321:0500192
+relationship: variable_of CO_321:0000167
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501099
@@ -6741,9 +6741,9 @@ name: Lodging incidence - Z55 - %
 namespace: wheat_trait
 def: "TRAIT: Indicates incidence of lodged plants. SCALE: %" []
 synonym: "LODG_Z55_pct" EXACT []
-relationship: variable_of CO_321:0500193
-relationship: variable_of CO_321:0000167
 relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0000167
+relationship: variable_of CO_321:0500193
 
 [Term]
 id: CO_321:0501100
@@ -6751,9 +6751,9 @@ name: Maturity time - canopy estimation - Julian date (JD)
 namespace: wheat_trait
 def: "TRAIT: Maturity time starts at hard dough stage (ds87) often called physiological maturity. METHOD: Julian calendar date of canopy maturity i.e. when 50% of the green canopy completely loses color. SCALE: Julian date (JD)" []
 synonym: "MAT_CANOPY_jd" EXACT []
-relationship: variable_of CO_321:0000855
 relationship: variable_of CO_321:0000022
 relationship: variable_of CO_321:0500194
+relationship: variable_of CO_321:0000855
 
 [Term]
 id: CO_321:0501101
@@ -6761,8 +6761,8 @@ name: Maturity time - spike estimation - Julian date (JD)
 namespace: wheat_trait
 def: "TRAIT: Maturity time starts at hard dough stage (ds87) often called physiological maturity. METHOD: Julian calendar date of spike maturity i.e. when 50% of the spikes completely lose color. SCALE: Julian date (JD)" []
 synonym: "MAT_SPK_JD" EXACT []
-relationship: variable_of CO_321:0000022
 relationship: variable_of CO_321:0500195
+relationship: variable_of CO_321:0000022
 relationship: variable_of CO_321:0000855
 
 [Term]
@@ -6771,9 +6771,9 @@ name: Grain Magnesium content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Magnesium in grain. METHOD: Standard method for grain magnesium content. SCALE: ppm" []
 synonym: "GRNMAGN_ppm" EXACT []
-relationship: variable_of CO_321:0000425
-relationship: variable_of CO_321:0500171
 relationship: variable_of CO_321:0500032
+relationship: variable_of CO_321:0500171
+relationship: variable_of CO_321:0000425
 
 [Term]
 id: CO_321:0501106
@@ -6781,9 +6781,9 @@ name: Micro Test Weight - g
 namespace: wheat_trait
 def: "TRAIT: Micro Test Weight METHOD: The fixed Column weight of the VSK sample that fits in a 15.7 mL copper vessel measuring 20 mm in diameter and 50 mm in height SCALE: g" []
 synonym: "MTW_g" EXACT []
+relationship: variable_of CO_321:0001593
 relationship: variable_of CO_321:0500040
 relationship: variable_of CO_321:0500200
-relationship: variable_of CO_321:0001593
 
 [Term]
 id: CO_321:0501102
@@ -6792,8 +6792,8 @@ namespace: wheat_trait
 def: "TRAIT: Flour yield of a genotype relative to the standard variety used for that nursery METHOD: Flour yield of a genotype relative to the standard variety used for that nursery. A= 1, B= 2, C= 3, D= 4, E= 5, F= 6. SCALE: 1-6 Grade Rating (1= A, 2= B, 3= C, 4= D, 5= E, 6= F)" []
 synonym: "MQ_RATING" EXACT []
 relationship: variable_of CO_321:0500517
-relationship: variable_of CO_321:0500041
 relationship: variable_of CO_321:0500196
+relationship: variable_of CO_321:0500041
 
 [Term]
 id: CO_321:0501103
@@ -6801,9 +6801,9 @@ name: Milling quality score - %
 namespace: wheat_trait
 def: "TRAIT: Flour yield of a genotype relative to the standard variety used for that nursery METHOD: Flour yield adjusted by comparison to a check variety. SCALE: %" []
 synonym: "MQ_SCORE" EXACT []
-relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500041
 relationship: variable_of CO_321:0500197
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501075
@@ -6811,9 +6811,9 @@ name: Grain Manganese content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content Manganese in grain. METHOD: Standard method for grain manganese content. SCALE: ppm" []
 synonym: "GRNMANG_ppm" EXACT []
-relationship: variable_of CO_321:0500172
-relationship: variable_of CO_321:0500033
 relationship: variable_of CO_321:0000425
+relationship: variable_of CO_321:0500033
+relationship: variable_of CO_321:0500172
 
 [Term]
 id: CO_321:0501076
@@ -6822,8 +6822,8 @@ namespace: wheat_trait
 def: "TRAIT: Content of Molybdenum in grain. METHOD: Standard method for grain molybdenum content. SCALE: ppm" []
 synonym: "GRNMOLY_ppm" EXACT []
 relationship: variable_of CO_321:0000425
-relationship: variable_of CO_321:0500034
 relationship: variable_of CO_321:0500173
+relationship: variable_of CO_321:0500034
 
 [Term]
 id: CO_321:0501104
@@ -6831,9 +6831,9 @@ name: Modified softness equivalent rating - 1-6 Grade Rating
 namespace: wheat_trait
 def: "TRAIT: Softness equivalent is a flour particle size test that is correlated to break flour yields. Softness equivalent rating of a genotype relative to the standard variety used for that nursery. METHOD: Softness equivalent is a flour particle size test that is correlated to break flour yields. Softness equivalent rating of a genotype relative to the standard variety used for that nursery. A= 1, B= 2, C= 3, D= 4, E= 5, F= 6. SCALE: 1-6 Grade Rating (1= A, 2= B, 3= C, 4= D, 5= E, 6= F)" []
 synonym: "MSE_RATING" EXACT []
+relationship: variable_of CO_321:0500517
 relationship: variable_of CO_321:0500198
 relationship: variable_of CO_321:0500042
-relationship: variable_of CO_321:0500517
 
 [Term]
 id: CO_321:0501105
@@ -6841,9 +6841,9 @@ name: Modified softness equivalent score - %
 namespace: wheat_trait
 def: "TRAIT: Softness equivalent is a flour particle size test that is correlated to break flour yields. Softness equivalent rating of a genotype relative to the standard variety used for that nursery. METHOD: Softness equivalent is a flour particle size test that is correlated to break flour yields. score calculated as (grain weight - bran weight) - mids / (grain weight - bran weight). Smaller amounts of mids means smaller particle size, greater break flour, greater SE. Adjusted to 15% moisture. SCALE: %" []
 synonym: "MSE_SCORE" EXACT []
-relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500042
 relationship: variable_of CO_321:0500199
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501078
@@ -6851,9 +6851,9 @@ name: Grain Nickel content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Nickel in grain. METHOD: Standard method for grain nickel content. SCALE: ppm" []
 synonym: "GRNNICK_ppm" EXACT []
+relationship: variable_of CO_321:0000425
 relationship: variable_of CO_321:0500035
 relationship: variable_of CO_321:0500175
-relationship: variable_of CO_321:0000425
 
 [Term]
 id: CO_321:0501107
@@ -6861,9 +6861,9 @@ name: Nivalenol level - ppm
 namespace: wheat_trait
 def: "TRAIT: Nivalenol concentration METHOD: Measure of the level of the compound Nivalenol. SCALE: ppm" []
 synonym: "NIV_ppm" EXACT []
-relationship: variable_of CO_321:0500201
-relationship: variable_of CO_321:0500043
 relationship: variable_of CO_321:0000425
+relationship: variable_of CO_321:0500043
+relationship: variable_of CO_321:0500201
 
 [Term]
 id: CO_321:0501070
@@ -6871,8 +6871,8 @@ name: Grain lead content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Lead in grain. METHOD: Standard method for grain lead content. SCALE: ppm" []
 synonym: "GRNLEAD_ppm" EXACT []
-relationship: variable_of CO_321:0500030
 relationship: variable_of CO_321:0500167
+relationship: variable_of CO_321:0500030
 relationship: variable_of CO_321:0000425
 
 [Term]
@@ -6882,8 +6882,8 @@ namespace: wheat_trait
 def: "TRAIT: Glaucousness in peduncle. METHOD: Standard method for peduncle glaucousness. SCALE: 0-4 Glaucousness Rating (0= No glaucousness, 1= , 2= , 3= , 4= Fully covered)" []
 synonym: "PEDGLAU_0_4" EXACT []
 relationship: variable_of CO_321:0500511
-relationship: variable_of CO_321:0000274
 relationship: variable_of CO_321:0000054
+relationship: variable_of CO_321:0000274
 
 [Term]
 id: CO_321:0501121
@@ -6891,9 +6891,9 @@ name: Polyphenol oxidase activity - 0-1 Absorbance Units
 namespace: wheat_trait
 def: "TRAIT: Measures oxidation of an L-DOPA substrate to a red-colored product as an indirect measure of PPO activity METHOD: Measures oxidation of an L-DOPA substrate to a red-colored product as an indirect measure of PPO activity SCALE: 0-1 Absorbance Units" []
 synonym: "PPOActivity_au" EXACT []
-relationship: variable_of CO_321:0500203
-relationship: variable_of CO_321:0500044
 relationship: variable_of CO_321:0500503
+relationship: variable_of CO_321:0500044
+relationship: variable_of CO_321:0500203
 
 [Term]
 id: CO_321:0501026
@@ -6901,9 +6901,9 @@ name: Powdery midlew plant response - 0-10 response scale
 namespace: wheat_trait
 def: "TRAIT: Powdery mildew plant response caused by the agent Blumeria graminis (Erysiphe graminis) f. sp. tritici. METHOD: Powdery mildew plant response scoring. SCALE: 0-10 response scale (0= 0 to <1% leaf area affected on any leaf, 1= 1-50% leaf area affected on 4th leaf, 2= 1-5% leaf area affected on 3rd leaf, 3= 5-15% leaf area affected on 3rd leaf, 4= >15% leaf area affected on 3rd leaf, 5= 1-5% leaf area affected on 2nd leaf, 6= 5-15% leaf area affected on 2nd leaf, 7= >15% leaf area affected on 2nd leaf, 8= 1-5% leaf area affected on flag leaf, 9= 5-15% leaf area affected on flag leaf, 10= >15% leaf area affected on flag leaf)" []
 synonym: "EGRAM_0_10__RESP" EXACT []
-relationship: variable_of CO_321:0500508
-relationship: variable_of CO_321:0500045
 relationship: variable_of CO_321:0500122
+relationship: variable_of CO_321:0500045
+relationship: variable_of CO_321:0500508
 
 [Term]
 id: CO_321:0501003
@@ -6921,9 +6921,9 @@ name: Grain Sulphur content - ppm
 namespace: wheat_trait
 def: "TRAIT: Content of Sulphur in grain. METHOD: Standard method for grain sulphur content. SCALE: ppm" []
 synonym: "GRNSULP_ppm" EXACT []
+relationship: variable_of CO_321:0000425
 relationship: variable_of CO_321:0500037
 relationship: variable_of CO_321:0500179
-relationship: variable_of CO_321:0000425
 
 [Term]
 id: CO_321:0501084
@@ -6981,9 +6981,9 @@ name: Spike dry weight - g
 namespace: wheat_trait
 def: "TRAIT: Dry weight of spike(s). METHOD: Spike weight (grain + glumes/rachis/awns) in g dwt m-1 row from plants cut at physiological maturity (DS87). SCALE: g" []
 synonym: "SPKDW_g" EXACT []
-relationship: variable_of CO_321:0500232
-relationship: variable_of CO_321:0001523
 relationship: variable_of CO_321:0001593
+relationship: variable_of CO_321:0001523
+relationship: variable_of CO_321:0500232
 
 [Term]
 id: CO_321:0501120
@@ -7001,8 +7001,8 @@ name: Septoria nodorum glume blotch severity - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: Septoria nodorum blotch severity in the plants caused by the agent Stagonospora nodorum (syn. Septoria glume blotch) (Phaeosphaeria nodorum (E. Müller) Hedjaroude (syn. Stagonospora nodorum). METHOD: Rating of Septoria nodorum blotch severity of symptoms on spikes SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "SNODO_SPIKE_0_9__SEV" EXACT []
-relationship: variable_of CO_321:0000717
 relationship: variable_of CO_321:0500230
+relationship: variable_of CO_321:0000717
 relationship: variable_of CO_321:0000446
 
 [Term]
@@ -7012,8 +7012,8 @@ namespace: wheat_trait
 def: "TRAIT: Septoria nodorum blotch plant response caused by the agent Stagonospora nodorum (syn. Septoria glume blotch) (Phaeosphaeria nodorum (E. MÃ¼ller) Hedjaroude (syn. Stagonospora nodorum). METHOD: Rating of Septoria nodorum blotch plant response. SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "SNODO_0_9__RESP" EXACT []
 relationship: variable_of CO_321:0000446
-relationship: variable_of CO_321:0500229
 relationship: variable_of CO_321:0500047
+relationship: variable_of CO_321:0500229
 
 [Term]
 id: CO_321:0501145
@@ -7021,9 +7021,9 @@ name: Septoria nodorum leaf blotch severity - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: Septoria nodorum blotch severity in the plants caused by the agent Stagonospora nodorum (syn. Septoria glume blotch) (Phaeosphaeria nodorum (E. Müller) Hedjaroude (syn. Stagonospora nodorum). METHOD: Standard method for Septoria nodorum blotch severity. SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "SNODO_0_9__SEV" EXACT []
+relationship: variable_of CO_321:0000446
 relationship: variable_of CO_321:0000717
 relationship: variable_of CO_321:0000991
-relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501153
@@ -7031,9 +7031,9 @@ name: Stem diameter - 1-9 Thickness Rating
 namespace: wheat_trait
 def: "TRAIT: Stem outer diameter. METHOD: Standard method for stem diameter. SCALE: 1-9 Thickness Rating (1= Very Thin, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Maximal Thickness)" []
 synonym: "STMDIA_1_9" EXACT []
-relationship: variable_of CO_321:0500521
 relationship: variable_of CO_321:0000062
 relationship: variable_of CO_321:0000284
+relationship: variable_of CO_321:0500521
 
 [Term]
 id: CO_321:0501109
@@ -7041,8 +7041,8 @@ name: Stem rust incidence - %
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) incidence in the plants caused by the agenct Puccinia graminis f.sp. tritici. METHOD: Estimation of stem rust incidence SCALE: %" []
 synonym: "PGRAM_pct__INC" EXACT []
-relationship: variable_of CO_321:0500209
 relationship: variable_of CO_321:0500053
+relationship: variable_of CO_321:0500209
 relationship: variable_of CO_321:0000410
 
 [Term]
@@ -7051,8 +7051,8 @@ name: Stem rust plant response - 0-1 Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) response in the plants caused by the agent Puccinia graminis f.sp. tritici. METHOD: A qualitative anaylsis of the type of stem rust (Puccinia graminis f. sp. Tritici) symptoms that are exhibited. Infection responses are limited to: Resistant (R): small uredinia surrounded by chlorosis or necrosis. Moderately resistant (MR): medium sized uredinia surrounded by chlorosis or necrosis. Moderately susceptible (MS): medium-large compatible uredinia without chlorosis and necrosis. Susceptible (S): large, compatible uredinia without chlorosis and necrosis. The following numerical scale has been used to quantify conventional notations of infection response: R= 0.2, MR= 0.4, MS= 0.8, S= 1.0 (Yu et al. 2011). Stem rust infection response is typically recorded in conjunction with stem rust severity. SCALE: 0-1 Rating" []
 synonym: "PGRAM_0_1__RESP" EXACT []
-relationship: variable_of CO_321:0500210
 relationship: variable_of CO_321:0000177
+relationship: variable_of CO_321:0500210
 relationship: variable_of CO_321:0500504
 
 [Term]
@@ -7061,9 +7061,9 @@ name: Stem rust seedling infection type - BCCBC - 0-9 Linearized Stakman Scale R
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race BCCBC during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 synonym: "PGRAM_BCCBC_0_9__INF" EXACT []
-relationship: variable_of CO_321:0500514
-relationship: variable_of CO_321:0500054
 relationship: variable_of CO_321:0500212
+relationship: variable_of CO_321:0500054
+relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501111
@@ -7081,9 +7081,9 @@ name: Stem rust seedling infection type - JRCQC - 0-9 Linearized Stakman Scale R
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race JRCQC during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 synonym: "PGRAM_JRCQC_0_9__INF" EXACT []
-relationship: variable_of CO_321:0500514
 relationship: variable_of CO_321:0500054
 relationship: variable_of CO_321:0500214
+relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501113
@@ -7091,9 +7091,9 @@ name: Stem rust seedling infection type - TRTTF - 0-9 Linearized Stakman Scale R
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race TRTTF during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 synonym: "PGRAM_TRTTF_0_9__INF" EXACT []
-relationship: variable_of CO_321:0500514
-relationship: variable_of CO_321:0500215
 relationship: variable_of CO_321:0500054
+relationship: variable_of CO_321:0500215
+relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501114
@@ -7101,9 +7101,9 @@ name: Stem rust seedling infection type - TTKSK - 0-9 Linearized Stakman Scale R
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race TTKSK during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 synonym: "PGRAM_TTKSK_0_9__INF" EXACT []
-relationship: variable_of CO_321:0500514
 relationship: variable_of CO_321:0500054
 relationship: variable_of CO_321:0500216
+relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501115
@@ -7111,9 +7111,9 @@ name: Stem rust seedling infection type - TTTTF - 0-9 Linearized Stakman Scale R
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race TTTTF during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 synonym: "PGRAM_TTTTF_0_9__INF" EXACT []
+relationship: variable_of CO_321:0500514
 relationship: variable_of CO_321:0500054
 relationship: variable_of CO_321:0500217
-relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501118
@@ -7121,9 +7121,9 @@ name: Stem rust severity - 0-9 percentage scale
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) severity in the plants caused by the agent Puccinia graminis f.sp. tritici. METHOD: Severity of rust is recorded as a percentage, according to the modified Cobb scale. As this relies upon observation it cannot be absolutely accurate. Thus it is common to use the following intervals: 0, 5, 10, 20, 40, 60, and 100 percent infection. SCALE: 0-9 percentage scale (0= No visible affection, 1= 10% coverage, 2= 20% coverage, 3= 30% coverage, 4= 40% coverage, 5= 50% coverage, 6= 60% coverage, 7= 70% coverage, 8= 80% coverage, 9= 90% coverage)" []
 synonym: "PGRAM_0_9__SEV" EXACT []
-relationship: variable_of CO_321:0000905
-relationship: variable_of CO_321:0000693
 relationship: variable_of CO_321:0000446
+relationship: variable_of CO_321:0000693
+relationship: variable_of CO_321:0000905
 
 [Term]
 id: CO_321:0501154
@@ -7131,8 +7131,8 @@ name: Stem solidness - 5-25 5 Stem Solidness Rating
 namespace: wheat_trait
 def: "TRAIT: Solidness of stem. METHOD: Standard method for stem solidness. SCALE: 5-25 5 Stem Solidness Rating (5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid)" []
 synonym: "STMSOL_5_25" EXACT []
-relationship: variable_of CO_321:0000283
 relationship: variable_of CO_321:0000061
+relationship: variable_of CO_321:0000283
 relationship: variable_of CO_321:0500522
 
 [Term]
@@ -7141,9 +7141,9 @@ name: Sucrose SRC rating - -1 to 1 standard deviations
 namespace: wheat_trait
 def: "TRAIT: Sucrose solvent retention capacity (SRC) is the best predictor of cookie quality. METHOD: Rated as the standard deviations from the mean sucrose SRC of check varieties. Questionable= -1, above average= 1. SCALE: -1 to 1 standard deviations" []
 synonym: "SSRC_Rating" EXACT []
-relationship: variable_of CO_321:0500055
-relationship: variable_of CO_321:0500235
 relationship: variable_of CO_321:0500501
+relationship: variable_of CO_321:0500235
+relationship: variable_of CO_321:0500055
 
 [Term]
 id: CO_321:0501152
@@ -7151,22 +7151,22 @@ name: Sucrose SRC score - %
 namespace: wheat_trait
 def: "TRAIT: Sucrose solvent retention capacity (SRC) is the best predictor of cookie quality. METHOD: Sugar snap cookie diameters decrease by 0.07 cm for each percentage point increase in sucrose SRC score. SCALE: %" []
 synonym: "SSRC_Score" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500236
 relationship: variable_of CO_321:0500055
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501086
 name: Grain weight - 1000 kernels, main tillers - g
 namespace: wheat_trait
 def: "TRAIT: Grain weight usually expressed as weight of single, one hundred, two hundred or thousand grains. METHOD: Seed size estimated by weighing 1000 seeds from ten spikes on the main tillers. SCALE: g" []
-synonym: "TGW_MAIN_g" EXACT []
 synonym: "THOUWT_MAIN" EXACT []
 synonym: "TKW_MAIN" EXACT []
 synonym: "TGW_MAIN" EXACT []
-relationship: variable_of CO_321:0000025
-relationship: variable_of CO_321:0500180
+synonym: "TGW_MAIN_g" EXACT []
 relationship: variable_of CO_321:0001593
+relationship: variable_of CO_321:0500180
+relationship: variable_of CO_321:0000025
 
 [Term]
 id: CO_321:0501155
@@ -7174,9 +7174,9 @@ name: Vegetative protein content at maturity - %
 namespace: wheat_trait
 def: "TRAIT: Protein concentration of vegetative biomass harvested at physiological maturity METHOD: Protein concentration of vegetative biomass harvested at physiological maturity SCALE: %" []
 synonym: "VEGPRT_pct" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500237
 relationship: variable_of CO_321:0500056
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501069
@@ -7184,9 +7184,9 @@ name: Glaucousness - 1-9 Glaucousness Rating
 namespace: wheat_trait
 def: "TRAIT: Overall plant glaucousness METHOD: Estimation of overall plant glaucousness SCALE: 1-9 Glaucousness Rating (1= No glaucousness, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Very dense)" []
 synonym: "GLAU_1_9" EXACT []
+relationship: variable_of CO_321:0500518
 relationship: variable_of CO_321:0500166
 relationship: variable_of CO_321:0500022
-relationship: variable_of CO_321:0500518
 
 [Term]
 id: CO_321:0501149
@@ -7194,8 +7194,8 @@ name: Spike glaucousness - 1-9 Glaucousness Rating
 namespace: wheat_trait
 def: "TRAIT: Glaucousness on spike METHOD: Estimation of spike glaucousness SCALE: 1-9 Glaucousness Rating (1= No glaucousness, 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= Very dense)" []
 synonym: "SPKGLAU_1_9" EXACT []
-relationship: variable_of CO_321:0500233
 relationship: variable_of CO_321:0500052
+relationship: variable_of CO_321:0500233
 relationship: variable_of CO_321:0500518
 
 [Term]
@@ -7214,9 +7214,9 @@ name: Soil borne mosaic incidence - %
 namespace: wheat_trait
 def: "TRAIT: Soil borne mosaic incidence in the plants caused by the agent soilborne wheat mosaic virus (sbwmv) which is vectored by Plasmodiophorid polymyxa graminis. METHOD: Standard method for soil borne mosaic virus incidence. SCALE: %" []
 synonym: "SBMV_pct__INC" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0000173
 relationship: variable_of CO_321:0000359
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501138
@@ -7224,8 +7224,8 @@ name: Soil borne mosaic infection coefficient - 0-5 Rating
 namespace: wheat_trait
 def: "TRAIT: Soil borne mosaic infection coefficient METHOD: Calculation of soil borne mosaic coefficient of infection SCALE: 0-5 Rating (0= disease free, 1= , 2= , 3= , 4= , 5= severe disease symptoms)" []
 synonym: "SBMVCI_0_5__CI" EXACT []
-relationship: variable_of CO_321:0500049
 relationship: variable_of CO_321:0500223
+relationship: variable_of CO_321:0500049
 relationship: variable_of CO_321:0500512
 
 [Term]
@@ -7234,9 +7234,9 @@ name: Soil borne mosaic plant response - 0-9 Response Scale
 namespace: wheat_trait
 def: "TRAIT: Soil borne mosaic response in the plants caused by the agent Polymyxa graminis. METHOD: Estimation of plant response to wheat soil-borne mosaic virus SCALE: 0-9 Response Scale (0= resistant, 1= , 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= susceptible)" []
 synonym: "SBMV_0_9__RESP" EXACT []
-relationship: variable_of CO_321:0500513
 relationship: variable_of CO_321:0500050
 relationship: variable_of CO_321:0500224
+relationship: variable_of CO_321:0500513
 
 [Term]
 id: CO_321:0501157
@@ -7244,8 +7244,8 @@ name: Stripe rust infection type - 0-9 Mc Neal scale
 namespace: wheat_trait
 def: "TRAIT: Stripe rust (yellow rust) infection type in the plants caused by the agent Puccinia striiformis f.sp. tritici. METHOD: Estimation of the stripe rust infection type on a 0-9 scale (0 = no visible signs or symptom, 1 = necrotic and/or chlorotic flecks with no sporulation, 2 = Necrotic and/or chlorotic blotches or stripes with no sporulation, 3 = Necrotic and/or chlorotic blotches or stripes with trace sporulation , 4 = Necrotic and/or chlorotic blotches or stripes with light sporulation, 5 = Necrotic and/or chlorotic blotches or stripes with intermediate sporulation, 6 = Necrotic and /or chlorotic blotches or stripes with moderate sporulation, 7 = Necrotic and/or chlorotic blotches or stripes with abundant sporulation, 8 = Chlorosis behind sporulating areas with abundant sporulation, 9 = No necrosis or chlorosis with abundant sporulation) SCALE: 0-9 Mc Neal scale (I/0= immune, LM/1= light moderate, LMS/2= light moderate susceptible, M/3= moderate, MR/4= moderately resistant, MS/5= moderate susceptible, R/6= resistant, S/7= susceptible, VR/8= very resistance, VS/9= very susceptible)" []
 synonym: "PSTRI_0_9__INF" EXACT []
-relationship: variable_of CO_321:0500057
 relationship: variable_of CO_321:0500239
+relationship: variable_of CO_321:0500057
 relationship: variable_of CO_321:0000466
 
 [Term]
@@ -7254,9 +7254,9 @@ name: Aboveground biomass - g
 namespace: wheat_trait
 def: "TRAIT: All above-ground biomass at any developmental stage and/or at regular intervals from the emergence to physiological maturity. METHOD: Cut all aboveground biomass in a predetermined area (A). Avoid border effects by sampling away from edges of plot. Biomass as other yield components can be calculated or measured individually (Bell and Fischer, 1994, Reynolds et al., 2001, Pask et al., 2012), decide which method suit better for your objectives. SCALE: g" []
 synonym: "ISBM_g" EXACT []
-relationship: variable_of CO_321:0001593
-relationship: variable_of CO_321:0000229
 relationship: variable_of CO_321:0000393
+relationship: variable_of CO_321:0000229
+relationship: variable_of CO_321:0001593
 
 [Term]
 id: CO_321:0501159
@@ -7264,9 +7264,9 @@ name: Aboveground biomass at maturity - g
 namespace: wheat_trait
 def: "TRAIT: All above-ground biomass at maturity. METHOD: Cut all aboveground biomass in a predetermined area (A). Avoid border effects by sampling away from edges of plot. Biomass as other yield components can be calculated or measured individually (Bell and Fischer, 1994, Reynolds et al., 2001, Pask et al., 2012), decide which method suit better for your objectives. SCALE: g" []
 synonym: "BM_g" EXACT []
-relationship: variable_of CO_321:0001593
-relationship: variable_of CO_321:0000005
 relationship: variable_of CO_321:0000229
+relationship: variable_of CO_321:0000005
+relationship: variable_of CO_321:0001593
 
 [Term]
 id: CO_321:0501160
@@ -7285,8 +7285,8 @@ namespace: wheat_trait
 def: "TRAIT: Fertility of spike METHOD: Calculation of the spike fertility as the ratio of the grain number/m2 to chaff weight/m2 SCALE: grain number/m2 : chaff weight/m2" []
 synonym: "SPKFERT_ratio" EXACT []
 relationship: variable_of CO_321:0500529
-relationship: variable_of CO_321:0500059
 relationship: variable_of CO_321:0500241
+relationship: variable_of CO_321:0500059
 
 [Term]
 id: CO_321:0501162
@@ -7294,9 +7294,9 @@ name: Spike harvest index - grain weight (10 spikes) : total spike dry weight
 namespace: wheat_trait
 def: "TRAIT: Spike harvest index METHOD: Calculation of the spike harvest index as the ratio of grain weight of 10 spikes to total spike dry weight SCALE: Spike harvest index" []
 synonym: "SPKHI_index" EXACT []
-relationship: variable_of CO_321:0500530
-relationship: variable_of CO_321:0500060
 relationship: variable_of CO_321:0500242
+relationship: variable_of CO_321:0500060
+relationship: variable_of CO_321:0500530
 
 [Term]
 id: CO_321:0501163
@@ -7304,9 +7304,9 @@ name: Grain starch content - %
 namespace: wheat_trait
 def: "TRAIT: Whole grain starch content METHOD: Measurement of whole-grain starch content determined by NIR spectroscropy. SCALE: %" []
 synonym: "GRNSTARCH_%" EXACT []
-relationship: variable_of CO_321:0000410
-relationship: variable_of CO_321:0500243
 relationship: variable_of CO_321:0500061
+relationship: variable_of CO_321:0500243
+relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501164
@@ -7334,9 +7334,9 @@ name: Glume color - 1-4 GLMCOL scale
 namespace: wheat_trait
 def: "TRAIT: Color observation on the outer glume at maturity. METHOD: Standard method for glume color. SCALE: 1-4 GLMCOL scale (1= white, 2= red to brown, 3= purple to black, 4= mixed)" []
 synonym: "GLMCOL_1_4" EXACT []
-relationship: variable_of CO_321:0000251
-relationship: variable_of CO_321:0000031
 relationship: variable_of CO_321:0500533
+relationship: variable_of CO_321:0000031
+relationship: variable_of CO_321:0000251
 
 [Term]
 id: CO_321:0501167
@@ -7344,8 +7344,8 @@ name: Stem rust plant infection type - QFCSC - 0-9 Linearized Stakman Scale Rati
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by adult plants. METHOD: Infection phenotype of pustules on upper stems of adult plants inoculated with stem rust (Puccinia graminis f. sp. tritici) race QFCSC SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 synonym: "PGRAM_QFCSC_0_9__INF" EXACT []
-relationship: variable_of CO_321:0500244
 relationship: variable_of CO_321:0500062
+relationship: variable_of CO_321:0500244
 relationship: variable_of CO_321:0500514
 
 [Term]
@@ -7354,9 +7354,9 @@ name: Bacterial mosiac of wheat plant response - 0-9 Response Scale
 namespace: wheat_trait
 def: "TRAIT: Bacterial mosaic of wheat plant response caused by the agent Clavibacter michiganensis subsp. Tesselarius. METHOD: Estimation of plant response to bacterial mosaic of wheat SCALE: 0-9 Response Scale (0= resistant, 1= , 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= susceptible)" []
 synonym: "BMW_0_9__RESP" EXACT []
+relationship: variable_of CO_321:0500513
 relationship: variable_of CO_321:0500063
 relationship: variable_of CO_321:0500245
-relationship: variable_of CO_321:0500513
 
 [Term]
 id: CO_321:0501169
@@ -7384,9 +7384,9 @@ name: Canopy Cover - UASHub - %
 namespace: wheat_trait
 def: "TRAIT: The percentage of green canopy cover in the plot METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: %" []
 synonym: "CANOPYCOV_UASHub_%" EXACT []
-relationship: variable_of CO_321:0500248
-relationship: variable_of CO_321:0500066
 relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0500066
+relationship: variable_of CO_321:0500248
 
 [Term]
 id: CO_321:0501172
@@ -7395,8 +7395,8 @@ namespace: wheat_trait
 def: "TRAIT: The canopy height (95th percentile of plot) METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: m" []
 synonym: "CANOPYHT_UASHub_m" EXACT []
 relationship: variable_of CO_321:0000813
-relationship: variable_of CO_321:0500067
 relationship: variable_of CO_321:0500248
+relationship: variable_of CO_321:0500067
 
 [Term]
 id: CO_321:0501173
@@ -7404,8 +7404,8 @@ name: Canopy Height - UASHub - standard deviation
 namespace: wheat_trait
 def: "TRAIT: The canopy height (95th percentile of plot) METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: standard deviation" []
 synonym: "CANOPYHT_UASHub_sd" EXACT []
-relationship: variable_of CO_321:0500067
 relationship: variable_of CO_321:0500248
+relationship: variable_of CO_321:0500067
 relationship: variable_of CO_321:0500535
 
 [Term]
@@ -7414,9 +7414,9 @@ name: Canopy ExGI - UASHub - index
 namespace: wheat_trait
 def: "TRAIT: Canopy excess green index obtained from RGB images and commonly used to assess canopy efficiency and health (average of plot) METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: index" []
 synonym: "EGI_UASHub_index" EXACT []
+relationship: variable_of CO_321:0000421
 relationship: variable_of CO_321:0500248
 relationship: variable_of CO_321:0500068
-relationship: variable_of CO_321:0000421
 
 [Term]
 id: CO_321:0501175
@@ -7424,9 +7424,9 @@ name: Canopy ExGI - UASHub - standard deviation
 namespace: wheat_trait
 def: "TRAIT: Canopy excess green index obtained from RGB images and commonly used to assess canopy efficiency and health (average of plot) METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: standard deviation" []
 synonym: "EGI_sUASHub_d" EXACT []
-relationship: variable_of CO_321:0500068
-relationship: variable_of CO_321:0500248
 relationship: variable_of CO_321:0500535
+relationship: variable_of CO_321:0500248
+relationship: variable_of CO_321:0500068
 
 [Term]
 id: CO_321:0501176
@@ -7434,8 +7434,8 @@ name: Canopy NDVI - UASHub - index
 namespace: wheat_trait
 def: "TRAIT: Normalized difference vegetation index is used to measure vegetative greenness and canopy photosynthetic size. METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: index" []
 synonym: "NDVI_UASHub_index" EXACT []
-relationship: variable_of CO_321:0000301
 relationship: variable_of CO_321:0500248
+relationship: variable_of CO_321:0000301
 relationship: variable_of CO_321:0000421
 
 [Term]
@@ -7464,9 +7464,9 @@ name: Canopy NDRE - UASHub - standard deviation
 namespace: wheat_trait
 def: "TRAIT: Canopy normalized difference red edge index derived from multi-spectral sensors (red and NIR reflectance) and commonly used to assess canopy health (average of plot) METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: standard deviation" []
 synonym: "NDRE_UASHub_sd" EXACT []
-relationship: variable_of CO_321:0500535
 relationship: variable_of CO_321:0500069
 relationship: variable_of CO_321:0500248
+relationship: variable_of CO_321:0500535
 
 [Term]
 id: CO_321:0501180
@@ -7474,8 +7474,8 @@ name: Canopy NDVI - WGRC - index
 namespace: wheat_trait
 def: "TRAIT: Normalized difference vegetation index is used to measure vegetative greenness and canopy photosynthetic size. METHOD: Computation of the derived trait index from drone imagery by Kansas State Wheat Genetics Resource Center.  NDVI = (IR-R)/(IR+R). SCALE: index" []
 synonym: "NDVI_WGRC_index" EXACT []
-relationship: variable_of CO_321:0000301
 relationship: variable_of CO_321:0500249
+relationship: variable_of CO_321:0000301
 relationship: variable_of CO_321:0000421
 
 [Term]
@@ -7484,8 +7484,8 @@ name: Canopy NDRE - WGRC - index
 namespace: wheat_trait
 def: "TRAIT: Canopy normalized difference red edge index derived from multi-spectral sensors (red and NIR reflectance) and commonly used to assess canopy health (average of plot) METHOD: Computation of the derived trait index from drone imagery by Kansas State Wheat Genetics Resource Center.  NDRE = (IR-RE)/(IR+RE). SCALE: index" []
 synonym: "NDRE_WGRC_index" EXACT []
-relationship: variable_of CO_321:0500250
 relationship: variable_of CO_321:0500069
+relationship: variable_of CO_321:0500250
 relationship: variable_of CO_321:0000421
 
 [Term]
@@ -7504,8 +7504,8 @@ name: Crop Volume - UASHub - m3
 namespace: wheat_trait
 def: "TRAIT: Measurement of crop volume using canopy height and ground cover METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: m3" []
 synonym: "CV_UASHub_m3" EXACT []
-relationship: variable_of CO_321:0500070
 relationship: variable_of CO_321:0500248
+relationship: variable_of CO_321:0500070
 relationship: variable_of CO_321:0500536
 
 [Term]
@@ -7514,9 +7514,9 @@ name: Crop Volume - UASHub - sd
 namespace: wheat_trait
 def: "TRAIT: Measurement of crop volume using canopy height and ground cover METHOD: Computation of the derived trait from drone imagery by Texas A&M UASHub SCALE: standard deviation" []
 synonym: "CV_UASHub_sd" EXACT []
-relationship: variable_of CO_321:0500535
 relationship: variable_of CO_321:0500248
 relationship: variable_of CO_321:0500070
+relationship: variable_of CO_321:0500535
 
 [Term]
 id: CO_321:0501185
@@ -7524,13 +7524,13 @@ name: Grain ash content - flour combustion - %
 namespace: wheat_trait
 def: "TRAIT: Grain ash concentration METHOD: Measurement of percent ash using flour combustion method (AACC Method 08-01). SCALE: %" []
 synonym: "GRNASH_AACC_pct" EXACT []
+relationship: variable_of CO_321:0000410
 relationship: variable_of CO_321:0500025
 relationship: variable_of CO_321:0500252
-relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501186
-name: Canopy temperature - degrees C
+name: Canopy temperature - handheld - degrees C
 namespace: wheat_trait
 def: "TRAIT: The surface temperature of the canopy is related to the amount of transpiration resulting in evaporative cooling. METHOD: Canopy temperature measured using a hand-held infrared thermometer. SCALE: celcius" []
 synonym: "CANOPYTEMP_HH_c" EXACT []
@@ -7544,6 +7544,6 @@ name: Canopy temperature - drone - degrees C
 namespace: wheat_trait
 def: "TRAIT: The surface temperature of the canopy is related to the amount of transpiration resulting in evaporative cooling. METHOD: Canopy temperature measured remotely using an infrared drone camera. SCALE: celcius" []
 synonym: "CANOPYTEMP_UAS_c" EXACT []
-relationship: variable_of CO_321:0500254
-relationship: variable_of CO_321:0000193
 relationship: variable_of CO_321:0500523
+relationship: variable_of CO_321:0000193
+relationship: variable_of CO_321:0500254
