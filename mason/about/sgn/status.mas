@@ -5,6 +5,9 @@
     $accession_count_geno => undef
     $trait_count => undef
     $pheno_trial_count => undef
+    $pheno_trial_observation_count => undef
+    $plot_count => undef
+    $plot_observation_count => undef
     $pheno_observations => undef
     $pheno_last_addition => undef
     $geno_map_count => undef
@@ -123,6 +126,31 @@
                 <td>
                     <a href="/search/trials" class="btn btn-primary" role="button">Search</a>
                     <a href="/breeders/trials" class="btn btn-primary" role="button">Manage</a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Phenotype Trials with Observations</td>
+                <td><% $pheno_trial_observation_count %></td>
+                <td>
+                    <a href="/search/trials" class="btn btn-primary" role="button">Search</a>
+                    <a href="/breeders/trials" class="btn btn-primary" role="button">Manage</a>
+                </td>
+            </tr>
+
+            <tr>
+                <td>Plots</td>
+                <td><% $plot_count %></td>
+                <td>
+                    <a href="/search/stocks" class="btn btn-primary" role="button">Search</a>
+                </td>
+            </tr>
+            
+            <tr>
+                <td>Plots with Observations</td>
+                <td><% $plot_observation_count %></td>
+                <td>
+                    <a href="/search/stocks" class="btn btn-primary" role="button">Search</a>
                 </td>
             </tr>
 

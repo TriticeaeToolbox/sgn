@@ -45,8 +45,23 @@ sub status : Path('/status') Args(0) {
     $h->execute();
     my ($pheno_trial_count) = $h->fetchrow_array() and $h->finish();
 
+    # Get Count of Pheno Trials with Observations
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT(trial_id)) FROM traitsxtrials WHERE trial_id IS NOT NULL and trait_id IS NOT NULL");
+    $h->execute();
+    my ($pheno_trial_observation_count) = $h->fetchrow_array() and $h->finish();
+
+    # Get Plot Count
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT(plot_id)) FROM plots;");
+    $h->execute();
+    my ($plot_count) = $h->fetchrow_array() and $h->finish();
+
+    # Get Count of Plots with Observations
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT(plot_id)) FROM plotsxtraits WHERE trait_id IS NOT NULL AND plot_id IS NOT NULL;");
+    $h->execute();
+    my ($plot_observation_count) = $h->fetchrow_array() and $h->finish();
+
     # Get Count of Total Pheno Observations
-    $h = $dbh->prepare("SELECT COUNT(DISTINCT phenotype_id) FROM materialized_phenoview WHERE phenotype_id IS NOT NULL;");
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT phenotype_id) FROM materialized_phenoview WHERE phenotype_id IS NOT NULL AND trait_id IS NOT NULL;");
     $h->execute();
     my ($pheno_observations) = $h->fetchrow_array() and $h->finish();
 
@@ -87,6 +102,9 @@ sub status : Path('/status') Args(0) {
     $c->stash->{accession_count_geno} = $accession_count_geno;
     $c->stash->{trait_count} = $trait_count;
     $c->stash->{pheno_trial_count} = $pheno_trial_count;
+    $c->stash->{pheno_trial_observation_count} = $pheno_trial_observation_count;
+    $c->stash->{plot_count} = $plot_count;
+    $c->stash->{plot_observation_count} = $plot_observation_count;
     $c->stash->{pheno_observations} = $pheno_observations;
     $c->stash->{pheno_last_addition} = $pheno_last_addition;
     $c->stash->{geno_map_count} = $geno_map_count;
