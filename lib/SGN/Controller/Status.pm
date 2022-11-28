@@ -15,33 +15,38 @@ sub status : Path('/status') Args(0) {
     my $dbh = $c->dbc->dbh();
     my $h;
 
-    # Get Accession count
-    $h = $dbh->prepare("SELECT COUNT(accession_id) AS count FROM accessions;");
-    $h->execute();
-    my ($accession_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Breeding Program Count
-    $h = $dbh->prepare("SELECT COUNT(breeding_program_id) AS count FROM breeding_programs;");
+    # Breeding Programs
+    $h = $dbh->prepare("SELECT COUNT(breeding_program_id) AS count FROM breeding_programs WHERE breeding_program_id IS NOT NULL;");
     $h->execute();
     my ($breeding_program_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Count of Lines with Pheno Data
-    $h = $dbh->prepare("SELECT COUNT(DISTINCT accession_id) AS count FROM accessionsxplots;");
+    # Accessions
+    $h = $dbh->prepare("SELECT COUNT(accession_id) AS count FROM accessions WHERE accession_id IS NOT NULL;");
+    $h->execute();
+    my ($accession_count) = $h->fetchrow_array() and $h->finish();
+
+    # Accessions with Phenotype Data
+    # Accessions associated with 1 or more trait
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT accession_id) AS count FROM accessionsxtraits WHERE trait_id IS NOT NULL AND accession_id IS NOT NULL;");
     $h->execute();
     my ($accession_count_pheno) = $h->fetchrow_array() and $h->finish();
 
-    # Get Count of Lines with Geno Data
-    $h = $dbh->prepare("SELECT COUNT(DISTINCT accession_id) AS count FROM accessionsxgenotyping_protocols WHERE genotyping_protocol_id IS NOT NULL;");
+    # Accessions with Genotype Data
+    # Accessions associated with 1 or more genotyping protocol
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT accession_id) AS count FROM accessionsxgenotyping_protocols WHERE genotyping_protocol_id IS NOT NULL AND accession_id IS NOT NULL;");
     $h->execute();
     my ($accession_count_geno) = $h->fetchrow_array() and $h->finish();
 
-    # Get Trait Count
+    # Observed Traits
+    # Count of traits that have observed values
     $h = $dbh->prepare("SELECT COUNT(DISTINCT observable_id) AS count FROM phenotype;");
     $h->execute();
     my ($trait_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Pheno Trial Count
-    $h = $dbh->prepare("SELECT COUNT(trial_id) AS count FROM trials;");
+    # Phenotype Trials
+    # Count of projects excluding all "non-trial" projects
+    $h = $dbh->prepare("SELECT COUNT(DISTINCT(project_id)) AS count FROM public.project WHERE project_id NOT IN (SELECT DISTINCT(project_id) FROM public.projectprop WHERE type_id IN (SELECT cvterm_id FROM cvterm WHERE name IN ('breeding_program', 'crossing_trial', 'folder_for_trials', 'genotyping_facility', 'trial_folder')));");
     $h->execute();
     my ($pheno_trial_count) = $h->fetchrow_array() and $h->finish();
 

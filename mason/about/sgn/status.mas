@@ -132,10 +132,7 @@
             <tr>
                 <td>Phenotype Trials with Observations</td>
                 <td><% $pheno_trial_observation_count %></td>
-                <td>
-                    <a href="/search/trials" class="btn btn-primary" role="button">Search</a>
-                    <a href="/breeders/trials" class="btn btn-primary" role="button">Manage</a>
-                </td>
+                <td></td>
             </tr>
 
             <tr>
@@ -149,9 +146,7 @@
             <tr>
                 <td>Plots with Observations</td>
                 <td><% $plot_observation_count %></td>
-                <td>
-                    <a href="/search/stocks" class="btn btn-primary" role="button">Search</a>
-                </td>
+                <td></td>
             </tr>
 
             <tr>
