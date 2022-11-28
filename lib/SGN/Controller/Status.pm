@@ -27,13 +27,13 @@ sub status : Path('/status') Args(0) {
     my ($accession_count) = $h->fetchrow_array() and $h->finish();
 
     # Accessions with Phenotype Data
-    # Accessions associated with 1 or more trait
+    # Accessions associated with 1 or more traits
     $h = $dbh->prepare("SELECT COUNT(DISTINCT accession_id) AS count FROM accessionsxtraits WHERE trait_id IS NOT NULL AND accession_id IS NOT NULL;");
     $h->execute();
     my ($accession_count_pheno) = $h->fetchrow_array() and $h->finish();
 
     # Accessions with Genotype Data
-    # Accessions associated with 1 or more genotyping protocol
+    # Accessions associated with 1 or more genotyping protocols
     $h = $dbh->prepare("SELECT COUNT(DISTINCT accession_id) AS count FROM accessionsxgenotyping_protocols WHERE genotyping_protocol_id IS NOT NULL AND accession_id IS NOT NULL;");
     $h->execute();
     my ($accession_count_geno) = $h->fetchrow_array() and $h->finish();
@@ -50,22 +50,23 @@ sub status : Path('/status') Args(0) {
     $h->execute();
     my ($pheno_trial_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Count of Pheno Trials with Observations
+    # Phenotype Trials with Observations
+    # Trials that are associated with 1 or more traits
     $h = $dbh->prepare("SELECT COUNT(DISTINCT(trial_id)) FROM traitsxtrials WHERE trial_id IS NOT NULL and trait_id IS NOT NULL");
     $h->execute();
     my ($pheno_trial_observation_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Plot Count
+    # Plots
     $h = $dbh->prepare("SELECT COUNT(DISTINCT(plot_id)) FROM plots;");
     $h->execute();
     my ($plot_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Count of Plots with Observations
+    # Plots with Observations
     $h = $dbh->prepare("SELECT COUNT(DISTINCT(plot_id)) FROM plotsxtraits WHERE trait_id IS NOT NULL AND plot_id IS NOT NULL;");
     $h->execute();
     my ($plot_observation_count) = $h->fetchrow_array() and $h->finish();
 
-    # Get Count of Total Pheno Observations
+    # Total Phenotype Observations
     $h = $dbh->prepare("SELECT COUNT(DISTINCT phenotype_id) FROM materialized_phenoview WHERE phenotype_id IS NOT NULL AND trait_id IS NOT NULL;");
     $h->execute();
     my ($pheno_observations) = $h->fetchrow_array() and $h->finish();
