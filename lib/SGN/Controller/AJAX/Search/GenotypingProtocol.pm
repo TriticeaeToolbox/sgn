@@ -65,6 +65,15 @@ sub genotyping_protocol_search_GET : Args(0) {
         }
         my $description = join '<br/>', @trimmed;
         $description = $description ? $description : 'NA';
+	my $create_date = $_->{create_date};
+        if ($create_date =~ /(\d+)-(\d+)-(\d+)/) {
+            my $dt3 = DateTime->new(
+                year => $1,
+                month => $2,
+                day => $3
+            );
+            $create_date = $1 . "-" . $2 . "-" . $3;
+	}
         push @result,
           [
             "<a href=\"/breeders_toolbox/protocol/$_->{protocol_id}\">$_->{protocol_name}</a>",
@@ -73,8 +82,7 @@ sub genotyping_protocol_search_GET : Args(0) {
             $_->{protocol_description},
             $_->{reference_genome_name},
             $_->{species_name},
-            $_->{sample_observation_unit_type_name},
-            $_->{create_date}
+            $create_date
           ];
     }
     #print STDERR "PROTOCOL LIST =".Dumper \@result."\n";
