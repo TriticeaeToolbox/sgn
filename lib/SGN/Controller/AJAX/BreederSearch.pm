@@ -62,11 +62,11 @@ sub get_data : Path('/ajax/breeder/search') Args(0) {
     if (@data) {
       # print STDERR "Validating dataref ids\n";
       # for (my $i=0; $i<@data; $i++) { # ensure dataref arguements (ids) are numeric
-      #   if (m/\D/) {
-      #     $error = "Valid values for dataref are numeric ids";
-      #     $c->stash->{rest} = { error => $error };
-      #     return;
-      #   }
+      #  if (m/\D/) {
+      #    $error = "Valid values for dataref are numeric ids";
+      #    $c->stash->{rest} = { error => $error };
+      #    return;
+      #  }
       # }
       my @cdata = map {"'$_'"} @data;
       my $qdata = join ",", @cdata;
@@ -132,6 +132,35 @@ sub get_avg_phenotypes : Path('/ajax/breeder/search/avg_phenotypes') Args(0) {
 
 }
 
+sub get_genotyping_project_imputed : Path('/ajax/breeder/search/genotyping_project_imputed') Args(0) {
+  my $self = shift;
+  my $c = shift;
+  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
+
+  my $genotyping_project_id = $c->req->param('genotyping_project');
+  my $value = "";
+
+  if ( defined($genotyping_project_id) && $genotyping_project_id ne "" ) {
+    my $imp_cvterm_id = $c->model("Cvterm")->get_cvterm_row($schema, "imputed_genotyping_project", "project_property")->cvterm_id();
+    my $q = "SELECT value
+            FROM projectprop
+            WHERE project_id = ? AND type_id = ?;";
+    my $dbh = $c->dbc->dbh();
+    my $h = $dbh->prepare($q);
+    $h->execute($genotyping_project_id, $imp_cvterm_id);
+    if($h->fetchrow_array()){
+      $value = "available";
+    } else {
+      $value = "not found";
+    }
+  }
+  $c->stash->{rest} = {
+    genotyping_protocol => $genotyping_project_id,
+    imputed => $value
+  };
+
+  return;
+}
 
 sub get_genotyping_protocol_chromosomes : Path('/ajax/breeder/search/genotyping_protocol_chromosomes') Args(0) {
   my $self = shift;

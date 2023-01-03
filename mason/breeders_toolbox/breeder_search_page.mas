@@ -170,7 +170,7 @@ $dataset_id => undef
     <&| /util/user.mas:logged_in &>
       <div class="panel panel-default">
         <div class="panel-heading" role="button" data-toggle="collapse" data-parent="#wiz-down-group" href="#wiz-down-1-c" aria-controls="wiz-down-1-c">
-          <span class="btnn btn-link">Related Genotype Data</span>
+        <span class="btnn btn-link">Related Genotype Data</span>
         </div>
         <div id="wiz-down-1-c" class="panel-collapse collapse" role="tabpanel">
           <table class="table">
@@ -314,6 +314,24 @@ $dataset_id => undef
         </div>
       </div>
 
+      <div class="panel panel-default panel2">
+        <div class="panel-heading" role="button" data-toggle="collapse" data-parent="#wiz-down-group" href="#wiz-down-4-c" aria-controls="wiz-down-4-c">
+          <span class="btnn btn-link" type="text" disabled>Imputed Genotype Data</span>
+          <input class="btnn btn-link" type="text" id="panel3" disabled>
+        </div>
+        <div id="wiz-down-4-c" class="panel-collapse collapse" role="tabpanel">
+          <table class="table"><tr><td>
+          <span>The genotype projects have been imputed using the Practical Haplotype Graph (PHG). The imputed marker density is 1.3M markers
+                for assembly RefSeq_v1 and 2.9M markers for assembly RefSeq v2.1. For quick access
+                the imputed genotypes can be downloaded from a prepared file. A description of the 
+                imputation process can be found in <a href="/about/phg-imputation.pl">About PHG imputation</a>.</span><br/></br>
+               <input class="wizard-download-genotypes-imput form-control input-sm" type="text" disabled></input>
+               <span class="glyphicon glyphicon-info-sign" title="Retieve Imputed Genotypes"></span>
+               <span>Retrieve Genotypes</span><br>
+               <button class="wizard-download-imputed-file btn btn-sm btn-primary">Download file</button> all accessions in project 
+        </table>
+        </div>
+      </div>
       <div class="panel panel-default">
         <div class="panel-heading" role="button" data-toggle="collapse" data-parent="#wiz-down-group" href="#wiz-down-2-c" aria-controls="wiz-down-2-c">
           <span class="btnn btn-link">Related Trial Metadata</span>
@@ -541,8 +559,10 @@ $dataset_id => undef
 
   // Wizard Callback: get chromosome names for a single selected genotyping protocol
   var SELECTED_GENOTYPING_PROTOCOL = undefined;
+  var SELECTED_GENOTYPING_PROJECT = undefined;
   window.sWizard.wizard.on_change(function(categories, selections, operations) {
     var selected_genotyping_protocols = selections.hasOwnProperty('genotyping_protocols') ? selections.genotyping_protocols : [];
+    var selected_genotyping_projects = selections.hasOwnProperty('genotyping_projects') ? selections.genotyping_projects : [];
     if ( selected_genotyping_protocols.length <= 1 ) {
       var selected_genotyping_protocol = selected_genotyping_protocols.length === 1 ? selected_genotyping_protocols[0].id : "";
       if ( selected_genotyping_protocol !== SELECTED_GENOTYPING_PROTOCOL ) {
@@ -573,6 +593,46 @@ $dataset_id => undef
       SELECTED_GENOTYPING_PROTOCOL = "";
       updateChromosomeNames();
     }
+    if ( selected_genotyping_projects.length <= 1 ) {
+      var selected_genotyping_project = selected_genotyping_projects.length === 1 ? selected_genotyping_projects[0].id : "";
+      if ( selected_genotyping_project !== SELECTED_GENOTYPING_PROJECT ) {
+        SELECTED_GENOTYPING_PROJECT = selected_genotyping_project;
+        jQuery.ajax({
+          url: '/ajax/breeder/search/genotyping_project_imputed',
+          method: "GET",
+          data: { 'genotyping_project': SELECTED_GENOTYPING_PROJECT },
+          error: function(response) {
+            console.log("ERROR: Could not get chromosome names for genotyping project #" + SELECTED_GENOTYPING_PROJECT);
+            console.log("error " + response);
+            updateImputed();
+          },
+          success: function(response) {
+            if (response.error) {
+              console.log("ERROR: Server returned an error trying to get the chromosome names for genotyping protocol #" + SELECTED_GENOTYPING_PROTOCOL);
+              console.log("error " + repsonse.error);
+              updateImputed();
+            } else {
+              updateImputed(response.imputed);
+              console.log("rest " + response.imputed);
+              if (response.imputed == "not found") {
+                console.log("setting disable");
+                d3.selectAll("#wiz-down-4-c")
+                  .style("display", null)
+		  .style("display", "none");
+              } else {
+                d3.selectAll("#wiz-down-4-c")
+                  .style("display", null)
+              }
+            }
+          }
+        });
+      }
+    } else {
+      SELECTED_GENOTYPING_PROJECT = "";
+      d3.selectAll("#wiz-down-4-c")
+        .style("display", null)
+        .style("display", "none");
+    }
   });
   updateChromosomeNames();
 
@@ -586,6 +646,11 @@ $dataset_id => undef
       }
     }
     $(".wizard-download-genotypes-chromosome-number").html(html);
+  }
+
+  // Set the message if imputed project found
+  function updateImputed(msg) {
+    document.getElementById("panel3").value = " " + msg;
   }
 
 </script>
