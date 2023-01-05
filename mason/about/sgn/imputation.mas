@@ -1,0 +1,80 @@
+<%args>
+</%args>
+
+<style>
+    .content-status-well {
+        padding: 0;
+    }
+
+    table.content-status-table {
+        width: 100%;
+    }
+
+    table.content-status-table tr:nth-child(even) {
+        background-color: #fcfcfc;
+    }
+
+    table.content-status-table td th {
+        vertical-align: middle;
+        padding: 10px 10px;
+    }
+    table.content-status-table td:nth-child(1) {
+        font-weight: bold;
+        width: 40%;
+    }
+    table.content-status-table td:nth-child(3) {
+        width: 40%;
+    }    
+
+    a.btn {
+        color: #fff;
+        margin: 2px 5px;
+    }
+    a.btn:hover {
+        background-color: #286090 !important;
+        color: #fff;
+    }
+</style>
+
+<& /page/page_title.mas, title=>'Practical Haplotype Graph (PHG) Imputation' &>
+
+<h1><center>T3/Wheat Practical Haplotype Graph (PHG) imputation</center></h1>
+
+<h2>PHG Description</h2>
+The Practical Haplotype Graph (PHG) database was constructed using whole-exome capture sequencing data from a diverse set of wheat accessions.
+<br>Publication for PHG V1: <a href="https://academic.oup.com/g3journal/article/12/2/jkab390/6423995" target="_blank"> Development of the Wheat Practical Haplotype Graph</a>
+<br>Accessions used to create PHG V2: <a href=/static_content/files/PHG472_T3Matches.xlsx>PHG472_T3Matches.xlsx</a>
+<table class="content-status-table">
+<tr><th>Version<th>Accessions<th>Marker density
+<tr><td>PHG V1<td>65<td>1.3M
+<tr><td>PHG V2<td>472<td>2.9M
+</table>
+
+<h2>Imputation Pipeline</h2>
+The imputation was done using the ImputePipelinePlugin of the PHG (<a href="https://bitbucket.org/bucklerlab/practicalhaplotypegraph/wiki/UserInstructions/ImputeWithPHG_main.md" target="_blank">PHG Wiki</a>). The ImputePipelinePlugin was run with minRead=0 so that all haplotypes are imputed. PHG Version 0.0.40 was used to run the ImputePipelinePlugin.
+<br>
+<h2>Imputation accuracy</h2>
+<table class="content-status-table">
+<tr><th>Genotyping Protocol<th>PHG accession<th>other accessions
+<tr><td><a href="/breeders_toolbox/protocol/48">Genotyping by multiplexed sequencing, GMS</a>
+    <td>
+    <td>
+<tr><td><a href="/breeders_toolbox/protocol/71">Infinium 9K</a>
+    <td>93%
+    <td>71%
+<tr><td><a href="/breeders_toolbox/protocol/70">Infinium 90K</a>
+    <td>94%
+    <td>71%
+</table>
+
+<br>
+<h3>PHG imputation protocol</h3>
+Converting Illumina Infinium before imputation - 
+Illumina data is saved in the T3 database as Ref = A_allele, Alt = B_allele. To impute this data and merge with other genotype protocols it is necessary to convert the Illumina so that it aligns (strand and orientation) with the reference genome.
+<a href=/static_content/files/Illumina_90K_conversion.docx>Detailed description</a>
+
+<h3>Imputation documentation -
+<a href=/static_content/files/PHG_accuracy_v2.docx>Testing PHG accuracy</a></h3>
+
+<h3>GitHub repository of scripts to prepare and test data - 
+<a href=https://github.com/TriticeaeToolbox/PHGv2>PHG v2</a></h3>
