@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 10:01:2023 10:14
+date: 23:01:2023 15:11
 saved-by: DJW
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [./barley.obo]
@@ -94,8 +94,8 @@ id: CO_323:0000009
 name: Effective tiller number
 namespace: barley_trait
 def: "The number of effective tillers bearing spikes per area." []
-synonym: "Fertile tiller number" EXACT []
 synonym: "EffTllrN" EXACT []
+synonym: "Fertile tiller number" EXACT []
 is_a: CO_323:Agronomic
 
 [Term]
@@ -163,6 +163,14 @@ synonym: "GFeC" EXACT []
 is_a: CO_323:Quality
 
 [Term]
+id: CO_323:0000358
+name: Grain moisture content
+namespace: barley_trait
+def: "The moisture content of the grain." []
+synonym: "GMoist" EXACT []
+is_a: CO_323:Agronomic
+
+[Term]
 id: CO_323:0000027
 name: Grain number per spike
 namespace: barley_trait
@@ -185,8 +193,8 @@ name: Grain test weight
 namespace: barley_trait
 def: "The grain weight of a known volume." []
 synonym: "GTestW" EXACT []
-synonym: "Grain density" EXACT []
 synonym: "Grain specific gravity" EXACT []
+synonym: "Grain density" EXACT []
 is_a: CO_323:Quality
 
 [Term]
@@ -307,8 +315,8 @@ id: CO_323:0000003
 name: Plant early vigour
 namespace: barley_trait
 def: "The initial vigour of the seedling." []
-synonym: "Initial growth vigour" EXACT []
 synonym: "PEarlyVig" EXACT []
+synonym: "Initial growth vigour" EXACT []
 is_a: CO_323:Agronomic
 
 [Term]
@@ -380,8 +388,8 @@ id: CO_323:0000573
 name: Tiller number
 namespace: barley_trait
 def: "The total number of tillers per area." []
-synonym: "TllrN" EXACT []
 synonym: "Total tiller number" EXACT []
+synonym: "TllrN" EXACT []
 is_a: CO_323:Agronomic
 
 [Term]
@@ -770,10 +778,10 @@ is_a: CO_323:Malting_quality
 
 [Term]
 id: CO_323:0005347
-name: Soluble Protein content
+name: Soluble Protein proportion
 namespace: barley_trait
 def: "Percentage of soluble protein of the total protein content." []
-synonym: "SolProt" EXACT []
+synonym: "SolProtProp" EXACT []
 is_a: CO_323:Malting_quality
 
 [Term]
@@ -1117,7 +1125,7 @@ id: CO_323:0005390
 name: Colorimeter L* parameter
 namespace: barley_trait
 def: "The lightness colorimeter parameter value" []
-synonym: "" EXACT []
+synonym: "L*" EXACT []
 is_a: CO_323:Morphological
 
 [Term]
@@ -1125,7 +1133,7 @@ id: CO_323:0005391
 name: Colorimeter a* parameter
 namespace: barley_trait
 def: "The red/green colorimeter parameter value" []
-synonym: "" EXACT []
+synonym: "a*" EXACT []
 is_a: CO_323:Morphological
 
 [Term]
@@ -1133,8 +1141,56 @@ id: CO_323:0005392
 name: Colorimeter b* parameter
 namespace: barley_trait
 def: "The blue/yellow colorimeter parameter value" []
-synonym: "" EXACT []
+synonym: "b*" EXACT []
 is_a: CO_323:Morphological
+
+[Term]
+id: CO_323:0005393
+name: Soluble Protein amount
+namespace: barley_trait
+def: "The amount of soluble malt protein" []
+synonym: "SolProt" EXACT []
+is_a: CO_323:Malting_quality
+
+[Term]
+id: CO_323:0005394
+name: Total Protein amount
+namespace: barley_trait
+def: "The amount of total malt protein" []
+synonym: "TotProt" EXACT []
+is_a: CO_323:Malting_quality
+
+[Term]
+id: CO_323:0005395
+name: Wort pH
+namespace: barley_trait
+def: "The pH of the Wort" []
+synonym: "WpH" EXACT []
+is_a: CO_323:Malting_quality
+
+[Term]
+id: CO_323:0005396
+name: Water sensitivity
+namespace: barley_trait
+def: "The difference between the 4mL and 8mL grain germinative test results" []
+synonym: "WS" EXACT []
+is_a: CO_323:Malting_quality
+
+[Term]
+id: CO_323:0005397
+name: Malt moisture content
+namespace: barley_trait
+def: "The moisture content of finished, kilned barley malt" []
+synonym: "MM" EXACT []
+is_a: CO_323:Malting_quality
+
+[Term]
+id: CO_323:0005398
+name: Anthocyanin content
+namespace: barley_trait
+def: "Total anthocyanin content expressed as ug of cyanidin-3 glucoside equivalents/g sample" []
+synonym: "AC" EXACT []
+is_a: CO_323:Quality
 
 [Term]
 id: CO_323:0000267
@@ -1205,6 +1261,13 @@ name: Grain Iron content - Measurement
 namespace: barley_trait_method
 def: "Use standard Iron content dry ash method." []
 relationship: method_of CO_323:0000355
+
+[Term]
+id: CO_323:0000359
+name: Grain moisture content - Measurement
+namespace: barley_trait_method
+def: "Measure barley grain moisture content (ASBC Barley Method 5)" []
+relationship: method_of CO_323:0000358
 
 [Term]
 id: CO_323:0000368
@@ -1810,9 +1873,9 @@ relationship: method_of CO_323:0005346
 
 [Term]
 id: CO_323:0005162
-name: Soluble Protein content - Measurement
+name: Soluble Protein proportion - Computation
 namespace: barley_trait_method
-def: "Measure the soluble protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods." []
+def: "Compute the percentage of soluble protein relative to the total protein.  Measure the soluble protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods." []
 relationship: method_of CO_323:0005347
 
 [Term]
@@ -2135,18 +2198,67 @@ id: CO_323:0005208
 name: Colorimeter parameter value - untreated - Computation
 namespace: barley_trait_method
 def: "The parameter reading from a Minolta CR-410 colorimeter on an untreated seed." []
-relationship: method_of CO_323:0005390
 relationship: method_of CO_323:0005391
 relationship: method_of CO_323:0005392
+relationship: method_of CO_323:0005390
 
 [Term]
 id: CO_323:0005209
 name: Colorimeter parameter value - treated - Computation
 namespace: barley_trait_method
 def: "The parameter reading from a Minolta CR-410 colorimeter on a seed treated with a 1% HCl dilution from 16 hours." []
-relationship: method_of CO_323:0005390
 relationship: method_of CO_323:0005391
 relationship: method_of CO_323:0005392
+relationship: method_of CO_323:0005390
+
+[Term]
+id: CO_323:0005210
+name: Soluble protein amount - Measurement
+namespace: barley_trait_method
+def: "Measure the soluble protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods." []
+relationship: method_of CO_323:0005393
+
+[Term]
+id: CO_323:0005211
+name: Total protein amount - Measurement
+namespace: barley_trait_method
+def: "Measure the total protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods." []
+relationship: method_of CO_323:0005394
+
+[Term]
+id: CO_323:0005212
+name: Wort pH - Measurement
+namespace: barley_trait_method
+def: "pH of the wort taken post filtration" []
+relationship: method_of CO_323:0005395
+
+[Term]
+id: CO_323:0005213
+name: Grain germinative energy - 8 mL - Measurement
+namespace: barley_trait_method
+def: "Measure grain germinative energy by applying EBC method of analysis (8 ml test)." []
+relationship: method_of CO_323:0000195
+
+[Term]
+id: CO_323:0005214
+name: Water sensitivity - Computation
+namespace: barley_trait_method
+def: "Computation of the water sensitivity as the difference between the 4mL and 8mL germinative test results (ASBC Barley Method 3C)" []
+relationship: method_of CO_323:0005396
+
+[Term]
+id: CO_323:0005215
+name: Malt moisture content - Measurement
+namespace: barley_trait_method
+def: "Measure the moisture content of finished, kilned barley malt (ASBC Malt Method 3)" []
+relationship: method_of CO_323:0005397
+
+[Term]
+id: CO_323:0005216
+name: Anthocyanin content - Measurement
+namespace: barley_trait_method
+def: "A 1.6 mL of solution of 85 % ethanol and 15 % hydrochloric acid 1 M was added to 100 mg of flour sample. Then, samples were mixed for 15 min and centrifuged at 27,200 Ã g for 30 min. Absorbance readings at 536 nm were taken using a microplate reader (Molecular Device VersaMax, USA). The results were expressed as Î¼g of cyanidin-3 glucoside equivalents/g sample (Abdel-Aal and Hucl 1999)." []
+relationship: method_of CO_323:0005398
 
 [Term]
 id: CO_323:0000236
@@ -2158,10 +2270,10 @@ relationship: scale_of CO_323:0000389
 id: CO_323:0000026
 name: cm
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0000322
-relationship: scale_of CO_323:0000326
 relationship: scale_of CO_323:0005110
 relationship: scale_of CO_323:0005183
+relationship: scale_of CO_323:0000326
+relationship: scale_of CO_323:0000322
 relationship: scale_of CO_323:0000493
 relationship: scale_of CO_323:0005103
 
@@ -2170,8 +2282,8 @@ id: CO_323:0000053
 name: Absent-Present scale
 namespace: barley_trait_scale
 def: "0= absent, 1= present" []
-relationship: scale_of CO_323:0005177
 relationship: scale_of CO_323:0005176
+relationship: scale_of CO_323:0005177
 
 [Term]
 id: CO_323:0000053/0
@@ -2191,49 +2303,55 @@ is_a: CO_323:0000053
 id: CO_323:0000002
 name: %
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0005163
-relationship: scale_of CO_323:0005162
-relationship: scale_of CO_323:0005143
-relationship: scale_of CO_323:0000333
-relationship: scale_of CO_323:0005132
-relationship: scale_of CO_323:0005160
-relationship: scale_of CO_323:0005166
-relationship: scale_of CO_323:0005121
-relationship: scale_of CO_323:0005115
-relationship: scale_of CO_323:0005155
 relationship: scale_of CO_323:0000380
-relationship: scale_of CO_323:0005152
-relationship: scale_of CO_323:0005175
-relationship: scale_of CO_323:0005157
-relationship: scale_of CO_323:0000459
-relationship: scale_of CO_323:0005159
-relationship: scale_of CO_323:0005196
-relationship: scale_of CO_323:0005165
-relationship: scale_of CO_323:0005195
-relationship: scale_of CO_323:0000349
-relationship: scale_of CO_323:0005117
-relationship: scale_of CO_323:0005102
-relationship: scale_of CO_323:0005120
-relationship: scale_of CO_323:0005164
-relationship: scale_of CO_323:0005129
-relationship: scale_of CO_323:0005109
-relationship: scale_of CO_323:0005202
-relationship: scale_of CO_323:0005113
-relationship: scale_of CO_323:0005158
-relationship: scale_of CO_323:0005138
-relationship: scale_of CO_323:0005167
-relationship: scale_of CO_323:0005203
-relationship: scale_of CO_323:0000337
-relationship: scale_of CO_323:0005151
-relationship: scale_of CO_323:0005187
-relationship: scale_of CO_323:0000457
-relationship: scale_of CO_323:0005161
-relationship: scale_of CO_323:0005108
 relationship: scale_of CO_323:0005141
-relationship: scale_of CO_323:0000495
+relationship: scale_of CO_323:0000359
+relationship: scale_of CO_323:0005161
+relationship: scale_of CO_323:0005196
+relationship: scale_of CO_323:0005143
+relationship: scale_of CO_323:0000349
+relationship: scale_of CO_323:0005195
+relationship: scale_of CO_323:0005109
+relationship: scale_of CO_323:0005160
+relationship: scale_of CO_323:0005167
+relationship: scale_of CO_323:0005215
+relationship: scale_of CO_323:0005157
+relationship: scale_of CO_323:0005115
+relationship: scale_of CO_323:0000337
 relationship: scale_of CO_323:0005135
-relationship: scale_of CO_323:0005156
+relationship: scale_of CO_323:0005113
+relationship: scale_of CO_323:0005175
+relationship: scale_of CO_323:0005158
+relationship: scale_of CO_323:0005132
+relationship: scale_of CO_323:0000459
+relationship: scale_of CO_323:0005120
+relationship: scale_of CO_323:0005108
+relationship: scale_of CO_323:0000495
+relationship: scale_of CO_323:0000457
+relationship: scale_of CO_323:0005129
+relationship: scale_of CO_323:0005155
+relationship: scale_of CO_323:0005213
+relationship: scale_of CO_323:0005165
+relationship: scale_of CO_323:0005121
+relationship: scale_of CO_323:0005117
 relationship: scale_of CO_323:0000406
+relationship: scale_of CO_323:0005152
+relationship: scale_of CO_323:0005203
+relationship: scale_of CO_323:0005202
+relationship: scale_of CO_323:0005211
+relationship: scale_of CO_323:0005162
+relationship: scale_of CO_323:0005164
+relationship: scale_of CO_323:0000333
+relationship: scale_of CO_323:0005163
+relationship: scale_of CO_323:0005210
+relationship: scale_of CO_323:0005151
+relationship: scale_of CO_323:0005156
+relationship: scale_of CO_323:0005102
+relationship: scale_of CO_323:0005159
+relationship: scale_of CO_323:0005187
+relationship: scale_of CO_323:0005138
+relationship: scale_of CO_323:0005214
+relationship: scale_of CO_323:0005166
 
 [Term]
 id: CO_323:0000014
@@ -2246,11 +2364,11 @@ relationship: scale_of CO_323:0000410
 id: CO_323:0000227
 name: ppm
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0000580
-relationship: scale_of CO_323:0000356
-relationship: scale_of CO_323:0000398
 relationship: scale_of CO_323:0000343
+relationship: scale_of CO_323:0000356
 relationship: scale_of CO_323:0000453
+relationship: scale_of CO_323:0000580
+relationship: scale_of CO_323:0000398
 
 [Term]
 id: CO_323:0000029
@@ -2344,10 +2462,10 @@ is_a: CO_323:0000005
 id: CO_323:0000008
 name: tiller/plant
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0000313
 relationship: scale_of CO_323:0005112
-relationship: scale_of CO_323:0005116
 relationship: scale_of CO_323:0000574
+relationship: scale_of CO_323:0005116
+relationship: scale_of CO_323:0000313
 
 [Term]
 id: CO_323:0000080
@@ -2452,7 +2570,7 @@ relationship: scale_of CO_323:0000386
 id: CO_323:0005008
 name: 0-8 BYDV Disease Rating
 namespace: barley_trait_scale
-def: "0= no symptons, 1= >0-3%, 2= 4-14%, 3= 15-29%, 4= 30-49%, 5= 50-69%, 6= 70-84%, 7= 85-95%, 8= 96-100%" []
+def: "0= no symptons, 1= &gt;0-3%, 2= 4-14%, 3= 15-29%, 4= 30-49%, 5= 50-69%, 6= 70-84%, 7= 85-95%, 8= 96-100%" []
 relationship: scale_of CO_323:0005118
 
 [Term]
@@ -2464,7 +2582,7 @@ is_a: CO_323:0005008
 
 [Term]
 id: CO_323:0005008/1
-name: >0-3%
+name: &gt;0-3%
 namespace: barley_trait_scale
 synonym: "1" EXACT []
 is_a: CO_323:0005008
@@ -2930,7 +3048,7 @@ is_a: CO_323:0005024
 id: CO_323:0005025
 name: 1-5 SFNB Reaction Type Rating
 namespace: barley_trait_scale
-def: "1= small dark pinpoint necrotic lesions, 2= pinpoint lesions with small amounts of necrosis and chlorosis surrounding the penetration point, 3= necrotic or chlorotic lesions 2-3 mm in size with little coalescence of lesions, 4= coalescing necrotic or chlorotic lesions >3 mm across, 5= necrotic or chlorotic lesions coalescing and covering greater than 70% of the leaf area." []
+def: "1= small dark pinpoint necrotic lesions, 2= pinpoint lesions with small amounts of necrosis and chlorosis surrounding the penetration point, 3= necrotic or chlorotic lesions 2-3 mm in size with little coalescence of lesions, 4= coalescing necrotic or chlorotic lesions &gt;3 mm across, 5= necrotic or chlorotic lesions coalescing and covering greater than 70% of the leaf area." []
 relationship: scale_of CO_323:0005136
 
 [Term]
@@ -2956,7 +3074,7 @@ is_a: CO_323:0005025
 
 [Term]
 id: CO_323:0005025/3
-name: coalescing necrotic or chlorotic lesions >3 mm across
+name: coalescing necrotic or chlorotic lesions &gt;3 mm across
 namespace: barley_trait_scale
 synonym: "4" EXACT []
 is_a: CO_323:0005025
@@ -2973,9 +3091,9 @@ id: CO_323:0005026
 name: 0-4 Stem Rust Reaction Type Rating
 namespace: barley_trait_scale
 def: "0= no disease, 4= completely affected" []
-relationship: scale_of CO_323:0005137
-relationship: scale_of CO_323:0005139
 relationship: scale_of CO_323:0005140
+relationship: scale_of CO_323:0005139
+relationship: scale_of CO_323:0005137
 
 [Term]
 id: CO_323:0005026/0
@@ -3037,35 +3155,35 @@ is_a: CO_323:0005028
 id: CO_323:0005029
 name: U/g malt
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0005146
 relationship: scale_of CO_323:0005148
+relationship: scale_of CO_323:0005146
 
 [Term]
 id: CO_323:0005030
 name: U/kg malt
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0005153
 relationship: scale_of CO_323:0005154
 relationship: scale_of CO_323:0005147
-relationship: scale_of CO_323:0005149
 relationship: scale_of CO_323:0005150
+relationship: scale_of CO_323:0005153
+relationship: scale_of CO_323:0005149
 
 [Term]
 id: CO_323:0005031
 name: ASBC Color Rating
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0000339
 relationship: scale_of CO_323:0005170
+relationship: scale_of CO_323:0000339
 
 [Term]
 id: CO_323:0005032
 name: g/100L
 namespace: barley_trait_scale
 relationship: scale_of CO_323:0005171
-relationship: scale_of CO_323:0005173
-relationship: scale_of CO_323:0005174
-relationship: scale_of CO_323:0005168
 relationship: scale_of CO_323:0005172
+relationship: scale_of CO_323:0005173
+relationship: scale_of CO_323:0005168
+relationship: scale_of CO_323:0005174
 
 [Term]
 id: CO_323:0005033
@@ -3111,11 +3229,11 @@ relationship: scale_of CO_323:0000267
 id: CO_323:0005036
 name: mm
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0005181
 relationship: scale_of CO_323:0005178
-relationship: scale_of CO_323:0005182
 relationship: scale_of CO_323:0000533
+relationship: scale_of CO_323:0005181
 relationship: scale_of CO_323:0005179
+relationship: scale_of CO_323:0005182
 
 [Term]
 id: CO_323:0005037
@@ -3169,18 +3287,19 @@ is_a: CO_323:0005039
 id: CO_323:0005040
 name: ug/g
 namespace: barley_trait_scale
-relationship: scale_of CO_323:0005188
-relationship: scale_of CO_323:0005200
-relationship: scale_of CO_323:0005191
-relationship: scale_of CO_323:0005186
-relationship: scale_of CO_323:0005192
-relationship: scale_of CO_323:0005199
-relationship: scale_of CO_323:0005194
 relationship: scale_of CO_323:0005190
+relationship: scale_of CO_323:0005194
+relationship: scale_of CO_323:0005199
+relationship: scale_of CO_323:0005191
 relationship: scale_of CO_323:0005193
-relationship: scale_of CO_323:0005185
 relationship: scale_of CO_323:0005189
+relationship: scale_of CO_323:0005188
+relationship: scale_of CO_323:0005186
 relationship: scale_of CO_323:0005198
+relationship: scale_of CO_323:0005216
+relationship: scale_of CO_323:0005185
+relationship: scale_of CO_323:0005200
+relationship: scale_of CO_323:0005192
 
 [Term]
 id: CO_323:0005041
@@ -3262,8 +3381,8 @@ id: CO_323:0005046
 name: Colorimeter L* parameter value
 namespace: barley_trait_scale
 def: "0= black, 100= white" []
-relationship: scale_of CO_323:0005209
 relationship: scale_of CO_323:0005208
+relationship: scale_of CO_323:0005209
 
 [Term]
 id: CO_323:0005046/0
@@ -3284,8 +3403,8 @@ id: CO_323:0005047
 name: Colorimeter a* parameter value
 namespace: barley_trait_scale
 def: "-90= green, 90= red" []
-relationship: scale_of CO_323:0005209
 relationship: scale_of CO_323:0005208
+relationship: scale_of CO_323:0005209
 
 [Term]
 id: CO_323:0005047/0
@@ -3324,30 +3443,51 @@ synonym: "90" EXACT []
 is_a: CO_323:0005048
 
 [Term]
+id: CO_323:0005049
+name: pH
+namespace: barley_trait_scale
+def: "0= acidic, 14= basic" []
+relationship: scale_of CO_323:0005212
+
+[Term]
+id: CO_323:0005049/0
+name: acidic
+namespace: barley_trait_scale
+synonym: "0" EXACT []
+is_a: CO_323:0005049
+
+[Term]
+id: CO_323:0005049/1
+name: basic
+namespace: barley_trait_scale
+synonym: "14" EXACT []
+is_a: CO_323:0005049
+
+[Term]
 id: CO_323:0000323
 name: Flag leaf length - cm
 namespace: barley_trait
 def: "TRAIT: The length of flag leaf. METHOD: The length of the flag leaf measured in centimeters, usually recorded as average of at least five tillers. SCALE: cm" []
 relationship: variable_of CO_323:0000063
-relationship: variable_of CO_323:0000322
 relationship: variable_of CO_323:0000026
+relationship: variable_of CO_323:0000322
 
 [Term]
 id: CO_323:0000327
 name: Flag leaf width - cm
 namespace: barley_trait
 def: "TRAIT: The width of flag leaf at mid-point of the leaf blade. METHOD: The width of the flag leaf measured in centimeters at mid-point of the leaf blade, usually recorded as average of at least five tillers. SCALE: cm" []
+relationship: variable_of CO_323:0000066
 relationship: variable_of CO_323:0000026
 relationship: variable_of CO_323:0000326
-relationship: variable_of CO_323:0000066
 
 [Term]
 id: CO_323:0000338
 name: Grain Beta Glucan content - %
 namespace: barley_trait
 def: "TRAIT: The Beta Glucan content of the malt. METHOD: Measure grain Beta Glucan content by applying EBC method of analysis (betaglucan test Megazyme kit method). SCALE: %" []
-relationship: variable_of CO_323:0000336
 relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000336
 relationship: variable_of CO_323:0000337
 
 [Term]
@@ -3355,19 +3495,28 @@ id: CO_323:0000344
 name: Grain Deoxynivalenol content - ppm
 namespace: barley_trait
 def: "TRAIT: The content of the mycotoxin Deoxynivalenol in grains. METHOD: Use standard method to determine grain Deoxynivalenol content and record it. SCALE: ppm" []
-relationship: variable_of CO_323:0000227
 relationship: variable_of CO_323:0000343
+relationship: variable_of CO_323:0000227
 relationship: variable_of CO_323:0000225
 
 [Term]
 id: CO_323:0000350
-name: Grain germinative energy - %
+name: Grain germinative energy - 4mL - %
 namespace: barley_trait
 def: "TRAIT: The germinative energy determine the germination of grains as proportion within a 72 hour period using a standard method. METHOD: Measure grain germinative energy by applying EBC method of analysis (4 ml test). SCALE: %" []
 synonym: "GE" EXACT []
+relationship: variable_of CO_323:0000349
 relationship: variable_of CO_323:0000195
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0000349
+
+[Term]
+id: CO_323:0000360
+name: Grain moisture content - %
+namespace: barley_trait
+def: "TRAIT: The moisture content of the grain. METHOD: Measure barley grain moisture content (ASBC Barley Method 5) SCALE: %" []
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000358
+relationship: variable_of CO_323:0000359
 
 [Term]
 id: CO_323:0000369
@@ -3375,8 +3524,8 @@ name: Grain number per spike - grain
 namespace: barley_trait
 def: "TRAIT: The number of grains per spike. METHOD: Count the number of grains per spike and record it. Usually recorded as the average of 10 spikes. SCALE: grain" []
 relationship: variable_of CO_323:0000368
-relationship: variable_of CO_323:0000029
 relationship: variable_of CO_323:0000027
+relationship: variable_of CO_323:0000029
 
 [Term]
 id: CO_323:0000381
@@ -3384,16 +3533,16 @@ name: Grain Protein content - %
 namespace: barley_trait
 def: "TRAIT: The Protein content of the grains in dry weight basis. METHOD: Measure grain protein content by NIRS method and record it. SCALE: %" []
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0000380
 relationship: variable_of CO_323:0000186
+relationship: variable_of CO_323:0000380
 
 [Term]
 id: CO_323:0000390
 name: Grain yield adjusted weight basis - kg/ha
 namespace: barley_trait
 def: "TRAIT: The amount in adjusted weight basis (at commercial/standard moisture content) of grain that was harvested per unit area or plant. METHOD: Compute adjusted weight of harvested grain per area. SCALE: kg/ha" []
-relationship: variable_of CO_323:0000236
 relationship: variable_of CO_323:0000389
+relationship: variable_of CO_323:0000236
 relationship: variable_of CO_323:0000388
 
 [Term]
@@ -3412,9 +3561,9 @@ name: Malt diastatic power - degree Linter
 namespace: barley_trait
 def: "TRAIT: The total starch degrading enzymes activity in malt. METHOD: Measure malt diastatic power by applying EBC method of analysis (Diastatic power test). SCALE: degree Linter" []
 synonym: "DP" EXACT []
+relationship: variable_of CO_323:0000213
 relationship: variable_of CO_323:0000215
 relationship: variable_of CO_323:0000455
-relationship: variable_of CO_323:0000213
 
 [Term]
 id: CO_323:0000458
@@ -3422,9 +3571,9 @@ name: Malt friability - %
 namespace: barley_trait
 def: "TRAIT: The degree and homogeneity of malt modification. METHOD: Measure malt friability by applying EBC method of analysis (malt friability test). SCALE: %" []
 synonym: "MF" EXACT []
-relationship: variable_of CO_323:0000207
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0000457
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000207
 
 [Term]
 id: CO_323:0000460
@@ -3432,9 +3581,9 @@ name: Malt hot water extract - %
 namespace: barley_trait
 def: "TRAIT: The extract content indicates the fraction of soluble substances (particularly starch and protein) in the wort, and it is the most important characteristic for brewing quality METHOD: Measure malt hot water extract by applying EBC method of analysis (hot water extract test). SCALE: %" []
 synonym: "HWE" EXACT []
-relationship: variable_of CO_323:0000210
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0000459
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000210
 
 [Term]
 id: CO_323:0000490
@@ -3442,9 +3591,9 @@ name: Plant early vigour - 1-9 Plant vigour scale
 namespace: barley_trait
 def: "TRAIT: The initial vigour of the seedling. METHOD: Observe vigour of the plants per plot/entry and rate it. SCALE: 1-9 Plant vigour scale (1= non vigorous, 2= very poor vigour, 3= poor vigour, 4= fair vigour, 5= good vigour, 6= good to vey good vigour, 7= very good vigour, 8= high vigour, 9= extremely high vigour)" []
 synonym: "GV" EXACT []
+relationship: variable_of CO_323:0000489
 relationship: variable_of CO_323:0000003
 relationship: variable_of CO_323:0000005
-relationship: variable_of CO_323:0000489
 
 [Term]
 id: CO_323:0000494
@@ -3452,27 +3601,27 @@ name: Plant height - cm
 namespace: barley_trait
 def: "TRAIT: The height of plant from ground to top part. METHOD: Measure height from the ground level to the tip of the spike excluding awns, it is recommended to record an average of at least 5 plants in a plot. SCALE: cm" []
 synonym: "PH" EXACT []
+relationship: variable_of CO_323:0000026
 relationship: variable_of CO_323:0000024
 relationship: variable_of CO_323:0000493
-relationship: variable_of CO_323:0000026
 
 [Term]
 id: CO_323:0000523
 name: Spike attitude - 1-3 Attitude scale
 namespace: barley_trait
 def: "TRAIT: The angle or attitude of spike respect the culm. METHOD: Observe the erectness of spikes and rate it. SCALE: 1-3 Attitude scale (1= erect, 2= semi erect, 3= drooping)" []
-relationship: variable_of CO_323:0000522
 relationship: variable_of CO_323:0000080
 relationship: variable_of CO_323:0000078
+relationship: variable_of CO_323:0000522
 
 [Term]
 id: CO_323:0000538
 name: Spike number - spike/m2
 namespace: barley_trait
 def: "TRAIT: The number of spikes per area. METHOD: Count the number of spikes per area and record it. SCALE: spike/m2" []
-relationship: variable_of CO_323:0000537
 relationship: variable_of CO_323:0000536
 relationship: variable_of CO_323:0000535
+relationship: variable_of CO_323:0000537
 
 [Term]
 id: CO_323:0000581
@@ -3480,9 +3629,9 @@ name: Wort FAN content - ppm
 namespace: barley_trait
 def: "TRAIT: The Free Aminoacid Nitrogen content of the wort. METHOD: Use standard EBC method of analysis for wort viscosity. SCALE: ppm" []
 synonym: "FAN" EXACT []
-relationship: variable_of CO_323:0000579
 relationship: variable_of CO_323:0000580
 relationship: variable_of CO_323:0000227
+relationship: variable_of CO_323:0000579
 
 [Term]
 id: CO_323:0005501
@@ -3490,8 +3639,8 @@ name: 50 grain weight - g
 namespace: barley_trait
 def: "TRAIT: The measured or average weight of a grain. METHOD: Determined based on 50 arbitrarily selected kernels from each landrace from the S3 generation SCALE: g" []
 synonym: "50GW" EXACT []
-relationship: variable_of CO_323:0000038
 relationship: variable_of CO_323:0005101
+relationship: variable_of CO_323:0000038
 relationship: variable_of CO_323:0005301
 
 [Term]
@@ -3499,8 +3648,8 @@ id: CO_323:0005502
 name: Barley ground cover - %
 namespace: barley_trait
 def: "TRAIT: The percent of ground covered by barley. METHOD: Estimate the percentage of ground covered by barley. Measured throughout the season to look at weed competitive ability of lines. SCALE: %" []
-relationship: variable_of CO_323:0005302
 relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005302
 relationship: variable_of CO_323:0005102
 
 [Term]
@@ -3509,8 +3658,8 @@ name: Plant early height - cm
 namespace: barley_trait
 def: "TRAIT: The early plant height. METHOD: Measure the plant height early in the season to look at weed competitive ability of lines. SCALE: cm" []
 synonym: "EPH" EXACT []
-relationship: variable_of CO_323:0005303
 relationship: variable_of CO_323:0000026
+relationship: variable_of CO_323:0005303
 relationship: variable_of CO_323:0005103
 
 [Term]
@@ -3518,17 +3667,17 @@ id: CO_323:0005504
 name: Flag leaf weight - mg
 namespace: barley_trait
 def: "TRAIT: The weight of the flag leaf. METHOD: Measure weight of flag leaf. SCALE: mg" []
-relationship: variable_of CO_323:0005001
 relationship: variable_of CO_323:0005104
 relationship: variable_of CO_323:0005304
+relationship: variable_of CO_323:0005001
 
 [Term]
 id: CO_323:0005505
 name: Grain hardness SKCS - SKCS
 namespace: barley_trait
 def: "TRAIT: Grain hardness. METHOD: Rate grain hardness using the Single Kernel Characterization System SCALE: SKCS" []
-relationship: variable_of CO_323:0005305
 relationship: variable_of CO_323:0005002
+relationship: variable_of CO_323:0005305
 relationship: variable_of CO_323:0005105
 
 [Term]
@@ -3537,9 +3686,9 @@ name: Grain weight - mg
 namespace: barley_trait
 def: "TRAIT: The measured or average weight of a grain. METHOD: Measure or Estimate the weight of a grain. SCALE: mg" []
 synonym: "GW" EXACT []
+relationship: variable_of CO_323:0005106
 relationship: variable_of CO_323:0005301
 relationship: variable_of CO_323:0005001
-relationship: variable_of CO_323:0005106
 
 [Term]
 id: CO_323:0005507
@@ -3555,8 +3704,8 @@ id: CO_323:0005508
 name: Head shattering - %
 namespace: barley_trait
 def: "TRAIT: A measure of shattered heads. METHOD: Estimate the percetage of shattered heads. SCALE: %" []
-relationship: variable_of CO_323:0005307
 relationship: variable_of CO_323:0005108
+relationship: variable_of CO_323:0005307
 relationship: variable_of CO_323:0000002
 
 [Term]
@@ -3565,9 +3714,9 @@ name: Heading time - days
 namespace: barley_trait
 def: "TRAIT: The timing of the heading. METHOD: Record date of heading when 50% plants in a plot have reached heading stage. SCALE: day" []
 synonym: "HTD" EXACT []
-relationship: variable_of CO_323:0000410
 relationship: variable_of CO_323:0000014
 relationship: variable_of CO_323:0000230
+relationship: variable_of CO_323:0000410
 
 [Term]
 id: CO_323:0005510
@@ -3575,18 +3724,18 @@ name: Heading time - Julian day
 namespace: barley_trait
 def: "TRAIT: The timing of the heading. METHOD: Record date of heading when 50% plants in a plot have reached heading stage. SCALE: Julian day" []
 synonym: "HTJD" EXACT []
+relationship: variable_of CO_323:0000410
 relationship: variable_of CO_323:0000230
 relationship: variable_of CO_323:0005004
-relationship: variable_of CO_323:0000410
 
 [Term]
 id: CO_323:0005511
 name: Leaf Rust severity - %
 namespace: barley_trait
 def: "TRAIT: Leaf rust severity. METHOD: Estimate the percent area of leaf affected by leaf rust SCALE: %" []
+relationship: variable_of CO_323:0005109
 relationship: variable_of CO_323:0005308
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0005109
 
 [Term]
 id: CO_323:0005512
@@ -3595,17 +3744,17 @@ namespace: barley_trait
 def: "TRAIT: The mean width at the widest point of the second leaf below the flag leaf on the tallest shoot of all plants METHOD: Measure the mean width at the widest point of the second leaf below the flag leaf on the tallest shoot of all plants SCALE: cm" []
 synonym: "LW" EXACT []
 relationship: variable_of CO_323:0000026
-relationship: variable_of CO_323:0005110
 relationship: variable_of CO_323:0005309
+relationship: variable_of CO_323:0005110
 
 [Term]
 id: CO_323:0005513
 name: Lodging incidence - %
 namespace: barley_trait
 def: "TRAIT: The plant lodging incidence. METHOD: Observe lodging incidence per plot/entry and rate it. SCALE: %" []
+relationship: variable_of CO_323:0000021
 relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0000495
-relationship: variable_of CO_323:0000021
 
 [Term]
 id: CO_323:0005514
@@ -3613,44 +3762,44 @@ name: Lodging degree - 0-9 lodging degree scale
 namespace: barley_trait
 def: "TRAIT: A measure of the degree of lodging in a plot. METHOD: Estimate the degree of lodging in a plot using a standardized rating scale. SCALE: 0-9 lodging degree scale (0= no lodging, 9= lodged)" []
 relationship: variable_of CO_323:0005310
-relationship: variable_of CO_323:0005111
 relationship: variable_of CO_323:0005005
+relationship: variable_of CO_323:0005111
 
 [Term]
 id: CO_323:0005515
 name: Maturity time - Julian day
 namespace: barley_trait
 def: "TRAIT: The timing of the physiological maturity. METHOD: Record date of physiological maturity when 90% plants in a plot have yellow peduncles. SCALE: Julian day" []
-relationship: variable_of CO_323:0000015
-relationship: variable_of CO_323:0005004
 relationship: variable_of CO_323:0000469
+relationship: variable_of CO_323:0005004
+relationship: variable_of CO_323:0000015
 
 [Term]
 id: CO_323:0005516
 name: Non-bearing tiller number per plant - tiller/plant
 namespace: barley_trait
 def: "TRAIT: The number of non-bearing (infertile) tillers per area. METHOD: Count the number of non-productive tillers developing on a single plant SCALE: tiller/plant" []
-relationship: variable_of CO_323:0000478
-relationship: variable_of CO_323:0000008
 relationship: variable_of CO_323:0005112
+relationship: variable_of CO_323:0000008
+relationship: variable_of CO_323:0000478
 
 [Term]
 id: CO_323:0005517
 name: Open ground cover - %
 namespace: barley_trait
 def: "TRAIT: The percent of ground not covered by any plant. METHOD: Estimate the percentage of open ground cover. Measured throughout the season to look at weed competitive ability of lines. SCALE: %" []
-relationship: variable_of CO_323:0005113
 relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005311
+relationship: variable_of CO_323:0005113
 
 [Term]
 id: CO_323:0005518
 name: Effective tiller number - tiller/plant
 namespace: barley_trait
 def: "TRAIT: The number of effective tillers bearing spikes per area. METHOD: Count the number of effective tillers per area and record it. SCALE: tiller/plant" []
-relationship: variable_of CO_323:0000009
-relationship: variable_of CO_323:0000008
 relationship: variable_of CO_323:0000313
+relationship: variable_of CO_323:0000008
+relationship: variable_of CO_323:0000009
 
 [Term]
 id: CO_323:0005519
@@ -3658,16 +3807,16 @@ name: Seedling count - count
 namespace: barley_trait
 def: "TRAIT: A count of the seedlings. METHOD: Count the number of seedlings.  	Measured early in the season to look at weed competitive ability of lines. Number of plants in one meter. SCALE: count" []
 relationship: variable_of CO_323:0005114
-relationship: variable_of CO_323:0005006
 relationship: variable_of CO_323:0005312
+relationship: variable_of CO_323:0005006
 
 [Term]
 id: CO_323:0005520
 name: Straw breakage - %
 namespace: barley_trait
 def: "TRAIT: A measure of the straw breakage. METHOD: Estimate the percentage of plants with broken straw. SCALE: %" []
-relationship: variable_of CO_323:0005313
 relationship: variable_of CO_323:0005115
+relationship: variable_of CO_323:0005313
 relationship: variable_of CO_323:0000002
 
 [Term]
@@ -3676,26 +3825,26 @@ name: Grain test weight - g/L
 namespace: barley_trait
 def: "TRAIT: The grain weight of a known volume. METHOD: Measure grain test weight with standard hectoliter weight instrument. SCALE: g/L" []
 synonym: "GTW" EXACT []
-relationship: variable_of CO_323:0000180
-relationship: variable_of CO_323:0005007
 relationship: variable_of CO_323:0000386
+relationship: variable_of CO_323:0005007
+relationship: variable_of CO_323:0000180
 
 [Term]
 id: CO_323:0005522
 name: Tiller number - tiller/plant
 namespace: barley_trait
 def: "TRAIT: The total number of tillers per area. METHOD: Count the number of total tillers per area and record it. SCALE: tiller/plant" []
-relationship: variable_of CO_323:0000573
 relationship: variable_of CO_323:0000574
 relationship: variable_of CO_323:0000008
+relationship: variable_of CO_323:0000573
 
 [Term]
 id: CO_323:0005523
 name: Max tiller number - tiller/plant
 namespace: barley_trait
 def: "TRAIT: The total number of tillers per area. METHOD: Count the maximum number of tillers developing on a single plant from multiple observations over a season. SCALE: tiller/plant" []
-relationship: variable_of CO_323:0000573
 relationship: variable_of CO_323:0000008
+relationship: variable_of CO_323:0000573
 relationship: variable_of CO_323:0005116
 
 [Term]
@@ -3703,15 +3852,15 @@ id: CO_323:0005524
 name: Weed ground cover - %
 namespace: barley_trait
 def: "TRAIT: The percent of ground covered by weeds. METHOD: Estimate the percentage of ground covered by weeds. Measured throughout the season to look at weed competitive ability of lines. SCALE: %" []
+relationship: variable_of CO_323:0005314
 relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005117
-relationship: variable_of CO_323:0005314
 
 [Term]
 id: CO_323:0005525
 name: BYDV 0-8 susceptibility rating - 0-8 BYDV Disease Rating
 namespace: barley_trait
-def: "TRAIT: The plant susceptibility to Barley Yellow Dwarf Virus (BYDV). METHOD: Rate BYDV susceptibility from 0-8 in the field indicating the percentage of plants showing foliar discoloration/stunting. SCALE: 0-8 BYDV Disease Rating (0= no symptons, 1= >0-3%, 2= 4-14%, 3= 15-29%, 4= 30-49%, 5= 50-69%, 6= 70-84%, 7= 85-95%, 8= 96-100%)" []
+def: "TRAIT: The plant susceptibility to Barley Yellow Dwarf Virus (BYDV). METHOD: Rate BYDV susceptibility from 0-8 in the field indicating the percentage of plants showing foliar discoloration/stunting. SCALE: 0-8 BYDV Disease Rating (0= no symptons, 1= &gt;0-3%, 2= 4-14%, 3= 15-29%, 4= 30-49%, 5= 50-69%, 6= 70-84%, 7= 85-95%, 8= 96-100%)" []
 relationship: variable_of CO_323:0000174
 relationship: variable_of CO_323:0005008
 relationship: variable_of CO_323:0005118
@@ -3721,54 +3870,54 @@ id: CO_323:0005526
 name: BYDV 0-9 susceptibility rating - 0-9 BYDV Disease Rating
 namespace: barley_trait
 def: "TRAIT: The plant susceptibility to Barley Yellow Dwarf Virus (BYDV). METHOD: Rate BYDV susceptibility from 0-9 in the field. SCALE: 0-9 BYDV Disease Rating (0= no disease, 9= completely affected)" []
+relationship: variable_of CO_323:0000174
 relationship: variable_of CO_323:0005009
 relationship: variable_of CO_323:0005119
-relationship: variable_of CO_323:0000174
 
 [Term]
 id: CO_323:0005527
 name: Common Root Rot severity - %
 namespace: barley_trait
 def: "TRAIT: A severity rating of common root rot, a fungal disease of barley caused by Cochliobolus sativus, Fusarium culmorum and F. graminearum METHOD: Common root rot is a fungal disease of barley caused by Cochliobolus sativus, Fusarium culmorum and F. graminearum SCALE: %" []
-relationship: variable_of CO_323:0005120
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005315
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005120
 
 [Term]
 id: CO_323:0005528
 name: Fusarium Head Blight incidence - %
 namespace: barley_trait
 def: "TRAIT: A measure of the incidence of FHB. METHOD: Fusarium Head Blight (FHB) Incidence is reported as the percentage of the number of spikes out of 10 that had at least one infected kernel. SCALE: %" []
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005316
 relationship: variable_of CO_323:0005121
-relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005529
 name: Fusarium Head Blight reaction type - 0-5 FHB Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: FHB reaction type rating. METHOD: Rate Fusarium Head Blight (FHB) reaction type using a standardized rating scale in the field SCALE: 0-5 FHB Reaction Type Rating (0= no infection, 1= incidence low, up to 5% of spikes. severity low, 1 or 2 kernels per spike affected (up to 7% of head), 2= incidence low to moderate, 5 to 15% of spikes infected. severity low to moderate, 1 to 4 kernels (up to 15% of head), 3= incidence moderate, 15 to 30% of heads. severity moderate, 2 to 8 kernels (up to 25% of head), 4= incidence moderate to high, 30 to 50% of spikes infected. severity moderate to high, 4 to 12 kernels (up to 40% of head), 5= incidence high, 50% or more spikes affected. severity high, 5 to 15+ kernels (up to 50%+ of head diseased))" []
-relationship: variable_of CO_323:0005122
 relationship: variable_of CO_323:0005010
 relationship: variable_of CO_323:0005317
+relationship: variable_of CO_323:0005122
 
 [Term]
 id: CO_323:0005530
 name: Fusarium Head Blight reaction type - 0-9 FHB Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: FHB reaction type rating. METHOD: Rate Fusarium Head Blight (FHB) reaction type using a standardized rating scale in the field SCALE: 0-9 FHB Reaction Type Rating (0= no disease, 9= completely affected)" []
-relationship: variable_of CO_323:0005011
 relationship: variable_of CO_323:0005122
 relationship: variable_of CO_323:0005317
+relationship: variable_of CO_323:0005011
 
 [Term]
 id: CO_323:0005531
 name: Fusarium Head Blight severity - %
 namespace: barley_trait
 def: "TRAIT: The Fusarium Head Blight severity caused by the agent Fusarium spp. METHOD: Observe severity of Fusarium Head Blight and record it. Often severity is represented as a relative or absolute area of plant tissue affected. SCALE: %" []
+relationship: variable_of CO_323:0000333
 relationship: variable_of CO_323:0000332
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0000333
 
 [Term]
 id: CO_323:0005532
@@ -3784,9 +3933,9 @@ id: CO_323:0005533
 name: Leaf Rust (LR30) susceptibility - 0-4 LR Disease Rating
 namespace: barley_trait
 def: "TRAIT: Leaf rust susceptibility rating. METHOD: Rate seedlings in the greenhouse innoculated with Leaf Rust Race 30 using a standardized rating scale. SCALE: 0-4 LR Disease Rating (0= no disease, 4= completely affected)" []
+relationship: variable_of CO_323:0005318
 relationship: variable_of CO_323:0005013
 relationship: variable_of CO_323:0005124
-relationship: variable_of CO_323:0005318
 
 [Term]
 id: CO_323:0005534
@@ -3803,26 +3952,26 @@ name: Leaf Rust (seedling) susceptibility - 0-4 LR Disease Rating
 namespace: barley_trait
 def: "TRAIT: Leaf rust susceptibility rating. METHOD: Rate seedlings in the greenhouse innoculated with Leaf Rust using a standardized rating scale. SCALE: 0-4 LR Disease Rating (0= no disease, 4= completely affected)" []
 relationship: variable_of CO_323:0005013
-relationship: variable_of CO_323:0005126
 relationship: variable_of CO_323:0005318
+relationship: variable_of CO_323:0005126
 
 [Term]
 id: CO_323:0005536
 name: Net Blotch susceptibility - 1-10 Tekauz Scale
 namespace: barley_trait
 def: "TRAIT: The plant susceptibility to Net Blotch (net form of leaf blotch) caused by the agent Pyrenophora teres (Dreschlera teres f.sp. teres, Helminthosporium teres). METHOD: Observe the plant susceptibility to Net Blotch, and rate it. SCALE: 1-10 Tekauz Scale (1= resistant, 4= moderately resistant, 6= moderately susceptible, 10= susceptible)" []
-relationship: variable_of CO_323:0000475
 relationship: variable_of CO_323:0000476
 relationship: variable_of CO_323:0005014
+relationship: variable_of CO_323:0000475
 
 [Term]
 id: CO_323:0005537
 name: Net blotch (net form) reaction type - 0-9 NB Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Net blotch reaction type rating. METHOD: Rate Net Blotch (net form) reaction type using a standardized rating scale. SCALE: 0-9 NB Reaction Type Rating (0= no disease, 9= completely affected)" []
+relationship: variable_of CO_323:0005015
 relationship: variable_of CO_323:0005319
 relationship: variable_of CO_323:0005127
-relationship: variable_of CO_323:0005015
 
 [Term]
 id: CO_323:0005538
@@ -3830,26 +3979,26 @@ name: Powdery Mildew susceptibility - 0-4 PM Disease Rating
 namespace: barley_trait
 def: "TRAIT: The plant susceptibility to Powdery Mildew caused by the agent Erysiphe graminis (Blumeria graminis f.sp. Hordei). METHOD: Observe the plant susceptibility to Powdery Mildew, and rate it. SCALE: 0-4 PM Disease Rating (0= resistant, 1= moderately resistant, 2= intermediate, 3= moderately susceptible, 4= susceptible)" []
 relationship: variable_of CO_323:0000506
-relationship: variable_of CO_323:0005016
 relationship: variable_of CO_323:0000168
+relationship: variable_of CO_323:0005016
 
 [Term]
 id: CO_323:0005539
 name: Powdery Mildew susceptibility - 0-9 PM Disease Rating
 namespace: barley_trait
 def: "TRAIT: The plant susceptibility to Powdery Mildew caused by the agent Erysiphe graminis (Blumeria graminis f.sp. Hordei). METHOD: Observe the plant susceptibility to Powdery Mildew, and rate it. SCALE: 0-9 PM Disease Rating (0= no disease, 9= completely affected)" []
-relationship: variable_of CO_323:0005017
 relationship: variable_of CO_323:0000506
 relationship: variable_of CO_323:0000168
+relationship: variable_of CO_323:0005017
 
 [Term]
 id: CO_323:0005540
 name: Leaf Scald susceptibility - 0-8 Scald Disease Rating
 namespace: barley_trait
 def: "TRAIT: The plant susceptibility to Leaf Scald caused by the agent Rhyncosporium secalis. METHOD: Observe the plant susceptibility to Leaf Scald, and rate it. SCALE: 0-8 Scald Disease Rating (0= no disease, 8= completely affected)" []
-relationship: variable_of CO_323:0000430
 relationship: variable_of CO_323:0005018
 relationship: variable_of CO_323:0000429
+relationship: variable_of CO_323:0000430
 
 [Term]
 id: CO_323:0005541
@@ -3857,17 +4006,17 @@ name: Leaf Scald reaction type - 0-9 Scald Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Leaf scald reaction type rating. METHOD: Rate Leaf Scald reaction type using a standardized rating scale. SCALE: 0-9 Scald Reaction Type Rating (0= no disease, 9= completely affected)" []
 relationship: variable_of CO_323:0005128
-relationship: variable_of CO_323:0005019
 relationship: variable_of CO_323:0005320
+relationship: variable_of CO_323:0005019
 
 [Term]
 id: CO_323:0005542
 name: Leaf Scald severity - %
 namespace: barley_trait
 def: "TRAIT: The Leaf Scald severity caused by the agent Rhyncosporium secalis. METHOD: Rate Leaf Scald severity of a plot in the field using a standardized rating scale. SCALE: %" []
-relationship: variable_of CO_323:0000159
 relationship: variable_of CO_323:0005129
 relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000159
 
 [Term]
 id: CO_323:0005543
@@ -3883,17 +4032,17 @@ id: CO_323:0005544
 name: Septoria susceptibility - 0-9 Septoria Disease Rating
 namespace: barley_trait
 def: "TRAIT: Septoria passerinii susceptibility rating. METHOD: Rate Septoria passerinii susceptibility on plants in the field using a standardized rating scale. SCALE: 0-9 Septoria Disease Rating (0= no disease, 9= completely affected)" []
-relationship: variable_of CO_323:0005021
 relationship: variable_of CO_323:0005131
 relationship: variable_of CO_323:0005322
+relationship: variable_of CO_323:0005021
 
 [Term]
 id: CO_323:0005545
 name: Spot Blotch infection coefficient - %
 namespace: barley_trait
 def: "TRAIT: Spot blotch infection coefficient. METHOD: Compute the Spot Blotch infection coefficient from data assayed in the field. SCALE: %" []
-relationship: variable_of CO_323:0005323
 relationship: variable_of CO_323:0005132
+relationship: variable_of CO_323:0005323
 relationship: variable_of CO_323:0000002
 
 [Term]
@@ -3901,53 +4050,53 @@ id: CO_323:0005546
 name: Spot Blotch reaction type - 0-9 SB Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Spot blotch reaction type rating. METHOD: Rate the Spot Blotch reaction type in the field using a standardized rating scale. SCALE: 0-9 SB Reaction Type Rating (0= no disease, 9= completely affected)" []
-relationship: variable_of CO_323:0005324
-relationship: variable_of CO_323:0005022
 relationship: variable_of CO_323:0005133
+relationship: variable_of CO_323:0005022
+relationship: variable_of CO_323:0005324
 
 [Term]
 id: CO_323:0005547
 name: Spot Blotch reaction type - 1-9 SB Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Spot blotch reaction type rating. METHOD: Rate the Spot Blotch reaction type in the field using a standardized rating scale. SCALE: 1-9 SB Reaction Type Rating (1= resistant, 9= susceptible)" []
+relationship: variable_of CO_323:0005023
 relationship: variable_of CO_323:0005324
 relationship: variable_of CO_323:0005133
-relationship: variable_of CO_323:0005023
 
 [Term]
 id: CO_323:0005548
 name: Spot Blotch (seedling) infection response - 1-9 SB Infection Response Rating
 namespace: barley_trait
 def: "TRAIT: Spot blotch infection response rating. METHOD: Rate the Spot Blotch infection response on seedlings in the greenhouse using a standardized rating scale. SCALE: 1-9 SB Infection Response Rating (1= low IP, 5= intermediate IP, 9= high IP)" []
+relationship: variable_of CO_323:0005024
 relationship: variable_of CO_323:0005325
 relationship: variable_of CO_323:0005134
-relationship: variable_of CO_323:0005024
 
 [Term]
 id: CO_323:0005549
 name: Spot Blotch severity - %
 namespace: barley_trait
 def: "TRAIT: The Spot Blotch (spot form of leaf blotch) severity caused by the agent Cochliobolus sativus (Bipolaris sorokiniana, Helminthosporium sativum). METHOD: Estimate the Spot Blotch severity. SCALE: %" []
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005135
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0000153
 
 [Term]
 id: CO_323:0005550
 name: Net blotch (spot form) reaction type - 1-5 SFNB Reaction Type Rating
 namespace: barley_trait
-def: "TRAIT: Net blotch reaction type rating. METHOD: Rate the Net Blotch (spot form) reaction type using a standardized rating scale. SCALE: 1-5 SFNB Reaction Type Rating (1= small dark pinpoint necrotic lesions, 2= pinpoint lesions with small amounts of necrosis and chlorosis surrounding the penetration point, 3= necrotic or chlorotic lesions 2-3 mm in size with little coalescence of lesions, 4= coalescing necrotic or chlorotic lesions >3 mm across, 5= necrotic or chlorotic lesions coalescing and covering greater than 70% of the leaf area.)" []
-relationship: variable_of CO_323:0005136
-relationship: variable_of CO_323:0005025
+def: "TRAIT: Net blotch reaction type rating. METHOD: Rate the Net Blotch (spot form) reaction type using a standardized rating scale. SCALE: 1-5 SFNB Reaction Type Rating (1= small dark pinpoint necrotic lesions, 2= pinpoint lesions with small amounts of necrosis and chlorosis surrounding the penetration point, 3= necrotic or chlorotic lesions 2-3 mm in size with little coalescence of lesions, 4= coalescing necrotic or chlorotic lesions &gt;3 mm across, 5= necrotic or chlorotic lesions coalescing and covering greater than 70% of the leaf area.)" []
 relationship: variable_of CO_323:0005319
+relationship: variable_of CO_323:0005025
+relationship: variable_of CO_323:0005136
 
 [Term]
 id: CO_323:0005551
 name: Stem Rust (MCCFC) reaction type - 0-4 Stem Rust Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Stem rust reaction type rating. METHOD: Rate the Stem Rust MCCFC Race reaction type using a standardized rating scale. SCALE: 0-4 Stem Rust Reaction Type Rating (0= no disease, 4= completely affected)" []
-relationship: variable_of CO_323:0005326
 relationship: variable_of CO_323:0005026
+relationship: variable_of CO_323:0005326
 relationship: variable_of CO_323:0005137
 
 [Term]
@@ -3955,17 +4104,17 @@ id: CO_323:0005552
 name: Stem Rust (MCCFC) severity - %
 namespace: barley_trait
 def: "TRAIT: Stem rust severity. METHOD: Estimate the Stem Rust MCCFC Race severity. SCALE: %" []
-relationship: variable_of CO_323:0005327
 relationship: variable_of CO_323:0005138
 relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005327
 
 [Term]
 id: CO_323:0005553
 name: Stem Rust (TTKSK) reaction type - 0-4 Stem Rust Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Stem rust reaction type rating. METHOD: Rate the Stem Rust TTKSK Race reaction type using a standardized rating scale. SCALE: 0-4 Stem Rust Reaction Type Rating (0= no disease, 4= completely affected)" []
-relationship: variable_of CO_323:0005326
 relationship: variable_of CO_323:0005026
+relationship: variable_of CO_323:0005326
 relationship: variable_of CO_323:0005139
 
 [Term]
@@ -3974,8 +4123,8 @@ name: Stem Rust (seedling) reaction type - 0-4 Stem Rust Reaction Type Rating
 namespace: barley_trait
 def: "TRAIT: Stem rust reaction type rating. METHOD: Rate the Stem Rust reaction type of seedlings in the greenhouse using a standardized rating scale. SCALE: 0-4 Stem Rust Reaction Type Rating (0= no disease, 4= completely affected)" []
 relationship: variable_of CO_323:0005326
-relationship: variable_of CO_323:0005140
 relationship: variable_of CO_323:0005026
+relationship: variable_of CO_323:0005140
 
 [Term]
 id: CO_323:0005555
@@ -3991,17 +4140,17 @@ id: CO_323:0005556
 name: Stripe Rust infection type - 0-9 Stripe Rust Infection Type Rating
 namespace: barley_trait
 def: "TRAIT: Stripe rust infection type rating. METHOD: Rate the Stripe Rust infection type using a standardized rating scale. SCALE: 0-9 Stripe Rust Infection Type Rating (0= no disease, 9= completely affected)" []
-relationship: variable_of CO_323:0005142
 relationship: variable_of CO_323:0005027
 relationship: variable_of CO_323:0005328
+relationship: variable_of CO_323:0005142
 
 [Term]
 id: CO_323:0005557
 name: Stripe Rust severity - %
 namespace: barley_trait
 def: "TRAIT: Stripe rust severity. METHOD: Estimate the Stripe Rust severity. SCALE: %" []
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005143
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005329
 
 [Term]
@@ -4009,18 +4158,18 @@ id: CO_323:0005558
 name: Bacterial Leaf Streak susceptibility - 0-9 BLS Disease Rating
 namespace: barley_trait
 def: "TRAIT: Bacterial Leaf Streak (caused by Xanthomonas translucens subsp. translucens)  susceptibility rating. METHOD: Rate the Bacterial Leaf Streak suscepibility on plants in the field using a standardized rating scale. SCALE: 0-9 BLS Disease Rating (0= no disease, 9= completely affected)" []
+relationship: variable_of CO_323:0005330
 relationship: variable_of CO_323:0005028
 relationship: variable_of CO_323:0005144
-relationship: variable_of CO_323:0005330
 
 [Term]
 id: CO_323:0005559
 name: Alpha Amylase activity - Dextrinizing units
 namespace: barley_trait
 def: "TRAIT: Alpha Amylase activity METHOD: Measure alpha amylase activity using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO. Based on recommended ASBC methods.	 SCALE: Dextrinizing units" []
-relationship: variable_of CO_323:0005145
-relationship: variable_of CO_323:0000224
 relationship: variable_of CO_323:0005331
+relationship: variable_of CO_323:0000224
+relationship: variable_of CO_323:0005145
 
 [Term]
 id: CO_323:0005560
@@ -4037,16 +4186,16 @@ name: Alpha Glucosidase activity - megazyme - U/kg malt
 namespace: barley_trait
 def: "TRAIT: Alpha Glucosidase activity METHOD: Measure alpha glucosidase activity using a Megazyme assay kit. SCALE: U/kg malt" []
 relationship: variable_of CO_323:0005332
-relationship: variable_of CO_323:0005147
 relationship: variable_of CO_323:0005030
+relationship: variable_of CO_323:0005147
 
 [Term]
 id: CO_323:0005562
 name: Grain colour - ASBC Color Rating
 namespace: barley_trait
 def: "TRAIT: The colour of the grains. METHOD: Observe the grains colour and record it. SCALE: ASBC Color Rating" []
-relationship: variable_of CO_323:0005031
 relationship: variable_of CO_323:0000339
+relationship: variable_of CO_323:0005031
 relationship: variable_of CO_323:0000117
 
 [Term]
@@ -4054,18 +4203,18 @@ id: CO_323:0005563
 name: Beta Amylase activity - megazyme - U/g malt
 namespace: barley_trait
 def: "TRAIT: Beta Amylase activity METHOD: Measure beta amylase activity using a Megazyme assay kit. SCALE: U/g malt" []
-relationship: variable_of CO_323:0005029
 relationship: variable_of CO_323:0005148
 relationship: variable_of CO_323:0005333
+relationship: variable_of CO_323:0005029
 
 [Term]
 id: CO_323:0005564
 name: Beta Glucanse activity - megazyme - U/kg malt
 namespace: barley_trait
 def: "TRAIT: Beta Glucanase activity METHOD: Measure beta glucanase activity using a Megazyme assay kit. SCALE: U/kg malt" []
-relationship: variable_of CO_323:0005149
 relationship: variable_of CO_323:0005030
 relationship: variable_of CO_323:0005334
+relationship: variable_of CO_323:0005149
 
 [Term]
 id: CO_323:0005565
@@ -4081,36 +4230,36 @@ id: CO_323:0005566
 name: Grain Protein content - breeders - %
 namespace: barley_trait
 def: "TRAIT: The Protein content of the grains in dry weight basis. METHOD: Measure the grain protein content using a breeder-specific method. SCALE: %" []
-relationship: variable_of CO_323:0000186
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005203
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000186
 
 [Term]
 id: CO_323:0005567
 name: Grain plumpness fraction - 2.4mm - %
 namespace: barley_trait
 def: "TRAIT: Percent kernels (by weight) that stay on a 6/64 x 3/4 inch sieve using standard methods, measured by the breeding program METHOD: Measure the percent kernels (by weight) that stay on a 6/64 x 3/4 inch sieve using standard methods, measured by the breeding program. SCALE: %" []
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005336
 relationship: variable_of CO_323:0005151
-relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005568
 name: Glassy kernels after malting - %
 namespace: barley_trait
 def: "TRAIT: Grains not milled in the friabilimeter. No modification at all. They were dead throughout all malting process. METHOD: Measure the percent of grains not milled in the friabilimeter. No modification at all. They were dead throughout all malting process. SCALE: %" []
+relationship: variable_of CO_323:0005152
 relationship: variable_of CO_323:0005337
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0005152
 
 [Term]
 id: CO_323:0005569
 name: Limit dextrinase activity - megazyme - U/kg malt
 namespace: barley_trait
 def: "TRAIT: Limit Dextrinase activity METHOD: Measure the limit dextrinase activity using a Megazyme assay kit. SCALE: U/kg malt" []
-relationship: variable_of CO_323:0005030
 relationship: variable_of CO_323:0005153
 relationship: variable_of CO_323:0005338
+relationship: variable_of CO_323:0005030
 
 [Term]
 id: CO_323:0005570
@@ -4118,8 +4267,8 @@ name: Lipoxygenase activity - megazyme - U/kg malt
 namespace: barley_trait
 def: "TRAIT: Lipoxygenase activity METHOD: Measure lipoxygenase activity using a Megazyme assay kit. SCALE: U/kg malt" []
 relationship: variable_of CO_323:0005154
-relationship: variable_of CO_323:0005030
 relationship: variable_of CO_323:0005339
+relationship: variable_of CO_323:0005030
 
 [Term]
 id: CO_323:0005571
@@ -4127,8 +4276,8 @@ name: Malt Beta Glucan content - ppm
 namespace: barley_trait
 def: "TRAIT: The Beta Glucan content of the grains. METHOD: Measure malt Beta Glucan content by applying EBC method of analysis (betaglucan test Megazyme kit method). SCALE: ppm" []
 relationship: variable_of CO_323:0000453
-relationship: variable_of CO_323:0000227
 relationship: variable_of CO_323:0000452
+relationship: variable_of CO_323:0000227
 
 [Term]
 id: CO_323:0005572
@@ -4136,8 +4285,8 @@ name: Malt extract - %
 namespace: barley_trait
 def: "TRAIT: Malt extract. METHOD: Measure the malt extract using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: %" []
 relationship: variable_of CO_323:0005155
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005340
+relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005573
@@ -4153,26 +4302,26 @@ id: CO_323:0005574
 name: Non-dormant percentage - %
 namespace: barley_trait
 def: "TRAIT: Percentage of non-dormant seeds. METHOD: Measure the percentage of non-dormant seeds. SCALE: %" []
-relationship: variable_of CO_323:0005157
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005342
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005157
 
 [Term]
 id: CO_323:0005575
 name: Partly unmodified grains after malting - %
 namespace: barley_trait
 def: "TRAIT: Grains that were partly milled by the friabilimeter indicating that modification was not as succesful. METHOD: Measure the percentage of grains that were partly milled by the friabilimeter indicating that modification was not as succesful. SCALE: %" []
-relationship: variable_of CO_323:0005343
 relationship: variable_of CO_323:0005158
 relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005343
 
 [Term]
 id: CO_323:0005576
 name: Plump grains - %
 namespace: barley_trait
 def: "TRAIT: The percentage of grains that do not pass through a specificly-sized sieve. METHOD: Measure the plump grains as determined by the actual measurement of width in millimeters as the distance across the seed (with hull). Measured as % by wt on a 6/64 in sieve SCALE: %" []
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005159
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005344
 
 [Term]
@@ -4180,24 +4329,24 @@ id: CO_323:0005577
 name: Real degree of fermentation - %
 namespace: barley_trait
 def: "TRAIT: Percent of wort extract remaining after fermentation. It is the wort fermentability. METHOD: Measure the percent of wort extract remaining after fermentation. It is the wort fermentability. SCALE: %" []
-relationship: variable_of CO_323:0005345
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005160
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005345
 
 [Term]
 id: CO_323:0005578
 name: Residual Beta Glucanase activity - %
 namespace: barley_trait
 def: "TRAIT: Residual Beta Glucanase activity METHOD: Measure the residual beta glucanase activity. SCALE: %" []
-relationship: variable_of CO_323:0005346
 relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005346
 relationship: variable_of CO_323:0005161
 
 [Term]
 id: CO_323:0005579
-name: Soluble Protein content - %
+name: Soluble Protein proportion - %
 namespace: barley_trait
-def: "TRAIT: Percentage of soluble protein of the total protein content. METHOD: Measure the soluble protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: %" []
+def: "TRAIT: Percentage of soluble protein of the total protein content. METHOD: Compute the percentage of soluble protein relative to the total protein.  Measure the soluble protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: %" []
 relationship: variable_of CO_323:0005162
 relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005347
@@ -4207,54 +4356,54 @@ id: CO_323:0005580
 name: Thermostable Alpha Amylase activity - %
 namespace: barley_trait
 def: "TRAIT: Thermostable Alpha Amylase activity METHOD: Measure the percent remaining activity of Alpha Amylase after thermal treatment at 65 degrees C for 10 min. SCALE: %" []
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005348
 relationship: variable_of CO_323:0005163
-relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005581
 name: Thermostable Alpha Glucosidase activity - %
 namespace: barley_trait
 def: "TRAIT: Thermostable Alpha Glucosidase activity METHOD: Measure the percent remaining activity of Alpha Glucosidase after thermal treatment at 65 degree C for 10 min. SCALE: %" []
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005349
 relationship: variable_of CO_323:0005164
-relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005582
 name: Thermostable Beta Amylase activity - %
 namespace: barley_trait
 def: "TRAIT: Thermostable Beta Amylase activity METHOD: Measure the percent remaining activity of Beta Amylase after thermal treatment at 65 degrees C for 10 min. SCALE: %" []
-relationship: variable_of CO_323:0005350
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005165
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005350
 
 [Term]
 id: CO_323:0005583
 name: Thermostable Limit Dextrinase activity - %
 namespace: barley_trait
 def: "TRAIT: Thermostable Limit Dextrinase activity METHOD: Measure the percent remaining activity of Limit Dextrinase after thermal treatment at 65 degree C for 10 min. SCALE: %" []
-relationship: variable_of CO_323:0005166
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005351
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005166
 
 [Term]
 id: CO_323:0005584
 name: Thin grains - %
 namespace: barley_trait
 def: "TRAIT: The percentage of grains that pass through a specificly-sized sieve. METHOD: Measure the percent thin is the percentage of grain that falls through a 5/64 inch x 3/4 inch slots following 30 seconds of shaking. SCALE: %" []
+relationship: variable_of CO_323:0005352
 relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005167
-relationship: variable_of CO_323:0005352
 
 [Term]
 id: CO_323:0005585
 name: Wort Fermentable Sugar content - g/100L
 namespace: barley_trait
 def: "TRAIT: The sum of maltotriose, maltose, glucose, and fructose in wort. METHOD: Measure the sum of maltotriose, maltose, glucose, and fructose in wort. SCALE: g/100L" []
-relationship: variable_of CO_323:0005168
-relationship: variable_of CO_323:0005032
 relationship: variable_of CO_323:0005353
+relationship: variable_of CO_323:0005032
+relationship: variable_of CO_323:0005168
 
 [Term]
 id: CO_323:0005586
@@ -4262,34 +4411,34 @@ name: Wort clarity - 1-3 Wort Clarity Rating
 namespace: barley_trait
 def: "TRAIT: A measure of the clarity of the wort. METHOD: Estimate the wort clarity using a standardized rating scale. SCALE: 1-3 Wort Clarity Rating (1= clear, 2= slightly hazy, 3= hazy)" []
 relationship: variable_of CO_323:0005033
-relationship: variable_of CO_323:0005169
 relationship: variable_of CO_323:0005354
+relationship: variable_of CO_323:0005169
 
 [Term]
 id: CO_323:0005587
 name: Wort color - ASBC Color Rating
 namespace: barley_trait
 def: "TRAIT: A measure of the color of the wort. METHOD: Estimate the wort color using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: ASBC Color Rating" []
-relationship: variable_of CO_323:0005031
 relationship: variable_of CO_323:0005170
 relationship: variable_of CO_323:0005355
+relationship: variable_of CO_323:0005031
 
 [Term]
 id: CO_323:0005588
 name: Wort Fructose content - g/100L
 namespace: barley_trait
 def: "TRAIT: The fructose content of the wort. METHOD: Measure the total fructose in wort determined by HPLC. SCALE: g/100L" []
-relationship: variable_of CO_323:0005171
 relationship: variable_of CO_323:0005032
 relationship: variable_of CO_323:0005356
+relationship: variable_of CO_323:0005171
 
 [Term]
 id: CO_323:0005589
 name: Wort Glucose content - g/100L
 namespace: barley_trait
 def: "TRAIT: The glucose content of the wort. METHOD: Measure the total glucose in wort determined by HPLC. SCALE: g/100L" []
-relationship: variable_of CO_323:0005357
 relationship: variable_of CO_323:0005172
+relationship: variable_of CO_323:0005357
 relationship: variable_of CO_323:0005032
 
 [Term]
@@ -4297,9 +4446,9 @@ id: CO_323:0005590
 name: Wort Maltose content - g/100L
 namespace: barley_trait
 def: "TRAIT: The maltose content of the wort. METHOD: Measure the total maltose in wort determined by HPLC. SCALE: g/100L" []
-relationship: variable_of CO_323:0005032
 relationship: variable_of CO_323:0005173
 relationship: variable_of CO_323:0005358
+relationship: variable_of CO_323:0005032
 
 [Term]
 id: CO_323:0005591
@@ -4315,45 +4464,45 @@ id: CO_323:0005592
 name: Wort Protein content - %
 namespace: barley_trait
 def: "TRAIT: The protein content of the wort. METHOD: Measure the protein content in wort using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: %" []
+relationship: variable_of CO_323:0005175
 relationship: variable_of CO_323:0005360
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0005175
 
 [Term]
 id: CO_323:0005593
 name: Wort viscosity - cP
 namespace: barley_trait
 def: "TRAIT: The viscosity of the wort. METHOD: Use standard EBC method of analysis for wort viscosity. SCALE: cP" []
+relationship: variable_of CO_323:0000585
 relationship: variable_of CO_323:0000584
 relationship: variable_of CO_323:0005034
-relationship: variable_of CO_323:0000585
 
 [Term]
 id: CO_323:0005594
 name: Awn type - 1-8 Awn Type Scale
 namespace: barley_trait
 def: "TRAIT: The lemma awns type. METHOD: Observe the awn type of lemmas and record it. SCALE: 1-8 Awn Type Scale" []
-relationship: variable_of CO_323:0005035
 relationship: variable_of CO_323:0000267
 relationship: variable_of CO_323:0000099
+relationship: variable_of CO_323:0005035
 
 [Term]
 id: CO_323:0005595
 name: Glossy sheath presence - Absent-Present scale
 namespace: barley_trait
 def: "TRAIT: The presence or absence of a surface wax coating that appears on the spike, leaf sheath, and stem. METHOD: Observe if the surface wax coating appears absent on the spike, leaf sheath, and stem SCALE: Absent-Present scale (0= absent, 1= present)" []
+relationship: variable_of CO_323:0005176
 relationship: variable_of CO_323:0005361
 relationship: variable_of CO_323:0000053
-relationship: variable_of CO_323:0005176
 
 [Term]
 id: CO_323:0005596
 name: Glossy spike presence - Absent-Present scale
 namespace: barley_trait
 def: "TRAIT: The presence or absence of a surface wax coating that appears on the spike. METHOD: Observe if the surface wax coating appears absent on the spike. SCALE: Absent-Present scale (0= absent, 1= present)" []
-relationship: variable_of CO_323:0005177
-relationship: variable_of CO_323:0000053
 relationship: variable_of CO_323:0005362
+relationship: variable_of CO_323:0000053
+relationship: variable_of CO_323:0005177
 
 [Term]
 id: CO_323:0005597
@@ -4369,8 +4518,8 @@ id: CO_323:0005598
 name: Lemma colour - 0-1 Lemma color scale
 namespace: barley_trait
 def: "TRAIT: The colour of the lemma (husk). METHOD: Observe the colour of lemmas (husk) and rate it. Usually is observed at early dough stage. SCALE: 0-1 Lemma color scale (0= Non-Black, 1= Black)" []
-relationship: variable_of CO_323:0000111
 relationship: variable_of CO_323:0005037
+relationship: variable_of CO_323:0000111
 relationship: variable_of CO_323:0000437
 
 [Term]
@@ -4378,27 +4527,27 @@ id: CO_323:0005599
 name: Spike density - average internode length - mm
 namespace: barley_trait
 def: "TRAIT: The arrangement and compactness of the spikelets on the spike. METHOD: Compute the spike density as the average internode length (spike length/(k2or6)) SCALE: mm" []
-relationship: variable_of CO_323:0005179
 relationship: variable_of CO_323:0005036
 relationship: variable_of CO_323:0000090
+relationship: variable_of CO_323:0005179
 
 [Term]
 id: CO_323:0005600
 name: Spike density - nodes/cm rachis
 namespace: barley_trait
 def: "TRAIT: The arrangement and compactness of the spikelets on the spike. METHOD: Compute the spike density as the length of the spike was measured from the base of the spike to the top of the spike, not including any sterile/infertile kernels. The length (in cm) was then divided by the total number of rows (nodes) present along the length of the spike. SCALE: nodes/cm rachis" []
+relationship: variable_of CO_323:0005038
 relationship: variable_of CO_323:0000090
 relationship: variable_of CO_323:0005180
-relationship: variable_of CO_323:0005038
 
 [Term]
 id: CO_323:0005601
 name: Spike exsertion - mm
 namespace: barley_trait
 def: "TRAIT: A measurement of the distance from base of spike to flag leaf auricle METHOD: Measure the spike exsertion as the distance from base of spike to flag leaf auricle SCALE: mm" []
-relationship: variable_of CO_323:0005364
 relationship: variable_of CO_323:0005181
 relationship: variable_of CO_323:0005036
+relationship: variable_of CO_323:0005364
 
 [Term]
 id: CO_323:0005602
@@ -4406,17 +4555,17 @@ name: Spike length - mm
 namespace: barley_trait
 def: "TRAIT: The length of the spike. METHOD: Measure length from base to tip of the spike excluding awns, it is recommended to record an average of at least 10 spikes in a plot. SCALE: mm" []
 relationship: variable_of CO_323:0000533
-relationship: variable_of CO_323:0005036
 relationship: variable_of CO_323:0000030
+relationship: variable_of CO_323:0005036
 
 [Term]
 id: CO_323:0005603
 name: Stem diameter - mm
 namespace: barley_trait
 def: "TRAIT: A measurement of the stem diameter. METHOD: Measure the stem diameter as the diameter of the tallest stem of all individual plants in a row, harvested after senesence and dried at 37 C for 72 hours SCALE: mm" []
-relationship: variable_of CO_323:0005182
 relationship: variable_of CO_323:0005036
 relationship: variable_of CO_323:0005365
+relationship: variable_of CO_323:0005182
 
 [Term]
 id: CO_323:0005604
@@ -4433,16 +4582,16 @@ name: Threshability - 0-4 Threshability Rating
 namespace: barley_trait
 def: "TRAIT: A rating of the threshability which is measured visually on a sample based on how many free-threshing hulls come off the grain after harvest and cleaning METHOD: Measure the threshability visually on a sample based on how many free-threshing hulls come off the grain after harvest and cleaning. SCALE: 0-4 Threshability Rating (0= all hulls still attached, 4= no hulls attached)" []
 relationship: variable_of CO_323:0005184
-relationship: variable_of CO_323:0005039
 relationship: variable_of CO_323:0005367
+relationship: variable_of CO_323:0005039
 
 [Term]
 id: CO_323:0005606
 name: Alpha-Tocopherol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Alpha-Tocopherol content METHOD: Measure the alpha-tocopherol content. SCALE: ug/g" []
-relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005185
+relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005368
 
 [Term]
@@ -4450,9 +4599,9 @@ id: CO_323:0005607
 name: Alpha-Tocotrienol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Alpha-Tocotrienol content METHOD: Measure the alpha-tocotrienol content. SCALE: ug/g" []
+relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005369
 relationship: variable_of CO_323:0005186
-relationship: variable_of CO_323:0005040
 
 [Term]
 id: CO_323:0005608
@@ -4460,16 +4609,16 @@ name: Amylose content - %
 namespace: barley_trait
 def: "TRAIT: Amylose content METHOD: Measure the amylose content on a dry-weight basis. SCALE: %" []
 relationship: variable_of CO_323:0000002
-relationship: variable_of CO_323:0005187
 relationship: variable_of CO_323:0005370
+relationship: variable_of CO_323:0005187
 
 [Term]
 id: CO_323:0005609
 name: Beta-Tocopherol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Beta-Tocopherol content METHOD: Measure the beta-tocopherol content. SCALE: ug/g" []
-relationship: variable_of CO_323:0005371
 relationship: variable_of CO_323:0005188
+relationship: variable_of CO_323:0005371
 relationship: variable_of CO_323:0005040
 
 [Term]
@@ -4477,8 +4626,8 @@ id: CO_323:0005610
 name: Beta-Tocotrienol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Beta-Tocotrienol content METHOD: Measure the beta-tocotrienol content. SCALE: ug/g" []
-relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005189
+relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005372
 
 [Term]
@@ -4486,17 +4635,17 @@ id: CO_323:0005611
 name: Delta-Tocopherol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Delta-Tocopherol content METHOD: Measure the delta-tocopherol content. SCALE: ug/g" []
+relationship: variable_of CO_323:0005190
 relationship: variable_of CO_323:0005373
 relationship: variable_of CO_323:0005040
-relationship: variable_of CO_323:0005190
 
 [Term]
 id: CO_323:0005612
 name: Delta-Tocotrienol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Delta-Tocotrienol content METHOD: Measure the delta-tocotrienol content. SCALE: ug/g" []
-relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005191
+relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005374
 
 [Term]
@@ -4505,35 +4654,35 @@ name: Grain Iron content - ppm
 namespace: barley_trait
 def: "TRAIT: The Iron content of grains. METHOD: Use standard Iron content dry ash method. SCALE: ppm" []
 relationship: variable_of CO_323:0000356
-relationship: variable_of CO_323:0000227
 relationship: variable_of CO_323:0000355
+relationship: variable_of CO_323:0000227
 
 [Term]
 id: CO_323:0005614
 name: Gamma-Tocopherol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Gamma-Tocopherol content METHOD: Measure the gamma-tocopherol content. SCALE: ug/g" []
+relationship: variable_of CO_323:0005192
 relationship: variable_of CO_323:0005375
 relationship: variable_of CO_323:0005040
-relationship: variable_of CO_323:0005192
 
 [Term]
 id: CO_323:0005615
 name: Gamma-Tocopherol and Beta-Tocotrienol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Gamma-Tocopherol and Beta-Tocotrienol content METHOD: Measure the gamma-tocopherol and beta-tocotrienol content. SCALE: ug/g" []
+relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005376
 relationship: variable_of CO_323:0005193
-relationship: variable_of CO_323:0005040
 
 [Term]
 id: CO_323:0005616
 name: Gamma-Tocotrienol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Gamma-Tocotrienol content METHOD: Measure the gamma-tocotrienol content. SCALE: ug/g" []
+relationship: variable_of CO_323:0005377
 relationship: variable_of CO_323:0005040
 relationship: variable_of CO_323:0005194
-relationship: variable_of CO_323:0005377
 
 [Term]
 id: CO_323:0005617
@@ -4541,34 +4690,34 @@ name: Hull proportion - %
 namespace: barley_trait
 def: "TRAIT: A measure of the hull proportion. METHOD: Measure the hull proportion. SCALE: %" []
 relationship: variable_of CO_323:0005195
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005378
+relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005618
 name: Phenolic Compound content - dry weight basis - %
 namespace: barley_trait
 def: "TRAIT: Phenolic Compound content METHOD: Measure the phenolic compond content on a dry-weight basis. SCALE: %" []
+relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005379
 relationship: variable_of CO_323:0005196
-relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005619
 name: Polyphenol Oxidase activity - dry weight basis - Absorbance
 namespace: barley_trait
 def: "TRAIT: Polyphenol Oxidase activity METHOD: Measure the polyphenol oxidase activity on a dry weight-basis. SCALE: Absorbance" []
-relationship: variable_of CO_323:0005197
-relationship: variable_of CO_323:0005041
 relationship: variable_of CO_323:0005380
+relationship: variable_of CO_323:0005041
+relationship: variable_of CO_323:0005197
 
 [Term]
 id: CO_323:0005620
 name: Total tocol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Total tocol content METHOD: Measure the total tocol content. SCALE: ug/g" []
-relationship: variable_of CO_323:0005381
 relationship: variable_of CO_323:0005040
+relationship: variable_of CO_323:0005381
 relationship: variable_of CO_323:0005198
 
 [Term]
@@ -4585,8 +4734,8 @@ id: CO_323:0005622
 name: Total Tocotrienol content - ug/g
 namespace: barley_trait
 def: "TRAIT: Total Tocotrienol content METHOD: Measure the total tocotrienol content. SCALE: ug/g" []
-relationship: variable_of CO_323:0005383
 relationship: variable_of CO_323:0005040
+relationship: variable_of CO_323:0005383
 relationship: variable_of CO_323:0005200
 
 [Term]
@@ -4594,8 +4743,8 @@ id: CO_323:0005623
 name: Grain Zinc content - ppm
 namespace: barley_trait
 def: "TRAIT: The Zinc content of grains. METHOD: Use standard Zinc content dry ash method. SCALE: ppm" []
-relationship: variable_of CO_323:0000397
 relationship: variable_of CO_323:0000398
+relationship: variable_of CO_323:0000397
 relationship: variable_of CO_323:0000227
 
 [Term]
@@ -4603,26 +4752,26 @@ id: CO_323:0005624
 name: Vernalization score - day
 namespace: barley_trait
 def: "TRAIT: A computation of the vernalization score. METHOD: Compue the vernalization score as spring heading date - fall heading date. SCALE: day" []
-relationship: variable_of CO_323:0005201
-relationship: variable_of CO_323:0000014
 relationship: variable_of CO_323:0005384
+relationship: variable_of CO_323:0000014
+relationship: variable_of CO_323:0005201
 
 [Term]
 id: CO_323:0005625
 name: Winter hardiness - %
 namespace: barley_trait
 def: "TRAIT: A measure of the winter hardiness by winter survival rates. METHOD: Estimate the winter hardiness as the percent survival. SCALE: %" []
-relationship: variable_of CO_323:0000002
 relationship: variable_of CO_323:0005202
 relationship: variable_of CO_323:0005385
+relationship: variable_of CO_323:0000002
 
 [Term]
 id: CO_323:0005626
 name: Preharvest sprouting - 0-9 PHS scale
 namespace: barley_trait
 def: "TRAIT: Germination incidence on the spike under artificial mist conditions METHOD: Estimate the incidence of preharvest sprouting in the spike by the visual rating of rootlet and coleoptile emergence SCALE: 0-9 PHS scale (0= no preharvest sprouting, 9= high preharvest sprouting)" []
-relationship: variable_of CO_323:0005042
 relationship: variable_of CO_323:0005204
+relationship: variable_of CO_323:0005042
 relationship: variable_of CO_323:0005386
 
 [Term]
@@ -4631,17 +4780,17 @@ name: Grain germination index - 0-10 GI scale
 namespace: barley_trait
 def: "TRAIT: Germination rate of 30 kernels in 4 mL water over 3 days METHOD: Estimate the rate of germination with the visual rating of 2 mm radicle emergence SCALE: 0-10 GI scale (0= low germination index, 10= high germination index)" []
 relationship: variable_of CO_323:0005043
-relationship: variable_of CO_323:0005205
 relationship: variable_of CO_323:0005387
+relationship: variable_of CO_323:0005205
 
 [Term]
 id: CO_323:0005628
 name: Intensity of aleurone blueness - 1-4 scale
 namespace: barley_trait
 def: "TRAIT: A rating of the intensity of aleurone blueness METHOD: Estimate the intensity of aleurone blueness with a visual assessment SCALE: 1-4 aleurone blueness scale (1= blue, 4= not blue)" []
-relationship: variable_of CO_323:0005206
 relationship: variable_of CO_323:0005044
 relationship: variable_of CO_323:0005388
+relationship: variable_of CO_323:0005206
 
 [Term]
 id: CO_323:0005629
@@ -4649,26 +4798,26 @@ name: Proportion of kernels with blue aleurone - proportion
 namespace: barley_trait
 def: "TRAIT: The proportion of the number of kernels with a blue aleurone METHOD: Estimate the proportion of kernels with blue aleurone with a visual assessment SCALE: Proportion of kernels with blue aleurone" []
 relationship: variable_of CO_323:0005207
-relationship: variable_of CO_323:0005045
 relationship: variable_of CO_323:0005389
+relationship: variable_of CO_323:0005045
 
 [Term]
 id: CO_323:0005630
 name: Colorimeter L* - untreated - parameter value
 namespace: barley_trait
 def: "TRAIT: The lightness colorimeter parameter value METHOD: The parameter reading from a Minolta CR-410 colorimeter on an untreated seed. SCALE: Colorimeter L* parameter value (0= black, 100= white)" []
-relationship: variable_of CO_323:0005046
 relationship: variable_of CO_323:0005208
 relationship: variable_of CO_323:0005390
+relationship: variable_of CO_323:0005046
 
 [Term]
 id: CO_323:0005631
 name: Colorimeter a* - untreated - parameter value
 namespace: barley_trait
 def: "TRAIT: The red/green colorimeter parameter value METHOD: The parameter reading from a Minolta CR-410 colorimeter on an untreated seed. SCALE: Colorimeter a* parameter value (-90= green, 90= red)" []
+relationship: variable_of CO_323:0005391
 relationship: variable_of CO_323:0005047
 relationship: variable_of CO_323:0005208
-relationship: variable_of CO_323:0005391
 
 [Term]
 id: CO_323:0005632
@@ -4684,8 +4833,8 @@ id: CO_323:0005633
 name: Colorimeter L* - treated - parameter value
 namespace: barley_trait
 def: "TRAIT: The lightness colorimeter parameter value METHOD: The parameter reading from a Minolta CR-410 colorimeter on a seed treated with a 1% HCl dilution from 16 hours. SCALE: Colorimeter L* parameter value (0= black, 100= white)" []
-relationship: variable_of CO_323:0005046
 relationship: variable_of CO_323:0005209
+relationship: variable_of CO_323:0005046
 relationship: variable_of CO_323:0005390
 
 [Term]
@@ -4693,15 +4842,78 @@ id: CO_323:0005634
 name: Colorimeter a* - treated - parameter value
 namespace: barley_trait
 def: "TRAIT: The red/green colorimeter parameter value METHOD: The parameter reading from a Minolta CR-410 colorimeter on a seed treated with a 1% HCl dilution from 16 hours. SCALE: Colorimeter a* parameter value (-90= green, 90= red)" []
+relationship: variable_of CO_323:0005047
 relationship: variable_of CO_323:0005391
 relationship: variable_of CO_323:0005209
-relationship: variable_of CO_323:0005047
 
 [Term]
 id: CO_323:0005635
 name: Colorimeter b* - treated - parameter value
 namespace: barley_trait
 def: "TRAIT: The blue/yellow colorimeter parameter value METHOD: The parameter reading from a Minolta CR-410 colorimeter on a seed treated with a 1% HCl dilution from 16 hours. SCALE: Colorimeter b* parameter value (-90= blue, 90= yellow)" []
-relationship: variable_of CO_323:0005392
 relationship: variable_of CO_323:0005209
+relationship: variable_of CO_323:0005392
 relationship: variable_of CO_323:0005048
+
+[Term]
+id: CO_323:0005636
+name: Soluble Protein amount - %
+namespace: barley_trait
+def: "TRAIT: The amount of soluble malt protein METHOD: Measure the soluble protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: %" []
+relationship: variable_of CO_323:0005210
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005393
+
+[Term]
+id: CO_323:0005637
+name: Total Protein amount - %
+namespace: barley_trait
+def: "TRAIT: The amount of total malt protein METHOD: Measure the total protein content using standard methods employed by the Cereal Crops Research Unit at Madison, WI and the BARI analysis laboratory in Fort Collins, CO, based on recommended ASBC methods. SCALE: %" []
+relationship: variable_of CO_323:0005394
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005211
+
+[Term]
+id: CO_323:0005638
+name: Wort pH - pH
+namespace: barley_trait
+def: "TRAIT: The pH of the Wort METHOD: pH of the wort taken post filtration SCALE: pH (0= acidic, 14= basic)" []
+relationship: variable_of CO_323:0005049
+relationship: variable_of CO_323:0005395
+relationship: variable_of CO_323:0005212
+
+[Term]
+id: CO_323:0005639
+name: Grain germinative energy - 8mL - %
+namespace: barley_trait
+def: "TRAIT: The germinative energy determine the germination of grains as proportion within a 72 hour period using a standard method. METHOD: Measure grain germinative energy by applying EBC method of analysis (8 ml test). SCALE: %" []
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0000195
+relationship: variable_of CO_323:0005213
+
+[Term]
+id: CO_323:0005640
+name: Water sensitivity - %
+namespace: barley_trait
+def: "TRAIT: The difference between the 4mL and 8mL grain germinative test results METHOD: Computation of the water sensitivity as the difference between the 4mL and 8mL germinative test results (ASBC Barley Method 3C) SCALE: %" []
+relationship: variable_of CO_323:0005396
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005214
+
+[Term]
+id: CO_323:0005641
+name: Malt moisture content - %
+namespace: barley_trait
+def: "TRAIT: The moisture content of finished, kilned barley malt METHOD: Measure the moisture content of finished, kilned barley malt (ASBC Malt Method 3) SCALE: %" []
+relationship: variable_of CO_323:0005397
+relationship: variable_of CO_323:0000002
+relationship: variable_of CO_323:0005215
+
+[Term]
+id: CO_323:0005642
+name: Anthocyanin content - ug/g
+namespace: barley_trait
+def: "TRAIT: Total anthocyanin content expressed as ug of cyanidin-3 glucoside equivalents/g sample METHOD: A 1.6 mL of solution of 85 % ethanol and 15 % hydrochloric acid 1 M was added to 100 mg of flour sample. Then, samples were mixed for 15 min and centrifuged at 27,200 Ã g for 30 min. Absorbance readings at 536 nm were taken using a microplate reader (Molecular Device VersaMax, USA). The results were expressed as Î¼g of cyanidin-3 glucoside equivalents/g sample (Abdel-Aal and Hucl 1999). SCALE: ug/g" []
+relationship: variable_of CO_323:0005216
+relationship: variable_of CO_323:0005040
+relationship: variable_of CO_323:0005398
