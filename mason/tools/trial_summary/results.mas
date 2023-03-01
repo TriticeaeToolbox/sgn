@@ -11,7 +11,7 @@
 
 <& /util/import_css.mas, paths => ['tools/trial_summary.css'] &>
 
-<& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'jquery.dataTables-buttons-min', 'buttons.bootstrap-min', 'buttons.html5-min', 'buttons.print-min'] &>
+<& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'jquery.dataTables', 'jquery.dataTables-buttons-min', 'buttons.bootstrap-min', 'buttons.html5-min', 'buttons.print-min', 'jszip-min' ] &>
 
 <style>
 </style>
@@ -162,7 +162,7 @@
         html += "<td>" + parseFloat(results[results.length-1][trials[i]]).toFixed(2) + "</td>";
       }
       html += "</tr>";
-
+      html += "</tfoot>";
       html += "</table>";
     }
 
@@ -190,7 +190,7 @@
       data: lsmeans_results,
       columns: lsmeans_columns,
       lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-      buttons: ['copy', {extend: 'csv', title: 'LSMeans'}, {extend: 'print', title: 'LSMeans'}],
+      buttons: [{extend: 'copy', footer: true}, {extend: 'csv', title: 'LSMeans', footer: true}, {extend: 'print', title: 'LSMeans', footer: true}],
       dom: "lBfrtip"
     });
 
@@ -216,7 +216,7 @@
         columns: trait_columns,
         scrollX: 600,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
-        buttons: ['copy', {extend: 'csv', title: trait_info[i].trait_name}, {extend: 'print', title: trait_info[i].trait_name}],
+        buttons: [{extend: 'copy', footer: true}, {extend: 'csv', title: trait_info[i].trait_name, footer:true}, {extend: 'print', title: trait_info[i].trait_name, footer:true}],
         dom: "lBfrtip"
       });
 
