@@ -349,16 +349,16 @@ sub next_genotype {
         chomp($line);
 
         LABEL: if ($line =~ m/^\#/) {
-            #print STDERR "Skipping header line: $line\n";
+	    #print STDERR "Skipping header line: $line\n";
             $line = <$F>;
             goto LABEL;
         }
 
         if ($self->_is_first_line()) {
-            print STDERR "Skipping 8 more lines... ";
-            for (0..7) {
+            print STDERR "Skipping non data lines... ";
+	    if ($line !~ m/\d[\/\|]\d/) {
                 $line = <$F>;
-                # print STDERR Dumper $line;
+                print STDERR "Skipping $line\n";;
             }
         }
         $line =~ s/[\r\n]//sg;
