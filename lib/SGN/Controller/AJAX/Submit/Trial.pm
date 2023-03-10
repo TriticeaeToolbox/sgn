@@ -120,7 +120,7 @@ sub export_trials_GET : Args(0) {
 # SUBMIT AN ENTIRE TRIAL FOR CURATION
 # Generate the upload templates to submit the trial to a production website
 # Query/Body Params:
-#   trial_id = Phenotype Trial ID
+#   trial_id = Phenotype Trial ID (or a comma-separated list of Trial IDs)
 #   comments = Comments for curators
 # 
 sub submit_trial_data : Path('/ajax/submit/trial') : ActionClass('REST') { }

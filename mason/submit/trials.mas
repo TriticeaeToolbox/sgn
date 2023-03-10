@@ -1,0 +1,205 @@
+<& /page/page_title.mas, title=>"Submit Multiple Trials" &>
+
+<div style="max-width: 700px; margin: 0 auto">
+
+  <div class="well">
+    <p>You can use this form to submit a List of Trials to the production database/website.</p>
+
+    <p>First, you'll need to create a List of the Trials you want to submit.  You can do that 
+    most easily from the <a href="/breeders/search">Search Wizard</a> or the List Manager 
+    (by clicking the <strong>Lists</strong> button in the Toolbar).</p>
+
+    <p>Once you have the List of Trials, fill out and submit the form below.  Submitting one or
+    more Trials will send the trial metadata, phenotype observations, accessions, and location 
+    information associated with the Trial(s) to the database curators. Once approved, the Trial(s) 
+    will be available on the production website.</p>
+  </div>
+
+  <br /><br />
+
+  <div class="form-group">
+    <label for="trials_list_select">Choose a list of trials:</label>
+    <div id="trials_list_select_container">
+      <select disabled class="form-control input-sm" id="trials_list_select">
+        <option selected="selected">Loading...</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="min-height: 50px">
+    <div id="trials-info-loading" style="text-align: center; display: none">
+      <img src="/img/wheel.gif" alt="loading">
+    </div>
+    <br />
+    <div id="trials-info-container" style="display: none">
+      <p><strong>Trials to Submit:</strong></p>
+      <p>Select which Trial(s) from the List to submit</p>
+      <ul id="trials-info-list" style="list-style-type: none"></ul>
+    </div>
+  </div>
+
+  <br />
+
+  <p>If you have any <strong>additional comments</strong> about the Trial(s) for the curators, enter them below:</p>
+  <textarea id='submit_trial_comments' class='form-control' rows=4></textarea>
+
+  <br /><br />
+
+  <button type="button" class="btn btn-primary" id="submit_trial_dialog_submit">Submit Trials</button>
+
+  <br /><br />
+
+</div>
+
+<div class="modal fade" id="submit_trial_dialog_working" role="dialog" aria-labelledby="submit_trial_dialog_working_title">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content ui-front">
+      <div class="modal-header text-center">
+        <h4 class="modal-title" id="submit_trial_dialog_title">Working...</h4>
+      </div>
+      <div class="modal-body" id="trial_details_edit_body">
+        <p>Submitting selected Trial(s) to database curators (this will take a few minutes)...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="submit_trial_dialog_status" role="dialog" aria-labelledby="submit_trial_dialog_status_title">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content ui-front">
+      <div class="modal-header text-center">
+        <h4 class="modal-title" id="submit_trial_dialog_status_title"></h4>
+      </div>
+      <div class="modal-body" id="trial_details_edit_body">
+        <p id="submit_trial_dialog_status_details"></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal" id="submit_trial_dialog_status_close">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  jQuery(document).ready(() => {
+    
+    // Setup the Trial List selection
+    if ( isLoggedIn() ) {
+      list = new CXGN.List();
+      var select_html = list.listSelect('trials', ['trials'], ' ', undefined, undefined);
+      jQuery('#trials_list_select_container').html(select_html);
+      if (d3.select('#trials_list_select').selectAll("option").size()<2){
+        d3.select('#trials_list_select').html("<option>No trial lists! (Create one using the wizard.)</option>");
+      }
+      jQuery('#trials_list_select').change(list_change);
+    }
+    else {
+      jQuery('#trials_list_select').html('<option selected="selected">You must be logged in to use lists.</option>');
+    }
+
+    // Submit Button
+    jQuery("#submit_trial_dialog_submit").click(submit);
+  })
+
+  /**
+   * Handle list selection change:
+   *  - Get the names and ids of the trials in the list
+   *  - Display individual trial selections
+   */
+  const list_change = () => {
+    jQuery("#trials-info-loading").show();
+    jQuery("#trials-info-container").hide();
+    
+    var trial_list_id = $('#trials_list_select').val();
+    if (trial_list_id === "") {
+      jQuery("#trials-info-loading").hide();
+      jQuery("#trials-info-container").hide();
+      return;
+    }
+
+    var item_data = list.getListData(trial_list_id);
+    var items = item_data.elements;
+    var ids = list.transform2Ids(trial_list_id, item_data);
+
+    let html = "";
+    items.forEach((item, index) => {
+      html += `<li><input type='checkbox' id='trial-${index}' name='trial-${index}' value='${ids[index]}' checked>&nbsp;&nbsp;${item[1]}</li>`;
+    });
+
+    jQuery("#trials-info-list").html(html);
+    jQuery("#trials-info-loading").hide();
+    jQuery("#trials-info-container").show();
+  }
+
+
+  /**
+   * Submit the selected trials
+   */
+  const submit = () => {
+
+    // Get the selected trial ids
+    var selected_trial_ids = [];
+    jQuery('#trials-info-list input:checked').each(function() {
+      selected_trial_ids.push(jQuery(this).attr('value'));
+    });
+    const trial_ids_string = selected_trial_ids.join(',');
+
+    // Must have at least one selected trial
+    if ( selected_trial_ids.length === 0 ) {
+      return submit_finished('error', 'At least one Trial must be selected');
+    }
+
+    // Show working dialog
+    jQuery('#submit_trial_dialog').modal("hide");
+    jQuery("#submit_trial_dialog_working").modal({backdrop: 'static', keyboard: false, show: true});
+
+    // Submit the request
+    jQuery.ajax({
+        url: "/ajax/submit/trial",
+        type: "POST",
+        data: {
+          trial_id: trial_ids_string,
+          comments: jQuery("#submit_trial_comments").val()
+        },
+        success: function(data, status, jqXHR) {
+          if ( data && data.status && data.message) {
+            submit_finished(data.status, data.message);
+          }
+          else {
+            console.log("SUBMIT REQUEST - MISSING RESPONSE DATA");
+            console.log(data);
+            submit_general_error();
+          }
+        },
+        error: function (jqXHR, status, err) {
+          console.log("SUBMIT REQUEST ERROR:");
+          console.log(err);
+          submit_general_error();
+        }
+    });
+  }
+
+  const submit_general_error = () => {
+    submit_finished("error", "The server did not return a valid response.  Please try again later and contact us if this problem persists.");
+  }
+
+  const submit_finished = (status, message) => {
+    var title = status === 'success' ? 'Trial Submitted' : 'Trial Submission Error';
+    var details = status === 'success' ? 'The selected Trial(s) have been successfully submitted to the curators.  Once approved, the Trial(s) will be available on the production website.' : message;
+
+    jQuery("#submit_trial_dialog_status_title").html(title);
+    jQuery("#submit_trial_dialog_status_details").html(details);
+
+    jQuery('#submit_trial_dialog_working').modal("hide");
+    jQuery('#submit_trial_dialog_status').modal("show");
+  }
+
+</script>
+
+
+<style>
+  #submit_trial_dialog_status, #submit_trial_dialog_working {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+</style>
