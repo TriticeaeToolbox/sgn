@@ -116,6 +116,57 @@ sub export_trials_GET : Args(0) {
 }
 
 
+# 
+# GET TRIAL SUBMISSION STATUS
+# Check if a trial has been submitted by looking up its 'project_submission_date' project prop
+# A trial is "submitted" if the date is stored
+# Query Params:
+#   - trial_id = the project id of the trial
+# Returns:
+#   - submitted = true/false
+#   - ts = the timestamp (seconds from unix epoch) of when the trial was last submitted
+#
+sub get_trial_submission_status : Path('/ajax/submit/trial/status') : ActionClass('REST') { }
+sub get_trial_submission_status_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $trial_id = $c->req->param("trial_id");
+
+    # Trial ID not given
+    if ( !$trial_id || $trial_id == "" ) {
+        return $c->stash->{rest} = {
+            status => "error", 
+            message => "Trial ID not provided!"
+        };
+    }
+
+    # Lookup Submission Date/Time
+    my $project_submission_date_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'project_submission_date', 'project_property')->cvterm_id();
+    my $row = $schema->resultset('Project::Projectprop')->find({
+        project_id => $trial_id,
+        type_id => $project_submission_date_cvterm_id,
+    });
+
+    # Trial Submitted
+    if ($row) {
+        return $c->stash->{rest} = {
+            status => "success",
+            submitted => "true",
+            ts => $row->value()
+        };
+    }
+
+    # Trial Not Submitted
+    else {
+        return $c->stash->{rest} = {
+            status => "success",
+            submitted => "false"
+        };
+    }
+}
+
+
 #
 # SUBMIT AN ENTIRE TRIAL FOR CURATION
 # Generate the upload templates to submit the trial to a production website
@@ -142,6 +193,7 @@ sub submit_trial_data_POST : Args(0) {
     my $submission_path = $c->config->{submission_path};
     my $submission_email = $c->config->{submission_email};
     my $main_production_site_url = $c->config->{main_production_site_url};
+    my $project_submission_date_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'project_submission_date', 'project_property')->cvterm_id();
 
     # Trial Submissions have to be enabled
     if ( !$allow_trial_submissions ) {
@@ -200,6 +252,14 @@ sub submit_trial_data_POST : Args(0) {
         $self->generate_trial_layout_file($c, $dir, $trial);
         $self->generate_trial_observations_file($c, $dir, $trial);
 
+        # Store Trial Submission Date
+        my $ts = time();
+        my $row = $schema->resultset('Project::Projectprop')->find_or_create({
+            project_id => $trial_id,
+            type_id => $project_submission_date_cvterm_id,
+        });
+        $row->value($ts);
+        $row->update();
     }
 
     # Send email notification
