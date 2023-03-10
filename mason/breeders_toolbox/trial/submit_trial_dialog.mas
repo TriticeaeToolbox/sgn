@@ -26,6 +26,11 @@ $location
       </div>
       <div class="modal-body" id="trial_details_edit_body">
         <div class="container-fluid">
+          <div id="submit_multiple_trial_info" class="alert-info">
+            To Submit <strong>more than one trial at once</strong>, go to the <a href="/submit/trials">Submit Multiple Trials</a> page 
+            to submit a list of trials to the production website/database.
+          </div>
+
           <p><strong>Do you want to submit this trial to the production website/database?</strong></p>
           <p>Submitting a trial will send the trial metadata, phenotype observations, accessions, and location information 
           associated with this trial to the curators.  Once approved, the trial will be available on the production website.</p>
@@ -126,3 +131,12 @@ $location
     jQuery('#submit_trial_dialog_status').modal("show");
   }
 </script>
+
+
+<style>
+  #submit_multiple_trial_info {
+    padding: 8px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+</style>

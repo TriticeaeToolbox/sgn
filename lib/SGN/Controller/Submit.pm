@@ -5,6 +5,21 @@ use Moose;
 BEGIN { extends "Catalyst::Controller"; }
 
 
+sub submit_multiple_trials : Path('/submit/trials') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    my $allow_trial_submissions = $c->config->{allow_trial_submissions};
+    if ( !$allow_trial_submissions ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>Trial Submissions Not Enabled</strong></p><p>Trial submissions are not allowed on this server.</p>";
+        return;
+    }
+
+    $c->stash->{template} = '/submit/trials.mas';
+}
+
+
 sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     my $self = shift;
     my $c = shift;
