@@ -60,9 +60,6 @@ sub _validate_with_plugin {
     #get column headers
     my $accession_name_head;
     my $species_name_head;
-    my $population_name_head;
-    my $organization_name_head;
-    my $synonyms_head;
 
     if ($worksheet->get_cell(0,0)) {
         $accession_name_head  = $worksheet->get_cell(0,0)->value();
@@ -72,27 +69,18 @@ sub _validate_with_plugin {
         $species_name_head  = $worksheet->get_cell(0,1)->value();
         $species_name_head =~ s/^\s+|\s+$//g;
     }
-    if ($worksheet->get_cell(0,2)) {
-        $population_name_head  = $worksheet->get_cell(0,2)->value();
-        $population_name_head =~ s/^\s+|\s+$//g;
-    }
-    if ($worksheet->get_cell(0,3)) {
-        $organization_name_head  = $worksheet->get_cell(0,3)->value();
-        $organization_name_head =~ s/^\s+|\s+$//g;
-    }
-    if ($worksheet->get_cell(0,4)) {
-        $synonyms_head  = $worksheet->get_cell(0,4)->value();
-        $synonyms_head =~ s/^\s+|\s+$//g;
-    }
+
+    my @optional_columns = ('population_name', 'organization_name', 'organization_name(s)', 'synonym', 'synonym(s)');
     push @$editable_stockprops, ('location_code(s)','ploidy_level(s)','genome_structure(s)','variety(s)','donor(s)','donor_institute(s)','donor_PUI(s)','country_of_origin(s)','state(s)','institute_code(s)','institute_name(s)','biological_status_of_accession_code(s)','notes(s)','accession_number(s)','PUI(s)','seed_source(s)','type_of_germplasm_storage_code(s)','acquisition_date(s)','transgenic','introgression_parent','introgression_backcross_parent','introgression_map_version','introgression_chromosome','introgression_start_position_bp','introgression_end_position_bp');
-    my %allowed_stockprops_head = map { $_ => 1 } @$editable_stockprops;
-    for my $i (5..$col_max){
-        my $stockprops_head;
+    my @combined_columns = (@optional_columns, @$editable_stockprops);
+    my %allowed_headers = map { $_ => 1 } @combined_columns;
+    for my $i (2..$col_max){
+        my $header;
         if ($worksheet->get_cell(0,$i)) {
-            $stockprops_head  = $worksheet->get_cell(0,$i)->value();
+            $header  = $worksheet->get_cell(0,$i)->value();
         }
-        if ($stockprops_head && !exists($allowed_stockprops_head{$stockprops_head})){
-            push @error_messages, "$stockprops_head is not a valid property to have in the header! Please check the spreadsheet format help.";
+        if ($header && !exists($allowed_headers{$header})){
+            push @error_messages, "$header is not a valid property to have in the header! Please check the spreadsheet format help.";
         }
     }
 
@@ -102,19 +90,9 @@ sub _validate_with_plugin {
     if (!$species_name_head || $species_name_head ne 'species_name') {
         push @error_messages, "Cell B1: species_name is missing from the header";
     }
-    if (!$population_name_head || $population_name_head ne 'population_name') {
-        push @error_messages, "Cell C1: population_name is missing from the header";
-    }
-    if (!$organization_name_head || ($organization_name_head ne 'organization_name(s)' && $organization_name_head ne 'organization_name') ) {
-        push @error_messages, "Cell D1: organization_name is missing from the header";
-    }
-    if (!$synonyms_head || ($synonyms_head ne 'synonym(s)' && $synonyms_head ne 'synonym') ) {
-        push @error_messages, "Cell E1: synonym is missing from the header";
-    }
 
     my %seen_accession_names;
     my %seen_species_names;
-    my %seen_synonyms;
     for my $row ( 1 .. $row_max ) {
         my $row_name = $row+1;
         my $accession_name;
@@ -200,20 +178,15 @@ sub _parse_with_plugin {
 
     my %seen_accession_names;
     my %seen_species_names;
-    my %seen_synonyms;
     for my $row ( 1 .. $row_max ) {
         my $accession_name;
         my $species_name;
-        my $synonyms_string;
 
         if ($worksheet->get_cell($row,0)) {
             $accession_name = $worksheet->get_cell($row,0)->value();
         }
         if ($worksheet->get_cell($row,1)) {
             $species_name = $worksheet->get_cell($row,1)->value();
-        }
-        if ($worksheet->get_cell($row,4)) {
-            $synonyms_string = $worksheet->get_cell($row,4)->value();
         }
         if ($accession_name){
             $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
@@ -223,16 +196,9 @@ sub _parse_with_plugin {
             $species_name =~ s/^\s+|\s+$//g;
             $seen_species_names{$species_name}++;
         }
-        if ($synonyms_string && $synonyms_string ne '' ) {
-            my @synonym_names = split ',', $synonyms_string;
-            foreach (@synonym_names){
-                $seen_synonyms{$_}=$row;
-            }
-        }
     }
 
     my @accession_list = keys %seen_accession_names;
-    my @synonyms_list = keys %seen_synonyms;
     my @organism_list = keys %seen_species_names;
     my %accession_lookup;
     my $accessions_in_db_rs = $schema->resultset("Stock::Stock")->search({uniquename=>{-ilike=>\@accession_list}});
@@ -242,6 +208,11 @@ sub _parse_with_plugin {
 
     # Old accession upload format had "(s)" appended to the editable_stock_props terms... this is now not the case, but should still allow for it. Now the header of the uploaded file should use the terms in the editable_stock_props configuration key directly.
     my %col_name_map = (
+        'population_name' => ['population_name', 'populationName'],
+        'organization_name' => ['organization_name', 'organizationName'],
+        'organization_name(s)' => ['organization_name', 'organizatioName'],
+        'synonym' => ['synonyms', 'synonyms'],
+        'synonym(s)' => ['synonyms', 'synonyms'],
         'location_code(s)' => ['location_code', 'locationCode'],
         'location_code' => ['location_code', 'locationCode'],
         'ploidy_level(s)' => ['ploidy_level', 'ploidyLevel'],
@@ -288,20 +259,18 @@ sub _parse_with_plugin {
     );
 
     my @header;
-    for my $i (5..$col_max){
-        my $stockprops_head;
+    for my $i (2..$col_max){
+        my $col_head;
         if ($worksheet->get_cell(0,$i)) {
-            $stockprops_head  = $worksheet->get_cell(0,$i)->value();
+            $col_head  = $worksheet->get_cell(0,$i)->value();
         }
-        push @header, $stockprops_head;
+        push @header, $col_head;
     }
 
+    my %seen_synonyms;
     for my $row ( 1 .. $row_max ) {
         my $accession_name;
         my $species_name;
-        my $population_name;
-        my $organization_name;
-        my @synonyms;
 
         if ($worksheet->get_cell($row,0)) {
             $accession_name = $worksheet->get_cell($row,0)->value();
@@ -309,17 +278,6 @@ sub _parse_with_plugin {
         if ($worksheet->get_cell($row,1)) {
             $species_name = $worksheet->get_cell($row,1)->value();
             $species_name =~ s/^\s+|\s+$//g;
-        }
-        if ($worksheet->get_cell($row,2)) {
-            $population_name = $worksheet->get_cell($row,2)->value();
-            $population_name =~ s/^\s+|\s+$//g;
-        }
-        if ($worksheet->get_cell($row,3)) {
-            $organization_name = $worksheet->get_cell($row,3)->value();
-            $organization_name =~ s/^\s+|\s+$//g;
-        }
-        if ($worksheet->get_cell($row,4)) {
-            @synonyms = split ',', $worksheet->get_cell($row,4)->value();
         }
 
         $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
@@ -336,10 +294,7 @@ sub _parse_with_plugin {
         my %row_info = (
             germplasmName => $accession_name,
             defaultDisplayName => $accession_name,
-            species => $species_name,
-            populationName => $population_name,
-            organizationName => $organization_name,
-            synonyms => \@synonyms
+            species => $species_name
         );
         #For "updating" existing accessions by adding properties.
         if ($stock_id){
@@ -347,27 +302,37 @@ sub _parse_with_plugin {
         }
 
         my $counter = 0;
-        for my $i (5..$col_max){
-            my $stockprop_header_term = $header[$counter];
-            my $stockprops_value;
+        for my $i (2..$col_max){
+            my $header_term = $header[$counter];
+            my $stock_value;
+
             if ($worksheet->get_cell($row,$i)) {
-                $stockprops_value  = $worksheet->get_cell($row,$i)->value();
+                $stock_value  = $worksheet->get_cell($row,$i)->value();
             }
-            if ($stockprops_value){
-                my $key_name;
-                if (exists($col_name_map{$stockprop_header_term}) && ($col_name_map{$stockprop_header_term}->[0] eq 'donor' || $col_name_map{$stockprop_header_term}->[0] eq 'donor institute' || $col_name_map{$stockprop_header_term}->[0] eq 'donor PUI') ) {
+            if ($stock_value){
+                if (exists($col_name_map{$header_term}) && ($col_name_map{$header_term}->[0] eq 'donor' || $col_name_map{$header_term}->[0] eq 'donor institute' || $col_name_map{$header_term}->[0] eq 'donor PUI') ) {
                     my %donor_key_map = ('donor'=>'donorGermplasmName', 'donor institute'=>'donorInstituteCode', 'donor PUI'=>'germplasmPUI');
                     if (exists($row_info{donors})){
                         my $donors_hash = $row_info{donors}->[0];
-                        $donors_hash->{$donor_key_map{$col_name_map{$stockprop_header_term}->[0]}} = $stockprops_value;
+                        $donors_hash->{$donor_key_map{$col_name_map{$header_term}->[0]}} = $stock_value;
                         $row_info{donors} = [$donors_hash];
                     } else {
-                        $row_info{donors} = [{ $donor_key_map{$col_name_map{$stockprop_header_term}->[0]} => $stockprops_value }];
+                        $row_info{donors} = [{ $donor_key_map{$col_name_map{$header_term}->[0]} => $stock_value }];
                     }
-                } elsif (exists($col_name_map{$stockprop_header_term})) {
-                    $row_info{$col_name_map{$stockprop_header_term}->[1]} = $stockprops_value;
+                } elsif (exists($col_name_map{$header_term})) {
+                    my $key = $col_name_map{$header_term}->[1];
+                    if ( $key eq 'synonyms' ) {
+                        my @synonym_names = split ',', $stock_value;
+                        foreach (@synonym_names) {
+                            $seen_synonyms{$_} = $row;
+                        }
+                        $row_info{$key} = \@synonym_names;
+                    }
+                    else {
+                        $row_info{$key} = $stock_value;
+                    }
                 } else {
-                    $row_info{other_editable_stock_props}->{$stockprop_header_term} = $stockprops_value;
+                    $row_info{other_editable_stock_props}->{$header_term} = $stock_value;
                 }
             }
             $counter++;
@@ -376,6 +341,7 @@ sub _parse_with_plugin {
         $parsed_entries{$row} = \%row_info;
     }
 
+    my @synonyms_list = keys %seen_synonyms;
     my $fuzzy_accession_search = CXGN::BreedersToolbox::StocksFuzzySearch->new({schema => $schema});
     my $fuzzy_organism_search = CXGN::BreedersToolbox::OrganismFuzzySearch->new({schema => $schema});
     my $max_distance = 0.2;
