@@ -1050,6 +1050,8 @@ function store_synonym_search(replacements) {
     // Make replacements
     for ( let i = 0; i < infoToAdd.length; i++ ) {
         for ( let j = 0; j < replacements.length; j++ ) {
+
+            // Replace germplasm information
             if ( infoToAdd[i].germplasmName === replacements[j].user_name ) {
                 infoToAdd[i].germplasmName = replacements[j].db_name;
                 infoToAdd[i].defaultDisplayName = replacements[j].db_name;
@@ -1057,6 +1059,15 @@ function store_synonym_search(replacements) {
                 if ( !infoToAdd[i].synonyms ) infoToAdd[i].synonyms = [];
                 if ( replacements[j].add_synonym ) infoToAdd[i].synonyms.push(replacements[j].user_name);
             }
+
+            // Replace parent information
+            if ( infoToAdd[i].femaleParent && infoToAdd[i].femaleParent === replacements[j].user_name ) {
+                infoToAdd[i].femaleParent = replacements[j].db_name;
+            }
+            if ( infoToAdd[i].maleParent && infoToAdd[i].maleParent === replacements[j].user_name ) {
+                infoToAdd[i].maleParent = replacements[j].db_name;
+            }
+
         }
     }
 

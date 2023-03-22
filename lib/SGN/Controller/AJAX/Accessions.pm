@@ -289,7 +289,9 @@ sub verify_accessions_file_POST : Args(0) {
     my %full_accessions;
     while (my ($k,$val) = each %$full_data){
         push @accession_names, $val->{germplasmName};
-        $full_accessions{$val->{germplasmName}} = $val;
+        $full_accessions{$val->{germplasmName}} = exists($full_accessions{$val->{germplasmName}}) ? 
+            { %{$full_accessions{$val->{germplasmName}}}, %$val } : 
+            $val;
     }
 
     my $new_list_id = CXGN::List::create_list($c->dbc->dbh, "AccessionsIn".$upload_original_name.$timestamp, 'Autocreated when upload accessions from file '.$upload_original_name.$timestamp, $user_id);
