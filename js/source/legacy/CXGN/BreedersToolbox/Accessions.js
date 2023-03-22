@@ -505,16 +505,20 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
 
     //console.log(accession_list_id);
 
-    if (verifyResponse.found) {
-        jQuery('#count_of_found_accessions').html("Total number already in the database("+verifyResponse.found.length+")");
+    const found = [ ...verifyResponse.found, ...verifyResponse.found_parents ];
+    const absent = [ ...verifyResponse.absent, ...verifyResponse.absent_parents ];
+    const fuzzy = [ ...verifyResponse.fuzzy, ...verifyResponse.fuzzy_parents ];
+
+    if (found) {
+        jQuery('#count_of_found_accessions').html("Total number already in the database("+found.length+")");
         var found_html = '<table class="table table-bordered" id="found_accessions_table"><thead><tr><th>Search Name</th><th>Found in Database</th></tr></thead><tbody>';
-        for( i=0; i < verifyResponse.found.length; i++){
+        for( i=0; i < found.length; i++){
             found_html = found_html
-                +'<tr><td>'+verifyResponse.found[i].matched_string
+                +'<tr><td>'+found[i].matched_string
                 +'</td><td>'
-                +verifyResponse.found[i].unique_name
+                +found[i].unique_name
                 +'</td></tr>';
-            accessionListFound[verifyResponse.found[i].unique_name] = 1;
+            accessionListFound[found[i].unique_name] = 1;
         }
         found_html = found_html +'</tbody></table>';
 
@@ -524,22 +528,22 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
 
         jQuery('#found_accessions_table').DataTable({});
 
-        accessionList = verifyResponse.absent;
+        accessionList = absent;
 
     }
 
-    if (verifyResponse.fuzzy.length > 0 && doFuzzySearch && !doSynonymSearch) {
-        fuzzyResponse = verifyResponse.fuzzy;
+    if (fuzzy.length > 0 && doFuzzySearch && !doSynonymSearch) {
+        fuzzyResponse = fuzzy;
         var fuzzy_html = '<table id="add_accession_fuzzy_table" class="table"><thead><tr><th class="col-xs-4">Name in Your List</th><th class="col-xs-4">Existing Name(s) in Database</th><th class="col-xs-4">Options&nbsp;&nbsp;&nbsp&nbsp;<input type="checkbox" id="add_accession_fuzzy_option_all"/> Use Same Option for All</th></tr></thead><tbody>';
-        for( i=0; i < verifyResponse.fuzzy.length; i++) {
-            fuzzy_html = fuzzy_html + '<tr id="add_accession_fuzzy_option_form'+i+'"><td>'+ verifyResponse.fuzzy[i].name + '<input type="hidden" name="fuzzy_name" value="'+ verifyResponse.fuzzy[i].name + '" /></td>';
+        for( i=0; i < fuzzy.length; i++) {
+            fuzzy_html = fuzzy_html + '<tr id="add_accession_fuzzy_option_form'+i+'"><td>'+ fuzzy[i].name + '<input type="hidden" name="fuzzy_name" value="'+ fuzzy[i].name + '" /></td>';
             fuzzy_html = fuzzy_html + '<td><select class="form-control" name ="fuzzy_select">';
-            if ( verifyResponse.fuzzy[i].matches ) {
-                for(j=0; j < verifyResponse.fuzzy[i].matches.length; j++){
-                    if (verifyResponse.fuzzy[i].matches[j].is_synonym){
-                        fuzzy_html = fuzzy_html + '<option value="' + verifyResponse.fuzzy[i].matches[j].synonym_of + '">' + verifyResponse.fuzzy[i].matches[j].name + ' (SYNONYM OF: '+verifyResponse.fuzzy[i].matches[j].synonym_of+')</option>';
+            if ( fuzzy[i].matches ) {
+                for(j=0; j < fuzzy[i].matches.length; j++){
+                    if (fuzzy[i].matches[j].is_synonym){
+                        fuzzy_html = fuzzy_html + '<option value="' + fuzzy[i].matches[j].synonym_of + '">' + fuzzy[i].matches[j].name + ' (SYNONYM OF: '+fuzzy[i].matches[j].synonym_of+')</option>';
                     } else {
-                        fuzzy_html = fuzzy_html + '<option value="' + verifyResponse.fuzzy[i].matches[j].name + '">' + verifyResponse.fuzzy[i].matches[j].name + '</option>';
+                        fuzzy_html = fuzzy_html + '<option value="' + fuzzy[i].matches[j].name + '">' + fuzzy[i].matches[j].name + '</option>';
                     }
                 }
             }
@@ -549,10 +553,10 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
         jQuery('#view_fuzzy_matches').html(fuzzy_html);
 
         //Add to absent
-        for( i=0; i < verifyResponse.fuzzy.length; i++) {
-            verifyResponse.absent.push(verifyResponse.fuzzy[i].name);
+        for( i=0; i < fuzzy.length; i++) {
+            absent.push(fuzzy[i].name);
         }
-        accessionList = verifyResponse.absent;
+        accessionList = absent;
     }
 
     if (verifyResponse.full_data){
@@ -564,14 +568,14 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
 
     jQuery('#review_found_matches_hide').click(function(){
 
-        if (verifyResponse.fuzzy.length > 0 && doFuzzySearch){
+        if (fuzzy.length > 0 && doFuzzySearch){
             jQuery('#review_fuzzy_matches_dialog').modal('show');
         } else {
             jQuery('#review_fuzzy_matches_dialog').modal('hide');
 	    //alert(JSON.stringify(verifyResponse.absent));
 	    //alert(JSON.stringify(infoToAdd));
-            if (verifyResponse.absent.length > 0 || infoToAdd.length>0){
-                populate_review_absent_dialog(verifyResponse.absent, infoToAdd);
+            if (absent.length > 0 || infoToAdd.length>0){
+                populate_review_absent_dialog(absent, infoToAdd);
             } else {
                 alert('All accessions in your list already exist in the database. (3)');
             }
@@ -588,12 +592,15 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
         if ( verifyResponse && verifyResponse.full_data ) {
             terms = Object.keys(verifyResponse.full_data);
         }
-        else if ( verifyResponse.absent && verifyResponse.found ) {
-            terms = terms.concat(verifyResponse.absent);
-            for ( let i = 0; i < verifyResponse.found.length; i++ ) {
-                terms.push(verifyResponse.found[i].matched_string);
+        if ( absent ) {
+            terms = terms.concat(absent);
+        }
+        if ( found ) {
+            for ( let i = 0; i < found.length; i++ ) {
+                terms.push(found[i].matched_string);
             }
         }
+        terms = [...new Set(terms)];
         if ( updateSynonymSearchCache ) {
             update_synonym_search_cache(terms);
         }

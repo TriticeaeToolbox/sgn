@@ -305,6 +305,9 @@ sub verify_accessions_file_POST : Args(0) {
         absent => $parsed_data->{absent_accessions},
         fuzzy => $parsed_data->{fuzzy_accessions},
         found => $parsed_data->{found_accessions},
+        absent_parents => $parsed_data->{absent_parents},
+        fuzzy_parents => $parsed_data->{fuzzy_parents},
+        found_parents => $parsed_data->{found_parents},
         absent_organisms => $parsed_data->{absent_organisms},
         fuzzy_organisms => $parsed_data->{fuzzy_organisms},
         found_organisms => $parsed_data->{found_organisms}

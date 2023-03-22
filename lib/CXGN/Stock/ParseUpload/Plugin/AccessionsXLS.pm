@@ -56,8 +56,8 @@ sub _validate_with_plugin {
         $species_name_head  = $worksheet->get_cell(0,1)->value();
     }
 
-    my @optional_columns = ('population_name', 'organization_name', 'organization_name(s)', 'synonym', 'synonym(s)');
-    push @$editable_stockprops, ('location_code(s)','ploidy_level(s)','genome_structure(s)','variety(s)','donor(s)','donor_institute(s)','donor_PUI(s)','country_of_origin(s)','state(s)','institute_code(s)','institute_name(s)','biological_status_of_accession_code(s)','notes(s)','accession_number(s)','PUI(s)','seed_source(s)','type_of_germplasm_storage_code(s)','acquisition_date(s)','transgenic','introgression_parent','introgression_backcross_parent','introgression_map_version','introgression_chromosome','introgression_start_position_bp','introgression_end_position_bp');
+    my @optional_columns = ('population_name', 'organization_name', 'organization_name(s)', 'synonym', 'synonym(s)', 'female parent', 'female_parent', 'male parent', 'male_parent', 'cross type', 'cross_type');
+    push @$editable_stockprops, ('location_code(s)','ploidy_level(s)','genome_structure(s)','variety(s)','donor(s)','donor_institute(s)','donor_PUI(s)','country_of_origin(s)','state(s)','institute_code(s)','institute_name(s)','biological_status_of_accession_code(s)','notes(s)','accession_number(s)','PUI(s)','seed_source(s)','type_of_germplasm_storage_code(s)','acquisition_date(s)','transgenic','introgression_parent','introgression_backcross_parent','introgression_map_version','introgression_chromosome','introgression_start_position_bp','introgression_end_position_bp', 'purdy_pedigree', 'filial_generation');
     my @combined_columns = (@optional_columns, @$editable_stockprops);
     my %allowed_headers = map { $_ => 1 } @combined_columns;
     for my $i (2..$col_max){
@@ -234,7 +234,13 @@ sub _parse_with_plugin {
         'purdy_pedigree' => ['purdy pedigree', 'purdyPedigree'],
         'purdy pedigree' => ['purdy pedigree', 'purdyPedigree'],
         'filial_generation' => ['filial generation', 'filialGeneration'],
-        'filial generation' => ['filial generation', 'filialGeneration']
+        'filial generation' => ['filial generation', 'filialGeneration'],
+        'female parent' => ['female parent', 'femaleParent'],
+        'female_parent' => ['female parent', 'femaleParent'],
+        'male parent' => ['male parent', 'maleParent'],
+        'male_parent' => ['male parent', 'maleParent'],
+        'cross type' => ['cross type', 'crossType'],
+        'cross_type' => ['cross type', 'crossType']
     );
 
     my @header;
@@ -247,6 +253,8 @@ sub _parse_with_plugin {
     }
 
     my %seen_synonyms;
+    my %seen_parents;
+    my %seen_cross_types;
     for my $row ( 1 .. $row_max ) {
         my $accession_name;
         my $species_name;
@@ -299,15 +307,30 @@ sub _parse_with_plugin {
                     }
                 } elsif (exists($col_name_map{$header_term})) {
                     my $key = $col_name_map{$header_term}->[1];
+                    $row_info{$key} = $stock_value;
                     if ( $key eq 'synonyms' ) {
                         my @synonym_names = split ',', $stock_value;
+                        s/^\s+|\s+$//g for @synonym_names;
                         foreach (@synonym_names) {
                             $seen_synonyms{$_} = $row;
                         }
                         $row_info{$key} = \@synonym_names;
                     }
-                    else {
-                        $row_info{$key} = $stock_value;
+                    elsif ( $key eq 'femaleParent' || $key eq 'maleParent' ) {
+                        $seen_parents{$stock_value} = 1;
+                        $parsed_entries{$row."_".$key} = {
+                            germplasmName => $stock_value,
+                            defaultDisplayName => $stock_value,
+                            species => $species_name
+                        };
+                        my $parent_in_db_rs = $schema->resultset("Stock::Stock")->search({uniquename=>$stock_value});
+                        if ( $parent_in_db_rs->count() == 1 ) {
+                            my $r = $parent_in_db_rs->first();
+                            $parsed_entries{$row."_".$key}{stock_id} = $r->stock_id;
+                        }
+                    }
+                    elsif ( $key eq 'crossType' ) {
+                        $seen_cross_types{$stock_value} = 1;
                     }
                 } else {
                     $row_info{other_editable_stock_props}->{$header_term} = $stock_value;
@@ -320,6 +343,8 @@ sub _parse_with_plugin {
     }
 
     my @synonyms_list = keys %seen_synonyms;
+    my @parents_list = keys %seen_parents;
+    my @cross_types_list = keys %seen_cross_types;
     my $fuzzy_accession_search = CXGN::BreedersToolbox::StocksFuzzySearch->new({schema => $schema});
     my $fuzzy_organism_search = CXGN::BreedersToolbox::OrganismFuzzySearch->new({schema => $schema});
     my $max_distance = 0.2;
@@ -329,6 +354,9 @@ sub _parse_with_plugin {
     my $found_synonyms = [];
     my $fuzzy_synonyms = [];
     my $absent_synonyms = [];
+    my $found_parents = [];
+    my $fuzzy_parents = [];
+    my $absent_parents = [];
     my $found_organisms;
     my $fuzzy_organisms;
     my $absent_organisms;
@@ -337,6 +365,9 @@ sub _parse_with_plugin {
     #remove all trailing and ending spaces from accessions and organisms
     s/^\s+|\s+$//g for @accession_list;
     s/^\s+|\s+$//g for @organism_list;
+    s/^\s+|\s+$//g for @synonyms_list;
+    s/^\s+|\s+$//g for @parents_list;
+    s/^\s+|\s+$//g for @cross_types_list;
 
     if ($do_fuzzy_search) {
         my $fuzzy_search_result = $fuzzy_accession_search->get_matches(\@accession_list, $max_distance, 'accession');
@@ -352,6 +383,13 @@ sub _parse_with_plugin {
             $absent_synonyms = $fuzzy_synonyms_result->{'absent'};
         }
 
+        if (scalar @parents_list > 0) {
+            my $fuzzy_parents_result = $fuzzy_accession_search->get_matches(\@parents_list, $max_distance, 'accession');
+            $found_parents = $fuzzy_parents_result->{'found'};
+            $fuzzy_parents = $fuzzy_parents_result->{'fuzzy'};
+            $absent_parents = $fuzzy_parents_result->{'absent'};
+        }
+
         if (scalar @organism_list > 0){
             my $fuzzy_organism_result = $fuzzy_organism_search->get_matches(\@organism_list, $max_distance);
             $found_organisms = $fuzzy_organism_result->{'found'};
@@ -364,13 +402,23 @@ sub _parse_with_plugin {
         }
     } else {
         my $validator = CXGN::List::Validate->new();
-        my $absent_accessions = $validator->validate($schema, 'accessions', \@accession_list)->{'missing'};
+        $absent_accessions = $validator->validate($schema, 'accessions', \@accession_list)->{'missing'};
         my %accessions_missing_hash = map { $_ => 1 } @$absent_accessions;
 
         foreach (@accession_list){
             if (!exists($accessions_missing_hash{$_})){
                 push @$found_accessions, { unique_name => $_,  matched_string => $_};
                 push @$fuzzy_accessions, { unique_name => $_,  matched_string => $_};
+            }
+        }
+
+        $absent_parents = $validator->validate($schema, 'accessions', \@parents_list)->{'missing'};
+        my %parents_missing_hash = map { $_ => 1 } @$absent_parents;
+
+        foreach (@parents_list) {
+            if ( !exists($parents_missing_hash{$_}) ) {
+                push @$found_parents, { unique_name => $_, matched_string => $_ };
+                push @$fuzzy_parents, { unique_name => $_, matched_string => $_ };
             }
         }
     }
@@ -383,6 +431,9 @@ sub _parse_with_plugin {
         found_synonyms => $found_synonyms,
         fuzzy_synonyms => $fuzzy_synonyms,
         absent_synonyms => $absent_synonyms,
+        found_parents => $found_parents,
+        fuzzy_parents => $fuzzy_parents,
+        absent_parents => $absent_parents,
         found_organisms => $found_organisms,
         fuzzy_organisms => $fuzzy_organisms,
         absent_organisms => $absent_organisms
