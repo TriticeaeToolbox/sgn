@@ -254,7 +254,6 @@ sub _parse_with_plugin {
 
     my %seen_synonyms;
     my %seen_parents;
-    my %seen_cross_types;
     for my $row ( 1 .. $row_max ) {
         my $accession_name;
         my $species_name;
@@ -329,9 +328,6 @@ sub _parse_with_plugin {
                             $parsed_entries{$row."_".$key}{stock_id} = $r->stock_id;
                         }
                     }
-                    elsif ( $key eq 'crossType' ) {
-                        $seen_cross_types{$stock_value} = 1;
-                    }
                 } else {
                     $row_info{other_editable_stock_props}->{$header_term} = $stock_value;
                 }
@@ -344,7 +340,6 @@ sub _parse_with_plugin {
 
     my @synonyms_list = keys %seen_synonyms;
     my @parents_list = keys %seen_parents;
-    my @cross_types_list = keys %seen_cross_types;
     my $fuzzy_accession_search = CXGN::BreedersToolbox::StocksFuzzySearch->new({schema => $schema});
     my $fuzzy_organism_search = CXGN::BreedersToolbox::OrganismFuzzySearch->new({schema => $schema});
     my $max_distance = 0.2;
@@ -367,7 +362,6 @@ sub _parse_with_plugin {
     s/^\s+|\s+$//g for @organism_list;
     s/^\s+|\s+$//g for @synonyms_list;
     s/^\s+|\s+$//g for @parents_list;
-    s/^\s+|\s+$//g for @cross_types_list;
 
     if ($do_fuzzy_search) {
         my $fuzzy_search_result = $fuzzy_accession_search->get_matches(\@accession_list, $max_distance, 'accession');
