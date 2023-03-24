@@ -8,7 +8,8 @@ $dataset_contents => ''
 </%args>
 
 <& /page/page_title.mas, title => "Dataset $dataset_name" &>
-<& /util/import_javascript.mas, entries => ['dataset_scatterplot'], classes => [ 'jquery.js', 'd3.d3v4Min' ] &>
+<& /util/import_javascript.mas, entries => ['dataset', 'dataset_scatterplot'], classes => [ 'jqueryui.js', 'jquery.js', 'd3.d3v4Min', 'jstree.dist.jstree', "thickbox", "CXGN.Page.FormattingHelpers" ] &>
+<& /util/import_css.mas, paths => ['wizard.css'] &>
 
 <style>
   .slider {
