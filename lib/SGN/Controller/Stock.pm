@@ -521,7 +521,10 @@ sub search_stock : Private {
                 -and => [
                     -or => [
                         'UPPER(uniquename)' => uc($stock_query),
-                        'UPPER(stockprops.value)' => uc($stock_query)
+                        -and => [
+                            'UPPER(stockprops.value)' => uc($stock_query),
+                            'stockprops.type_id' => $synonym_cvterm_id,
+                        ]
                     ],
                     -or => [
                         'UPPER(organism.abbreviation)' => uc($organism_query),
@@ -529,7 +532,6 @@ sub search_stock : Private {
                         'UPPER(organism.species)' => uc($organism_query),
                         'UPPER(organism.common_name)' => {'like', '%' . uc($organism_query) .'%'}
                     ],
-                    'stockprops.type_id' => $synonym_cvterm_id,
                     is_obsolete => 'false'
                 ]
             },
@@ -547,9 +549,11 @@ sub search_stock : Private {
         $matches = $rs->search({
                 -or => [
                     'UPPER(uniquename)' => uc($stock_query),
-                    'UPPER(stockprops.value)' => uc($stock_query)
+                    -and => [
+                        'UPPER(stockprops.value)' => uc($stock_query),
+                        'stockprops.type_id' => $synonym_cvterm_id,
+                    ]
                 ],
-                'stockprops.type_id' => $synonym_cvterm_id,
                 is_obsolete => 'false'
             },
             {
