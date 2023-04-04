@@ -46,3 +46,6 @@ js/package-lock.json
 typescript
 docs/Gemfile.lock
 docs/_site/
+.git_commit
+.git_tag
+.git_updated
