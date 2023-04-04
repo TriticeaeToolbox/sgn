@@ -465,8 +465,6 @@ sub add_accession_list_POST : Args(0) {
                 my $male = $_->{maleParent};
                 my $cross_type = $_->{crossType};
 
-                print STDERR "\n\n===> CROSS TYPE: $cross_type\n";
-
                 $progeny =~ s/^\s+|\s+$//g;
                 $female =~ s/^\s+|\s+$//g;
                 if ( !$cross_type || $cross_type eq "" ) {
@@ -491,10 +489,17 @@ sub add_accession_list_POST : Args(0) {
         # Add pedigrees, if included in the file
         if ( scalar(@pedigrees) > 0 ) {
             my $add = CXGN::Pedigree::AddPedigrees->new({ schema=>$schema, pedigrees=>\@pedigrees });
-            my $pedigree_check = $add->validate_pedigrees();
+
+            # validate the pedigrees
+            my $pedigree_check = $add->validate_pedigrees($overwrite_pedigrees);
             if (!$pedigree_check) {
                 die "There was a problem validating pedigrees";
             }
+            if ($pedigree_check->{error}){
+                die "Pedigree validation error: " . join(', ', @{$pedigree_check->{error}});
+            }
+
+            # store the pedigrees
             my $return = $add->add_pedigrees($overwrite_pedigrees);
             if (!$return){
                 die "The pedigrees were not stored";

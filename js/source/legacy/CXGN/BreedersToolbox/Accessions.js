@@ -429,6 +429,7 @@ function add_accessions(full_info, species_names) {
         data: {
             'full_info': JSON.stringify(full_info),
             'allowed_organisms': JSON.stringify(species_names),
+            'overwrite_pedigrees': jQuery("#overwrite_pedigrees").is(":checked")
         },
         beforeSend: function(){
             disable_ui();
