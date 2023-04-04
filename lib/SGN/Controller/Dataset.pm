@@ -1,6 +1,8 @@
 
 package SGN::Controller::Dataset;
 
+use strict;
+use warnings;
 use Moose;
 use CXGN::Dataset;
 

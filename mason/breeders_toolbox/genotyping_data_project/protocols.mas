@@ -12,7 +12,6 @@ $trial_id
                 <th>Description</th>
                 <th>Reference Genome</th>
                 <th>Species Name</th>
-                <th>Sample Type</th>
 		<th>Created Date</th>
             </tr>
         </thead>

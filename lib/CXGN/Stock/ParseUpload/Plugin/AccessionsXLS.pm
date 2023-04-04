@@ -2,6 +2,7 @@ package CXGN::Stock::ParseUpload::Plugin::AccessionsXLS;
 
 use Moose::Role;
 use Spreadsheet::ParseExcel;
+use Spreadsheet::ParseXLSX;
 use CXGN::Stock::StockLookup;
 use SGN::Model::Cvterm;
 use Data::Dumper;
@@ -15,7 +16,18 @@ sub _validate_with_plugin {
     my $filename = $self->get_filename();
     my $schema = $self->get_chado_schema();
     my $editable_stockprops = $self->get_editable_stock_props();
-    my $parser = Spreadsheet::ParseExcel->new();
+
+    # Match a dot, extension .xls / .xlsx
+    my ($extension) = $filename =~ /(\.[^.]+)$/;
+    my $parser;
+
+    if ($extension eq '.xlsx') {
+        $parser = Spreadsheet::ParseXLSX->new();
+    }
+    else {
+        $parser = Spreadsheet::ParseExcel->new();
+    }
+
     my @error_messages;
     my %errors;
     my %missing_accessions;
@@ -45,15 +57,18 @@ sub _validate_with_plugin {
         return;
     }
 
-    #get column headers
+    # get column headers
+    #
     my $accession_name_head;
     my $species_name_head;
 
     if ($worksheet->get_cell(0,0)) {
         $accession_name_head  = $worksheet->get_cell(0,0)->value();
+        $accession_name_head =~ s/^\s+|\s+$//g;
     }
     if ($worksheet->get_cell(0,1)) {
         $species_name_head  = $worksheet->get_cell(0,1)->value();
+        $species_name_head =~ s/^\s+|\s+$//g;
     }
 
     my @optional_columns = ('population_name', 'organization_name', 'organization_name(s)', 'synonym', 'synonym(s)', 'female parent', 'female_parent', 'male parent', 'male_parent', 'cross type', 'cross_type');
@@ -78,6 +93,7 @@ sub _validate_with_plugin {
     }
 
     my %seen_accession_names;
+    my %accession_name_counts;
     my %seen_species_names;
     for my $row ( 1 .. $row_max ) {
         my $row_name = $row+1;
@@ -100,6 +116,7 @@ sub _validate_with_plugin {
         else {
             $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
             $seen_accession_names{$accession_name}=$row_name;
+	    $accession_name_counts{$accession_name}++;
         }
 
         if (!$species_name || $species_name eq '' ) {
@@ -120,6 +137,13 @@ sub _validate_with_plugin {
         $errors{'missing_species'} = \@species_missing;
     }
 
+    foreach my $k (keys %accession_name_counts) {
+	if ($accession_name_counts{$k} > 1) {
+	    push @error_messages, "Accession $k occures $accession_name_counts{$k} times in the file. Accession names must be unique. Please remove duplicated accession names.";
+	}
+    }
+
+
     #store any errors found in the parsed file to parse_errors accessor
     if (scalar(@error_messages) >= 1) {
         $errors{'error_messages'} = \@error_messages;
@@ -137,7 +161,18 @@ sub _parse_with_plugin {
     my $filename = $self->get_filename();
     my $schema = $self->get_chado_schema();
     my $do_fuzzy_search = $self->get_do_fuzzy_search();
-    my $parser   = Spreadsheet::ParseExcel->new();
+
+    # Match a dot, extension .xls / .xlsx
+    my ($extension) = $filename =~ /(\.[^.]+)$/;
+    my $parser;
+
+    if ($extension eq '.xlsx') {
+        $parser = Spreadsheet::ParseXLSX->new();
+    }
+    else {
+        $parser = Spreadsheet::ParseExcel->new();
+    }
+
     my $excel_obj;
     my $worksheet;
     my %parsed_entries;
@@ -263,6 +298,7 @@ sub _parse_with_plugin {
         }
         if ($worksheet->get_cell($row,1)) {
             $species_name = $worksheet->get_cell($row,1)->value();
+            $species_name =~ s/^\s+|\s+$//g;
         }
 
         $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
@@ -432,7 +468,7 @@ sub _parse_with_plugin {
         fuzzy_organisms => $fuzzy_organisms,
         absent_organisms => $absent_organisms
     );
-    print STDERR "\n\nAccessionsXLS parsed results :\n".Data::Dumper::Dumper(%return_data)."\n\n";             
+    print STDERR "\n\nAccessionsXLS parsed results :\n".Data::Dumper::Dumper(%return_data)."\n\n";
 
     $self->_set_parsed_data(\%return_data);
     return 1;

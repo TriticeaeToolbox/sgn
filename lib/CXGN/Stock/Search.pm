@@ -256,7 +256,7 @@ sub search {
     my $matchtype = $self->match_type || 'contains';
     my $any_name = $self->match_name;
     my $organism_id = $self->organism_id;
-    my $stock_type_id = $self->stock_type_id;
+    my $stock_type_id = $self->stock_type_id ;
     my $stock_type_name = $self->stock_type_name;
     my $owner_first_name = $self->owner_first_name;
     my $owner_last_name = $self->owner_last_name;
@@ -277,12 +277,14 @@ sub search {
     my $offset = $self->offset;
     my @selected_loci = $self->selected_loci ? @{$self->selected_loci} : ();
 
+    my $advanced_search = 0; #this is for joining nd_experiment and its related tables
+
     unless ($matchtype eq 'exactly') { #trim whitespace from both ends unless exact search was specified
         $any_name =~ s/^\s+|\s+$//g;
     }
 
     my ($or_conditions, $and_conditions);
-    $and_conditions->{'me.stock_id'} = { '>' => 0 };
+    #$and_conditions->{'me.stock_id'} = { '>' => 0 }; ##Is this needed here?
 
     my $start = '%';
     my $end = '%';
@@ -348,11 +350,11 @@ sub search {
         my %person_params;
         if ($owner_first_name) {
             $owner_first_name =~ s/\s+//g;
-            $person_params{first_name} = {'ilike' => '%'.$owner_first_name.'%'};
+            $person_params{first_name} = {'ilike' => $owner_first_name};
         }
         if ($owner_last_name) {
             $owner_last_name =~ s/\s+//g;
-            $person_params{last_name} = {'ilike' => '%'.$owner_last_name.'%'};
+            $person_params{last_name} = {'ilike' => $owner_last_name};
         }
 
         #$people_schema->storage->debug(1);
@@ -372,6 +374,7 @@ sub search {
     my $nd_experiment_joins = [];
 
     if (scalar(@trait_name_array)>0 || $minimum_phenotype_value || $maximum_phenotype_value){
+        $advanced_search=1;
         push @$nd_experiment_joins, {'nd_experiment_phenotypes' => {'phenotype' => 'observable' }};
         foreach (@trait_name_array){
             if ($_){
@@ -387,6 +390,7 @@ sub search {
     }
 
     if (scalar(@location_name_array)>0){
+        $advanced_search=1;
         push @$nd_experiment_joins, 'nd_geolocation';
         foreach (@location_name_array){
             if ($_){
@@ -396,6 +400,7 @@ sub search {
     }
 
     if (scalar(@trial_name_array)>0 || scalar(@trial_id_array)>0 || scalar(@year_array)>0 || scalar(@program_id_array)>0){
+        $advanced_search=1;
         push @$nd_experiment_joins, { 'nd_experiment_projects' => { 'project' => ['projectprops', 'project_relationship_subject_projects' ] } };
         foreach (@trial_name_array){
             if ($_){
@@ -514,12 +519,14 @@ sub search {
             push @stockprop_filtered_stock_ids, $stock_id;
         }
     }
-
-    if ($stock_type_search == $accession_cvterm_id){
-        $stock_join = { stock_relationship_objects => { subject => { nd_experiment_stocks => { nd_experiment => $nd_experiment_joins }}}};
-    } else {
-        $stock_join = { nd_experiment_stocks => { nd_experiment => $nd_experiment_joins } };
+    if ($advanced_search) {
+      if ($stock_type_search  == $accession_cvterm_id){
+          $stock_join = { stock_relationship_objects => { subject => { nd_experiment_stocks => { nd_experiment => $nd_experiment_joins }}}};
+      } else  {
+          $stock_join = { nd_experiment_stocks => { nd_experiment => $nd_experiment_joins } };
+      }
     }
+    if ( !$and_conditions) {  $and_conditions = [ { 'me.type_id' => { '!=' => undef } } ] };
 
     #$schema->storage->debug(1);
     my $search_query = {
@@ -534,7 +541,8 @@ sub search {
     if ($using_stockprop_filter || scalar(@stockprop_filtered_stock_ids)>0){
         $search_query->{'me.stock_id'} = {'in'=>\@stockprop_filtered_stock_ids};
     }
-
+    print STDERR "**stock search q " . Dumper($search_query)  ."\n";
+    print STDERR "***stock_join= " . Dumper($stock_join) ." \n\n";
     my $rs = $schema->resultset("Stock::Stock")->search(
     $search_query,
     {
@@ -546,6 +554,7 @@ sub search {
     });
 
     my $records_total = $rs->count();
+    $any_name =~ s/^\s+|\s+$//g;
     if (defined($limit) && defined($offset)){
         $rs = $rs->slice($offset, $limit);
     }
@@ -601,10 +610,10 @@ sub search {
         }
     }
     #print STDERR Dumper \%result_hash;
-    
+
     # Comma separated list of query placeholders for the result stock ids
     my $id_ph = scalar(@result_stock_ids) > 0 ? join ",", ("?") x @result_stock_ids : "NULL";
-    
+
     # Get additional organism properties (species authority, subtaxa, subtaxa authority)
     my $organism_query = "SELECT op.organism_id, cvterm.name, op.value, op.rank
 FROM organismprop AS op
@@ -633,7 +642,7 @@ ORDER BY organism_id ASC;";
 
         push @{$organism_props{$organism_id}->{$prop_type}}, $prop_value;
     }
-    
+
     # Get additional stock properties (pedigree, synonyms, donor info)
     my $stock_query = "SELECT stock.stock_id, stock.uniquename, stock.organism_id,
                mother.uniquename AS female_parent, father.uniquename AS male_parent, m_rel.value AS cross_type,
@@ -647,7 +656,7 @@ ORDER BY organism_id ASC;";
         WHERE stock.stock_id IN ($id_ph);";
     my $sth = $schema->storage()->dbh()->prepare($stock_query);
     $sth->execute(@result_stock_ids);
-    
+
     # Add additional organism and stock properties to the result hash for each stock
     while (my @r = $sth->fetchrow_array()) {
         my $stock_id = $r[0];
@@ -780,7 +789,7 @@ sub _refresh_materialized_stockprop {
                 });
                 $cvterm_id = $new_term->cvterm_id();
             }
-            
+
             $stockprop_refresh_q .= ",(''".$cvterm_id."'')";
         }
 
