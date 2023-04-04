@@ -311,8 +311,9 @@ If 1 match is found, display the stock detail page.  Display an error for
 
 =cut
 
-sub view_by_organism_name : Path('/stock/view_by_organism') Args(2) {
-    my ($self, $c, $organism_query, $stock_query) = @_;
+sub view_by_organism_name : Path('/stock/view_by_organism') Args() {
+    my ($self, $c, $organism_query, @query_elements) = @_;
+    my $stock_query = join('/', @query_elements);
     $self->search_stock($c, $organism_query, $stock_query);
 }
 
@@ -329,8 +330,9 @@ If 1 match is found, display the stock detail page.  Display an error for
 
 =cut
 
-sub view_by_name : Path('/stock/view_by_name') Args(1) {
-    my ($self, $c, $stock_query) = @_;
+sub view_by_name : Path('/stock/view_by_name') Args() {
+    my ($self, $c, @query_elements) = @_;
+    my $stock_query = join('/', @query_elements);
     $self->search_stock($c, undef, $stock_query);
 }
 
@@ -502,6 +504,7 @@ sub get_stock : Chained('/')  PathPart('stock')  CaptureArgs(1) {
 sub search_stock : Private {
     my ( $self, $c, $organism_query, $stock_query ) = @_;
     my $rs = $self->schema->resultset('Stock::Stock');
+    my $synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'stock_synonym', 'stock_property')->cvterm_id();
 
     my $matches;
     my $count = 0;
@@ -509,16 +512,26 @@ sub search_stock : Private {
     # Search by name and organism
     if ( defined($organism_query) && defined($stock_query) ) {
         $matches = $rs->search({
-                'UPPER(uniquename)' => uc($stock_query),
-                -or => [
-                    'UPPER(organism.abbreviation)' => uc($organism_query),
-                    'UPPER(organism.genus)' => uc($organism_query),
-                    'UPPER(organism.species)' => uc($organism_query),
-                    'UPPER(organism.common_name)' => {'like', '%' . uc($organism_query) .'%'}
-                ],
-                is_obsolete => 'false'
+                -and => [
+                    -or => [
+                        'UPPER(uniquename)' => uc($stock_query),
+                        'UPPER(stockprops.value)' => uc($stock_query)
+                    ],
+                    -or => [
+                        'UPPER(organism.abbreviation)' => uc($organism_query),
+                        'UPPER(organism.genus)' => uc($organism_query),
+                        'UPPER(organism.species)' => uc($organism_query),
+                        'UPPER(organism.common_name)' => {'like', '%' . uc($organism_query) .'%'}
+                    ],
+                    'stockprops.type_id' => $synonym_cvterm_id,
+                    is_obsolete => 'false'
+                ]
             },
-            {join => 'organism'}
+            {
+                select => ['me.stock_id', 'uniquename', 'organism.species'],
+                join => ['organism', 'stockprops'],
+                group_by => ['me.stock_id', 'uniquename', 'organism.species']
+            }
         );
         $count = $matches->count;
     }
@@ -526,10 +539,18 @@ sub search_stock : Private {
     # Search by name
     elsif ( defined($stock_query) ) {
         $matches = $rs->search({
-                'UPPER(uniquename)' => uc($stock_query),
+                -or => [
+                    'UPPER(uniquename)' => uc($stock_query),
+                    'UPPER(stockprops.value)' => uc($stock_query)
+                ],
+                'stockprops.type_id' => $synonym_cvterm_id,
                 is_obsolete => 'false'
             },
-            {join => 'organism'}
+            {
+                select => ['me.stock_id', 'uniquename', 'organism.species'],
+                join => ['organism', 'stockprops'],
+                group_by => ['me.stock_id', 'uniquename', 'organism.species']
+            }
         );
         $count = $matches->count;
     }
