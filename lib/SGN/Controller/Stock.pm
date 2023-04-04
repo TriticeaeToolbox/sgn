@@ -147,13 +147,6 @@ our $time;
 
 sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
     my ( $self, $c, $action) = @_;
-
-     if (!$c->user()) {
-
-	my $url = '/' . $c->req->path;
-	$c->res->redirect("/user/login?goto_url=$url");
-
-    } else {
 	$time = time();
 
 	if( $c->stash->{stock_row} ) {
@@ -253,6 +246,20 @@ sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
 
 	print STDERR "Checkpoint 4: Elapsed ".(time() - $time)."\n";
 	################
+
+    # User not logged in: return basic info to preview template
+    if (!$c->user()) {
+        $c->stash(
+            template => '/stock/preview.mas',
+            stock_id => $stock_id,
+            type => $stock_type,
+            name => $stock->get_uniquename(),
+            species => $stock->get_species(),
+            props => $props
+        );
+        return;
+    }
+
 	$c->stash(
 	    template => '/stock/index.mas',
 
@@ -293,8 +300,7 @@ sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
 	    barcode_tempdir  => $barcode_tempdir,
 	    barcode_tempuri   => $barcode_tempuri,
 	    identifier_prefix => $c->config->{identifier_prefix},
-	    );
-    }
+	);
 }
 
 
