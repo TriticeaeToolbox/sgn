@@ -1,0 +1,71 @@
+<%args>
+  $stock_id
+  $type
+  $name
+  $species
+  $props
+</%args>
+
+<%init>
+  use Data::Dumper;
+</%init>
+
+
+<& /page/page_title.mas, title=> "$name Preview" &>
+
+
+<div class='well'>
+
+  <&| /page/info_section.mas, id => 'stock_preview_details', title => 'Stock Details', collapsible => 1, collapsed => 0, subtitle=> 'View basic data about the stock' &>
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+
+        <table class='table table-bordered table-hover'>
+          <tr><td><strong>Stock Type</strong></td><td><% $type %></td></tr>
+          <tr><td><strong>Organism</strong></td><td><% $species %></td></tr>
+          <tr><td><strong>Name</strong></td><td><% $name %></td></tr>
+% if ( $props && $props->{'stock_synonym'} ) {
+          <tr>
+            <td><strong>Synonyms</strong></td>
+            <td>
+              <%  join(', ', @{$props->{'stock_synonym'}}) %>
+            </td>
+          </tr>
+% }
+        </table>
+
+      </div>
+    </div>
+
+  </&>
+
+</div>
+
+
+
+<div class='alert' style='color: #31708f; background-color: #d9edf7; border-color: #bce8f1;'>
+  <p style='font-size: 120%; border-bottom: 1px solid rgb(49, 112, 143, 0.2); margin-bottom: 15px'><strong>View More Information</strong></p>
+  <p>To view all of the information about this stock, <strong>create an account</strong> and <strong>log in</strong>.</p>
+  <br />
+  <a href="/user/new?goto_url=/stock/<% $stock_id %>/view" class="btn btn-info btn-large btn-home">
+    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create an Account
+  </a>
+  <a href="/user/login?goto_url=/stock/<% $stock_id %>/view" class="btn btn-primary btn-large btn-home">
+    <span class="glyphicon glyphicon-user"></span>&nbsp;Login
+  </a>
+</div>
+
+
+
+<style>
+    .btn-info, .btn-primary {
+      color: #fff !important;
+    }
+    .btn-info:hover {
+      background-color: #31b0d5 !important;
+    }
+    .btn-primary:hover {
+      background-color: #286090 !important;
+    }
+</style>

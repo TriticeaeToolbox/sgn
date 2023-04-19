@@ -198,6 +198,7 @@ sub new_account :Path('/ajax/user/new') Args(0) {
 This message is sent to confirm the email address for community user
 \"$username\"
 $user_details
+
 Please click (or cut and paste into your browser) the following link to
 confirm your account and email address:
 

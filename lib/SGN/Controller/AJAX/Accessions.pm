@@ -18,12 +18,15 @@ Jeremy Edwards <jde22@cornell.edu>
 package SGN::Controller::AJAX::Accessions;
 
 use Moose;
+use Bio::GeneticRelationships::Pedigree;
+use Bio::GeneticRelationships::Individual;
 use List::MoreUtils qw /any /;
 use CXGN::Stock::StockLookup;
 use CXGN::BreedersToolbox::Accessions;
 use CXGN::BreedersToolbox::StocksFuzzySearch;
 use CXGN::BreedersToolbox::OrganismFuzzySearch;
 use CXGN::Stock::Accession;
+use CXGN::Pedigree::AddPedigrees;
 use CXGN::Chado::Stock;
 use CXGN::List;
 use Data::Dumper;
@@ -289,7 +292,9 @@ sub verify_accessions_file_POST : Args(0) {
     my %full_accessions;
     while (my ($k,$val) = each %$full_data){
         push @accession_names, $val->{germplasmName};
-        $full_accessions{$val->{germplasmName}} = $val;
+        $full_accessions{$val->{germplasmName}} = exists($full_accessions{$val->{germplasmName}}) ? 
+            { %{$full_accessions{$val->{germplasmName}}}, %$val } : 
+            $val;
     }
 
     my $new_list_id = CXGN::List::create_list($c->dbc->dbh, "AccessionsIn".$upload_original_name.$timestamp, 'Autocreated when upload accessions from file '.$upload_original_name.$timestamp, $user_id);
@@ -305,6 +310,9 @@ sub verify_accessions_file_POST : Args(0) {
         absent => $parsed_data->{absent_accessions},
         fuzzy => $parsed_data->{fuzzy_accessions},
         found => $parsed_data->{found_accessions},
+        absent_parents => $parsed_data->{absent_parents},
+        fuzzy_parents => $parsed_data->{fuzzy_parents},
+        found_parents => $parsed_data->{found_parents},
         absent_organisms => $parsed_data->{absent_organisms},
         fuzzy_organisms => $parsed_data->{fuzzy_organisms},
         found_organisms => $parsed_data->{found_organisms}
@@ -370,6 +378,7 @@ sub add_accession_list_POST : Args(0) {
     my $full_info = $c->req->param('full_info') ? _parse_list_from_json($c, $c->req->param('full_info')) : '';
     my $allowed_organisms = $c->req->param('allowed_organisms') ? _parse_list_from_json($c, $c->req->param('allowed_organisms')) : [];
     my %allowed_organisms = map {$_=>1} @$allowed_organisms;
+    my $overwrite_pedigrees = $c->req->param('overwrite_pedigrees') eq 'true' ? 1 : 0;
     my $phenome_schema = $c->dbic_schema("CXGN::Phenome::Schema");
 
     if (!$c->user()) {
@@ -388,6 +397,7 @@ sub add_accession_list_POST : Args(0) {
     my $main_production_site_url = $c->config->{main_production_site_url};
     my @added_fullinfo_stocks;
     my @added_stocks;
+    my @pedigrees;
 
     my $coderef_bcs = sub {
         foreach (@$full_info){
@@ -446,6 +456,56 @@ sub add_accession_list_POST : Args(0) {
                 my $added_stock_id = $stock->store();
                 push @added_stocks, $added_stock_id;
                 push @added_fullinfo_stocks, [$added_stock_id, $_->{germplasmName}];
+            }
+
+            # Save pedigree information to store after stocks have been added
+            if ( exists($_->{femaleParent}) ) {
+                my $progeny = $_->{germplasmName};
+                my $female = $_->{femaleParent};
+                my $male = $_->{maleParent};
+                my $cross_type = $_->{crossType};
+
+                $progeny =~ s/^\s+|\s+$//g;
+                $female =~ s/^\s+|\s+$//g;
+                if ( !$cross_type || $cross_type eq "" ) {
+                    $cross_type = "biparental";
+                }
+
+                my $opts = {
+                    name => $progeny,
+                    female_parent => Bio::GeneticRelationships::Individual->new({ name => $female }),
+                    cross_type => $cross_type
+                };
+                if ( $male ) {
+                    $male =~ s/^\s+|\s+$//g;
+                    $opts->{male_parent} = Bio::GeneticRelationships::Individual->new({ name => $male });
+                }
+
+                my $p = Bio::GeneticRelationships::Pedigree->new($opts);
+                push @pedigrees, $p;
+            }
+        }
+
+        # Add pedigrees, if included in the file
+        if ( scalar(@pedigrees) > 0 ) {
+            my $add = CXGN::Pedigree::AddPedigrees->new({ schema=>$schema, pedigrees=>\@pedigrees });
+
+            # validate the pedigrees
+            my $pedigree_check = $add->validate_pedigrees($overwrite_pedigrees);
+            if (!$pedigree_check) {
+                die "There was a problem validating pedigrees";
+            }
+            if ($pedigree_check->{error}){
+                die "Pedigree validation error: " . join(', ', @{$pedigree_check->{error}});
+            }
+
+            # store the pedigrees
+            my $return = $add->add_pedigrees($overwrite_pedigrees);
+            if (!$return){
+                die "The pedigrees were not stored";
+            }
+            if ($return->{error}){
+                die "An error occurred while trying to store the pedigrees";
             }
         }
     };

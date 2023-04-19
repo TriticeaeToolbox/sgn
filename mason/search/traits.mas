@@ -141,7 +141,6 @@ jQuery(document).ready(function () {
     parseArgs();
 
     var trait_table;
-    _draw_trait_search_result_table();
 
     function _draw_trait_search_result_table (){
         var selectedontologies = [];
@@ -250,3 +249,10 @@ async function copy(name, accession, id) {
 }
 
 </script>
+
+
+<style type="text/css">
+    #trait_search_results td:nth-child(2) {
+        vertical-align: middle;
+    }
+</style>

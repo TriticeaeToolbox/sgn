@@ -323,7 +323,7 @@ sub trait_phenotypes : Chained('trial') PathPart('trait_phenotypes') Args(0) {
     my $trait = $c->req->param('trait');
     my $phenotypes_search = CXGN::Phenotypes::PhenotypeMatrix->new(
         bcs_schema=> $schema,
-        search_type => "MaterializedViewTable",
+        search_type => "Native",
         data_level => $display,
         trait_list=> [$trait],
         trial_list => [$c->stash->{trial_id}]
@@ -4611,6 +4611,7 @@ sub trial_calculate_numerical_derivative : Chained('trial') PathPart('calculate_
         overwrite_values=>1,
         ignore_new_values=>0,
         metadata_hash=>\%phenotype_metadata,
+        composable_validation_check_name=>$c->config->{composable_validation_check_name}
     );
     my ($verified_warning, $verified_error) = $store_phenotypes->verify();
     my ($stored_phenotype_error, $stored_Phenotype_success) = $store_phenotypes->store();
@@ -4673,7 +4674,7 @@ sub create_entry_number_template : Path('/ajax/breeders/trial_entry_numbers/crea
     my $dir = $c->tempfiles_subdir('download');
     my $temp_file_name = "entry_numbers_XXXX";
     my $rel_file = $c->tempfile( TEMPLATE => "download/$temp_file_name");
-    $rel_file = $rel_file . ".xls";
+    $rel_file = $rel_file . ".xlsx";
     my $tempfile = $c->config->{basepath}."/".$rel_file;
 
     my $download = CXGN::Trial::Download->new({

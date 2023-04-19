@@ -174,6 +174,7 @@ sub add_pedigrees {
 
 sub validate_pedigrees {
     my $self = shift;
+    my $overwrite_pedigrees = shift;
     my $schema = $self->get_schema();
     my %return;
 
@@ -246,28 +247,31 @@ sub validate_pedigrees {
         }
     }
 
-    my $progeny_female_parent_search = $schema->resultset('Stock::StockRelationship')->search({
-        type_id => $female_parent_cvterm_id,
-        object_id => { '-in'=>\@progeny_stock_ids },
-    });
-    my %progeny_with_female_parent_already;
-    while (my $r=$progeny_female_parent_search->next){
-        $progeny_with_female_parent_already{$r->object_id} = [$r->subject_id, $r->value];
-    }
-    my $progeny_male_parent_search = $schema->resultset('Stock::StockRelationship')->search({
-        type_id => $male_parent_cvterm_id,
-        object_id => { '-in'=>\@progeny_stock_ids },
-    });
-    my %progeny_with_male_parent_already;
-    while (my $r=$progeny_male_parent_search->next){
-        $progeny_with_male_parent_already{$r->object_id} = $r->subject_id;
-    }
-    foreach (@progeny_stock_ids){
-        if (exists($progeny_with_female_parent_already{$_})){
-            push @{$return{error}}, $progeny_stock_ids_hash{$_}." already has female parent stockID ".$progeny_with_female_parent_already{$_}->[0]." saved with cross type ".$progeny_with_female_parent_already{$_}->[1];
+    # skip the check for existing parents if we are overwriting the pedigrees
+    if ( !$overwrite_pedigrees ) {
+        my $progeny_female_parent_search = $schema->resultset('Stock::StockRelationship')->search({
+            type_id => $female_parent_cvterm_id,
+            object_id => { '-in'=>\@progeny_stock_ids },
+        });
+        my %progeny_with_female_parent_already;
+        while (my $r=$progeny_female_parent_search->next){
+            $progeny_with_female_parent_already{$r->object_id} = [$r->subject_id, $r->value];
         }
-        if (exists($progeny_with_male_parent_already{$_})){
-            push @{$return{error}}, $progeny_stock_ids_hash{$_}." already has male parent stockID ".$progeny_with_male_parent_already{$_};
+        my $progeny_male_parent_search = $schema->resultset('Stock::StockRelationship')->search({
+            type_id => $male_parent_cvterm_id,
+            object_id => { '-in'=>\@progeny_stock_ids },
+        });
+        my %progeny_with_male_parent_already;
+        while (my $r=$progeny_male_parent_search->next){
+            $progeny_with_male_parent_already{$r->object_id} = $r->subject_id;
+        }
+        foreach (@progeny_stock_ids){
+            if (exists($progeny_with_female_parent_already{$_})){
+                push @{$return{error}}, $progeny_stock_ids_hash{$_}." already has female parent stockID ".$progeny_with_female_parent_already{$_}->[0]." saved with cross type ".$progeny_with_female_parent_already{$_}->[1];
+            }
+            if (exists($progeny_with_male_parent_already{$_})){
+                push @{$return{error}}, $progeny_stock_ids_hash{$_}." already has male parent stockID ".$progeny_with_male_parent_already{$_};
+            }
         }
     }
 
