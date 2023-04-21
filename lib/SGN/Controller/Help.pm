@@ -6,7 +6,11 @@ use CXGN::People::Person;
 
 BEGIN { extends "Catalyst::Controller"; }
 
-
+sub about: Path('/about') Args(0) {
+    my $self = shift;
+    
+    $self->help(@_);
+}
 
 sub help : Path('/help') Args(0) { 
     my $self = shift;
