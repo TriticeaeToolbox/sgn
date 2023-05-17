@@ -419,14 +419,20 @@ sub generate_trial_layout_file :Private {
 
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
-    # Get Project IDs of any associated treatments / management factors
+    # Get Project IDs and names of any associated treatments / management factors
     my $project = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial->get_trial_id() });
     my $treatments = $project->get_treatments();
     my @treatment_ids = ();
     my @treatment_names = ();
     foreach (@$treatments) {
         push(@treatment_ids, $_->[0]);
-        push(@treatment_names, $_->[1]);
+
+        # remove the trial name from the treatment name
+        my $trt = $_->[1];
+        my $tri = $trial->get_name();
+        my $find = $tri . '_?';
+        $trt =~ s/$find//;
+        push(@treatment_names, $trt);
     }
 
     # Trial Plot-level data
