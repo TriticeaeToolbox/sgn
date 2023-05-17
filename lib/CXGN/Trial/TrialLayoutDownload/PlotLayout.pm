@@ -58,7 +58,7 @@ sub retrieve {
     my @output;
     my $trial_stock_type = $self->trial_stock_type();
 
-    my @possible_cols = ('plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','pedigree','purdy_pedigree','filial_generation','location_name','trial_name','year','synonyms','tier','plot_geo_json');
+    my @possible_cols = ('plot_name','plot_id','accession_name','accession_id','plot_number','block_number','is_a_control','rep_number','range_number','row_number','col_number','seedlot_name','seed_transaction_operator','num_seed_per_plot','weight_gram_seed_per_plot','pedigree','purdy_pedigree','filial_generation','location_name','trial_name','year','synonyms','tier','plot_geo_json');
 
     my @header;
     foreach (@possible_cols){

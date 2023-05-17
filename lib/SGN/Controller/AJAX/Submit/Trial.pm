@@ -1,6 +1,7 @@
 package SGN::Controller::AJAX::Submit::Trial;
 
 use Moose;
+use CXGN::Project;
 use CXGN::Trial;
 use CXGN::BreedersToolbox::Projects;
 use CXGN::Stock::Accession;
@@ -418,10 +419,21 @@ sub generate_trial_layout_file :Private {
 
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
+    # Get Project IDs of any associated treatments / management factors
+    my $project = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial->get_trial_id() });
+    my $treatments = $project->get_treatments();
+    my @treatment_ids = ();
+    my @treatment_names = ();
+    foreach (@$treatments) {
+        push(@treatment_ids, $_->[0]);
+        push(@treatment_names, $_->[1]);
+    }
+
     # Trial Plot-level data
     my $trial_layout_download = CXGN::Trial::TrialLayoutDownload->new({
         schema => $schema,
         trial_id => $trial->get_trial_id(),
+        treatment_project_ids => \@treatment_ids,
         data_level => 'plots',
         selected_columns => {
             "plot_name" => 1,
@@ -434,7 +446,8 @@ sub generate_trial_layout_file :Private {
             "row_number" => 1,
             "col_number" => 1,
             "seedlot_name" => 1,
-            "num_seed_per_plot" => 1
+            "num_seed_per_plot" => 1,
+            "weight_gram_seed_per_plot" => 1
         }
     });
     my $output = $trial_layout_download->get_layout_output()->{output};
@@ -475,24 +488,14 @@ sub generate_trial_layout_file :Private {
             $plot_length,
             $field_size,
             $planting_date,
-            $harvest_date,
-            $p->[0],
-            $p->[1],
-            $p->[2],
-            $p->[3],
-            $p->[4],
-            $p->[5],
-            $p->[6],
-            $p->[7],
-            $p->[8],
-            $p->[9],
-            $p->[10]
+            $harvest_date
         );
+        push(@lr, @$p);
         push(@trial_layout_rows, \@lr);
 
     }
 
-    $self->write_trial_layout_file($trial_layout_file, \@trial_layout_rows);
+    $self->write_trial_layout_file($trial_layout_file, \@treatment_names, \@trial_layout_rows);
 }
 
 sub generate_trial_observations_file :Private {
@@ -563,14 +566,17 @@ sub write_locations_file {
 # Write a trial layout template to the specified file using the specified rows
 # Arguments:
 #   file = file path to write the excel file
+#   treatment_names = arrayref of treatment names (for column headers)
 #   rows = 2D-arrayref of location properties
 #
 sub write_trial_layout_file {
     my $self = shift;
     my $file = shift;
+    my $treatment_names = shift;
     my $rows = shift;
 
     my @headers = ("trial_name", "breeding_program", "location", "year", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
+    push(@headers, @$treatment_names);
     $self->write_excel_file($file, \@headers, $rows);
 }
 

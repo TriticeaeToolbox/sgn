@@ -222,7 +222,8 @@ sub generate_trials :Private {
     }
 
     # Write the trial layout file
-    SGN::Controller::AJAX::Submit::Trial->write_trial_layout_file($file, \@rows);
+    my @treatment_names = ();
+    SGN::Controller::AJAX::Submit::Trial->write_trial_layout_file($file, \@treatment_names, \@rows);
 }
 
 sub generate_observations :Private {
