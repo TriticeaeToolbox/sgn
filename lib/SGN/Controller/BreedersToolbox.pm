@@ -740,6 +740,7 @@ sub breeder_search : Path('/breeders/search/') :Args(0) {
     }
 
     $c->stash->{dataset_id} = $c->req->param('dataset_id');
+    $c->stash->{preferred_species} = $c->config->{'preferred_species'};
     $c->stash->{template} = '/breeders_toolbox/breeder_search_page.mas';
 
 }
