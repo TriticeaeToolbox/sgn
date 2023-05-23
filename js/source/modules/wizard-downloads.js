@@ -162,8 +162,9 @@ export function WizardDownloads(main_id,wizard){
         event.preventDefault();
         var protocol_id = protocols.length==1?protocols[0].id:'';
         var project_id = projects.length==1?projects[0].id:'';
-        var url = "https://files.triticeaetoolbox.org/download/wheat";
-        url += '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '-strand.vcf.gz';
+	var species = $("#species").val();
+        var url = "https://files.triticeaetoolbox.org/download/";
+        url += species + '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '-strand.vcf.gz';
         window.open(url);
       });
     main.selectAll(".wizard-download-vcf-file")
@@ -172,8 +173,9 @@ export function WizardDownloads(main_id,wizard){
         event.preventDefault();
         var protocol_id = protocols.length==1?protocols[0].id:'';
         var project_id = projects.length==1?projects[0].id:'';
-        var url = "https://files.triticeaetoolbox.org/download/wheat";
-        url += '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '.vcf.gz';
+	var species = $("#species").val();
+        var url = "https://files.triticeaetoolbox.org/download/";
+        url += species + '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '.vcf.gz';
         window.open(url);
       });
     main.selectAll(".wizard-download-genetic-relationship-matrix")
