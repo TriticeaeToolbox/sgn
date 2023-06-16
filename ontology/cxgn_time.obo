@@ -2988,3 +2988,411 @@ id: TIME:0000481
 name: at termination
 def: "End of life" []
 is_a: TIME:0000477 ! Event relations
+
+[Term]
+id: TIME:0008000
+name: Zadoks scale
+def: "cereal development scale proposed by Jan Zadoks" []
+is_a: TIME:0000000 ! Time
+
+[Term]
+id: TIME:0008001
+name: Z00
+def: "dry seed" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008002
+name: Z01
+def: "start of imbibition" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008003
+name: Z03
+def: "imbibition complete" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008004
+name: Z05
+def: "radicle emerged from seed" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008005
+name: Z07
+def: "coleoptile emerged from seed" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008006
+name: Z09
+def: "leaf just at coleoptile tipe" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008007
+name: Z10
+def: "first leaf through coleoptile" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008008
+name: Z11
+def: "first leaf unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008009
+name: Z12
+def: "2 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008010
+name: Z13
+def: "3 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008011
+name: Z14
+def: "4 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008012
+name: Z15
+def: "5 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008013
+name: Z16
+def: "6 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008014
+name: Z17
+def: "7 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008015
+name: Z18
+def: "8 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008016
+name: Z19
+def: "9 leaves unfolded" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008017
+name: Z20
+def: "Main shoot only" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008018
+name: Z21
+def: "Main shoot and 1 tiller" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008019
+name: Z22
+def: "Main shoot and 2 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008020
+name: Z23
+def: "Main shoot and 3 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008021
+name: Z24
+def: "Main shoot and 4 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008022
+name: Z25
+def: "Main shoot and 5 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008023
+name: Z26
+def: "Main shoot and 6 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008024
+name: Z27
+def: "Main shoot and 7 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008025
+name: Z28
+def: "Main shoot and 8 tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008026
+name: Z29
+def: "Main shoot and 9 or more tillers" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008027
+name: Z30
+def: "Pseudo stem erection" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008028
+name: Z31
+def: "1st node detectable" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008029
+name: Z32
+def: "2nd node detectable" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008030
+name: Z33
+def: "3rd node detectable" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008031
+name: Z34
+def: "4th node detectable" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008032
+name: Z35
+def: "5th node detectable" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008033
+name: Z36
+def: "6th node detectable" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008034
+name: Z37
+def: "flag leaf just visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008035
+name: Z39
+def: "flag leaf ligule / collar just visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008036
+name: Z40
+def: "" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008037
+name: Z41
+def: "flag leaf sheath extending" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008038
+name: Z45
+def: "boots just swollen" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008039
+name: Z47
+def: "flag leaf sheath opening" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008040
+name: Z49
+def: "first awns visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008041
+name: Z50
+def: "first spikelet of inflorescence visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008042
+name: Z53
+def: "1/4 of inflorescence visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008043
+name: Z55
+def: "1/2 of inflorescence visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008044
+name: Z57
+def: "3/4 of inflorescence visible" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008045
+name: Z59
+def: "emergence of inflorescence completed" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008046
+name: Z60
+def: "beginning of anthesis" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008047
+name: Z65
+def: "anthesis half-way" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008048
+name: Z69
+def: "anthesis completed" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008049
+name: Z70
+def: "" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008050
+name: Z71
+def: "kernel watery ripe" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008051
+name: Z73
+def: "early milk" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008052
+name: Z75
+def: "medium milk" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008053
+name: Z77
+def: "late milk" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008054
+name: Z80
+def: "" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008055
+name: Z83
+def: "early dough" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008056
+name: Z85
+def: "soft dough" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008057
+name: Z87
+def: "hard dough" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008058
+name: Z90
+def: "" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008059
+name: Z91
+def: "kernel hard (difficult to divide with thumbnail)" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008060
+name: Z92
+def: "kernel hard (no longer dented with thumbnail)" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008061
+name: Z93
+def: "kernel loosening in daytime" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008062
+name: Z94
+def: "overripe, straw dead and collapsing" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008063
+name: Z95
+def: "seed dormant" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008064
+name: Z96
+def: "viable seed giving 50% germination" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008065
+name: Z97
+def: "seed not dormant" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008066
+name: Z98
+def: "secondary dormancy induced" []
+is_a: TIME:0008000 ! Zadoks
+
+[Term]
+id: TIME:0008067
+name: Z99
+def: "secondary dormancy lost" []
+is_a: TIME:0008000 ! Zadoks
