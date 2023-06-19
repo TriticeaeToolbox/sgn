@@ -18,9 +18,46 @@ $composable_evt_root_cvterm => undef
 <& /page/page_title.mas, title=>"Compose a new trait" &>
 </br>
 
+
+<div class="panel panel-default">
+    <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapseInstructions">
+        <div class="panel-title"><a href="#form" class="accordion-toggle">Instructions</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
+    </div>
+    <div id="collapseInstructions" class="panel-collapse collapse">
+        <div class="panel-body form-horizontal container-fluid" style="overflow:hidden">
+            <p>A <strong>composed trait</strong> is a combination of:</p>
+            <ol>
+                <li><strong>What</strong> was measured - this is an existing base trait (such as plant height)</li>
+                <li><strong>When</strong> the observation was made - a term that specifies a point in time (such as a Julian Day: 1 = Jan 1st, 365 = Dec 31st), a growth stage 
+                    (such as the Z50 Zadoks Scale = First spikelet of inflorescence visible), or a time relative to a harvest event (such as 10 days after planting)
+            </ol>
+            <p>This allows for multiple observations of the same trait to be stored for the same observation unit (plot) in a single trial.</p>
+            <p>An example would be the derived NDVI scores calculated from drone imagery that was captured from multiple flights
+            throughout the season.  If the drone was flown on May 1st (Julian Day 121) and May 22nd (Julian Day 142), the composed traits 
+            used to store the NDVI scores would be: 'Canopy NDVI - UASHub - index|day 121|COMP:0002619' and 'Canopy NDVI - UASHub - index|day 142|COMP:0002642',
+            the combinations of the NDVI base trait and the two julian date time terms.</p>
+            <p>You can use this page to create new composed traits by selecting one or more base traits and then one or more time terms to combine them with.</p>
+            <ol>
+                <li>Select the <strong>Type of Composed Trait</strong>:
+                    <ul>
+                        <li><strong>Time Series:</strong> observations are associated with specific days or weeks</li>
+                        <li><strong>Growth Stages:</strong> observations are associated with specific growth stages of the crop</li>
+                        <li><strong>Events:</strong> observations are associated with times relative to harvest events</li>
+                    </ul>
+                </li>
+                <li>Select one or more <strong>Base Traits</strong> - these are existing traits from the main trait ontology and represent <em>what</em> was observed.</li>
+                <li>Select one or more <strong>Composition Terms</strong> - these are terms that represent <em>when</em> the trait was observed.</li>
+                <li>Select the combinations of new traits to create - these are the combinations of base and composition terms that don't yet exist in the database.</li>
+                <li>Click the <strong>Submit</strong> button to create the new composed traits</li>
+            </ol>
+            <p><em>TIP:</em> Hold the control/command key when clicking items in the select boxes to select more than one item at a time.</p>
+        </div>
+    </div>
+</div>
+
 <div class="panel panel-default">
     <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapse0">
-        <div class="panel-title"><a href="#form" class="accordion-toggle">Trait Combinations</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
+        <div class="panel-title"><a href="#form" class="accordion-toggle">Type of Composed Trait</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
     </div>
     <div id="collapse0" class="panel-collapse collapse in">
         <div class="panel-body form-horizontal container-fluid" style="overflow:hidden">
@@ -34,7 +71,7 @@ $composable_evt_root_cvterm => undef
 
 <div class="panel panel-default">
   <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapse1">
-    <div class="panel-title"><a href="#form" class="accordion-toggle">Base Trait</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
+    <div class="panel-title"><a href="#form" class="accordion-toggle">Base Traits</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
   </div>
   <div id="collapse1" class="panel-collapse collapse in">
     <div class="panel-body form-horizontal container-fluid" style="overflow:hidden">
@@ -71,7 +108,7 @@ $composable_evt_root_cvterm => undef
 
         <div id="trait_div" class="col-md-6" style="display: none;">
             <label for="trait_select_div" class="control-label">Trait</label>
-            <p class="help-block"><small>Pick an existing trait</small></p>
+            <p class="help-block"><small>Pick one or more existing traits</small></p>
             <div id="trait_select_div"></div><br>
             <button class="btn btn-default btn-sm" id="trait_select_all" name="trait_select_all"/>Select All</button>
             <button class="btn btn-default btn-sm" id="trait_select_clear" name="trait_select_clear"/>Clear</button>
@@ -83,35 +120,35 @@ $composable_evt_root_cvterm => undef
 
 <div class="panel panel-default">
   <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" data-target="#collapse2">
-    <div class="panel-title"><a href="#form" class="accordion-toggle">Time Terms</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
+    <div class="panel-title"><a href="#form" class="accordion-toggle">Composition Terms</a><span class="pull-right clickable" onmouseover="" style="cursor: pointer;"><i class="glyphicon glyphicon-chevron-up"></i></span></div>
   </div>
   <div id="collapse2" class="panel-collapse collapse in">
     <div class="panel-body form-horizontal container-fluid" style="overflow:hidden">
     <div class="col-sm-12 col-md-12 col-lg-12">
     <div id="tod_div" class="col-md-6" style="display: none;">
       <label for="tod_select_div" class="control-label">Time of Day</label>
-      <p class="help-block"><small><i>Optional</i> Pick the time of day at which the new trait is measured</small></p>
+      <p class="help-block"><small>Pick the time of day at which the new trait is measured</small></p>
       <div id="tod_select_div"></div><br>
       <button class="btn btn-default btn-sm" id="tod_select_all" name="tod_select_all"/>Select All</button>
       <button class="btn btn-default btn-sm" id="tod_select_clear" name="tod_select_clear"/>Clear</button>
     </div>
     <div id="toy_div" class="col-md-6" style="display: none;">
       <label for="toy_select_div" class="control-label">Time of Year</label>
-      <p class="help-block"><small><i>Optional</i> Pick the week or month in which the new trait is measured</small></p>
+      <p class="help-block"><small>Pick the day, week, or month in which the new trait is measured</small></p>
       <div id="toy_select_div"></div><br>
       <button class="btn btn-default btn-sm" id="toy_select_all" name="toy_select_all"/>Select All</button>
       <button class="btn btn-default btn-sm" id="toy_select_clear" name="toy_select_clear"/>Clear</button>
     </div>
     <div id="gen_div" class="col-md-6" style="display: none;">
-      <label for="gen_select_div" class="control-label">Generation</label>
-      <p class="help-block"><small><i>Optional</i> Pick the generation on which the new trait is measured</small></p>
+      <label for="gen_select_div" class="control-label">Growth Stage</label>
+      <p class="help-block"><small>Pick the <a href="https://en.wikipedia.org/wiki/Cereal_growth_staging_scales#Zadoks_scale" target="_blank">Zadoks scale growth stage</a> which the new trait is measured</small></p>
       <div id="gen_select_div"></div><br>
       <button class="btn btn-default btn-sm" id="gen_select_all" name="gen_select_all"/>Select All</button>
       <button class="btn btn-default btn-sm" id="gen_select_clear" name="gen_select_clear"/>Clear</button>
     </div>
     <div id="evt_div" class="col-md-6" style="display: none;">
       <label for="evt_select_div" class="control-label">Event</label>
-      <p class="help-block"><small><i>Optional</i> Pick the breeding event to which you selected time term relates.</small></p>
+      <p class="help-block"><small>Pick the breeding event to which you selected time term relates.</small></p>
       <div id="evt_select_div"></div><br>
       <button class="btn btn-default btn-sm" id="evt_select_all" name="evt_select_all"/>Select All</button>
       <button class="btn btn-default btn-sm" id="evt_select_clear" name="evt_select_clear"/>Clear</button>
