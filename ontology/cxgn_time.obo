@@ -2990,6 +2990,12 @@ def: "End of life" []
 is_a: TIME:0000477 ! Event relations
 
 [Term]
+id: TIME:0000482
+name: post inoculation
+def: "After inoculation with a pathogen" []
+is_a: TIME:0000477 ! Event relations
+
+[Term]
 id: TIME:0008000
 name: Zadoks scale
 def: "cereal development scale proposed by Jan Zadoks" []
