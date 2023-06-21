@@ -511,26 +511,33 @@ sub search_stock : Private {
     my ( $self, $c, $organism_query, $stock_query ) = @_;
     my $rs = $self->schema->resultset('Stock::Stock');
     my $synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'stock_synonym', 'stock_property')->cvterm_id();
+    my $accession_number_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'accession number', 'stock_property')->cvterm_id();
 
     my $matches;
     my $count = 0;
+
+    # Convert to uppercase (for case-insensitive search)
+    # and remove spaces in stock query
+    $organism_query = uc($organism_query);
+    $stock_query = uc($stock_query);
+    $stock_query =~ s/ +//;
 
     # Search by name and organism
     if ( defined($organism_query) && defined($stock_query) ) {
         $matches = $rs->search({
                 -and => [
                     -or => [
-                        'UPPER(uniquename)' => uc($stock_query),
+                        "REPLACE(UPPER(uniquename), ' ', '')" => $stock_query,
                         -and => [
-                            'UPPER(stockprops.value)' => uc($stock_query),
-                            'stockprops.type_id' => $synonym_cvterm_id,
+                            "REPLACE(UPPER(stockprops.value), ' ', '')" => $stock_query,
+                            'stockprops.type_id' => { -in => [$synonym_cvterm_id, $accession_number_cvterm_id] }
                         ]
                     ],
                     -or => [
-                        'UPPER(organism.abbreviation)' => uc($organism_query),
-                        'UPPER(organism.genus)' => uc($organism_query),
-                        'UPPER(organism.species)' => uc($organism_query),
-                        'UPPER(organism.common_name)' => {'like', '%' . uc($organism_query) .'%'}
+                        'UPPER(organism.abbreviation)' => $organism_query,
+                        'UPPER(organism.genus)' => $organism_query,
+                        'UPPER(organism.species)' => $organism_query,
+                        'UPPER(organism.common_name)' => {'like', '%' . $organism_query .'%'}
                     ],
                     is_obsolete => 'false'
                 ]
@@ -548,10 +555,10 @@ sub search_stock : Private {
     elsif ( defined($stock_query) ) {
         $matches = $rs->search({
                 -or => [
-                    'UPPER(uniquename)' => uc($stock_query),
+                    "REPLACE(UPPER(uniquename), ' ', '')" => $stock_query,
                     -and => [
-                        'UPPER(stockprops.value)' => uc($stock_query),
-                        'stockprops.type_id' => $synonym_cvterm_id,
+                        "REPLACE(UPPER(stockprops.value), ' ', '')" => $stock_query,
+                        'stockprops.type_id' => { -in => [$synonym_cvterm_id, $accession_number_cvterm_id] }
                     ]
                 ],
                 is_obsolete => 'false'
