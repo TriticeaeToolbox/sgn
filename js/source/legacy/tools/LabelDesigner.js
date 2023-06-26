@@ -339,12 +339,12 @@ $(document).ready(function($) {
         $('#editAdditionalSettingsModal').modal('show');
     });
 
-    $(document).on("change", "#source_dropdown", function() {
+    $(document).on("change", "#source_select", function() {
 
-        var name = jQuery('#source_dropdown :selected').text();
+        var name = jQuery('#source_select :selected').text();
         jQuery('#selected_data_source').text(name);
 
-        var data_type = $('#source_dropdown :selected').parent().attr('label');
+        var data_type = $('#source_select :selected').parent().attr('label');
 
         // updateFields(data_type, this.value, '');
 
@@ -392,7 +392,7 @@ $(document).ready(function($) {
 
             var html = '<select class="form-control" id="label_designer_data_level" ><option value="" selected>Select a Level</option><option value="list">List Items</option>';
             // Check list type, if Plot, Plant, or Tissue Sample add details option
-            var name = $('#source_dropdown :selected').text();
+            var name = $('#source_select :selected').text();
 
             jQuery.ajax({
                 url: '/list/exists',
@@ -448,8 +448,8 @@ $(document).ready(function($) {
     });
 
     jQuery(document).on('change', '#label_designer_data_level', function(){
-        var data_type = $('#source_dropdown :selected').parent().attr('label');
-        var source_id = jQuery('#source_dropdown').val();
+        var data_type = $('#source_select :selected').parent().attr('label');
+        var source_id = jQuery('#source_select').val();
 
         var name = jQuery('#label_designer_data_level :selected').text();
         jQuery('#selected_data_level').text(name);
@@ -614,9 +614,9 @@ function downloadLabels (design, download_type) {
         alert("No elements in the design. Please add design elements before downloading");
         return;
     }
-    var data_type = $('#source_dropdown :selected').parent().attr('label');
-    var source_id = $("#source_dropdown").val();
-    var source_name = $("#source_dropdown :selected").text();
+    var data_type = $('#source_select :selected').parent().attr('label');
+    var source_id = $("#source_select").val();
+    var source_name = $("#source_select :selected").text();
     //console.log("Id is "+source_id+" and name is "+source_name);
     if (!source_id || source_id == 'Please select a trial' || source_id == 'Select a plot list') {
         alert("No data source selected. Please select a data source before downloading");
