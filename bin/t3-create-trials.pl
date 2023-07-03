@@ -252,6 +252,7 @@ if (my @row = $h->fetchrow_array) {
             trial_location => $trial_location,
             trial_type => $trial_type_id,
             trial_name => $trial_name,
+	    user_id => $user_id,
             user_name => $user_name, #not implemented
             design_type => $trial_design_method,
             design => $parsed_data,
