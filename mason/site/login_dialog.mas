@@ -195,8 +195,28 @@ $goto_url => '/'
                                     <div class="form-group">
                                         <label class="col-sm-3 control-label">Email Address: </label>
                                         <div class="col-sm-9">
-                                            <input class="form-control" type="text" name="email_address" value="" />
+                                            <input class="form-control" type="text" id="email_address" name="email_address" value="" />
                                             <p class="help-block">An email will be sent to this address requiring you to confirm its receipt to activate your account.</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="listmonk-registration" style="display: none">
+                                        <div class="well" style="margin: 25px">
+                                            <p><strong>Mailing List Subscription:</strong></p>
+                                            <div id="listmonk-registration-exists" style="display: none">
+                                                <div style="display: flex; align-items: center; gap: 15px; margin: 15px">
+                                                    <input id="listmonk-registration-exists-toggle" name="listmonk_registration_exists" type="checkbox" data-toggle="toggle" data-onstyle="success" />
+                                                    <p style="margin: 7px">Email address already subscribed</p>
+                                                </div>
+                                                <p class="help-block">You can unsubscribe by following the link at the bottom of an email from the mailing list.</p>
+                                            </div>
+                                            <div id="listmonk-registration-signup">
+                                                <div style="display: flex; align-items: center; gap: 15px; margin: 15px">
+                                                    <input id="listmonk-registration-signup-toggle" name="listmonk_registration_signup" type="checkbox" data-toggle="toggle" />
+                                                    <p style="margin: 7px">Signup for occasional news and updates</p>
+                                                </div>
+                                                <p class="help-block">We'll send you an email a few times per year with updates about new features and tools added to the website.  You can unsubscribe at any time.</p>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -274,7 +294,49 @@ jQuery(document).ready( function() {
     });
     jQuery("#site_login_new_user_dialog").on('shown.bs.modal', function() {
         get_select_box('breeding_programs', 'breeding_programs_div', { 'name': 'breeding_programs', 'id': 'breeding_programs', 'default': -1, 'multiple': 1 });
+
+        // Check if Listmonk Integration is enabled
+        jQuery.ajax({
+            url: '/ajax/listmonk/enabled',
+            success: (r) => {
+
+                // If it is enabled...
+                // show the registration section
+                // check the email address as it is entered
+                if ( r && r.enabled && r.enabled === 1 ) {
+                    jQuery("#listmonk-registration").show();
+                    jQuery('#email_address').off('input').on('input', (e) => { checkListmonkRegistration(e.target.value) });
+                }
+
+            }
+        });
     });
+
+    // Check if the email address is registered with Listmonk
+    function checkListmonkRegistration(email) {
+        jQuery.ajax({
+            url: '/ajax/listmonk/subscribed',
+            data: {
+                email: email
+            },
+            success: (r) => {
+                if ( r && r.subscribed && r.subscribed === 1 ) {
+                    jQuery("#listmonk-registration-exists-toggle").prop("checked", true).change();
+                    jQuery("#listmonk-registration-exists-toggle").prop("disabled", true).change();
+                    jQuery("#listmonk-registration-signup-toggle").prop("checked", false).change();
+                    jQuery("#listmonk-registration-exists").show();
+                    jQuery("#listmonk-registration-signup").hide();
+                }
+                else {
+                    jQuery("#listmonk-registration-exists-toggle").prop("checked", false).change();
+                    jQuery("#listmonk-registration-exists-toggle").prop("disabled", false).change();
+                    jQuery("#listmonk-registration-signup-toggle").prop("checked", true).change();
+                    jQuery("#listmonk-registration-exists").hide();
+                    jQuery("#listmonk-registration-signup").show();
+                }
+            }
+        });
+    }
 
     jQuery('#new_account_form').submit(function(event) {
         event.preventDefault();
