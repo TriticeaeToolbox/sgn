@@ -117,6 +117,69 @@ sub register : Path('/ajax/listmonk/register') : Args(0) {
 
 
 #
+# Get the Listmonk campaigns for the configured list
+#   Returns:
+#       campaigns = a list of campaign data
+#
+sub campaigns : Path('/ajax/listmonk/campaigns') : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $props = _listmonk_properties($c);
+    my $data = ();
+
+    # Only fetch if Listmonk is enabled...
+    if ( $props->{'enabled'} eq 1 ) {
+
+        # Build Request
+        my $auth = encode_base64($props->{'user'} . ':' . $props->{'pass'});
+        my $headers = ['Authorization' => "Basic $auth", 'Accepts' => 'application/json'];
+        my $url = $props->{'host'} . "/api/campaigns?list_id=" . $props->{'list'};
+        my $r = HTTP::Request->new("GET", $url, $headers);
+
+        # Send Request
+        my $ua = LWP::UserAgent->new();
+        my $res = $ua->request($r);
+
+        # Parse Response
+        my $resp = decode_json($res->content);
+        $data = $resp->{'data'}->{'results'};
+
+    }
+
+    $c->stash->{rest} = {
+        campaigns => $data
+    };
+}
+
+
+#
+# Redirect to the Listmonk sign up form
+#
+sub signup : Path('/ajax/listmonk/signup') : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $props = _listmonk_properties($c);
+
+    $c->res->redirect($props->{'host'} . "/subscription/form");
+}
+
+
+#
+# Redirect to the Listmonk Archive
+#   Query Params:
+#       uuid = the UUID of the campaign to display
+#
+sub archive : Path('/ajax/listmonk/archive') : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $uuid = $c->req->param("uuid");
+    my $props = _listmonk_properties($c);
+
+    $c->res->redirect($props->{'host'} . "/archive/$uuid");
+}
+
+
+#
 # Get the Listmonk properties from the config file
 # Set the 'enabled' property when all of the config variables are set
 #
