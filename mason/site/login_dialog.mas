@@ -205,7 +205,7 @@ $goto_url => '/'
                                             <p><strong>Mailing List Subscription:</strong></p>
                                             <div id="listmonk-registration-exists" style="display: none">
                                                 <div style="display: flex; align-items: center; gap: 15px; margin: 15px">
-                                                    <input id="listmonk-registration-exists-toggle" name="listmonk_registration_exists" type="checkbox" data-toggle="toggle" data-onstyle="success" />
+                                                    <span class="glyphicon glyphicon-ok-circle" style="font-size: 200%; color: #468847"></span>
                                                     <p style="margin: 7px">Email address already subscribed</p>
                                                 </div>
                                                 <p class="help-block">You can unsubscribe by following the link at the bottom of an email from the mailing list.</p>
@@ -321,15 +321,11 @@ jQuery(document).ready( function() {
             },
             success: (r) => {
                 if ( r && r.subscribed && r.subscribed === 1 ) {
-                    jQuery("#listmonk-registration-exists-toggle").prop("checked", true).change();
-                    jQuery("#listmonk-registration-exists-toggle").prop("disabled", true).change();
                     jQuery("#listmonk-registration-signup-toggle").prop("checked", false).change();
                     jQuery("#listmonk-registration-exists").show();
                     jQuery("#listmonk-registration-signup").hide();
                 }
                 else {
-                    jQuery("#listmonk-registration-exists-toggle").prop("checked", false).change();
-                    jQuery("#listmonk-registration-exists-toggle").prop("disabled", false).change();
                     jQuery("#listmonk-registration-signup-toggle").prop("checked", true).change();
                     jQuery("#listmonk-registration-exists").hide();
                     jQuery("#listmonk-registration-signup").show();
