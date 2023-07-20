@@ -70,8 +70,8 @@ sub new_account :Path('/ajax/user/new') Args(0) {
     }
 
 
-    my ($first_name, $last_name, $username, $password, $confirm_password, $email_address, $organization, $breeding_program_ids)
-	= map { $c->req->params->{$_} } (qw|first_name last_name username password confirm_password email_address organization breeding_programs|);
+    my ($first_name, $last_name, $username, $password, $confirm_password, $email_address, $organization, $breeding_program_ids, $listmonk_signup)
+	= map { $c->req->params->{$_} } (qw|first_name last_name username password confirm_password email_address organization breeding_programs listmonk_registration_signup|);
 
     # Set organization from breeding programs, if provided
     if ($breeding_program_ids && ref($breeding_program_ids) ne 'ARRAY') {
@@ -229,6 +229,13 @@ END_HEREDOC
     $c->stash->{rest} = {
         message => "Account was created with username \"$username\".\n\n$message\n\nYou will be able to login once your account has been confirmed."
     };
+
+    # Registrer the User with Listmonk
+    if ( defined($listmonk_signup) ) {
+        $c->req->param('email', $email_address);
+        $c->req->param('name', "$first_name $last_name");
+        $c->forward('/ajax/listmonk/register');
+    }
 }
 
 

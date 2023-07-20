@@ -1,0 +1,142 @@
+<%perl>
+    my $email = '';
+    my $name = '';
+    if ($c->user) {
+        $email = $c->user()->get_private_email();
+        $name = $c->user()->get_first_name() . " " . $c->user()->get_last_name();
+    }
+</%perl>
+
+<div class="panel panel-info">
+    <div class="panel-heading">Updates</div>
+    <div id="listmonk-updates" class="panel-body"></div>
+</div>
+
+<div id="listmonk-news-signup" style="display: none">
+    <div style="display: flex; align-items: center; gap: 15px; margin: 15px;">
+        <span class="glyphicon glyphicon-inbox" style="font-size: 200%; color: #666"></span>
+        <p style="margin: 7px"><a href="#" id="listmonk-news-signup-link">Sign up for our mailing list</a> to receive occassional updates about new features.</p>
+    </div>
+</div>
+
+<div id="listmonk-news-exists" style="display: none">
+    <div style="display: flex; align-items: center; gap: 15px; margin: 15px">
+        <span class="glyphicon glyphicon-ok-circle" style="font-size: 200%; color: #468847"></span>
+        <p style="margin: 7px">You are now subscribed to our mailing list (<% $email %>).</p>
+    </div>
+</div>
+
+<script>
+    jQuery(document).ready(() => {
+        checkRegistration();
+        getNews();
+        jQuery("#listmonk-news-signup-link").off('click').on('click', signup);
+    })
+
+
+    function checkRegistration(display) {
+        jQuery.ajax({
+            url: '/ajax/listmonk/subscribed',
+            data: {
+                email: "<% $email %>"
+            },
+            success: (r) => {
+                if ( r && r.subscribed && r.subscribed === 1 ) {
+                    jQuery("#listmonk-news-signup").hide();
+                    if ( display ) {
+                        jQuery("#listmonk-news-exists").show();
+                    }
+                }
+                else {
+                    jQuery("#listmonk-news-signup").show();
+                    jQuery("#listmonk-news-exists").hide();
+                }
+            }
+        });
+    }
+
+
+    function signup(e) {
+        e.preventDefault();
+        jQuery("#listmonk-news-signup").hide();
+        jQuery.ajax({
+            url: '/ajax/listmonk/register',
+            data: {
+                email: "<% $email %>",
+                name: "<% $name %>"
+            },
+            success: () => {
+                checkRegistration(true);
+            }
+        });
+    }
+
+
+    function getNews() {
+        jQuery.ajax({
+            url: '/ajax/listmonk/campaigns',
+            success: (r) => {
+                let html = "";
+                if ( r && r.campaigns ) {
+                    for ( let campaign of r.campaigns ) {
+                        console.log(campaign);
+                        html += `<div class="news-item">`;
+                        html += `<div class="news-item-header">`;
+                        html += `<p class="news-item-title">${campaign.subject.replace(/^\[.*\] ?/, '')}</p>`;
+                        html += `<a href="/ajax/listmonk/archive?uuid=${campaign.uuid}" target="_blank"><span class="glyphicon glyphicon-new-window"></a>`;
+                        html += `</div>`;
+                        html += `<p class="news-item-date">${ new Date(campaign.updated_at).toLocaleString()}</p>`;
+                        html += `<div class="news-item-content">`
+                        html += campaign.body;
+                        html += `</div>`;
+                        html += `</div>`;
+                    }
+                }
+                jQuery("#listmonk-updates").html(html);
+            }
+        });
+    }
+</script>
+
+
+<style>
+    .news-panel-body {
+        padding: 8px;
+        max-height: 500px;
+        overflow: auto;
+    }
+    .news-item {
+        border-top: 1px solid #eee;
+        border-bottom: 1px solid #eee;
+        padding: 10px 0;
+    }
+    .news-item-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 15px;
+    }
+    .news-item-title {
+        font-weight: bold;
+        padding-top: 4px;
+        font-size: 110%;
+        margin: 0;
+    }
+    .news-item-date {
+        font-size: 90%;
+        color: #999;
+        margin: 0;
+    }
+    .news-item-content {
+        padding: 4px;
+        max-height: 200px;
+        overflow-y: auto;
+    }
+    .news-item-content img {
+        width: 100%;
+        height: auto;
+    }
+    .news-item-content p {
+        margin-bottom: 2px;
+    }
+</style>
