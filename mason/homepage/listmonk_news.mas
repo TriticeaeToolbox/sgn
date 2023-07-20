@@ -79,20 +79,21 @@
                 let html = "";
                 if ( r && r.campaigns ) {
                     for ( let campaign of r.campaigns ) {
-                        console.log(campaign);
-                        html += `<div class="news-item">`;
-                        html += `<div class="news-item-header">`;
-                        html += `<p class="news-item-title">${campaign.subject.replace(/^\[.*\] ?/, '')}</p>`;
-                        html += `<a href="/ajax/listmonk/archive?uuid=${campaign.uuid}" target="_blank"><span class="glyphicon glyphicon-new-window"></a>`;
-                        html += `</div>`;
-                        html += `<p class="news-item-date">${ new Date(campaign.updated_at).toLocaleString()}</p>`;
-                        html += `<div class="news-item-content">`
-                        html += campaign.body;
-                        html += `</div>`;
-                        html += `</div>`;
+                        if ( campaign.archive && campaign.status !== "draft" ) {
+                            html += `<div class="news-item">`;
+                            html += `<div class="news-item-header">`;
+                            html += `<p class="news-item-title">${campaign.subject.replace(/^\[.*\] ?/, '')}</p>`;
+                            html += `<a href="/ajax/listmonk/archive?uuid=${campaign.uuid}" target="_blank"><span class="glyphicon glyphicon-new-window"></a>`;
+                            html += `</div>`;
+                            html += `<p class="news-item-date">${ new Date(campaign.updated_at).toLocaleString()}</p>`;
+                            html += `<div class="news-item-content">`
+                            html += campaign.body;
+                            html += `</div>`;
+                            html += `</div>`;
+                        }
                     }
                 }
-                jQuery("#listmonk-updates").html(html);
+                jQuery("#listmonk-updates").html(html === "" ? "No Updates" : html);
             }
         });
     }
@@ -137,6 +138,6 @@
         height: auto;
     }
     .news-item-content p {
-        margin-bottom: 2px;
+        margin: 8px 0;
     }
 </style>
