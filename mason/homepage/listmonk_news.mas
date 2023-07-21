@@ -58,17 +58,22 @@
 
     function signup(e) {
         e.preventDefault();
-        jQuery("#listmonk-news-signup").hide();
-        jQuery.ajax({
-            url: '/ajax/listmonk/register',
-            data: {
-                email: "<% $email %>",
-                name: "<% $name %>"
-            },
-            success: () => {
-                checkRegistration(true);
-            }
-        });
+        if ( "<% $email %>" !== "" && "<% $name %>" !== "" ) {
+            jQuery("#listmonk-news-signup").hide();
+            jQuery.ajax({
+                url: '/ajax/listmonk/register',
+                data: {
+                    email: "<% $email %>",
+                    name: "<% $name %>"
+                },
+                success: () => {
+                    checkRegistration(true);
+                }
+            });
+        }
+        else {
+            location.href = '/ajax/listmonk/signup';
+        }
     }
 
 
