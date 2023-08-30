@@ -3719,6 +3719,7 @@ sub create_tissue_samples {
     my $self = shift;
     my $tissue_names = shift;
     my $inherits_plot_treatments = shift;
+    my $use_tissue_numbers = shift;
     my $tissue_sample_owner = shift;
     my $username = shift;
 
@@ -3756,7 +3757,7 @@ sub create_tissue_samples {
         if ($rs_previous_tissue->count > 0) {
             $previous_tissue_number = $rs_previous_tissue->first->value;
         }
-        my $new_tissue_number = $previous_tissue_number + scalar(@$tissue_names);
+        my $new_tissue_number = $previous_tissue_number + ($use_tissue_numbers ? scalar(@$tissue_names) : 0);
 
         my $treatments;
         my %treatment_experiments;
@@ -3824,7 +3825,12 @@ sub create_tissue_samples {
 
                 my $tissue_index_number = $previous_tissue_number + 1;
                 foreach my $tissue_name (@$tissue_names){
-                    my $tissue_sample_name = $parent_plant_name."_".$tissue_name.$tissue_index_number;
+                    my $tissue_sample_name;
+                    if ($use_tissue_numbers) {
+                        $tissue_sample_name = $parent_plant_name."_".$tissue_name.$tissue_index_number;
+                    } else {
+                        $tissue_sample_name = $parent_plant_name."_".$tissue_name;
+                    }
                     print STDERR "... ... creating tissue $tissue_sample_name...\n";
 
                     my $plant_accession_rs = $self->bcs_schema()->resultset("Stock::StockRelationship")->search({'me.subject_id'=>$parent_plant, 'me.type_id'=>$plant_relationship_cvterm, 'object.type_id'=>[$accession_cvterm, $cross_cvterm, $family_name_cvterm]}, {'join'=>'object'});
@@ -4858,8 +4864,9 @@ sub get_controls_by_plot {
 	my @ids = @$plot_ids;
 	my @controls;
 
+    my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, 'accession', 'stock_type')->cvterm_id();
 	my $accession_rs = $self->bcs_schema->resultset('Stock::Stock')->search(
-		{ 'subject.stock_id' => { 'in' => \@ids} , 'type.name' => 'is a control' },
+		{ 'me.type_id'=>$accession_type_id, 'subject.stock_id' => { 'in' => \@ids} , 'type.name' => 'is a control' },
 		{ join => { stock_relationship_objects => { subject => { stockprops => 'type' }}}, group_by => 'me.stock_id',},
   );
 
@@ -5260,14 +5267,9 @@ sub genotyping_plate_count {
         bcs_schema => $schema,
         project_id => $genotyping_project_id
     });
-    my ($data, $total_count) = $plate_info->get_plate_info();
-    my $plate_count;
-    if ($data) {
-        $plate_count = scalar(@$data);
-    }
+    my ($data, $plate_count) = $plate_info->get_plate_info();
 
     return $plate_count;
-
 }
 
 
