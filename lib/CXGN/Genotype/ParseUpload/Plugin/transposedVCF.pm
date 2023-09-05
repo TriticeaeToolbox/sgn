@@ -356,7 +356,7 @@ sub next_genotype {
 
         if ($self->_is_first_line()) {
             print STDERR "Skipping non data lines... ";
-	    if ($line !~ m/\d[\/\|]\d/) {
+	    while ($line !~ m/\d[\/\|]\d/) {
                 $line = <$F>;
                 print STDERR "Skipping $line\n";;
             }
