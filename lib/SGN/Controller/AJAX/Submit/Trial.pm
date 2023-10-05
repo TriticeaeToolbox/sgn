@@ -381,7 +381,7 @@ sub generate_trial_details_file :Private {
     $details_contents .= "Trial Location: " . $trial->get_location()->[1] . "\n";
     $details_contents .= "Year: " . $trial->get_year() . "\n";
     $details_contents .= "Stock Type: " . $trial->get_trial_stock_type() . "\n";
-    $details_contents .= "Trial Type: " . $trial->get_project_type()->[1] . "\n";
+    $details_contents .= "Trial Type: " . (scalar($trial->get_project_type()) > 0 ? $trial->get_project_type()->[1] : '[Not Set]') . "\n";
     $details_contents .= "Planting Date: " . $trial->get_planting_date() . "\n";
     $details_contents .= "Harvest Date: " . $trial->get_harvest_date() . "\n";
     $details_contents .= "Description: " . $trial->get_description() . "\n";
