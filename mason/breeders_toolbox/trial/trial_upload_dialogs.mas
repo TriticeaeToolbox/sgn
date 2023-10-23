@@ -95,7 +95,8 @@ $design_types => ()
                                                     <input type="checkbox" id="multi_trial_synonym_search_check" name="multi_trial_synonym_search_check" checked disabled>
 % }
                                                     <br/>
-                                                    <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
+                                                    <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
+                                                    <strong>Host:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_host"></span></small>
                                                   </div>
                                                 </div>
                                                 <div class="form-group">
@@ -104,7 +105,8 @@ $design_types => ()
                                                     <input type="checkbox" id="multi_trial_synonym_search_update" name="multi_trial_synonym_search_update" checked>
                                                     <br/>
                                                     <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
-                                                    <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
+                                                    <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span><br />
+                                                    <strong>Database:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_database"></span></small>
                                                   </div>
                                                 </div>
                                                 <input type="hidden" id="multi_trial_synonym_search_replacements" name="multi_trial_synonym_search_replacements">
@@ -368,7 +370,8 @@ $design_types => ()
                                         <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked disabled>
 % }
                                         <br/>
-                                        <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.</small>
+                                        <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
+                                        <strong>Host:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_host"></span></small>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -378,6 +381,7 @@ $design_types => ()
                                         <br/>
                                         <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
                                         <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
+                                        <strong>Database:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_database"></span></small>
                                         </div>
                                     </div>
                                     <input type="hidden" id="trial_synonym_search_replacements" name="trial_synonym_search_replacements">

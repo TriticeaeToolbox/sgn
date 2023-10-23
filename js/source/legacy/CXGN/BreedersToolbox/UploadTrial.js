@@ -16,7 +16,8 @@ Jeremy D. Edwards <jde22@cornell.edu>
 */
 
 var $j = jQuery.noConflict();
-const TRIAL_SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org";
+var TRIAL_SYNONYM_SEARCH_HOST;
+var TRIAL_SYNONYM_SEARCH_DATABASE;
 
 jQuery(document).ready(function ($) {
 
@@ -405,9 +406,35 @@ jQuery(document).ready(function ($) {
     });
 
 
-    trial_check_synonym_search_cache();
-
+    trial_setup_synonym_search();
 });
+
+
+/**
+ * Setup the synonym search integration
+ * - Get the synonym search tool properties from the server
+ * - Set the SYNONYM_SEARCH_HOST and SYNONYM_SEARCH_DATABASE variables
+ * - Run the trial_check_synonym_search_cache() function to check the cache status
+ */
+function trial_setup_synonym_search() {
+    jQuery.ajax({
+        type: 'GET',
+        url: '/ajax/synonym_search_tool/properties',
+        dataType: 'json',
+        success: (response) => {
+            if ( response && response.error ) {
+                alert(response.error);
+            }
+            else if ( response && response.host && response.database ) {
+                TRIAL_SYNONYM_SEARCH_HOST = response.host;
+                TRIAL_SYNONYM_SEARCH_DATABASE = response.database;
+                jQuery(".trial_synonym_search_tool_host").html(TRIAL_SYNONYM_SEARCH_HOST);
+                jQuery(".trial_synonym_search_tool_database").html(TRIAL_SYNONYM_SEARCH_DATABASE);
+                trial_check_synonym_search_cache();
+            }
+        }
+    });
+}
 
 
 /**
@@ -417,7 +444,7 @@ jQuery(document).ready(function ($) {
  function trial_check_synonym_search_cache() {
     jQuery.ajax({
         type: 'GET',
-        url: `${TRIAL_SYNONYM_SEARCH_HOST}/api/cache?address=${location.protocol}//${location.host}/brapi/v1/`,
+        url: `${TRIAL_SYNONYM_SEARCH_HOST}/api/cache?address=${TRIAL_SYNONYM_SEARCH_DATABASE}`,
         dataType: "json",
         success: function(response) {
             if ( response && response.response && response.response.saved ) {
@@ -452,7 +479,7 @@ function trial_update_synonym_search_cache(terms, callback) {
 
     // Start the Update
     let body = {
-        address: `${location.protocol}//${location.host}/brapi/v1/`,
+        address: TRIAL_SYNONYM_SEARCH_DATABASE,
         version: "v1.3",
         auth_token: "",
         call_limit: 10
@@ -502,7 +529,7 @@ function trial_update_synonym_search_cache(terms, callback) {
     // Start the Search
     let body = {
         database: {
-            address: `${location.protocol}//${location.host}/brapi/v1/`,
+            address: TRIAL_SYNONYM_SEARCH_DATABASE,
             version: "v1.3",
             auth_token: "",
             call_limit: 10

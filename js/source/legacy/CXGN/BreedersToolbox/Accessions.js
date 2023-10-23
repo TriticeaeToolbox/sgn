@@ -25,7 +25,8 @@ var infoToAdd;
 var accessionListFound;
 var speciesNames;
 var doFuzzySearch;
-const SYNONYM_SEARCH_HOST = "https://synonyms.triticeaetoolbox.org";
+var SYNONYM_SEARCH_HOST;
+var SYNONYM_SEARCH_DATABASE;
 
 function disable_ui() {
     jQuery('#working_modal').modal("show");
@@ -416,7 +417,7 @@ jQuery(document).ready(function ($) {
         jQuery('#infoToAdd_new_table').DataTable({});
     });
 
-    check_synonym_search_cache();
+    setup_synonym_search();
 });
 
 function add_accessions(full_info, species_names) {
@@ -613,13 +614,40 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
 
 
 /**
+ * Setup the synonym search integration
+ * - Get the synonym search tool properties from the server
+ * - Set the SYNONYM_SEARCH_HOST and SYNONYM_SEARCH_DATABASE variables
+ * - Run the check_synonym_search_cache() function to check the cache status
+ */
+function setup_synonym_search() {
+    jQuery.ajax({
+        type: 'GET',
+        url: '/ajax/synonym_search_tool/properties',
+        dataType: 'json',
+        success: (response) => {
+            if ( response && response.error ) {
+                alert(response.error);
+            }
+            else if ( response && response.host && response.database ) {
+                SYNONYM_SEARCH_HOST = response.host;
+                SYNONYM_SEARCH_DATABASE = response.database;
+                jQuery(".synonym_search_tool_host").html(SYNONYM_SEARCH_HOST);
+                jQuery(".synonym_search_tool_database").html(SYNONYM_SEARCH_DATABASE);
+                check_synonym_search_cache();
+            }
+        }
+    });
+}
+
+
+/**
  * Check if this server is cached by the Synonym Search Tool
  * - Display the Date of the last cache update
  */
 function check_synonym_search_cache() {
     jQuery.ajax({
         type: 'GET',
-        url: `${SYNONYM_SEARCH_HOST}/api/cache?address=${location.protocol}//${location.host}/brapi/v1/`,
+        url: `${SYNONYM_SEARCH_HOST}/api/cache?address=${SYNONYM_SEARCH_DATABASE}`,
         dataType: "json",
         success: function(response) {
             if ( response && response.response && response.response.saved ) {
@@ -654,7 +682,7 @@ function update_synonym_search_cache(terms) {
 
     // Start the Update
     let body = {
-        address: `${location.protocol}//${location.host}/brapi/v1/`,
+        address: SYNONYM_SEARCH_DATABASE,
         version: "v1.3",
         auth_token: "",
         call_limit: 10
@@ -703,7 +731,7 @@ function perform_synonym_search(terms) {
     // Start the Search
     let body = {
         database: {
-            address: `${location.protocol}//${location.host}/brapi/v1/`,
+            address: SYNONYM_SEARCH_DATABASE,
             version: "v1.3",
             auth_token: "",
             call_limit: 10
