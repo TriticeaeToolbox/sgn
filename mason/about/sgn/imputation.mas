@@ -25,6 +25,10 @@
     table.content-status-table td:nth-child(3) {
         width: 40%;
     }    
+    table, th, td {
+        border: 5px solid black;
+        border-collapse: collapse;
+    }
 
 </style>
 
@@ -33,12 +37,13 @@
 <h1><center>T3/Wheat Practical Haplotype Graph (PHG) imputation</center></h1>
 
 <h2>PHG Description</h2>
-The Practical Haplotype Graph (PHG) database was constructed using whole-exome capture sequencing data from a diverse set of wheat accessions.<br>
+The Practical Haplotype Graph (PHG) database was constructed using whole-exome capture sequencing data from a diverse set of wheat accessions.<br><br>
 
 Imputed protocols and projects
 <br>Method: Practical Haplotype Graph - PHG V2 with 2.9M markers
 <br>Visualize: <a href=https://files.triticeaetoolbox.org/jbrowse?data=phg>JBrowse</a>
-<br>Description: <a href=https://wheat.triticeaetoolbox.org/static_content/files/imputation.html>Imputation pipeline and accuracy</a>
+<br>Description: <a href=https://wheat.triticeaetoolbox.org/static_content/files/imputation.html>Imputation pipeline and accuracy</a><br>
+
 <table>
 <tr><th>Protocol<th>Download<br>genotype project<th>accessions<th>Cluster with PHG<th>Imputation accuracy<br>vs 2019_HapMap
 <tr><td rowspan=10>Infinium 90K v2.1
