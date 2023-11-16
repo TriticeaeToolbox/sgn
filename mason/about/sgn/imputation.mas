@@ -26,14 +26,6 @@
         width: 40%;
     }    
 
-    a.btn {
-        color: #fff;
-        margin: 2px 5px;
-    }
-    a.btn:hover {
-        background-color: #286090 !important;
-        color: #fff;
-    }
 </style>
 
 <& /page/page_title.mas, title=>'Practical Haplotype Graph (PHG) Imputation' &>
@@ -41,14 +33,73 @@
 <h1><center>T3/Wheat Practical Haplotype Graph (PHG) imputation</center></h1>
 
 <h2>PHG Description</h2>
-The Practical Haplotype Graph (PHG) database was constructed using whole-exome capture sequencing data from a diverse set of wheat accessions.
-<br>Publication for PHG V1: <a href="https://academic.oup.com/g3journal/article/12/2/jkab390/6423995" target="_blank"> Development of the Wheat Practical Haplotype Graph</a>
-<br>Accessions used to create PHG V2: <a href=/static_content/files/PHG472_T3Matches.xlsx>PHG472_T3Matches.xlsx</a>
-<table class="content-status-table">
-<tr><th>Version<th>Accessions<th>Marker density
-<tr><td>PHG V1<td>65<td>1.3M
-<tr><td>PHG V2<td>472<td>2.9M
+The Practical Haplotype Graph (PHG) database was constructed using whole-exome capture sequencing data from a diverse set of wheat accessions.<br>
+
+Imputed protocols and projects
+<br>Method: Practical Haplotype Graph - PHG V2 with 2.9M markers
+<br>Visualize: <a href=https://files.triticeaetoolbox.org/jbrowse?data=phg>JBrowse</a>
+<br>Description: <a href=https://wheat.triticeaetoolbox.org/static_content/files/imputation.html>Imputation pipeline and accuracy</a>
+<table>
+<tr><th>Protocol<th>Download<br>genotype project<th>accessions<th>Cluster with PHG<th>Imputation accuracy<br>vs 2019_HapMap
+<tr><td rowspan=10>Infinium 90K v2.1
+<td><a href=download/wheat/243/TCAP90K_HWWAMP_V2.vcf.gz>TCAP90K_HWWAMP</a><td>295<td><td>96% - <a href=phg/accuracy/results-90K_HWWAMP-imp-2019hapmap-filtered-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_SpringAM_panel_V2.vcf.gz>TCAP90K_SpringAM_panel</a><td>245
+    <td><td>81% - <a href= phg/accuracy/results-TCAP90K_SpringAM-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_YQV14_V2.vcf.gz>TCAP90K_YQV14</a><td>216
+     <td><td>95% - <a href= phg/accuracy/results-TCAP90K_YQV14-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_CSRVAL14_V2.vcf.gz>TCAP90K_CSRVAL14</a><td>116
+    <td><a href=phg/cluster/snprelate-pca-PHGandTCAP90K_CSRVAL14.png>PCA</a><td>na
+<tr><td><a href=download/wheat/243/VRND4_UCD_2015_V2.vcf.gz>VRND4_UCD_2015</a><td>76
+    <td><a href=phg/cluster/snprelate-pca-PHGandTCAP90K_VRND4.png>PCA</a><td>na
+<tr><td><a href=download/wheat/243/TCAP90K_NAMparents_V2.vcf.gz>TCAP90K_NAMparents_panel</a><td>56
+     <td><td>88% - <a href= phg/accuracy/results-TCAP90K_NAMparents-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_HWWAMP_SRPN_V2.vcf.gz>TCAP90K_HWWAMP_SRPN</a><td>16
+     <td><td>96% - <a href= phg/accuracy/results-TCAP90K_HWWAMP_SRPN-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_SWWpanel_V2.vcf.gz>TCAP90K_SWWpanel</a><td>313
+     <td><td>91% - <a href= phg/accuracy/results-TCAP90K_HWWAMP_SRPN-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_LeafRustPanel_V2.vcf.gz>TCAP90K_LeafRustPanel</a><td>335
+    <td><td>96% - <a href= phg/accuracy/results-TCAP90K_LeafRust-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td><a href=download/wheat/243/TCAP90K_SNBWW_V2.vcf.gz>TCAP90K_SNBWWW</a><td>266
+    <td><a href=phg/cluster/snprelate-pca-PHGandTCAP90K_SNBWW.png>PCA</a><td>na
+<tr><td rowspan=2>Infinium 9K v2.1
+<td><a href=download/wheat/244/NSGCwheat9K_4X_V2.vcf.gz>NSGCwheat9K_4X</a><td>542
+    <td><a href=phg/cluster/snprelate-pca-PHGandTCAP90K_NSGwheat9K_4X>PCA</a><td>na
+<tr><td><a href=download/wheat/244/WorldwideDiversityPanel_9K_V2.vcf.gz>WorldwideDiversityPanel_9K</a><td>2255
+    <td><td>94% - <a href= phg/accuracy/results-WorldwideDiversity-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
+<tr><td>GMS v2.1
+<td><a href=download/wheat/245/2021_GMS_Utah.vcf.gz>2021_GMS</a><td>288<td><td>82% - <a href=phg/accuracy/results-GMS-imp-2019hapmap-filtered_mr0-byaccn.csv>details</a>
+<tr><td rowspan=8>MRASeq RPN
+<td><a href=download/wheat/238/RPN_2020.vcf.gz>RPN_2020</a><td>86<td><a href=phg/cluster/snprelate-pca-RPN2020.png>PCA</a>
+<td>84% - <a href=phg/accuracy/results-RPN2020-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2021.vcf.gz>RPN_2021</a><td>90<td><a href=phg/cluster/snprelate-pca-RPN2021.png>PCA</a>
+<td>83% - <a href=phg/accuracy/results-RPN2021-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2022.vcf.gz>RPN_2022</a><td>80<td><a href=phg/cluster/snprelate-pca-RPN2022.png>PCA</a>
+<td>83% - <a href=phg/accuracy/results-RPN2022-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2023.vcf.gz>RPN_2023</a><td>88<td><a href=phg/cluster/snprelate-pca-RPN2023.png>PCA</a>
+<td>84% - <a href=phg/accuracy/results-RPN2020-23-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2020-21.vcf.gz>RPN_2020-21</a><td>157<td><a href=phg/cluster/snprelate-pca-RPN2020-21.png>PCA</a>
+<td>84% - <a href=phg/accuracy/results-RPN2020-21-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2021-22.vcf.gz>RPN_2021-22</a><td>150<td><a href=phg/cluster/snprelate-pca-RPN2021-22.png>PCA</a>
+<td> - <a href=phg/accuracy/results-RPN2020-23-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2022-23.vcf.gz>RPN_2022-23</a><td>151<td><a href=phg/cluster/snprelate-pca-RPN2022-23.png>PCA</a>
+<td>- <a href=phg/accuracy/results-RPN2020-23-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td rowspan=3>MRASeq RGON
+<td><a href=download/wheat/239/RGON_2021.vcf.gz>RGON_2021</a><td>300<td><a href=phg/cluster/snprelate-pca-RGON2021.png>PCA</a>
+<td>84% - <a href=phg/accuracy/results-RPN2021-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/239/RGON_2022.vcf.gz>RGON_2022</a><td>327<td><a href=phg/cluster/snprelate-pca-RPN2022.png>PCA</a>
+<td>84% - <a href=phg/accuracy/results-RPN2022-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/239/RGON_2023.vcf.gz>RGON_2023</a><td>412<td><a href=phg/cluster/snprelate-pca-RPN2023.png>PCA</a>
+<td>84% - <a href=phg/accuracy/results-RPN2023-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td>UCD2022 GBS
+<td><a href=download/wheat/235/UCD2022_Wheat_W22GBS1.vcf.gz>UCD2022</a><td>345<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
+<tr><td rowspan=2>SDSU GBS
+<td><a href=download/wheat/240/SDSU2022.vcf.gz>SDSU_2022</a><td>157<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
+<tr><td><a href=download/wheat/240/SDSU2022.vcf.gz>SDSU_2023</a><td>155<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
 </table>
+Notes:<br>
+1. Cluster analysis for Infinium calculated by merging unimputed data with PHG genotypes (common markers).<br>
+2. Cluster analysis for other protocols (no common markers) calculated on the unimputed data and showing which accessions are in the PHG<br>
+3. Imputation accuracy calculated by comparing every 30th marker between imputed output and 2019_HapMap for matching accessions<br>
 
 <h2>Imputation Pipeline</h2>
 The imputation was done using the ImputePipelinePlugin of the PHG (<a href="https://bitbucket.org/bucklerlab/practicalhaplotypegraph/wiki/UserInstructions/ImputeWithPHG_main.md" target="_blank">PHG Wiki</a>). The ImputePipelinePlugin was run with minRead=0 so that all haplotypes are imputed. PHG Version 0.0.40 was used to run the ImputePipelinePlugin.
