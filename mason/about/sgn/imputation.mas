@@ -26,8 +26,9 @@
         width: 40%;
     }    
     table, th, td {
-        border: 5px solid black;
+        border: 1px solid black;
         border-collapse: collapse;
+        padding: 10px;
     }
 
 </style>
