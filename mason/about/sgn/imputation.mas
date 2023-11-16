@@ -82,6 +82,8 @@ Imputed protocols and projects
 <tr><td><a href=download/wheat/238/RPN_2022.vcf.gz>RPN_2022</a><td>80<td><a href=phg/cluster/snprelate-pca-RPN2022.png>PCA</a>
 <td>83% - <a href=phg/accuracy/results-RPN2022-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
 <tr><td><a href=download/wheat/238/RPN_2023.vcf.gz>RPN_2023</a><td>88<td><a href=phg/cluster/snprelate-pca-RPN2023.png>PCA</a>
+<td>83% - <a href=phg/accuracy/results-RPN2023-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
+<tr><td><a href=download/wheat/238/RPN_2020-23.vcf.gz>RPN_2020-23</a><td>286<td><a href=phg/cluster/snprelate-pca-RPN2020-23.png>PCA</a>
 <td>84% - <a href=phg/accuracy/results-RPN2020-23-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
 <tr><td><a href=download/wheat/238/RPN_2020-21.vcf.gz>RPN_2020-21</a><td>157<td><a href=phg/cluster/snprelate-pca-RPN2020-21.png>PCA</a>
 <td>84% - <a href=phg/accuracy/results-RPN2020-21-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
