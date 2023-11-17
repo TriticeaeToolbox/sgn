@@ -45,7 +45,8 @@ Imputed protocols and projects
 <table>
 <tr><th>Protocol<th>Download<br>genotype project<th>accessions<th>Cluster with PHG<th>Imputation accuracy<br>vs 2019_HapMap
 <tr><td rowspan=10>Infinium 90K v2.1
-<td><a href=https://files.download/wheat/243/TCAP90K_HWWAMP_V2.vcf.gz>TCAP90K_HWWAMP</a><td>295<td><td>96% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-90K_HWWAMP-imp-2019hapmap-filtered-byaccn.txt>details</a>
+<td><a href=https://files.triticeaetoolbox.org/download/wheat/243/TCAP90K_HWWAMP_V2.vcf.gz>TCAP90K_HWWAMP</a><td>295
+    <td><td>96% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-90K_HWWAMP-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
 <tr><td><a href=https://files.triticeaetoolbox.org/download/wheat/243/TCAP90K_SpringAM_panel_V2.vcf.gz>TCAP90K_SpringAM_panel</a><td>245
     <td><td>81% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-TCAP90K_SpringAM-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
 <tr><td><a href=https://files.triticeaetoolbox.org/download/wheat/243/TCAP90K_YQV14_V2.vcf.gz>TCAP90K_YQV14</a><td>216
