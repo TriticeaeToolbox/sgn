@@ -33,8 +33,6 @@
 
 </style>
 
-<& /page/page_title.mas, title=>'Practical Haplotype Graph (PHG) Imputation' &>
-
 <h1><center>T3/Wheat Practical Haplotype Graph (PHG) imputation</center></h1>
 
 <h2>PHG Description</h2>
@@ -102,7 +100,7 @@ Imputed protocols and projects
 <td><a href=download/wheat/235/UCD2022_Wheat_W22GBS1.vcf.gz>UCD2022</a><td>345<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
 <tr><td rowspan=2>SDSU GBS
 <td><a href=download/wheat/240/SDSU2022.vcf.gz>SDSU_2022</a><td>157<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
-<tr><td><a href=download/wheat/240/SDSU2022.vcf.gz>SDSU_2023</a><td>155<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
+<tr><td><a href=download/wheat/240/SDSU2023.vcf.gz>SDSU_2023</a><td>155<td><a href=phg/cluster/snprelate-pca-PHGandUCD2022GBS.png>PCA</a><td>na
 </table>
 Notes:<br>
 1. Cluster analysis for Infinium calculated by merging unimputed data with PHG genotypes (common markers).<br>
