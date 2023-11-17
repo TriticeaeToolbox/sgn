@@ -71,7 +71,7 @@ Imputed protocols and projects
 <tr><td><a href=https://files.triticeaetoolbox.org/download/wheat/244/WorldwideDiversityPanel_9K_V2.vcf.gz>WorldwideDiversityPanel_9K</a><td>2255
     <td><td>94% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-WorldwideDiversity-imp-2019hapmap-filtered_mr0-byaccn.txt >details</a>
 <tr><td>GMS v2.1
-<td><a href=https://files.triticeaetoolbox.org/download/wheat/245/2021_GMS_Utah.vcf.gz>2021_GMS</a><td>288<td><td>82% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-GMS-imp-2019hapmap-filtered_mr0-byaccn.csv>details</a>
+<td><a href=https://files.triticeaetoolbox.org/download/wheat/245/2021_GMS_Utah.vcf.gz>2021_GMS</a><td>288<td><td>82% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-GMS-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
 <tr><td rowspan=8>MRASeq RPN
 <td><a href=https://files.triticeaetoolbox.org/download/wheat/238/RPN_2020.vcf.gz>RPN_2020</a><td>86<td><a href=https://files.triticeaetoolbox.org/phg/cluster/snprelate-pca-RPN2020.png>PCA</a>
 <td>84% - <a href=https://files.triticeaetoolbox.org/phg/accuracy/results-RPN2020-imp-2019hapmap-filtered_mr0-byaccn.txt>details</a>
