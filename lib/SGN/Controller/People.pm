@@ -150,52 +150,56 @@ sub people_confirm : Path('/solpeople/confirm') Args(0) {
     my $c = shift;
     my $username = $c->req->param('username');
     my $confirm_code = $c->req->param('confirm');
+    my $continue = $c->req->param('continue') || 0;
     my $dbh = $c->dbc->dbh;
 
-    # Get the Person by username
-    my $sp = CXGN::People::Login->get_login( $dbh, $username );
-
-    # Confirmation status information
-    my $success = 1;
-    my $message = "";
-    my $user_auto_submitter = 0;
+    # Only do the confirmation if requested (by continue param)
+    if ( $continue ) {
     
-    # Confirmation Failures
-    if ( !$sp || !$sp->get_sp_person_id() ) {
-        $success = 0;
-        $message =  "Username \"$username\" was not found.";
-    }
-    elsif ( !$sp->get_confirm_code() ) {
-        $success = 0;
-        $message = "No confirmation is required for user <b>$username</b>. This account has already been confirmed.";
-    }
-    elsif ( $sp->get_confirm_code() ne $confirm_code ) {
-        $success = 0;
-        $message = "Confirmation code is not valid!";
-    }
+        # Get the Person by username
+        my $sp = CXGN::People::Login->get_login( $dbh, $username );
 
-    # Perform the Confirmation
-    if ( $success == 1 ) {
-        $sp->set_disabled(undef);
-        $sp->set_confirm_code(undef);
-        $sp->set_private_email( $sp->get_pending_email() );
-        $sp->store();
+        # Confirmation status information
+        my $success = 1;
+        my $message = "";
+        my $user_auto_submitter = 0;
 
-        # Automatically set the user as a submitter
-        if ( $c->config->{user_auto_submitter} == 1 ) {
-            $sp->add_role('submitter');
-            if ( $sp->has_role('submitter') ) {
-                $user_auto_submitter = 1;
+        # Confirmation Failures
+        if ( !$sp || !$sp->get_sp_person_id() ) {
+            $success = 0;
+            $message =  "Username \"$username\" was not found.";
+        }
+        elsif ( !$sp->get_confirm_code() ) {
+            $success = 0;
+            $message = "No confirmation is required for user <b>$username</b>. This account has already been confirmed.";
+        }
+        elsif ( $sp->get_confirm_code() ne $confirm_code ) {
+            $success = 0;
+            $message = "Confirmation code is not valid!";
+        }
+
+        # Perform the Confirmation
+        if ( $success == 1 ) {
+            $sp->set_disabled(undef);
+            $sp->set_confirm_code(undef);
+            $sp->set_private_email( $sp->get_pending_email() );
+            $sp->store();
+
+            # Automatically set the user as a submitter
+            if ( $c->config->{user_auto_submitter} == 1 ) {
+                $sp->add_role('submitter');
+                if ( $sp->has_role('submitter') ) {
+                    $user_auto_submitter = 1;
+                }
             }
         }
-    }
 
-    # Send confirmation to user, if manual confirmation is enabled
-    if ( $c->config->{user_registration_admin_confirmation} && $c->config->{user_registration_admin_confirmation_email} ) {
-        my $host = $c->config->{main_production_site_url};
-        my $project_name = $c->config->{project_name};
-        my $subject="[$project_name] New Account Confirmed";
-        my $body=<<END_HEREDOC;
+        # Send confirmation to user, if manual confirmation is enabled
+        if ( $c->config->{user_registration_admin_confirmation} && $c->config->{user_registration_admin_confirmation_email} ) {
+            my $host = $c->config->{main_production_site_url};
+            my $project_name = $c->config->{project_name};
+            my $subject="[$project_name] New Account Confirmed";
+            my $body=<<END_HEREDOC;
 
 Your new account on $project_name with the username \"$username\" has been confirmed.
 
@@ -218,6 +222,25 @@ END_HEREDOC
     $c->stash->{message} = $message;
     $c->stash->{user_auto_submitter} = $user_auto_submitter;
     $c->stash->{template} = '/people/confirm.mas';
+
+    }
+
+    # Request to continue with the confirmation
+    else {
+        $c->stash->{username} = $username;
+        $c->stash->{template} = '/people/confirm_request.mas';
+
+        my $login = CXGN::People::Login->get_login( $dbh, $username );
+        my $id = $login->get_sp_person_id();
+        if ( !$login || !$id ) {
+            $c->stash->{message} = "User with username $username not found!";
+            return;
+        }
+
+        my $sp = CXGN::People::Person->new( $dbh, $id );
+        $c->stash->{name} = $sp->get_first_name()." ".$sp->get_last_name();
+        $c->stash->{email} = $sp->get_pending_email();
+    }
 }
 
 1;

@@ -1,0 +1,46 @@
+<%args>
+    $username => undef
+    $name => undef
+    $email => undef
+    $message => undef
+</%args>
+
+<style>
+    .well {
+        margin: 50px auto;
+        max-width: 600px;
+    }
+    h1 {
+        border-bottom: 1px solid #ccc;
+        margin-bottom: 15px;
+    }
+</style>
+
+
+<div class="well">
+
+  <h1>Confirm Account?</h1>
+
+% if ( $message ) {
+    <p>ERROR: <code><% $message %></code></p>
+% } else {
+    <p>
+        Do you want to confirm the account for user:<br />
+        <strong><% $username %></strong> (<% $name %> &lt;<% $email %>&gt;)
+    </p>
+
+    <div style="text-align: center; width: 100%; margin-top: 15px">
+        <button id="confirm-account" class="btn btn-primary">Confirm User Account</button>
+    </div>
+% }
+  
+
+</div>
+
+<script type="text/javascript">
+    jQuery(document).ready(() => {
+        jQuery("#confirm-account").click(() => {
+            window.location = window.location.href + "&continue=1";
+        });
+    });
+</script>
