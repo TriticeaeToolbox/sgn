@@ -49,3 +49,5 @@ docs/_site/
 .git_commit
 .git_tag
 .git_updated
+.DS_Store
+sgn.iml

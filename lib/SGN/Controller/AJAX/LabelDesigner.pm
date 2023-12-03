@@ -54,6 +54,61 @@ my %ADDITIONAL_LIST_DATA = (
                 $values{$list_item_ids->[$index]} = $list_item_db_ids->[$index];
             }
             return \%values;
+        },
+
+        'accession pedigree' => sub {
+            my ($c, $schema, $dbh, $list_id, $list_item_ids, $list_item_names, $list_item_db_ids) = @_;
+            my %values;
+            my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "accession", "stock_type")->cvterm_id();
+            my $mother_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'female_parent', 'stock_relationship')->cvterm_id();
+            my $father_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'male_parent', 'stock_relationship')->cvterm_id();
+
+            foreach my $stock_id ( @$list_item_db_ids) {
+
+                # Get the pedigree of the stock
+                my $prs = $schema->resultset("Stock::StockRelationship")->search([
+                    {
+                        'me.object_id' => $stock_id,
+                        'me.type_id' => $father_type_id,
+                        'subject.type_id'=> $accession_type_id
+                    },
+                    {
+                        'me.object_id' => $stock_id,
+                        'me.type_id' => $mother_type_id,
+                        'subject.type_id'=> $accession_type_id
+                    }
+                ], {
+                    'join' => 'subject',
+                    '+select' => ['subject.uniquename'],
+                    '+as' => ['subject_uniquename']
+                });
+
+                # Retrieve the names of the parents
+                my $parents = {};
+                while ( my $p = $prs->next() ) {
+                    if ( $p->type_id == $mother_type_id ) {
+                        $parents->{'mother'} = $p->get_column('subject_uniquename');
+                    }
+                    else {
+                        $parents->{'father'} = $p->get_column('subject_uniquename');
+                    }
+                }
+
+                # Build pedigree string
+                my $pedigree = 'NA/NA';
+                if ( $parents->{'mother'} && $parents->{'father'} ) {
+                    $pedigree = $parents->{'mother'} . '/' . $parents->{'father'};
+                }
+
+                # Add pedigree to return hash
+                for my $index (0 .. $#$list_item_db_ids ) {
+                    if ( $list_item_db_ids->[$index] eq $stock_id ) {
+                        $values{$list_item_ids->[$index]} = $pedigree;
+                    }
+                }
+            }
+
+            return \%values;
         }
 
     },
@@ -93,6 +148,75 @@ my %ADDITIONAL_LIST_DATA = (
                 for my $index (0 .. $#$list_item_db_ids ) {
                     if ( $list_item_db_ids->[$index] eq $seedlot_id ) {
                         $values{$list_item_ids->[$index]} = $accession_name;
+                    }
+                }
+            }
+
+            return \%values;
+        },
+
+        'seedlot contents pedigree' => sub {
+            my ($c, $schema, $dbh, $list_id, $list_item_ids, $list_item_names, $list_item_db_ids) = @_;
+            my %values;
+            my $type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "collection_of", "stock_relationship")->cvterm_id();
+            my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "accession", "stock_type")->cvterm_id();
+            my $mother_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'female_parent', 'stock_relationship')->cvterm_id();
+            my $father_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'male_parent', 'stock_relationship')->cvterm_id();
+            my $cross_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "cross", "stock_type")->cvterm_id();
+
+            # Get the stock ids of the seedlot contents
+            my $rs = $schema->resultset("Stock::StockRelationship")->search({
+                'me.object_id' => { in => $list_item_db_ids },
+                'me.type_id' => $type_id,
+                'subject.type_id' => { in => [$accession_type_id, $cross_type_id] }
+            }, {
+                'join' => 'subject',
+                '+select' => ['subject.uniquename', 'subject.stock_id'],
+                '+as' => ['subject_uniquename', 'subject_stockid']
+            });
+            while ( my $row = $rs->next() ) {
+                my $seedlot_id = $row->object_id();
+                my $stock_id = $row->get_column('subject_stockid');
+
+                # Get the pedigree of the contents
+                my $prs = $schema->resultset("Stock::StockRelationship")->search([
+                    {
+                        'me.object_id' => $stock_id,
+                        'me.type_id' => $father_type_id,
+                        'subject.type_id'=> $accession_type_id
+                    },
+                    {
+                        'me.object_id' => $stock_id,
+                        'me.type_id' => $mother_type_id,
+                        'subject.type_id'=> $accession_type_id
+                    }
+                ], {
+                    'join' => 'subject',
+                    '+select' => ['subject.uniquename'],
+                    '+as' => ['subject_uniquename']
+                });
+
+                # Retrieve the names of the parents
+                my $parents = {};
+                while ( my $p = $prs->next() ) {
+                    if ( $p->type_id == $mother_type_id ) {
+                        $parents->{'mother'} = $p->get_column('subject_uniquename');
+                    }
+                    else {
+                        $parents->{'father'} = $p->get_column('subject_uniquename');
+                    }
+                }
+
+                # Build pedigree string
+                my $pedigree = 'NA/NA';
+                if ( $parents->{'mother'} && $parents->{'father'} ) {
+                    $pedigree = $parents->{'mother'} . '/' . $parents->{'father'};
+                }
+
+                # Add pedigree to return hash
+                for my $index (0 .. $#$list_item_db_ids ) {
+                    if ( $list_item_db_ids->[$index] eq $seedlot_id ) {
+                        $values{$list_item_ids->[$index]} = $pedigree;
                     }
                 }
             }
@@ -194,13 +318,27 @@ __PACKAGE__->config(
 
         # Get additional list data for just the longest item
         if ( $data_type eq 'Lists' ) {
-            my $additional_list_data = get_additional_list_data($c, $source_id, $longest_hash{'list_item_id'}, $longest_hash{'list_item_name'});
+            my %longest_additional_list_data;
+            my $additional_list_data = get_additional_list_data($c, $source_id);
             if ( $additional_list_data ) {
-                my $fields = $additional_list_data->{$longest_hash{'list_item_id'}};
-		if ( (ref($fields) eq "HASH") && (keys(%$fields) > 0) ) {
-		    %longest_hash = (%longest_hash, %$fields);
-		}
+                foreach my $key ( keys(%$additional_list_data) ) {
+                    my $fields = $additional_list_data->{$key};
+                    if ( (ref($fields) eq "HASH") && (keys(%$fields) > 0) ) {
+                        foreach my $field_name ( keys(%$fields) ) {
+                            my $field_value = $fields->{$field_name};
+                            if (exists $longest_additional_list_data{$field_name} ) {
+                                if ( length($field_value) > length($longest_additional_list_data{$field_name}) ) {
+                                    $longest_additional_list_data{$field_name} = $field_value;
+                                }
+                            }
+                            else {
+                                $longest_additional_list_data{$field_name} = $field_value;
+                            }
+                        }
+                    }
+                }
             }
+            %longest_hash = (%longest_hash, %longest_additional_list_data);
         }
 
         $c->stash->{rest} = {
@@ -275,12 +413,60 @@ __PACKAGE__->config(
        my $sort_order_1 = $design_params->{'sort_order_1'};
        my $sort_order_2 = $design_params->{'sort_order_2'};
        my $sort_order_3 = $design_params->{'sort_order_3'};
+       my @sorted_keys;
 
-       my @sorted_keys = sort { 
-            ncmp($design->{$a}{$sort_order_1}, $design->{$b}{$sort_order_1}) || 
-            ncmp($design->{$a}{$sort_order_2}, $design->{$b}{$sort_order_2}) ||
-            ncmp($design->{$a}{$sort_order_3}, $design->{$b}{$sort_order_3})
-       }  keys %design;
+       # Sort by Field Layout
+       if ( $sort_order_1 eq 'Trial Layout: Plot Order') {
+            my $layout_order = $design_params->{'sort_order_layout_order'};
+            my $layout_start = $design_params->{'sort_order_layout_start'};
+
+            # Set the Trial IDs
+            # - a single trial = the source id is the trial id
+            # - a list of trials = the source id is the list id
+            #       get the list contents and convert to database ids
+            my @trial_ids;
+            if ( $data_type eq 'Field Trials' ) {
+                push(@trial_ids, $source_id);
+            }
+            elsif ( $data_type eq 'Lists' ) {
+                my $list = CXGN::List->new({ dbh => $schema->storage->dbh(), list_id => $source_id });
+                my $list_elements = $list->retrieve_elements_with_ids($source_id);
+                my @trial_names = map { $_->[1] } @$list_elements;
+                my $lt = CXGN::List::Transform->new();
+                my $tr = $lt->transform($schema, "projects_2_project_ids", \@trial_names);
+                @trial_ids = @{$tr->{transform}};
+            }
+
+            # Get the sorted plots, individually by trial
+            # Add a _plot_order key to each plot in the label design
+            foreach my $trial_id (@trial_ids) {
+                my $results = CXGN::Trial->get_sorted_plots($schema, [$trial_id], $layout_order, $layout_start);
+                if ( $results->{plots} ) {
+                    foreach (@{$results->{plots}}) {
+                        $design->{$_->{plot_name}}{_plot_order} = $_->{order};
+                    }
+                }
+            }
+
+            # Sort the label design elements by trial, plot order, plot number
+            # (if the trial does not have a layout, it will default to sorting by plot number)
+            @sorted_keys = sort { 
+                    ncmp($design->{$a}{trial_name}, $design->{$b}{trial_name}) || 
+                    ncmp($design->{$a}{_plot_order}, $design->{$b}{_plot_order}) ||
+                    ncmp($design->{$a}{plot_number}, $design->{$b}{plot_numer}) || 
+                    ncmp($a, $b)
+            } keys %design;
+       }
+
+       # Sort by designated data property(s)
+       else {
+            @sorted_keys = sort { 
+                    ncmp($design->{$a}{$sort_order_1}, $design->{$b}{$sort_order_1}) || 
+                    ncmp($design->{$a}{$sort_order_2}, $design->{$b}{$sort_order_2}) ||
+                    ncmp($design->{$a}{$sort_order_3}, $design->{$b}{$sort_order_3}) || 
+                    ncmp($a, $b)
+            } keys %design;
+       }
 
        my $qrcode = Imager::QRCode->new(
            margin        => 0,
@@ -552,10 +738,11 @@ sub get_trial_design {
         field_trial_tissue_samples => {tissue_sample_name=>1,tissue_sample_id=>1,plant_name=>1,plant_id=>1,subplot_name=>1,subplot_id=>1,plot_name=>1,plot_id=>1,accession_name=>1,accession_id=>1,plot_number=>1,block_number=>1,is_a_control=>1,range_number=>1,rep_number=>1,row_number=>1,col_number=>1,seedlot_name=>1,seed_transaction_operator=>1,num_seed_per_plot=>1,subplot_number=>1,plant_number=>1,tissue_sample_number=>1,pedigree=>1,location_name=>1,trial_name=>1,year=>1,tier=>1,plot_geo_json=>1}
     );
     my %unique_identifier = (
-        plots => 'plot_id',
-        plants => 'plant_id',
-        subplots => 'subplot_id',
-        field_trial_tissue_samples => 'tissue_sample_id',
+        plate => 'tissue_sample_name',
+        plots => 'plot_name',
+        plants => 'plant_name',
+        subplots => 'subplot_name',
+        field_trial_tissue_samples => 'tissue_sample_name',
     );
 
     my %mapped_design;
@@ -674,9 +861,11 @@ sub get_data {
             }
             elsif ( $list_type eq "plots" ) {
                 my $plot_ids = convert_stock_list($c, $schema, $id);
+                my $list_data = SGN::Controller::AJAX::List->retrieve_list($c, $id);
+                my @list_items = map { $_->[1] } @$list_data;
                 my ($trial_ids, $num_trials) = get_trial_from_stock_list($c, $schema, $plot_ids);
                 $design = get_trial_design($c, $schema, $trial_ids, 'plots');
-                $design = filter_by_list_items($design, $plot_ids, 'plot_id');
+                $design = filter_by_list_items($design, \@list_items, 'plot_name');
             }
         }
     }
@@ -686,9 +875,11 @@ sub get_data {
         }
         elsif ($data_type =~ m/List/) {
             my $list_ids = convert_stock_list($c, $schema, $id);
+            my $list_data = SGN::Controller::AJAX::List->retrieve_list($c, $id);
+            my @list_items = map { $_->[1] } @$list_data;
             my ($trial_ids, $num_trials) = get_trial_from_stock_list($c, $schema, $list_ids);
             $design = get_trial_design($c, $schema, $trial_ids, 'plants');
-            $design = filter_by_list_items($design, $list_ids, 'plant_id');
+            $design = filter_by_list_items($design, \@list_items, 'plant_name');
         }
     }
     elsif ($data_level eq "subplots") {
@@ -697,9 +888,11 @@ sub get_data {
         }
         elsif ($data_type =~ m/List/) {
             my $list_ids = convert_stock_list($c, $schema, $id);
+            my $list_data = SGN::Controller::AJAX::List->retrieve_list($c, $id);
+            my @list_items = map { $_->[1] } @$list_data;
             my ($trial_ids, $num_trials) = get_trial_from_stock_list($c, $schema, $list_ids);
             $design = get_trial_design($c, $schema, $trial_ids, 'subplots');
-            $design = filter_by_list_items($design, $list_ids, 'subplot_id');
+            $design = filter_by_list_items($design, \@list_items, 'subplot_name');
         }
     }
     elsif ($data_level eq "tissue_samples") {
@@ -708,9 +901,11 @@ sub get_data {
         }
         elsif ($data_type =~ m/List/) {
             my $list_ids = convert_stock_list($c, $schema, $id);
+            my $list_data = SGN::Controller::AJAX::List->retrieve_list($c, $id);
+            my @list_items = map { $_->[1] } @$list_data;
             my ($trial_ids, $num_trials) = get_trial_from_stock_list($c, $schema, $list_ids);
             $design = get_trial_design($c, $schema, $trial_ids, 'field_trial_tissue_samples');
-            $design = filter_by_list_items($design, $list_ids, 'tissue_sample_id');
+            $design = filter_by_list_items($design, \@list_items, 'tissue_sample_name');
         }
     }
     elsif ($data_level eq "crosses") {
