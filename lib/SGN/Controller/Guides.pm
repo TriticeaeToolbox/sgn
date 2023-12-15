@@ -18,7 +18,11 @@ sub guide : Path('/guides') Args(1) {
     my $self = shift;
     my $c = shift;
     my $guide = shift;
-    if ($c->view('Mason')->component_exists("/guides/$guide.mas")) { 
+    if ($c->view('Mason')->component_exists("/guides/$guide.mas")) {
+        my $params = $c->req->parameters;
+        foreach my $key (keys %$params) {
+            $c->stash->{$key} = $params->{$key};
+        }
         $c->stash->{template} = "/guides/$guide.mas";
     }
     else {
