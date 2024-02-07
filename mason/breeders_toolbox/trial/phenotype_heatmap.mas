@@ -6,7 +6,7 @@ $has_col_and_row_numbers => undef
 </%args>
 
 <& /util/import_css.mas, paths => ['fieldmap/leaflet-search.min.css', 'fieldmap/leaflet.css'] &>
-<& /util/import_javascript.mas, entries => ['fieldmap'], classes => [ 'jqueryui.js', 'jquery.js', 'd3.d3v4Min', 'jstree.dist.jstree', 'd3.d3Min.js', "thickbox", "CXGN.Page.FormattingHelpers", 'brapi.fieldmap.leaflet', 'brapi.fieldmap.L-Path-Transform', 'brapi.fieldmap.leaflet-search', 'brapi.fieldmap.turf', 'brapi.BrAPI', 'brapi.BrAPIFieldmap' ] &>
+<& /util/import_javascript.mas, entries => ['fieldmap'], classes => [ 'jqueryui.js', 'jquery.js', 'jstree.dist.jstree', "thickbox", "CXGN.Page.FormattingHelpers", 'brapi.fieldmap.leaflet', 'brapi.fieldmap.L-Path-Transform', 'brapi.fieldmap.leaflet-search', 'brapi.fieldmap.turf', 'brapi.BrAPI', 'brapi.BrAPIFieldmap' ] &>
 
 <style>
     #trait_heatmap {display: inline; }
@@ -269,7 +269,7 @@ $has_col_and_row_numbers => undef
                     <label>HarvestMaster Row:</label>
                     <select class="form-control" id="hm_row" name="hm_row" style="max-width: 400px">
                         <option value="col_number" selected>Breedbase Column</option>
-                        <option value="row_numver">Breedbase Row</option>
+                        <option value="row_number">Breedbase Row</option>
                     </select>
                 </div>
             </div>
@@ -914,6 +914,15 @@ jQuery(document).ready( function() {
         }
     });
 
+    jQuery("#hm_range").change(() => {
+        let range = jQuery("#hm_range").val();
+        jQuery("#hm_row").val(range === 'row_number' ? 'col_number' : 'row_number');
+    });
+    jQuery("#hm_row").change(() => {
+        let row = jQuery("#hm_row").val();
+        jQuery("#hm_range").val(row === 'row_number' ? 'col_number' : 'row_number');
+    });
+
     jQuery("#plot_download_button").click(() => {
         let type = jQuery("#plot_download_type").val();
         let order = jQuery("#plot_download_order").val();
@@ -925,7 +934,7 @@ jQuery(document).ready( function() {
             return;
         }
         if ( !order || order === '' ) {
-            alert("Please select a plot layout");
+            alert("Please select a plot order");
             return;
         }
         if ( !start || start === '' ) {
@@ -1269,7 +1278,7 @@ jQuery(document).ready( function() {
     for (let i = FieldMap.meta_data.min_col; i <= FieldMap.meta_data.max_col; i++) {
         cols_csv_header.push(i);
     }
-    let csv = '\n';
+    let csv = '';
     csv += ['Rows/Columns',cols_csv_header];
     csv += "\n";
     // if (FieldMap.meta_data.top_border_selection) {
@@ -1280,12 +1289,10 @@ jQuery(document).ready( function() {
     let col = "positionCoordinateX";
     let temp_plot_arr = [...FieldMap.plot_arr];
     for (let plot of temp_plot_arr.filter(plot => plot.type != "border")) {
-        if (!coord_matrix[plot.observationUnitPosition[row] - 1]) {
-            coord_matrix[plot.observationUnitPosition[row] - 1] = [];
-            coord_matrix[plot.observationUnitPosition[row] - 1][plot.observationUnitPosition[col] - 1] = plot.germplasmName;
-        } else {
-            coord_matrix[plot.observationUnitPosition[row] - 1][plot.observationUnitPosition[col] - 1] = plot.germplasmName;
+        if (!coord_matrix[plot.observationUnitPosition[row] - FieldMap.meta_data.min_row]) {
+            coord_matrix[plot.observationUnitPosition[row] - FieldMap.meta_data.min_row] = [];
         }
+        coord_matrix[plot.observationUnitPosition[row]-FieldMap.meta_data.min_row][plot.observationUnitPosition[col]-FieldMap.meta_data.min_col] = plot.germplasmName;
     }
     if (!FieldMap.meta_data.invert_row_checkmark) {
         coord_matrix.reverse();

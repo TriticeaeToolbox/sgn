@@ -318,6 +318,10 @@ sub traits_assayed : Chained('trial') PathPart('traits_assayed') Args(0) {
 sub trait_phenotypes : Chained('trial') PathPart('trait_phenotypes') Args(0) {
     my $self = shift;
     my $c = shift;
+    my $start_date = shift;
+    my $end_date = shift;
+    my $include_dateless_items = shift;
+    
     #get userinfo from db
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
     my $user = $c->user();
@@ -334,7 +338,10 @@ sub trait_phenotypes : Chained('trial') PathPart('trait_phenotypes') Args(0) {
         search_type => "Native",
         data_level => $display,
         trait_list=> [$trait],
-        trial_list => [$c->stash->{trial_id}]
+        trial_list => [$c->stash->{trial_id}],
+	start_date => $start_date,
+	end_date => $end_date,
+	include_dateless_items => $include_dateless_items,
     );
     my @data = $phenotypes_search->get_phenotype_matrix();
     $c->stash->{rest} = {
@@ -457,8 +464,12 @@ sub phenotype_summary : Chained('trial') PathPart('phenotypes') Args(0) {
 
     my @phenotype_data;
 
+    my @numeric_trait_ids;
+    
     while (my ($trait, $trait_id, $count, $average, $max, $min, $stddev, $stock_name, $stock_id) = $h->fetchrow_array()) {
 
+	push @numeric_trait_ids, $trait_id;
+	
         my $cv = 0;
         if ($stddev && $average != 0) {
             $cv = ($stddev /  $average) * 100;
@@ -485,6 +496,48 @@ sub phenotype_summary : Chained('trial') PathPart('phenotypes') Args(0) {
         push @phenotype_data, \@return_array;
     }
 
+    # get data from the non-numeric trait ids
+    #
+    
+    # prevent sql statement from failing if there are no numeric traits
+    #
+    my $exclude_numeric_trait_ids = "";
+    if (@numeric_trait_ids) {
+	$exclude_numeric_trait_ids = " AND cvterm.cvterm_id NOT IN (".join(",", @numeric_trait_ids).")";
+    }
+	
+    my $q = "SELECT (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text AS trait,
+        cvterm.cvterm_id,
+        count(phenotype.value)
+	$select_clause_additional	
+        FROM cvterm
+            JOIN phenotype ON (cvterm_id=cvalue_id)
+            JOIN nd_experiment_phenotype USING(phenotype_id)
+            JOIN nd_experiment_project USING(nd_experiment_id)
+            JOIN nd_experiment_stock USING(nd_experiment_id)
+            JOIN stock as plot USING(stock_id)
+            JOIN stock_relationship on (plot.stock_id = stock_relationship.subject_id)
+            JOIN stock as accession on (accession.stock_id = stock_relationship.object_id)
+            JOIN dbxref ON cvterm.dbxref_id = dbxref.dbxref_id JOIN db ON dbxref.db_id = db.db_id
+        WHERE project_id=?
+            AND stock_relationship.type_id=?
+            AND plot.type_id=?
+            AND accession.type_id=?
+	     	$exclude_numeric_trait_ids
+        GROUP BY (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text, cvterm.cvterm_id $group_by_additional
+        ORDER BY cvterm.name ASC
+        $order_by_additional ";
+
+    my $h = $dbh->prepare($q);
+    
+    $h->execute($c->stash->{trial_id}, $rel_type_id, $stock_type_id, $trial_stock_type_id);
+
+    while (my ($trait, $trait_id, $count, $stock_name, $stock_id) = $h->fetchrow_array()) {
+	my @return_array;
+	push @return_array, ( qq{<a href="/cvterm/$trait_id/view">$trait</a>}, "NA", "NA", "NA", "NA", "NA", $count, "NA", qq{<span class="glyphicon glyphicon-stats"></span></a>} );
+        push @phenotype_data, \@return_array;
+    }
+    
     $c->stash->{rest} = { data => \@phenotype_data };
 }
 
@@ -4980,7 +5033,7 @@ sub get_trial_plot_order : Path('/ajax/breeders/trial_plot_order') : Args(0) {
         my $col = $type . "_order";
 
         # Add CSV headers
-        my @headers = ($col, "type", "location_name", "trial_name", "plot_number", "plot_name", "accession_name", "seedlot_name", "row_number", "col_number");
+        my @headers = ($col, "type", "location_name", "trial_name", "plot_number", "plot_name", "accession_name", "seedlot_name", "row_number", "col_number", "rep_number", "block_number", "is_a_control");
         push(@data, \@headers);
 
         # Add plot rows
@@ -4997,7 +5050,10 @@ sub get_trial_plot_order : Path('/ajax/breeders/trial_plot_order') : Args(0) {
                     $_->{accession_name},
                     $_->{seedlot_name},
                     $_->{row_number},
-                    $_->{col_number}
+                    $_->{col_number},
+                    $_->{rep_number},
+                    $_->{block_number},
+                    $_->{is_a_control}
                 );
                 push(@data, \@d);
             }
@@ -5012,7 +5068,10 @@ sub get_trial_plot_order : Path('/ajax/breeders/trial_plot_order') : Args(0) {
                     "", # accession
                     "", # seedlot
                     $_->{row_number},
-                    $_->{col_number}
+                    $_->{col_number},
+                    "", # rep
+                    "", # block
+                    "", # control
                 );
                 push(@data, \@d);
             }
@@ -5023,7 +5082,7 @@ sub get_trial_plot_order : Path('/ajax/breeders/trial_plot_order') : Args(0) {
         $filename = "harvest_master.csv";
 
         # Add CSV headers
-        my @headers = ("PLTID", "Range", "Row", "type", "location_name", "trial_name", "plot_number", "plot_name", "accession_name", "seedlot_name");
+        my @headers = ("PLTID", "Range", "Row", "type", "location_name", "trial_name", "plot_number", "plot_name", "accession_name", "seedlot_name", "rep_number", "block_number", "is_a_control");
         push(@data, \@headers);
 
         # Add plot rows
@@ -5041,6 +5100,9 @@ sub get_trial_plot_order : Path('/ajax/breeders/trial_plot_order') : Args(0) {
                     $_->{plot_name},
                     $_->{accession_name},
                     $_->{seedlot_name},
+                    $_->{rep_number},
+                    $_->{block_number},
+                    $_->{is_a_control}
                 );
                 push(@data, \@d);
             }
@@ -5056,6 +5118,9 @@ sub get_trial_plot_order : Path('/ajax/breeders/trial_plot_order') : Args(0) {
                     "", # plot name
                     "", # accession
                     "", # seedlot
+                    "", # rep
+                    "", # block
+                    "", # control
                 );
                 push(@data, \@d);
             }

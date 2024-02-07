@@ -51,3 +51,6 @@ docs/_site/
 .git_updated
 .DS_Store
 sgn.iml
+docs/*
+!docs/r_markdown_docs
+.idea/
