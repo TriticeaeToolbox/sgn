@@ -39,7 +39,7 @@ sub _validate_with_plugin {
 
   my $excel_obj;
   my $worksheet;
-  my $treatment_col_start = 24;
+  my $treatment_col_start = 25;
 
   #try to open the excel file and report any errors
   $excel_obj = $parser->parse($filename);
@@ -268,10 +268,10 @@ sub _validate_with_plugin {
     if ($worksheet->get_cell($row,24)) {
       $weight_gram_seed_per_plot = $worksheet->get_cell($row,24)->value();
     }
-    if ($worksheet->get_cell($row,24)) {
-      my $h = $worksheet->get_cell(0,24)->value();
+    if ($worksheet->get_cell($row,$treatment_col_start-1)) {
+      my $h = $worksheet->get_cell(0,$treatment_col_start-1)->value();
       if ( $h eq 'is_private' ) {
-        $is_private = $worksheet->get_cell($row,24)->value();
+        $is_private = $worksheet->get_cell($row,$treatment_col_start-1)->value();
         $is_private = defined($is_private) && ($is_private eq "1" || $is_private eq "true" || $is_private eq "yes");
       }
     }
@@ -790,8 +790,8 @@ sub _parse_with_plugin {
   my %seen_accession_names;
   for my $row ( 1 .. $row_max ) {
       my $accession_name;
-      if ($worksheet->get_cell($row,13)) {
-          $accession_name = $worksheet->get_cell($row,13)->value();
+      if ($worksheet->get_cell($row,14)) {
+          $accession_name = $worksheet->get_cell($row,14)->value();
           $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
           if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
             $accession_name = $accession_replacements->{$accession_name};
@@ -944,9 +944,6 @@ sub _parse_with_plugin {
     if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
       $accession_name = $accession_replacements->{$accession_name};
     }
-    if ($worksheet->get_cell($row,14)) {
-      $plot_number =  $worksheet->get_cell($row,14)->value();
-    }
     if ($worksheet->get_cell($row,15)) {
       $plot_number =  $worksheet->get_cell($row,15)->value();
     }
@@ -981,10 +978,10 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,24)) {
         $weight_gram_seed_per_plot = $worksheet->get_cell($row, 24)->value();
     }
-    if ($worksheet->get_cell($row,24)) {
-      my $h = $worksheet->get_cell(0,24)->value();
+    if ($worksheet->get_cell($row,$treatment_col_start-1)) {
+      my $h = $worksheet->get_cell(0,$treatment_col_start-1)->value();
       if ( $h eq 'is_private' ) {
-        $is_private = $worksheet->get_cell($row,24)->value();
+        $is_private = $worksheet->get_cell($row,$treatment_col_start-1)->value();
         $is_private = defined($is_private) && ($is_private eq "1" || $is_private eq "true" || $is_private eq "yes");
       }
     }
