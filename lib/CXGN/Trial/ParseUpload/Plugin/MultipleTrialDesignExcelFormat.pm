@@ -763,7 +763,7 @@ sub _parse_with_plugin {
 
   my $excel_obj;
   my $worksheet;
-  my $treatment_col_start = 24;
+  my $treatment_col_start = 25;
 
   $excel_obj = $parser->parse($filename);
   if ( !$excel_obj ) {
