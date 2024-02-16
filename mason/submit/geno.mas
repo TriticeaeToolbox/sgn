@@ -1,0 +1,193 @@
+<%args>
+    $name => "",
+    $email => "",
+    $breeding_programs => (),
+    $genotyping_protocols => (),
+    $reference_genomes => (),
+    $genotyping_facilities => ()
+</%args>
+
+<%init>
+  my $year = 1900 + (localtime)[5];
+</%init>
+
+
+<& /page/page_title.mas, title=>"Submit Genotype Data" &>
+
+<div style="max-width: 700px; margin: 0 auto">
+
+  <p style="font-size: 110%; margin: 25px 0">
+    Please fill out this form to submit a VCF file to be added to the database.  Once you have filled out the form, 
+    you will be redirected to a Cornell Box account where you can upload the VCF file (up to 50 GB in size).  We'll 
+    look over the data and contact you if we have any questions.  Thanks!
+  </p>
+
+  <div class="well">
+    <form action="/ajax/submit/vcf" method="post">
+      <input type="hidden" id="database" name="database" type="text" />
+
+      <!-- SUBMITTER INFO -->
+
+      <h4>Submitter</h4>
+      <p>Please add your contact information so we can get in touch with you if we have any questions about the data.</p>
+      
+      <br />
+
+      <label>Name:</label>
+      <input class="form-control" id="name" name="name" type="text" value="<% $name %>" />
+
+      <br />
+
+      <label>Email:</label>
+      <input class="form-control" id="email" name="email" type="email" value="<% $email %>" />
+
+      <br />
+
+      <label>Breeding Program:</label>
+      <select class="form-control" id="breeding_program" name="breeding_program">
+% foreach (@$breeding_programs ) {
+        <option value="<% $_->[1] %>"><% $_->[1] %></option>
+% }
+        <option value="other">...other...</option>
+      </select>
+      <input class="form-control" style="display: none" id="breeding_program_other" name="breeding_program_other" type="text" placeholder="Breeding Program Name" />
+
+      <br />
+
+      <!-- PROTOCOL INFO -->
+
+      <h4>Protocol</h4>
+      <p>If you know a <a href="/search/genotyping_protocols" target="_blank">Genotyping Protocol</a> exists for this data, please select the existing one.  If the number of markers in an existing protocol differs by more than 10%, then a new protocol should be created and distinguished by population and year. If a new protocol is required, select '...new...' from the end of the protocol list below.</p>
+
+      <br />
+
+      <label>Genotyping Protocol:</label>
+      <select class="form-control" id="genotyping_protocol" name="genotyping_protocol">
+% foreach (@$genotyping_protocols ) {
+        <option value="<% $_->[1] %>"><% $_->[1] %></option>
+% }
+        <option value="new">...new...</option>
+      </select>
+
+      <div id="genotpying_protocol_new" style="display:none">
+        <br />
+
+        <label>New Protocol Name:</label>
+        <input class="form-control" id="genotyping_protocol_name" name="genotyping_protocol_name" type="text" />
+
+        <br />
+
+        <label>New Protocol Reference Genome:</label>
+        <select class="form-control" id="genotyping_protocol_reference" name="genotyping_protocol_reference" type="text">
+% foreach (@$reference_genomes ) {
+%   if ( $_->[1] && $_->[1] ne '' ) {
+          <option value="<% $_->[1] %>"><% $_->[1] %> (<% $_->[0] %>)</option>
+%   } else {
+          <option value=""></option>
+%   }
+% }
+          <option value="other">...other...</option>
+        </select>
+        <input class="form-control" style="display: none" id="genotyping_protocol_reference_new_name" name="genotyping_protocol_reference_new_name" type="text" placeholder="Reference Genome Name" />
+        <input class="form-control" style="display: none" id="genotyping_protocol_reference_new_species" name="genotyping_protocol_reference_new_species" type="text" placeholder="Species Name" />
+
+        <br />
+
+        <label>New Protocol Description:</label>
+        <textarea class="form-control" id="genotyping_protocol_description" name="genotyping_protocol_description" rows="4" placeholder="Give a brief description of the protocol: how the data was generated, any filtering that was done, etc"></textarea>
+      </div>
+
+      <br />
+
+      <!-- PROJECT INFO -->
+
+      <h4>Project</h4>
+      <p>Each new dataset is associated with a new <a href="/search/genotyping_data_projects" target="_blank">Genotyping Project</a>.</p>
+      
+      <br />
+
+      <label>New Project Name:</label>
+      <input class="form-control" id="genotyping_project_name" name="genotyping_project_name" type="text" />
+
+      <br />
+
+      <label>Project Year:</label>
+      <input class="form-control" id="genotyping_project_year" name="genotyping_project_year" type="number" value="<% $year %>" />
+
+      <br />
+
+      <label>Genotyping Facility:</label>
+      <select class="form-control" id="genotyping_facility" name="genotyping_facility">
+% foreach (@$genotyping_facilities ) {
+        <option value="<% $_ %>"><% $_ %></option>
+% }
+        <option value="other">...other...</option>
+      </select>
+      <input class="form-control" style="display: none" id="genotyping_facility_other" name="genotyping_facility_other" type="text" placeholder="Genotyping Facility Name" />
+
+      <br />
+
+      <label>Sample Population:</label>
+      <input class="form-control" id="sample_population" name="sample_population" type="text" placeholder="A brief description of the population sampled in this dataset" />
+
+      <br />
+
+      <label>Project Description:</label>
+      <textarea class="form-control" id="genotyping_project_description" name="genotyping_project_description" rows="4" placeholder="Give a brief description of the project"></textarea>
+
+      <br />
+      
+      <!-- FILE INFO -->
+
+      <h4>VCF File</h4>
+      <p>You'll upload your VCF file (up to 50 GB) on the next page.</p>
+      
+      <br />
+
+      <label>File Name:</label>
+      <input class="form-control" id="file_name" name="file_name" type="text" placeholder="The name of the VCF file you'll be uploading" />
+
+      <br />
+
+      <label>Additional Comments:</label>
+      <textarea class="form-control" id="additional_comments" name="additional_comments" rows="4" placeholder="If you have any additional comments about the data or its formatting, please put them here."></textarea>
+
+      <br />
+
+      <div style="text-align: center; margin: 25px">
+        <input class="btn btn-info" type="submit" value="Continue" />
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<script type="text/javascript">
+  jQuery(document).ready(() => {
+    jQuery("#database").val(location.hostname);
+    jQuery("#breeding_program").on("change", () => {
+      jQuery("#breeding_program_other").css(
+        "display",
+        jQuery("#breeding_program").val() === 'other' ? 'block' : 'none'
+      );
+    });
+    jQuery("#genotyping_protocol").on("change", () => {
+      jQuery("#genotpying_protocol_new").css(
+        "display",
+        jQuery("#genotyping_protocol").val() === 'new' ? 'block' : 'none'
+      );
+    });
+    jQuery("#genotyping_protocol_reference").on("change", () => {
+      jQuery("#genotyping_protocol_reference_new_name, #genotyping_protocol_reference_new_species").css(
+        "display",
+        jQuery("#genotyping_protocol_reference").val() === 'other' ? 'block' : 'none'
+      );
+    });
+    jQuery("#genotyping_facility").on("change", () => {
+      jQuery("#genotyping_facility_other").css(
+        "display",
+        jQuery("#genotyping_facility").val() === 'other' ? 'block' : 'none'
+      );
+    });
+  });
+</script>
