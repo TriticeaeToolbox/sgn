@@ -20,6 +20,8 @@ sub submit_vcf : Path('/ajax/submit/vcf') : ActionClass('REST') { }
 sub submit_vcf_POST : Args(0) {
     my ($self, $c) = @_;
     my $params = $c->req->body_data();
+    my $submission_email = $c->config->{submission_email};
+    my $vcf_upload_url = $c->config->{vcf_upload_url};
 
     # Build Email Body
     my $body = "==== Submitter ====\n";
@@ -55,11 +57,21 @@ sub submit_vcf_POST : Args(0) {
     $body .= "  - Additional Comments: " . $params->{additional_comments} . "\n";
 
     # Send the email
-    my $subject = "[VCF Submission] " . ($params->{breeding_program} ne 'other' ? $params->{breeding_program} : $params->{breeding_program_other});
-    CXGN::Contact::send_email($subject, $body, "dwaring87\@gmail.com");
-
+    if ( defined($submission_email) ) {
+      my $subject = "[VCF Submission] " . ($params->{breeding_program} ne 'other' ? $params->{breeding_program} : $params->{breeding_program_other});
+      CXGN::Contact::send_email($subject, $body, $submission_email);
     
-    $c->stash->{rest} = { success => 1 };
+      # Redirect to VCF Upload URL
+      if ( defined($vcf_upload_url) ) {
+        $c->res->redirect($vcf_upload_url);
+      }
+      else {
+        $c->stash->{rest} = {error => "VCF Upload URL not defined in server config!"};
+      }
+    }
+    else {
+      $c->stash->{rest} = {error => "Submission Email is not defined in the server config!"};
+    }
 }
 
 1;

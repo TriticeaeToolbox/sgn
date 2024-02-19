@@ -11,6 +11,7 @@ sub submit_geno : Path('/submit/geno') Args(0) {
     my $self = shift;
     my $c = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $vcf_upload_url = $c->config->{vcf_upload_url};
 
     # Add user info, if logged in
     my $user = $c->user();
