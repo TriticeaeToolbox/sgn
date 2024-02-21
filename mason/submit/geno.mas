@@ -57,21 +57,27 @@
       <!-- PROTOCOL INFO -->
 
       <h4>Protocol</h4>
-      <p>If you know a <a href="/search/genotyping_protocols" target="_blank">Genotyping Protocol</a> exists for this data, please select the existing one.  If the number of markers in an existing protocol differs by more than 10%, then a new protocol should be created and distinguished by population and year. If a new protocol is required, select '...new...' from the end of the protocol list below.</p>
+      <p>If you know a <a href="/search/genotyping_protocols" target="_blank">Genotyping Protocol</a> exists for this data, please select the existing one.  If the number of markers in an existing protocol differs by more than 10%, then a new protocol should be created and distinguished by population and year.</p>
+
+      <select class="form-control" id="genotyping_protocol_type" name="genotyping_protocol_type">
+        <option value="existing">Exisitng Protocol</option>
+        <option value="new">New Protocol</option>
+      </select>
 
       <br />
 
-      <label>Genotyping Protocol:</label>
-      <select class="form-control" id="genotyping_protocol" name="genotyping_protocol">
+      <!-- Existing Protocol -->
+      <div id="genotyping_protocol_existing">
+        <label>Genotyping Protocol:</label>
+        <select class="form-control" id="genotyping_protocol" name="genotyping_protocol">
 % foreach (@$genotyping_protocols ) {
-        <option value="<% $_->[1] %>"><% $_->[1] %></option>
+          <option value="<% $_->[1] %>"><% $_->[1] %></option>
 % }
-        <option value="new">...new...</option>
-      </select>
+        </select>
+      </div>
 
-      <div id="genotpying_protocol_new" style="display:none">
-        <br />
-
+      <!-- New Protocol -->
+      <div id="genotyping_protocol_new" style="display:none">
         <label>New Protocol Name:</label>
         <input class="form-control" id="genotyping_protocol_name" name="genotyping_protocol_name" type="text" />
 
@@ -128,7 +134,7 @@
       <br />
 
       <label>Sample Population:</label>
-      <input class="form-control" id="sample_population" name="sample_population" type="text" placeholder="A brief description of the population sampled in this dataset" />
+      <input class="form-control" id="sample_population" name="sample_population" type="text" maxlength="50" placeholder="A short (50 characters or less) description of the population sampled in this dataset" />
 
       <br />
 
@@ -166,28 +172,21 @@
   jQuery(document).ready(() => {
     jQuery("#database").val(location.hostname);
     jQuery("#breeding_program").on("change", () => {
-      jQuery("#breeding_program_other").css(
-        "display",
-        jQuery("#breeding_program").val() === 'other' ? 'block' : 'none'
-      );
+      const val = jQuery("#breeding_program").val()
+      jQuery("#breeding_program_other").css("display", val === 'other' ? 'block' : 'none');
     });
-    jQuery("#genotyping_protocol").on("change", () => {
-      jQuery("#genotpying_protocol_new").css(
-        "display",
-        jQuery("#genotyping_protocol").val() === 'new' ? 'block' : 'none'
-      );
+    jQuery("#genotyping_protocol_type").on("change", () => {
+      const val = jQuery("#genotyping_protocol_type").val();
+      jQuery("#genotyping_protocol_existing").css("display", val === 'existing' ? 'block' : 'none');
+      jQuery("#genotyping_protocol_new").css("display", val === 'new' ? 'block' : 'none');
     });
     jQuery("#genotyping_protocol_reference").on("change", () => {
-      jQuery("#genotyping_protocol_reference_new_name, #genotyping_protocol_reference_new_species").css(
-        "display",
-        jQuery("#genotyping_protocol_reference").val() === 'other' ? 'block' : 'none'
-      );
+      const val = jQuery("#genotyping_protocol_reference").val();
+      jQuery("#genotyping_protocol_reference_new_name, #genotyping_protocol_reference_new_species").css("display", val === 'other' ? 'block' : 'none');
     });
     jQuery("#genotyping_facility").on("change", () => {
-      jQuery("#genotyping_facility_other").css(
-        "display",
-        jQuery("#genotyping_facility").val() === 'other' ? 'block' : 'none'
-      );
+      const val = jQuery("#genotyping_facility").val();
+      jQuery("#genotyping_facility_other").css("display", val === 'other' ? 'block' : 'none');
     });
   });
 </script>
