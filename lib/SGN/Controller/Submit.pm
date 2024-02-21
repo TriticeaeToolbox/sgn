@@ -13,6 +13,13 @@ sub submit_geno : Path('/submit/geno') Args(0) {
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
     my $vcf_upload_url = $c->config->{vcf_upload_url};
 
+    # VCF Upload URL needs to be set in the config file
+    if ( !$vcf_upload_url ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>VCF File Submissions Not Enabled</strong></p><p>This server has not been configured to accept VCF file submissions.</p>";
+        return;
+    }
+
     # Add user info, if logged in
     my $user = $c->user();
     if ( $user ) {
