@@ -18,11 +18,14 @@ sub guide : Path('/guides') Args(1) {
     my $self = shift;
     my $c = shift;
     my $guide = shift;
+    my $schema = $c->dbic_schema('Bio::Chado::Schema');
+
     if ($c->view('Mason')->component_exists("/guides/$guide.mas")) {
         my $params = $c->req->parameters;
         foreach my $key (keys %$params) {
             $c->stash->{$key} = $params->{$key};
         }
+        $c->stash->{schema} = $schema;
         $c->stash->{template} = "/guides/$guide.mas";
     }
     else {
