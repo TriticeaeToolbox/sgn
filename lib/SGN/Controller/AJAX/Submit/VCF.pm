@@ -31,7 +31,7 @@ sub submit_vcf_POST : Args(0) {
     $body .= "  - Breeding Program: " . ($params->{breeding_program} ne 'other' ? $params->{breeding_program} : $params->{breeding_program_other}) . "\n";
     $body .= "\n";
     $body .= "==== PROTOCOL ====\n";
-    if ( $params->{genotyping_protocol} ne 'new' ) {
+    if ( $params->{genotyping_protocol_type} eq 'existing' ) {
       $body .= "  - Existing Genotyping Protocol: " . $params->{genotyping_protocol} . "\n";
     }
     else {
