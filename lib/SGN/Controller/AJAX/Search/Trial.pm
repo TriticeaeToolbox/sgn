@@ -197,3 +197,47 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
     $c->stash->{rest} = { data => \@result };
 }
 
+sub has_trial_layout : Path('/ajax/search/trial_layout') : Args(1) {
+    my $self = shift;
+    my $c = shift;
+    my $trial_id = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
+
+    # Query the DB to get the number of plots with assigned row and col numbers for each trial
+    # The layout is defined if the number of row and col numbers are not 0
+    # (See the CXGN::Project->has_col_and_row_numbers() function)
+    my $q = "SELECT 
+                t2.project_id, 
+                SUM(CASE WHEN t1.row IS NULL THEN 0 ELSE 1 END) AS row_count, 
+                SUM(CASE WHEN t1.col IS NULL THEN 0 ELSE 1 END) AS col_count
+            FROM (
+                SELECT stock.stock_id, rsp.value AS row, csp.value AS col
+                FROM public.stock
+                LEFT JOIN public.stockprop AS rsp ON (rsp.stock_id = stock.stock_id) 
+                    AND rsp.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'row_number')
+                LEFT JOIN public.stockprop AS csp ON (csp.stock_id = stock.stock_id)
+                    AND csp.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'col_number')
+            ) AS t1,
+            (
+                SELECT s1.project_id, stock_id
+                FROM nd_experiment_stock,
+                (
+                        SELECT project_id, nd_experiment_id 
+                        FROM nd_experiment_project 
+                    WHERE project_id = ?
+                ) AS s1
+                WHERE nd_experiment_stock.nd_experiment_id IN (s1.nd_experiment_id)
+            ) AS t2
+            WHERE t1.stock_id = t2.stock_id
+            GROUP BY t2.project_id;";
+    my $h = $schema->storage->dbh()->prepare($q);
+    $h->execute($trial_id);
+    my ($returned_trial_id, $row_count, $col_count) = $h->fetchrow_array();
+
+    $c->stash->{rest} = {
+        success => 1,
+        trial => $returned_trial_id,
+        has_trial_layout => $row_count != 0 && $col_count != 0 ? "true" : "false"
+    };
+}
+
