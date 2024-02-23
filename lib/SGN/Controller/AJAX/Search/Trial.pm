@@ -197,10 +197,10 @@ sub search_public : Path('/ajax/search/trials_public') : Args(0) {
     $c->stash->{rest} = { data => \@result };
 }
 
-sub has_trial_layout : Path('/ajax/search/trial_layout') : Args(1) {
+sub has_trial_layout : Path('/ajax/search/trial_layout') : Args(0) {
     my $self = shift;
     my $c = shift;
-    my $trial_id = shift;
+    my $trial_id = $c->req->param('trial_id');
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
     # Query the DB to get the number of plots with assigned row and col numbers for each trial
