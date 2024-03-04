@@ -194,6 +194,7 @@ sub generate_trials :Private {
                     "Cornell University",
                     $location_name,
                     "2022",
+                    "",
                     "RCBD",
                     "Sample trial @ $location_name",
                     "phenotyping_trial",

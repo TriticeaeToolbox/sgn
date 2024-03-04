@@ -469,6 +469,7 @@ sub generate_trial_layout_file :Private {
     my $breeding_program = $trial->get_breeding_programs()->[0]->[1];
     my $location = $trial->get_location()->[1];
     my $year = $trial->get_year();
+    my $transplanting_date = $trial->get_transplanting_date();
     my $design_type = $trial->get_design_type();
     my $description = $trial->get_description();
     my $trial_type = defined($trial->get_project_type()) ? $trial->get_project_type()->[1] : "";
@@ -487,6 +488,7 @@ sub generate_trial_layout_file :Private {
             $breeding_program,
             $location,
             $year,
+            $transplanting_date,
             $design_type,
             $description,
             $trial_type,
@@ -581,7 +583,7 @@ sub write_trial_layout_file {
     my $treatment_names = shift;
     my $rows = shift;
 
-    my @headers = ("trial_name", "breeding_program", "location", "year", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
+    my @headers = ("trial_name", "breeding_program", "location", "year", "transplanting_date", "design_type", "description", "trial_type", "plot_width", "plot_length", "field_size", "planting_date", "harvest_date", "plot_name", "accession_name", "plot_number", "block_number", "is_a_control", "rep_number", "range_number", "row_number", "col_number", "seedlot_name", "num_seed_per_plot", "weight_gram_seed_per_plot");
     push(@headers, @$treatment_names);
     $self->write_excel_file($file, \@headers, $rows);
 }
