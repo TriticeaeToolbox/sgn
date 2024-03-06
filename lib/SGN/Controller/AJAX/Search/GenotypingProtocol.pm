@@ -65,29 +65,48 @@ sub genotyping_protocol_search_GET : Args(0) {
         }
         my $description = join '<br/>', @trimmed;
         $description = $description ? $description : 'NA';
-	my $create_date = $_->{create_date};
-        if ($create_date =~ /(\d+)-(\d+)-(\d+)/) {
-            my $dt3 = DateTime->new(
-                year => $1,
-                month => $2,
-                day => $3
-            );
-            $create_date = $1 . "-" . $2 . "-" . $3;
-	}
         push @result,
           [
             "<a href=\"/breeders_toolbox/protocol/$_->{protocol_id}\">$_->{protocol_name}</a>",
-	    $_->{marker_type},
+            $_->{marker_type},
+            $description,
             $num_markers,
             $_->{protocol_description},
             $_->{reference_genome_name},
             $_->{species_name},
-            $create_date
+            $_->{sample_observation_unit_type_name},
+            $_->{create_date}
           ];
     }
     #print STDERR "PROTOCOL LIST =".Dumper \@result."\n";
 
     $c->stash->{rest} = { data => \@result };
+}
+
+sub genotyping_protocol_number : Path('/ajax/genotyping_protocol/num_markers') : ActionClass('REST') { }
+
+sub genotyping_protocol_number_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $bcs_schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+    my @protocol_list = $c->req->param('protocol_ids') ? split ',', $c->req->param('protocol_ids') : ();
+    my @accession_list = $c->req->param('accession_ids') ? split ',', $c->req->param('accession_ids') : ();
+
+    my $protocol_search_result;
+    if (@protocol_list) {
+        $protocol_search_result = CXGN::Genotype::Protocol::list_simple($bcs_schema, \@protocol_list);
+    }
+
+    my @result;
+    my $num_markers;
+    foreach (@$protocol_search_result){
+        $num_markers = $_->{marker_count};
+        push @result,[$num_markers];
+	#print STDERR "PROTOCOL number of markers $num_markers\n";
+    }
+
+    $c->stash->{rest} = { data => $num_markers };
+
 }
 
 sub genotyping_protocol_markers_search : Path('/ajax/genotyping_protocol/markers_search') : ActionClass('REST') { }
