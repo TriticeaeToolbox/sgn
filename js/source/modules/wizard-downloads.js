@@ -58,8 +58,57 @@ export function WizardDownloads(main_id,wizard){
       [];
     main.select(".wizard-download-genotypes-info")
       .attr("value",`${accessions.length||"Too few"} accessions`);
+    main.select(".panel3")
+      .attr("value", function(d, i) {
+	if (projects.length==1) {
+          var protocol_id = protocols.length==1?protocols[0].id:'';
+          var project_id = projects.length==1?projects[0].id:'';
+	}
+      });
+    main.select(".panel5")
+      .attr("value", function(d, i) {
+        if (projects.length==1) {
+          var protocol_id = protocols.length==1?protocols[0].id:'';
+          var project_id = projects.length==1?projects[0].id:'';
+        }
+      });
+    main.select(".wizard-download-genotypes-imput")
+      .attr("value", `${protocols.length||"No"} protocol, ${
+        protocols.length==1?"selected protocol":
+        protocols.length>1?"too many protocols selected":
+        "default protocol"
+        }
+        ${projects.length||"No"} project, ${
+        //projects.length==1?"selected project":
+        projects.length==1?selections["genotyping_projects"][0].name:
+        projects.length>1?"too many projects selected":
+        "default project"
+      }`);
+    main.select(".wizard-download-genotypes-vcf")
+      .attr("value", `${protocols.length||"No"} protocol, ${
+        protocols.length==1?"selected protocol":
+        protocols.length>1?"too many protocols selected":
+        "default protocol"
+        }
+        ${projects.length||"No"} project, ${
+        //projects.length==1?"selected project":
+        projects.length==1?selections["genotyping_projects"][0].name:
+        projects.length>1?"too many projects selected":
+        "default project"
+      }`);
+    main.selectAll(".wizard-download-imputed-phg")
+      .attr("disabled",!!projects.length&&protocols.length<=1?null:true)
+      .on("click",()=>{
+        event.preventDefault();
+        var protocol_id = protocols.length==1?protocols[0].id:'';
+        var project_id = projects.length==1?projects[0].id:'';
+        var url = document.location.origin+`/cgi-bin/genome/download-imp.pl?protocol_id=${protocol_id}&project_id=${project_id}`;
+        alert(JSON.stringify(selections["genotyping_projects"]));
+        alert(selections["genotyping_projects"][0].name);
+        window.open(url,'_blank');
+      });
     main.selectAll(".wizard-download-genotypes")
-      .attr("disabled",accessions.length<1?true:null)
+      .attr("disabled",!!accessions.length&&protocols.length<=1?null:true)
       .on("click",()=>{
         event.preventDefault();
         var accession_ids = accessions.map(d=>d.id);
@@ -93,6 +142,39 @@ export function WizardDownloads(main_id,wizard){
             marker_set_list_id: marker_set_list_id,
             include_duplicate_genotypes: include_duplicate_genotypes,
         });
+      });
+    main.selectAll(".wizard-download-imputed-phg")
+      .attr("disabled",!!projects.length&&protocols.length<=1?null:true)
+      .on("click",()=>{
+        event.preventDefault();
+        var protocol_id = protocols.length==1?protocols[0].id:'';
+        var project_id = projects.length==1?projects[0].id:'';
+        var url = document.location.origin+`/cgi-bin/genome/download-imp.pl?protocol_id=${protocol_id}&project_id=${project_id}`;
+        alert(JSON.stringify(selections["genotyping_projects"]));
+        alert(selections["genotyping_projects"][0].name);
+        window.open(url,'_blank');
+      });
+    main.selectAll(".wizard-download-imputed-file")
+      .attr("disabled",!!projects.length&&protocols.length<=1?null:true)
+      .on("click",()=>{
+        event.preventDefault();
+        var protocol_id = protocols.length==1?protocols[0].id:'';
+        var project_id = projects.length==1?projects[0].id:'';
+	var species = $("#species").val();
+        var url = "https://files.triticeaetoolbox.org/download/";
+        url += species + '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '-strand.vcf.gz';
+        window.open(url);
+      });
+    main.selectAll(".wizard-download-vcf-file")
+      .attr("disabled",!!projects.length&&protocols.length<=1?null:true)
+      .on("click",()=>{
+        event.preventDefault();
+        var protocol_id = protocols.length==1?protocols[0].id:'';
+        var project_id = projects.length==1?projects[0].id:'';
+	var species = $("#species").val();
+        var url = "https://files.triticeaetoolbox.org/download/";
+        url += species + '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '.vcf.gz';
+        window.open(url);
       });
     main.selectAll(".wizard-download-genetic-relationship-matrix")
       .attr("disabled",!!accessions.length&&protocols.length<=1?null:true)
