@@ -162,7 +162,7 @@ export function WizardDownloads(main_id,wizard){
         var project_id = projects.length==1?projects[0].id:'';
 	var species = $("#species").val();
         var url = "https://files.triticeaetoolbox.org/download/";
-        url += species + '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '-strand.vcf.gz';
+        url += species + '/' + protocol_id + '/' + selections["genotyping_projects"][0].name + '.vcf.gz';
         window.open(url);
       });
     main.selectAll(".wizard-download-vcf-file")
