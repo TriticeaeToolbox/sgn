@@ -108,7 +108,7 @@ export function WizardDownloads(main_id,wizard){
         window.open(url,'_blank');
       });
     main.selectAll(".wizard-download-genotypes")
-      .attr("disabled",!!accessions.length&&protocols.length<=1?null:true)
+      .attr("disabled",accessions.length<1?true:null)
       .on("click",()=>{
         event.preventDefault();
         var accession_ids = accessions.map(d=>d.id);
