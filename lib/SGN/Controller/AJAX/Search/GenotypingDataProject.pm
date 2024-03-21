@@ -16,6 +16,7 @@ use Moose;
 use Data::Dumper;
 use JSON;
 use File::Slurp qw | read_file |;
+use File::Basename;
 use CXGN::People::Login;
 use CXGN::Trial::Search;
 use CXGN::Genotype::GenotypingProject;
@@ -267,6 +268,12 @@ sub genotyping_project_has_archived_vcf_GET : Args(0) {
         $rtn{$project_id} = [];
     }
 
+    # Make sure there is at least 1 matching project
+    if ( scalar(@project_ids) < 1 ) {
+        $c->stash->{rest} = { error => "No genotyping projects selected!" };
+        return;
+    }
+
     # Get metadata about the archived vcf files for all of the requested projects 
     my $ph = join ( ',', ('?') x @project_ids );
     my $q = "SELECT genotyping_protocol_id, genotyping_protocol_name, genotyping_project_id, genotyping_project_name,
@@ -360,7 +367,55 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
 
     # Return the file, if it exists
     if ( defined $dirname && defined $basename && -s "$dirname/$basename" ) {
-        my $contents = read_file("$dirname/$basename");
+        my $filepath = "$dirname/$basename";
+
+        # Check if the file is a vcf (.vcf extension of ##filformat=VCF header on first line)
+        open my $FH, '<', $filepath;
+        my $firstline = <$FH>;
+        close $FH;
+        my $is_a_vcf = rindex($firstline, "##fileformat=VCF", 0) == 0 || $filepath =~ m/\.vcf$/;
+
+        # Transpose the VCF file (to a temp file)
+        if ($is_a_vcf) {
+            my $dir = $c->tempfiles_subdir('download');
+            my ($Fout, $temp_file_transposed) = $c->tempfile(TEMPLATE=>"download/download_vcf_XXXXX", SUFFIX=>".vcf", UNLINK=>0);
+            open (my $F, "< :encoding(UTF-8)", $filepath) or die "Can't open file $filepath \n";
+            my @outline;
+            my $lastcol;
+            while (<$F>) {
+                $_ =~ s/\r//g;
+                if ($_ =~ m/^\##/) {
+                    print $Fout $_;
+                } else {
+                    chomp;
+                    my @line = split /\t/;
+                    my $oldlastcol = $lastcol;
+                    $lastcol = $#line if $#line > $lastcol;
+                    for (my $i=$oldlastcol; $i < $lastcol; $i++) {
+                        if ($oldlastcol) {
+                            $outline[$i] = "\t" x $oldlastcol;
+                        }
+                    }
+                    for (my $i=0; $i <=$lastcol; $i++) {
+                        $outline[$i] .= "$line[$i]\t"
+                    }
+                }
+            }
+            for (my $i=0; $i <= $lastcol; $i++) {
+                $outline[$i] =~ s/\s*$//g;
+                print $Fout $outline[$i]."\n";
+            }
+
+            close($F);
+            close($Fout);
+            $filepath = $c->config->{basepath} . '/' . $temp_file_transposed;
+            my ($name,$path,$suffix) = fileparse($basename,qr"\..[^.]*$");
+            if ( $suffix ne '.vcf' ) {
+                $basename = "$basename.vcf";
+            }
+        }
+
+        my $contents = read_file($filepath);
         $c->res->content_type('text/plain');
         $c->res->header('Content-Disposition', qq[attachment; filename="$basename"]);
         $c->res->body($contents);
