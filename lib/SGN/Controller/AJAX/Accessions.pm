@@ -233,6 +233,7 @@ sub verify_accessions_file_POST : Args(0) {
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $upload = $c->req->upload('new_accessions_upload_file');
     my $do_fuzzy_search = $c->req->param('fuzzy_check_upload_accessions');
+    my $append_synonyms = !$c->req->param('append_synonyms') ? 0 : 1;
 
     # These roles are required by CXGN::UploadFile
     if ($user_role ne 'curator' && $user_role ne 'submitter' && $user_role ne 'sequencer' ) {
@@ -265,7 +266,7 @@ sub verify_accessions_file_POST : Args(0) {
     unlink $upload_tempfile;
 
     my @editable_stock_props = split ',', $c->config->{editable_stock_props};
-    my $parser = CXGN::Stock::ParseUpload->new(chado_schema => $schema, filename => $archived_filename_with_path, editable_stock_props=>\@editable_stock_props, do_fuzzy_search=>$do_fuzzy_search);
+    my $parser = CXGN::Stock::ParseUpload->new(chado_schema => $schema, filename => $archived_filename_with_path, editable_stock_props=>\@editable_stock_props, do_fuzzy_search=>$do_fuzzy_search, append_synonyms=>$append_synonyms);
     $parser->load_plugin('AccessionsXLS');
     my $parsed_data = $parser->parse();
 
