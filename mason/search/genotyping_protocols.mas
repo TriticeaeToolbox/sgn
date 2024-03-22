@@ -44,7 +44,8 @@ jQuery(document).ready(function () {
 
    var trial_table = jQuery('#genotyping_protocol_search_results').DataTable( {
        'ajax': '/ajax/genotyping_protocol/search',
-       "scrollX": true
+       "scrollX": true,
+           order: [[6, 'desc']]
    });
 
    jQuery('#genotyping_protocol_search_results').on( 'draw.dt', function () {
