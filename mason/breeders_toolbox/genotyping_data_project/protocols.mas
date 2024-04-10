@@ -7,12 +7,10 @@ $trial_id
         <thead>
             <tr>
                 <th>Protocol</th>
-                <th>Marker Type</th>
                 <th>Number of Markers</th>
                 <th>Description</th>
                 <th>Reference Genome</th>
                 <th>Species Name</th>
-		<th>Created Date</th>
             </tr>
         </thead>
     </table>
