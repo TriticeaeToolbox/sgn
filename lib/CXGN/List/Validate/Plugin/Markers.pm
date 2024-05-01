@@ -44,7 +44,8 @@ sub validate {
 		if (@row = $h->fetchrow_array()) {
                     $data = decode_json($row[0]);
                 } else {
-		    print STDERR "error protocol not found\n";
+		    print STDERR "error protocol $protocol_id not found\n";
+		    push @missing, "protocol $protocol_id not found";
 		}
 	    }
         }
