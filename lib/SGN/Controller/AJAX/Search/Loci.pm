@@ -19,7 +19,7 @@ __PACKAGE__->config(
 sub locus_search :Path('/ajax/search/loci') Args(0) { 
     my $self = shift;
     my $c = shift;
-    
+    my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
     my $params = $c->req->params() || {};
 
     #print STDERR "PARAMS: ".Dumper($params);
@@ -72,7 +72,7 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
 	
     }
     if (exists($params->{locus_editor} ) && $params->{locus_editor} ) {
-	my $p_rs = $c->dbic_schema("CXGN::People::Schema")->resultset("SpPerson")->search(  
+	my $p_rs = $c->dbic_schema("CXGN::People::Schema", undef, $sp_person_id)->resultset("SpPerson")->search(  
 	    [ 
 	      { first_name => { 'ilike' , '%'.$params->{locus_editor}.'%' } },
 	      { last_name  => { 'ilike' , '%'.$params->{locus_editor}.'%' } }
@@ -86,7 +86,7 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
 		my $include_children = $params->{ontology_term_include_children} eq 'true';
 		
 		# Get cvterm info of matching accession
-		my $o_rs = $c->dbic_schema("Bio::Chado::Schema")->resultset("Cv::Cvterm")->search(
+		my $o_rs = $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id)->resultset("Cv::Cvterm")->search(
 	    	[
 	     		{
 					'me.name' => { 'ilike' => '%'.$params->{ontology_term}.'%' },
@@ -135,7 +135,7 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
     }
 	    
     if (exists($params->{genbank_accession} ) && $params->{genbank_accession} ) {
-	my $g_rs = $c->dbic_schema("Bio::Chado::Schema")->resultset("General::Dbxref")->search(
+	my $g_rs = $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id)->resultset("General::Dbxref")->search(
 	    {
 		accession => {'ilike', '%'.$params->{genbank_accession}.'%'}
 	    }
@@ -143,7 +143,7 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
 	$and_conditions->{'locus_dbxrefs.dbxref_id'} = { -in => $g_rs->get_column('dbxref_id')->as_query };
     }
     if (exists($params->{has_sequence} ) && $params->{has_sequence} eq "true" ) {
-	my $d_rs = $c->dbic_schema("Bio::Chado::Schema")->resultset("General::Dbxref")->search(
+	my $d_rs = $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id)->resultset("General::Dbxref")->search(
 	    {
 		'db.name' => "DB:GenBank_GI",
 	    }, 
@@ -154,12 +154,12 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
     }
 
     if (exists($params->{has_marker} ) && $params->{has_marker} eq "true"  ) {
-	my $m_rs = $c->dbic_schema("CXGN::Phenome::Schema")->resultset("LocusMarker")->search( {} );
+	my $m_rs = $c->dbic_schema("CXGN::Phenome::Schema", undef, $sp_person_id)->resultset("LocusMarker")->search( {} );
 	$and_conditions->{'locus_id'} = { -in => $m_rs->get_column('locus_id')->as_query }; 
     }
 
     if (exists($params->{has_annotation} ) && $params->{has_annotation} eq "true"  ) {
-	my $a_rs = $c->dbic_schema("Bio::Chado::Schema")->resultset("General::Dbxref")->search(
+	my $a_rs = $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id)->resultset("General::Dbxref")->search(
 	    {
 		'db.name' => { -in => ["GO", "PO", "SP"] },
 	    }, 
@@ -181,7 +181,7 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
 
 
     # get the count first
-    my $rs = $c->dbic_schema("CXGN::Phenome::Schema")->resultset("Locus")->search( 
+    my $rs = $c->dbic_schema("CXGN::Phenome::Schema", undef, $sp_person_id)->resultset("Locus")->search( 
 	{
 	    -and => [
 		 $or_conditions,
@@ -200,7 +200,7 @@ sub locus_search :Path('/ajax/search/loci') Args(0) {
     #print STDERR "RECORDS TOTAL: $records_total\n";
     ## then get the data
     #
-    my $rs2 = $c->dbic_schema("CXGN::Phenome::Schema")->resultset("Locus")->search(   
+    my $rs2 = $c->dbic_schema("CXGN::Phenome::Schema", undef, $sp_person_id)->resultset("Locus")->search(   
 	{
 	    -and => [
 		 $or_conditions,
