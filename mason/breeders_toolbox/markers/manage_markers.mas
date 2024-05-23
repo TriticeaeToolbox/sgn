@@ -14,9 +14,9 @@ Titima Tantikanjana <tt15@cornell.edu>
 
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables','CXGN.BreedersToolbox.MarkerSet'] &>
 
-<& /page/page_title.mas, title=>'Manage Markersets' &>
+<& /page/page_title.mas, title=>'Manage Known Informative Markers' &>
 
-<& /page/detail_page_2_col_section.mas, info_section_collapsed => 0, info_section_title => "<h4 style='display:inline'>Your Markersets</h4>", info_section_subtitle => 'View your markerset info', buttons_html => '<button class="btn btn-sm btn-primary" style="margin:3px" id="add_new_markerset_button">Add New Markerset</button><button class="btn btn-sm btn-primary" style="margin:3px" id="add_marker_dosage_button">Add Markers to Markerset</button><button class="btn btn-default" style="margin:3px" data-toggle="modal" data-target="#markerset_usage_modal">Usage Help <span class="glyphicon glyphicon-question-sign"></span></button>', icon_class => "glyphicon glyphicon-list-alt", info_section_id => "marker_set_summary_section" &>
+<& /page/detail_page_2_col_section.mas, info_section_collapsed => 0, info_section_title => "<h4 style='display:inline'>Your Markersets</h4>", info_section_subtitle => 'View your markerset info', buttons_html => '<button class="btn btn-sm btn-primary" style="margin:3px" id="add_new_markerset_button">Add New List</button><button class="btn btn-sm btn-primary" style="margin:3px" id="add_marker_dosage_button">Add Markers/Scores to List</button><button class="btn btn-default" style="margin:3px" data-toggle="modal" data-target="#markerset_usage_modal">Usage Help <span class="glyphicon glyphicon-question-sign"></span></button>', icon_class => "glyphicon glyphicon-list-alt", info_section_id => "marker_set_summary_section" &>
 
 <& /page/detail_page_3_col_section.mas, icon_class => "glyphicon glyphicon-search", title => "Using markerset to search for accessions with specific genotype.", button_id => "accession_search_link" &>
 
@@ -38,7 +38,7 @@ Titima Tantikanjana <tt15@cornell.edu>
                                 <div class="col-sm-11">
                                     <div class="form-horizontal">
                                         <div class="form-group">
-                                            <label class="control-label col-sm-4">Markerset Name:</label>
+                                            <label class="control-label col-sm-4">Trait Name:</label>
                                                 <div class="col-sm-8" >
                                                     <div class="input-group">
                                                         <input type="text" class="form-control" id="new_marker_set" placeholder="Enter markerset name">
