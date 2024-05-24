@@ -237,7 +237,7 @@ function show_table() {
         'destroy': true,
         'ajax':{'url': '/marker_sets/available'},
         'columns': [
-            {title: "Markerset Name", "data": "markerset_name"},
+            {title: "Markerset Name", "data": "loci_name"},
             {title: "Number of Markers", "data": "number_of_markers"},
             {title: "Description", "data": "description"},
             {title: "", "data": "null", "render": function (data, type, row) {return "<a onclick = 'showMarkersetDetail("+row.markerset_id+")'>Detail</a>" ;}},
