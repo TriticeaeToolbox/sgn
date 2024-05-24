@@ -16,7 +16,7 @@ Titima Tantikanjana <tt15@cornell.edu>
 
 <& /page/page_title.mas, title=>'Manage Major Loci' &>
 
-<& /page/detail_page_2_col_section.mas, info_section_collapsed => 0, info_section_title => "<h4 style='display:inline'>Your Loci</h4>", info_section_subtitle => 'View your markerset info', buttons_html => '<button class="btn btn-sm btn-primary" style="margin:3px" id="add_new_markerset_button">Add New List</button><button class="btn btn-sm btn-primary" style="margin:3px" id="add_marker_dosage_button">Add Markers and Alleles to List</button><button class="btn btn-default" style="margin:3px" data-toggle="modal" data-target="#markerset_usage_modal">Usage Help <span class="glyphicon glyphicon-question-sign"></span></button>', icon_class => "glyphicon glyphicon-list-alt", info_section_id => "marker_set_summary_section" &>
+<& /page/detail_page_2_col_section.mas, info_section_collapsed => 0, info_section_title => "<h4 style='display:inline'>Your Loci</h4>", info_section_subtitle => 'View your markerset info', buttons_html => '<button class="btn btn-sm btn-primary" style="margin:3px" id="add_new_markerset_button">Add New Loci</button><button class="btn btn-sm btn-primary" style="margin:3px" id="add_marker_dosage_button">Add Markers and Alleles</button><button class="btn btn-default" style="margin:3px" data-toggle="modal" data-target="#markerset_usage_modal">Usage Help <span class="glyphicon glyphicon-question-sign"></span></button>', icon_class => "glyphicon glyphicon-list-alt", info_section_id => "marker_set_summary_section" &>
 
 <& /page/detail_page_3_col_section.mas, icon_class => "glyphicon glyphicon-search", title => "Using Lists to search for accessions with specific genotype.", button_id => "accession_search_link" &>
 
@@ -26,7 +26,7 @@ Titima Tantikanjana <tt15@cornell.edu>
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addMarkerSetDialog">Add New Markerset</h4>
+                <h4 class="modal-title" id="addMarkerSetDialog">Add New Loci</h4>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
@@ -38,10 +38,10 @@ Titima Tantikanjana <tt15@cornell.edu>
                                 <div class="col-sm-11">
                                     <div class="form-horizontal">
                                         <div class="form-group">
-                                            <label class="control-label col-sm-4">Trait Name:</label>
+                                            <label class="control-label col-sm-4">Loci Name:</label>
                                                 <div class="col-sm-8" >
                                                     <div class="input-group">
-                                                        <input type="text" class="form-control" id="new_marker_set" placeholder="Enter markerset name">
+                                                        <input type="text" class="form-control" id="new_marker_set" placeholder="Enter Loci name">
                                                     </div>
                                                 </div>
                                         </div>
@@ -84,7 +84,7 @@ Titima Tantikanjana <tt15@cornell.edu>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" name="save_marker_set" id="save_marker_set">Add Markerset</button>
+                <button type="button" class="btn btn-primary" name="save_marker_set" id="save_marker_set">Add Loci</button>
             </div>
         </div>
     </div>
@@ -95,7 +95,7 @@ Titima Tantikanjana <tt15@cornell.edu>
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="addMarkerDosageDialog">Add Markers to Markerset</h4>
+                <h4 class="modal-title" id="addMarkerDosageDialog">Add Markers and Alleles</h4>
             </div>
             <div class="modal-body">
                 <div class="container-fluid">
@@ -346,7 +346,7 @@ Titima Tantikanjana <tt15@cornell.edu>
                 <h4>
                   Instructions:
                 </h4>
-                  <ol><li><b>Create a list</b> of accessions from a genotype protocol. This is a population that you will be searching after you have defined the loci. The easiest way of creating the accession list is using the “Search Wizard”. Select a genotype protocol, select a genotype project, select an accession, then in the section “Create New List” type in a name for the list and select "Create List".
+                  <ol><li><b>Create a list</b> of accessions from a genotype protocol. This is a population that you will be searching after you have defined the loci. The easiest way of creating the accession list is using the “Search Wizard”. Select a genotype protocol, select a genotype project, select an accession, then in the section “Create New Loci” type in a name for the list and select "Create Loci".
                   <li>Return to the “Manage Major Loci Alleles” screen. Select <b>Add New Loci</b>. Type in a name, description, select Data type SNP, and select the genotype protocol that you used in step 1. Then select “Add Markers and Alleles”.
                   <li>Return to the “Manage Major Loci Alleles” screen. Select <b>Add Markers and Alleles</b>. Select the loci that was just created. Then add the marker name and allele values that you are searching for. The easiest way of getting the name and allele values is to use the “Search Wizard” and download the genotype data from step 1. Note that you should not use markers that have missing genotype data.
                   <li>From the “Manage Major Loci” screen find “<b>Search for accessions</b> with specific genotype” and select “GO”. In the “Select a list of accessions” select the list created in step 1. Then find “Select a set of markers” and select the loci created in 2. Then select “Search Accessions”. The list of accessions will appear in the “Search Results” at the bottom of the screen.
