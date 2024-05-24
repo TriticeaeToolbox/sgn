@@ -1050,7 +1050,7 @@ sub available_marker_sets : Path('/marker_sets/available') Args(0) {
         my ($id, $name, $desc, $item_count, $type_id, $type, $public) = @$list;
         push @marker_sets, {
             markerset_id => $id,
-            markerset_name => $name,
+            loci_name => $name,
             number_of_markers => $item_count - 1,
             description => $desc,
         }
