@@ -218,7 +218,7 @@ sub download_phenotypes_action : Path('/breeders/trials/phenotype/download') Arg
         }
     }
 
-    my $has_header = defined($c->req->param('has_header')) ? $c->req->param('has_header') : 1;
+    my $has_header = defined($c->req->param('has_header')) ? $c->req->param('has_header') : 0;
     my $search_type = $c->req->param("speed") && $c->req->param("speed") ne 'null' ? $c->req->param("speed") : "Native";
     my $format = $c->req->param("format") && $c->req->param("format") ne 'null' ? $c->req->param("format") : "xlsx";
     my $data_level = $c->req->param("dataLevel") && $c->req->param("dataLevel") ne 'null' ? $c->req->param("dataLevel") : "plot";
