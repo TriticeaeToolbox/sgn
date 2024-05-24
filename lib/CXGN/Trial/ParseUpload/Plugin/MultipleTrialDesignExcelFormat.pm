@@ -74,7 +74,7 @@ sub _validate_with_plugin {
   my %columns = %{$headers->{columns}};
   my @treatment_names = @{$headers->{treatments}};
   my @errors = @{$headers->{errors}};
-    if (scalar(@errors) >= 1) {
+  if (scalar(@errors) >= 1) {
     foreach my $error (@errors) {
       push @error_messages, $error;
     }
@@ -543,7 +543,7 @@ sub _validate_with_plugin {
   my %unused_trial_names = map { $missing_trial_names[$_] => $_ } 0..$#missing_trial_names;
 
   foreach my $name (@trial_names) {
-      push(@already_used_trial_names, $name) unless exists $unused_trial_names{$name};
+    push(@already_used_trial_names, $name) unless exists $unused_trial_names{$name};
   }
   if (scalar(@already_used_trial_names) > 0) {
     # $errors{'invalid_trial_names'} = \@already_used_trial_names;
@@ -683,16 +683,17 @@ sub _validate_with_plugin {
     my @accessions_missing = @{$accessions_hashref->{'missing'}};
     my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
 
-  if (scalar(@accessions_missing) > 0) {
-    # $errors{'missing_accessions'} = \@accessions_missing;
-    push @error_messages, "Accession(s) <b>".join(',',@accessions_missing)."</b> are not in the database as uniquenames or synonyms.";
-  }
-  if (scalar(@multiple_synonyms) > 0) {
-    my @msgs;
-    foreach my $m (@multiple_synonyms) {
-      push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+    if (scalar(@accessions_missing) > 0) {
+      # $errors{'missing_accessions'} = \@accessions_missing;
+      push @error_messages, "Accession(s) <b>".join(',',@accessions_missing)."</b> are not in the database as uniquenames or synonyms.";
     }
-    push @error_messages, "Accession(s) <b>".join(',',@msgs)."</b> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+    if (scalar(@multiple_synonyms) > 0) {
+      my @msgs;
+      foreach my $m (@multiple_synonyms) {
+        push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+      }
+      push @error_messages, "Accession(s) <b>".join(',',@msgs)."</b> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+    }
   }
 
   ## SEEDLOTS OVERALL VALIDATION
