@@ -2144,12 +2144,27 @@
 	};
 
 	class Fieldmap {
-	  constructor(map_container, brapi_endpoint, opts) {
-	    this.map_container = d3.select(map_container).style("background-color", "#888");
+	  constructor(map_container, brapi_endpoint, opts = {}) {
+
+	    // Container for the leaflet map
+	    var leaflet_map_container = document.createElement('div');
+	    leaflet_map_container.setAttribute('class', 'leaflet-map-container');
+	    leaflet_map_container.setAttribute('style', 'height: 90%; background-color: #888');
+
+	    // Container for the orthomosaic selection
+	    var ortho_selection_container = document.createElement('div');
+	    ortho_selection_container.setAttribute('class', 'ortho-selection-container');
+
+	    // Add containers to the parent map container
+	    d3.select(map_container).node().appendChild(ortho_selection_container);
+	    d3.select(map_container).node().appendChild(leaflet_map_container);
+
+	    this.map_container = d3.select(leaflet_map_container);
+	    this.ortho_selection_container = d3.select(ortho_selection_container);
 	    this.brapi_endpoint = brapi_endpoint;
 
 	    // Parse Options
-	    this.opts = Object.assign(Object.create(DEFAULT_OPTS), opts || {});
+	    this.opts = Object.assign(Object.create(DEFAULT_OPTS), opts);
 	    this.map = L.map(this.map_container.node(), {editable: true}).setView(this.opts.defaultPos, 2);
 	    this.map.on('preclick', ()=>{
 	      if (this.editablePolygon) this.finishTranslate();
@@ -2213,34 +2228,117 @@
 	        }
 	      });
 
-	    this.map.addControl(new L.Control.Search({
-	      url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
-	      jsonpParam: 'json_callback',
-	      propertyName: 'display_name',
-	      propertyLoc: ['lat', 'lon'],
-	      autoCollapse: true,
-	      autoType: false,
-	      minLength: 2,
-	      marker: false,
-	      zoom: this.opts.normalZoom
-	    }));
+	    // Add additional map controls if NOT view only
+	    if ( !this.opts.viewOnly ) {
+	      this.map.addControl(new L.Control.Search({
+	        url: 'https://nominatim.openstreetmap.org/search?format=json&q={s}',
+	        jsonpParam: 'json_callback',
+	        propertyName: 'display_name',
+	        propertyLoc: ['lat', 'lon'],
+	        autoCollapse: true,
+	        autoType: false,
+	        minLength: 2,
+	        marker: false,
+	        zoom: this.opts.normalZoom
+	      }));
 
-	    this.polygonControl = new L.NewPolygonControl();
-	    this.rectangleControl = new L.NewRectangleControl();
-	    this.clearPolygonsControl = new L.NewClearControl();
+	      this.polygonControl = new L.NewPolygonControl();
+	      this.rectangleControl = new L.NewRectangleControl();
+	      this.clearPolygonsControl = new L.NewClearControl();
 
-	    this.map.addControl(this.polygonControl);
-	    this.map.addControl(this.rectangleControl);
-	    this.map.addControl(this.clearPolygonsControl);
+	      this.map.addControl(this.polygonControl);
+	      this.map.addControl(this.rectangleControl);
+	      this.map.addControl(this.clearPolygonsControl);
+			}
 
 	    this.info = this.map_container.append("div")
 	      .style("bottom","5px")
 	      .style("left","5px")
 	      .style("position","absolute")
-	      .style("z-index",999)
+	      .style("z-index",2000)
 	      .style("pointer-events","none")
 	      .style("background", "white")
 	      .style("border-radius", "5px");
+
+	    this.missing_plots = this.map_container.append("div")
+	      .style("bottom","5px")
+	      .style("right","5px")
+	      .style("position","absolute")
+	      .style("z-index", 2000)
+	      .style("background", "#DC3545")
+	      .style("color", "#fff")
+	      .style("border-radius", "5px")
+	      .style("padding", "10px")
+	      .style("font-weight", "bold")
+	      .style("display", "none");
+
+	    this.loading = this.map_container.append("div")
+	      .style("top", 0)
+	      .style("left", 0)
+	      .style("position","absolute")
+	      .style("z-index", 500)
+	      .style("width", "100%")
+	      .style("background", "#FFC107")
+	      .style("display", "none")
+	      .html("<p style='margin: 10px; text-align: center; font-weight: bold'>Loading Plots...</p>");
+
+	    this.onLoading = (loading) => {
+	      this.loading.style("display", loading ? 'block' : 'none');
+	    }
+
+	    this.displayOrthoSelection = (orthos) => {
+	      orthos.sort((a, b) => b.date > a.date ? -1 : 1);
+	      let html = '';
+	      if ( orthos && orthos.length > 0 ) {
+	        html = "<div style='display: flex; align-items: baseline; gap: 25px; padding: 15px'>";
+	        html += "<p><strong>View Orthomosaic Imagery</strong></p>";
+	        html += `<select class='ortho-select form-control' style='width: 200px'>`;
+	        html += "<option value=''>Select a Date</option>";
+	        orthos.forEach((o) => {
+	          html += `<option value='${o.url}'>${o.date}</option>`;
+	        });
+	        html += "</select>";
+	        html += "</div>";
+	      }
+	      this.ortho_selection_container.html(html);
+	      var map = this.map;
+	      jQuery(".ortho-select").on('change', function() { window.onOrthoSelection(this, map) });
+	    }
+
+	    // Handle the selection of an orthomosaic to display
+	    window.onOrthoSelection = (e, map) => {
+	      var select = jQuery(e);
+	      var url = select.find(":selected").val();
+
+	      // Remove any previous layer
+	      if ( window.orthoMapLayer ) {
+	        map.removeLayer(window.orthoMapLayer);
+	      }
+
+	      // Add a new map layer
+	      if ( url && url !== '' ) {
+
+	        // Get the server-defined tile server
+	        jQuery.ajax( {
+	          url: '/ajax/trial/geo_fieldmap_tileserver',
+	          async: false,
+	          success: function(response) {
+
+	            // add map layer if tile server is defined
+	            if ( response && response.success && response.success === "1" ) {
+	              window.orthoMapLayer = L.tileLayer(response.url.replaceAll("{url}", url), {
+	                minZoom: 16,
+	                maxZoom: 30,
+	                attribution: response.attribution
+	              });
+	              window.orthoMapLayer.addTo(map);
+	            }
+	          }
+
+	        });
+	      }
+
+	    }
 	  }
 
 	  removeControls() {
@@ -2250,12 +2348,27 @@
 	  }
 
 	  load(studyDbId) {
+	    this.onLoading(true);
+	    this.loadStudy(studyDbId);
 	    this.generatePlots(studyDbId);
 	    return this.data.then(()=>{
-	      this.drawPlots(); return true;
+	      this.drawPlots();
+	      this.onLoading(false);
+	      return true;
 	    }).catch(resp=>{
 	      console.log(resp);
+	      this.onLoading(false);
 	    });
+	  }
+
+	  loadStudy(studyDbId) {
+	    const brapi = BrAPI(this.brapi_endpoint, "2.0", this.opts.brapi_auth);
+	    brapi.studies_detail({ studyDbId }).map((study) => this.enableOrthomosaics(study));
+	  }
+
+	  enableOrthomosaics(study) {
+	    const orthos = study && study.additionalInfo && study.additionalInfo.orthomosaics ? study.additionalInfo.orthomosaics : [];
+	    this.displayOrthoSelection(orthos);
 	  }
 
 	  drawPlots() {
@@ -2268,7 +2381,7 @@
 	      }
 	      this.enableEdition(e.sourceTarget);
 	    }).on('click', (e)=>{
-	      this.enableTransform(e.target);
+	      if ( !this.opts.viewOnly ) this.enableTransform(e.target);
 	    }).on('mousemove', (e)=>{
 	      let sourceTarget = e.sourceTarget;
 	      let ou = this.plot_map[sourceTarget.feature.properties.observationUnitDbId];
@@ -2503,9 +2616,38 @@
 	        }
 	      }
 	      if(ou._geoJSON){
-	        ou._type = turf.getType(ou._geoJSON);
+	        try {
+	          ou._type = turf.getType(ou._geoJSON);
+	        }
+	        catch (err) {
+	          ou._type = "invalid";
+	        }
+	      }
+	      else {
+	        ou._type = "missing";
 	      }
 	    });
+
+	    // Separate out plots with invalid / missing geojson
+	    if ( this.opts.viewOnly ) {
+	      const plots_invalid = data.plots.filter((e) => e._type === 'invalid' || e._type === 'missing');
+	      const plots_valid = data.plots.filter((e) => e._type !== 'invalid' && e._type !== 'missing');
+	      if ( plots_valid.length === 0 ) {
+	        let html = "This trial does not have any plots with geo coordinates assigned."
+	        this.missing_plots.style("display", "block");
+	        this.missing_plots.html(html);
+	        throw NO_POLYGON_ERROR;
+	      }
+	      else if ( plots_invalid.length > 0 ) {
+	        let html = "Plots with no geo coordinates:";
+	        html += "<ul style='padding-left: 25px; margin-bottom: 0'>";
+	        plots_invalid.forEach((p) => html += `<li>${p.observationUnitName}</li>`);
+	        html += "</ul>";
+	        this.missing_plots.style("display", "block");
+	        this.missing_plots.html(html);
+	      }
+	      data.plots = plots_valid;
+	    }
 
 	    // Generate a reasonable plot layout if there is missing row/col data
 	    if( data.plots.some(plot=>isNaN(plot._row)||isNaN(plot._col)) ){
