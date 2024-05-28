@@ -196,7 +196,7 @@ $dataset_id => undef
                 <tr>
                     <td colspan="12">
                         <span class="glyphicon glyphicon-info-sign" title="You can use either chromosome or markers (markerset) to filter genotyping data. You cannot use both criteria at the same time."></span>
-                        <span>Filter by Chromosome or Markerset</span>
+                        <span>Filter by Chromosome or Major Loci</span>
                     </td>
                 </tr>
                 <tr>
@@ -215,12 +215,12 @@ $dataset_id => undef
                 </tr>
                 <tr>
                     <td colspan="6">
-                        <span>Markerset Filter</span>
+                        <span>Major Loci Filter</span>
                         <select class="wizard-download-genotypes-marker-set-list-id form-control input-sm" id="wizard-download-genotypes-marker-set-list-id"></select>
                     </td>
                     <td colspan="6">
                         <br/>
-                        <button class="btn btn-sm btn-default" onClick="window.open('/breeders/markers', '_blank');">Manage Markersets</button>
+                        <button class="btn btn-sm btn-default" onClick="window.open('/breeders/markers', '_blank');">Manage Major Loci</button>
                     </td>
                 </tr>
                 <tr>
