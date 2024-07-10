@@ -2288,6 +2288,14 @@
 
 	    this.displayOrthoSelection = (orthos) => {
 	      orthos.sort((a, b) => b.date > a.date ? -1 : 1);
+
+				// TODO: REMOVE - test ortho from UASHub for NDSU trial
+				orthos.push({
+					url: "https://wheatcap.uashubs.com/uas_data/uploads/products/2024_NDSU_Wheat/DJI_Matrice_300_RTK/MSMicaSense/06-23-2023/20230623/RGB_Ortho/20230623_nd_spring_wheat_rgb_mosaic/Display/{z}/{x}/{y}.png",
+					type: "ts",
+					date: "2023-06-23 (ND TEST)"
+				});
+
 	      let html = '';
 	      if ( orthos && orthos.length > 0 ) {
 	        html = "<div style='display: flex; align-items: baseline; gap: 25px; padding: 15px'>";
@@ -2295,7 +2303,7 @@
 	        html += `<select class='ortho-select form-control' style='width: 200px'>`;
 	        html += "<option value=''>Select a Date</option>";
 	        orthos.forEach((o) => {
-	          html += `<option value='${o.url}'>${o.date}</option>`;
+	          html += `<option data-type='${o.type}' value='${o.url}'>${o.date}</option>`;
 	        });
 	        html += "</select>";
 	        html += "</div>";
@@ -2305,39 +2313,50 @@
 	      jQuery(".ortho-select").on('change', function() { window.onOrthoSelection(this, map) });
 	    }
 
+			this._add_ortho_map_layer = (map, url) => {
+				if ( window.orthoMapLayer ) {
+					map.removeLayer(window.orthoMapLayer);
+				}
+				if ( url ) {
+					window.orthoMapLayer = L.tileLayer(url, {
+						minZoom: 12,
+						maxZoom: 30,
+						tms: true
+					});
+					window.orthoMapLayer.addTo(map);
+				}
+			}
+
+
 	    // Handle the selection of an orthomosaic to display
 	    window.onOrthoSelection = (e, map) => {
 	      var select = jQuery(e);
-	      var url = select.find(":selected").val();
-
-	      // Remove any previous layer
-	      if ( window.orthoMapLayer ) {
-	        map.removeLayer(window.orthoMapLayer);
-	      }
-
-	      // Add a new map layer
+				var option = select.find(":selected");
+	      var url = option.val();
+				var type = option.data("type") || 'gt';
+				console.log("ORTHO SELECTED:");
+				console.log(url, 'url');
+				console.log(type, 'type');
 	      if ( url && url !== '' ) {
-
-	        // Get the server-defined tile server
-	        jQuery.ajax( {
-	          url: '/ajax/trial/geo_fieldmap_tileserver',
-	          async: false,
-	          success: function(response) {
-
-	            // add map layer if tile server is defined
-	            if ( response && response.success && response.success === "1" ) {
-	              window.orthoMapLayer = L.tileLayer(response.url.replaceAll("{url}", url), {
-	                minZoom: 16,
-	                maxZoom: 30,
-	                attribution: response.attribution
-	              });
-	              window.orthoMapLayer.addTo(map);
-	            }
-	          }
-
-	        });
+					if ( type === 'gt' ) {
+						jQuery.ajax({
+							url: '/ajax/trial/geo_fieldmap_tileserver',
+							async: false,
+							success: function(response) {
+								if ( response && response.success && response.success === "1" ) {
+									const u = response.url.replaceAll("{url}", url);
+									this._add_ortho_map_layer(map, url);
+								}
+							}
+						});
+					}
+					else {
+						this._add_ortho_map_layer(map, url);
+					}
 	      }
-
+				else {
+					this._add_ortho_map_layer(map);
+				}
 	    }
 	  }
 
