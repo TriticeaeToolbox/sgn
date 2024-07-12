@@ -23,6 +23,28 @@ sub submit_vcf_POST : Args(0) {
     my $submission_email = $c->config->{submission_email};
     my $vcf_upload_url = $c->config->{vcf_upload_url};
 
+    # Check for Required Params
+    if ( !$params->{database} || $params->{database} eq '' ) {
+      $c->stash->{rest} = {error => "Database is missing"};
+      return;
+    }
+    if ( !$params->{name} || $params->{name} eq '' ) {
+      $c->stash->{rest} = {error => "Name is missing"};
+      return;
+    }
+    if ( !$params->{email} || $params->{email} eq '' ) {
+      $c->stash->{rest} = {error => "Email is missing"};
+      return;
+    }
+    if ( !$params->{genotyping_project_name} || $params->{genotyping_project_name} eq '' ) {
+      $c->stash->{rest} = {error => "Genotyping Project Name is missing"};
+      return;
+    }
+    if ( !$params->{genotyping_project_year} || $params->{genotyping_project_year} eq '' ) {
+      $c->stash->{rest} = {error => "Genotyping Project Year is missing"};
+      return;
+    }
+
     # Build Email Body
     my $body = "==== Submitter ====\n";
     $body .= "  - Database: " . $params->{database} . "\n";

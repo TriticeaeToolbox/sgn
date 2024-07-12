@@ -23,7 +23,7 @@
   </p>
 
   <div class="well">
-    <form action="/ajax/submit/vcf" method="post">
+    <form id="vcf_submit_form" action="/ajax/submit/vcf" method="post">
       <input type="hidden" id="database" name="database" type="text" />
 
       <!-- SUBMITTER INFO -->
@@ -33,12 +33,12 @@
       
       <br />
 
-      <label>Name:</label>
+      <label>Name: *</label>
       <input class="form-control" id="name" name="name" type="text" value="<% $name %>" />
 
       <br />
 
-      <label>Email:</label>
+      <label>Email: *</label>
       <input class="form-control" id="email" name="email" type="email" value="<% $email %>" />
 
       <br />
@@ -112,12 +112,12 @@
       
       <br />
 
-      <label>New Project Name:</label>
+      <label>New Project Name: *</label>
       <input class="form-control" id="genotyping_project_name" name="genotyping_project_name" type="text" />
 
       <br />
 
-      <label>Project Year:</label>
+      <label>Project Year: *</label>
       <input class="form-control" id="genotyping_project_year" name="genotyping_project_year" type="number" value="<% $year %>" />
 
       <br />
@@ -187,6 +187,35 @@
     jQuery("#genotyping_facility").on("change", () => {
       const val = jQuery("#genotyping_facility").val();
       jQuery("#genotyping_facility_other").css("display", val === 'other' ? 'block' : 'none');
+    });
+
+    jQuery('#vcf_submit_form').submit((e) => {
+      const database = jQuery("#database").val();
+      const name = jQuery("#name").val();
+      const email = jQuery("#email").val();
+      const genotyping_project_name = jQuery("#genotyping_project_name").val();
+      const genotyping_project_year = jQuery("#genotyping_project_year").val();
+      if ( !database || database === '' ) {
+        alert("Database is required");
+        return false;
+      }
+      if ( !name || name === '' ) {
+        alert("Name is required");
+        return false;
+      }
+      if ( !email || email === '' ) {
+        alert("Email is required");
+        return false;
+      }
+      if ( !genotyping_project_name || genotyping_project_name === '' ) {
+        alert("Genotyping Project Name is required");
+        return false;
+      }
+      if ( !genotyping_project_year || genotyping_project_year === '' ) {
+        alert("Genotyping Project Year is required");
+        return false;
+      }
+      return true;
     });
   });
 </script>
