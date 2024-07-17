@@ -82,10 +82,10 @@ my $src_feature = "SL2.50";
   <p style='font-size: 120%; border-bottom: 1px solid rgb(49, 112, 143, 0.2); margin-bottom: 15px'><strong>View More Information</strong></p>
   <p>To view all of the information about this marker, <strong>create an account</strong> and <strong>log in</strong>.</p>
   <br />
-  <a href="/user/new?goto_url=/marker/<% $marker_id %>/detail" class="btn btn-info btn-large btn-home">
+  <a href="/user/new?goto_url=/marker/<% $marker_name %>/details" class="btn btn-info btn-large btn-home">
     <span class="glyphicon glyphicon-plus"></span>&nbsp;Create an Account
   </a>
-  <a href="/user/login?goto_url=/marker/<% $marker_id %>/detail" class="btn btn-primary btn-large btn-home">
+  <a href="/user/login?goto_url=/marker/<% $marker_name %>/details" class="btn btn-primary btn-large btn-home">
     <span class="glyphicon glyphicon-user"></span>&nbsp;Login
   </a>
 </div>
