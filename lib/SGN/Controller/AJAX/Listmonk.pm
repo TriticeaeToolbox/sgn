@@ -153,7 +153,13 @@ sub campaigns : Path('/ajax/listmonk/campaigns') : Args(0) {
         my $res = $ua->request($r);
 
         # Parse Response
-        my $resp = decode_json($res->content);
+        my $resp;
+        eval {
+	    $resp = decode_json($res->content);
+	};
+	if ($@) {
+	    print STDERR "Failed to decode JSON: $@\n";
+	}
         $data = $resp->{'data'}->{'results'};
 
     }
