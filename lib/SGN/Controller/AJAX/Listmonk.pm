@@ -64,7 +64,7 @@ sub subscribed : Path('/ajax/listmonk/subscribed') : Args(0) {
 	    $resp = decode_json($res->content);
 	};
 	if ($@) {
-	    die "Failed to exract status: $@";
+	    print STDERR "Failed to exract status: $@";
 	}
         $status = $resp->{'data'}->{'results'}[0]->{'status'};
     }
@@ -116,7 +116,7 @@ sub register : Path('/ajax/listmonk/register') : Args(0) {
 	    $resp = decode_json($res->content);
 	};
 	if ($@) {
-	    die "Failed to decode JSON: $@";
+	    print STDERR "Failed to decode JSON: $@";
 	}
         $status = $resp->{'data'}->{'status'} || $resp->{'message'};
 
