@@ -59,7 +59,13 @@ sub subscribed : Path('/ajax/listmonk/subscribed') : Args(0) {
         my $res = $ua->request($r);
 
         # Parse Response
-        my $resp = decode_json($res->content);
+        my $resp;
+        eval {
+	    $resp = decode_json($res->content);
+	};
+	if ($@) {
+	    die "Failed to exract status: $@";
+	}
         $status = $resp->{'data'}->{'results'}[0]->{'status'};
     }
 
@@ -105,7 +111,13 @@ sub register : Path('/ajax/listmonk/register') : Args(0) {
         my $res = $ua->request($r);
 
         # Parse Response
-        my $resp = decode_json($res->content);
+        my $resp;
+        eval {
+	    $resp = decode_json($res->content);
+	};
+	if ($@) {
+	    die "Failed to decode JSON: $@";
+	}
         $status = $resp->{'data'}->{'status'} || $resp->{'message'};
 
     }
