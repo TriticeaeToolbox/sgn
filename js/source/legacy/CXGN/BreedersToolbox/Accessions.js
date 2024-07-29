@@ -61,13 +61,21 @@ jQuery(document).ready(function ($) {
                     alert(response.error);
                 }
                 if (response.success){
-                    alert(response.success);
+                    jQuery("#manage_populations_add_population_dialog").modal("hide");
+                    jQuery("#create_population_saved_dialog_message tbody").html('');
+                    jQuery("#create_population_saved_dialog_message tbody").append(response.success);
+                    jQuery('#create_population_saved_dialog_message').modal("show");
+                    return;
                 }
             },
             error: function (r) {
                 alert('An error occurred in adding population. sorry '+r.responseText);
             }
         });
+    });
+
+    jQuery("#dismiss_create_population_saved_dialog").click(function(){
+        location.reload();
     });
 
     jQuery('#manage_accessions_populations_onswitch').click( function() {
@@ -206,7 +214,9 @@ jQuery(document).ready(function ($) {
                     alert(response.error);
                 }
                 if (response.success){
-                    alert(response.success);
+                    if (confirm(response.success)) {
+                        location.reload();
+                    }
                 }
             },
             error: function () {
@@ -230,7 +240,9 @@ jQuery(document).ready(function ($) {
                         alert(response.error);
                     }
                     if (response.success){
-                        alert(response.success);
+                        if (confirm(response.success)) {
+                            location.reload();
+                        }
                     }
                 },
                 error: function () {

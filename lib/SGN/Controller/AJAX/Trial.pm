@@ -203,7 +203,7 @@ sub generate_experimental_design_POST : Args(0) {
     my $use_same_layout = $c->req->param('use_same_layout');
     my $number_of_checks = scalar(@control_names_crbd);
 
-    if ($design_type eq "RCBD" || $design_type eq "RRC" || $design_type eq "Alpha" || $design_type eq "CRD" || $design_type eq "Lattice") {
+    if ($design_type eq "RCBD" || $design_type eq "RRC" || $design_type eq "DRRC" ||$design_type eq "Alpha" || $design_type eq "CRD" || $design_type eq "Lattice") {
         if (@control_names_crbd) {
             @stock_names = (@stock_names, @control_names_crbd);
         }
@@ -1012,6 +1012,7 @@ sub upload_trial_file_POST : Args(0) {
         chado_schema => $chado_schema, 
         filename => $archived_filename_with_path, 
         trial_stock_type => $trial_stock_type,
+        trial_name => $trial_name,
         skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
         accession_replacements => \%replacements
     );

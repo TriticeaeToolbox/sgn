@@ -78,6 +78,15 @@ has 'trial_stock_type' => (
     default => 'accession'
 );
 
+has 'trial_name' => (
+    isa => 'Str',
+    is => 'rw',
+    writer => '_set_trial_name',
+    reader => 'get_trial_name',
+    predicate => 'has_trial_name',
+    required => 0
+);
+
 has 'facility_identifiers_included' => (
     isa => 'Bool',
     is => 'ro',
