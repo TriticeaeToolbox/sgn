@@ -519,9 +519,9 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
 
     //console.log(accession_list_id);
 
-    const found = [ ...verifyResponse.found, ...verifyResponse.found_parents ];
-    const absent = [ ...verifyResponse.absent, ...verifyResponse.absent_parents ];
-    const fuzzy = [ ...verifyResponse.fuzzy, ...verifyResponse.fuzzy_parents ];
+    const found = [ ...verifyResponse.found || [], ...verifyResponse.found_parents || [] ];
+    const absent = [ ...verifyResponse.absent || [], ...verifyResponse.absent_parents || [] ];
+    const fuzzy = [ ...verifyResponse.fuzzy || [], ...verifyResponse.fuzzy_parents || [] ];
 
     if (found) {
         jQuery('#count_of_found_accessions').html("Total number already in the database("+found.length+")");
