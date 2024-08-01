@@ -27,7 +27,7 @@ sub _validate_with_plugin {
     my %missing_accessions;
 
     # optional columns = these hard-coded columns plus any editable stock props
-    my @optional_columns = ('synonyms', 'populationName', 'organizationName', 'locationCode', 'ploidyLevel', 'genomeStructure', 'variety', 'donor', 'donor institute', 'donor PUI', 'countryOfOriginCode', 'state', 'instituteCode', 'instituteName', 'biologicalStatusOfAccessionCode', 'notes', 'accessionNumber', 'germplasmPUI', 'germplasmSeedSource', 'typeOfGermplasmStorageCode', 'acquisitionDate', 'transgenic', 'introgression_parent', 'introgression_backcross_parent', 'introgression_chromosome', 'introgression_start_position_bp', 'introgression_end_position_bp', 'female_parent', 'male_parent', 'cross_type');
+    my @optional_columns = ('synonyms', 'populationName', 'organizationName', 'locationCode', 'ploidyLevel', 'genomeStructure', 'variety', 'donor', 'donor institute', 'donor PUI', 'countryOfOriginCode', 'state', 'instituteCode', 'instituteName', 'biologicalStatusOfAccessionCode', 'notes', 'accessionNumber', 'germplasmPUI', 'germplasmSeedSource', 'typeOfGermplasmStorageCode', 'acquisitionDate', 'transgenic', 'introgression_parent', 'introgression_backcross_parent', 'introgression_chromosome', 'introgression_start_position_bp', 'introgression_end_position_bp', 'femaleParent', 'maleParent', 'crossType');
     push @optional_columns, @$editable_stockprops;
 
     my $parser = CXGN::File::Parse->new(
@@ -66,9 +66,9 @@ sub _validate_with_plugin {
         'introgression_end_position_bp' => ['introgression_end_position_bp', 'introgression_end_position_bps', 'introgression_end_position_bp(s)'],
         'purdy pedigree' => ['purdy_pedigree', 'purdyPedigree'],
         'filial generation' => ['filial_generation', 'filialGeneration'],
-        'female_parent' => ['female parent', 'femaleParent'],
-        'male_parent' => ['male parent', 'maleParent'],
-        'cross_type' => ['cross type', 'crossType']
+        'femaleParent' => ['female parent', 'female_parent'],
+        'maleParent' => ['male parent', 'male_parent'],
+        'crossType' => ['cross type', 'cross_type']
       },
       column_arrays => [ 'synonyms' ]
     );
@@ -156,6 +156,7 @@ sub _parse_with_plugin {
   }
 
   my %parsed_entries;
+  my %seen_parents;
   for my $row ( @$parsed_data ) {
     my $row_num = $row->{_row};
     my $accession = $row->{'accession_name'};
@@ -220,6 +221,20 @@ sub _parse_with_plugin {
           $row_info{'donors'} = [{ $donor_key_map{$col} => $stockprops_value }];
         }
       }
+      elsif ( $col eq 'femaleParent' || $col eq 'maleParent' ) {
+        $row_info{$col} = $stockprops_value;
+        $seen_parents{$stockprops_value} = 1;
+        $parsed_entries{$row_num."_".$col} = {
+          germplasmName => $stockprops_value,
+          defaultDisplayName => $stockprops_value,
+          species => $row->{'species_name'}
+        };
+        my $parent_in_db_rs = $schema->resultset("Stock::Stock")->search({uniquename=>$stockprops_value});
+        if ( $parent_in_db_rs->count() == 1 ) {
+          my $r = $parent_in_db_rs->first();
+          $parsed_entries{$row_num."_".$col}{stock_id} = $r->stock_id;
+        }
+      }
       elsif ( exists($editable_stockprops_map{$col}) ) {
         $row_info{other_editable_stock_props}->{$col} = $stockprops_value;
       }
@@ -231,6 +246,7 @@ sub _parse_with_plugin {
     $parsed_entries{$row_num} = \%row_info;
   }
 
+  my @parents_list = keys %seen_parents;
   my $fuzzy_accession_search = CXGN::BreedersToolbox::StocksFuzzySearch->new({schema => $schema});
   my $fuzzy_organism_search = CXGN::BreedersToolbox::OrganismFuzzySearch->new({schema => $schema});
   my $max_distance = 0.2;
@@ -240,6 +256,9 @@ sub _parse_with_plugin {
   my $found_synonyms = [];
   my $fuzzy_synonyms = [];
   my $absent_synonyms = [];
+  my $found_parents = [];
+  my $fuzzy_parents = [];
+  my $absent_parents = [];
   my $found_organisms;
   my $fuzzy_organisms;
   my $absent_organisms;
@@ -257,6 +276,13 @@ sub _parse_with_plugin {
           $found_synonyms = $fuzzy_synonyms_result->{'found'};
           $fuzzy_synonyms = $fuzzy_synonyms_result->{'fuzzy'};
           $absent_synonyms = $fuzzy_synonyms_result->{'absent'};
+      }
+
+      if (scalar @parents_list > 0) {
+        my $fuzzy_parents_result = $fuzzy_accession_search->get_matches(\@parents_list, $max_distance, 'accession');
+        $found_parents = $fuzzy_parents_result->{'found'};
+        $fuzzy_parents = $fuzzy_parents_result->{'fuzzy'};
+        $absent_parents = $fuzzy_parents_result->{'absent'};
       }
 
       if (scalar @$organism_list > 0){
@@ -280,6 +306,16 @@ sub _parse_with_plugin {
               push @$fuzzy_accessions, { unique_name => $_,  matched_string => $_};
           }
       }
+
+      $absent_parents = $validator->validate($schema, 'accessions', \@parents_list)->{'missing'};
+      my %parents_missing_hash = map { $_ => 1 } @$absent_parents;
+
+      foreach (@parents_list) {
+          if ( !exists($parents_missing_hash{$_}) ) {
+              push @$found_parents, { unique_name => $_, matched_string => $_ };
+              push @$fuzzy_parents, { unique_name => $_, matched_string => $_ };
+          }
+      }
   }
 
   %return_data = (
@@ -290,6 +326,9 @@ sub _parse_with_plugin {
       found_synonyms => $found_synonyms,
       fuzzy_synonyms => $fuzzy_synonyms,
       absent_synonyms => $absent_synonyms,
+      found_parents => $found_parents,
+      fuzzy_parents => $fuzzy_parents,
+      absent_parents => $absent_parents,
       found_organisms => $found_organisms,
       fuzzy_organisms => $fuzzy_organisms,
       absent_organisms => $absent_organisms
