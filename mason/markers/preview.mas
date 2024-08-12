@@ -76,8 +76,6 @@ my $src_feature = "SL2.50";
 % }
 </&>
 
-<& /markers/locations.mas, marker=>$marker &>
-
 <div class='alert' style='color: #31708f; background-color: #d9edf7; border-color: #bce8f1;'>
   <p style='font-size: 120%; border-bottom: 1px solid rgb(49, 112, 143, 0.2); margin-bottom: 15px'><strong>View More Information</strong></p>
   <p>To view all of the information about this marker, <strong>create an account</strong> and <strong>log in</strong>.</p>
