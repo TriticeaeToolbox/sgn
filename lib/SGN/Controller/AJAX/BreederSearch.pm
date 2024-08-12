@@ -132,12 +132,72 @@ sub get_avg_phenotypes : Path('/ajax/breeder/search/avg_phenotypes') Args(0) {
 
 }
 
+sub get_protocol : Path('/ajax/breeder/search/genotyping_project_imputed') : Args(0) {
+
+  my $self = shift;
+  my $c = shift;
+
+  my $project_id = $c->req->param('genotyping_project');
+  my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
+  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado", $sp_person_id);
+  my $protocol_id;
+  my $found;
+
+  if ($project_id =~ /\d/) {
+      print STDERR "project_id $project_id\n";
+      my $protocol_info = CXGN::Genotype::GenotypingProject->new({
+        bcs_schema => $schema,
+	project_id => $project_id
+      });
+      my $associated_protocol = $protocol_info->get_associated_protocol();
+      if ($associated_protocol) {
+          $protocol_id = $associated_protocol->[0]->[0];
+      } else {
+	  $c->stash->{rest} = { error => "No associated protocol found" };
+          return;
+      }
+
+      my $q = "SELECT cvterm_id from cvterm where name = ?";
+      my $dbh = $c->dbc->dbh();
+      my $h = $dbh->prepare($q);
+      eval {
+          $h->execute("imputed_genotyping_project");
+      };
+      if ($@) {
+	  $c->stash->{rest} = { error => "Database query failed: $@" };
+	  return;
+      }
+      my $type_id = $h->fetchrow_array();
+      $q = "SELECT value from public.projectprop where project_id = ? and type_id = ?";
+      $h = $dbh->prepare($q);
+      eval {
+          $h->execute($project_id, $type_id);
+      };
+      if ($@) {
+	  $c->stash->{rest} = { error => "Database query failed: $@" };
+	  return;
+      }
+      $found = $h->fetchrow_array() ? 1 : 0;
+      print STDERR "$q $project_id $type_id $found\n";
+  } else {
+      $c->stash->{rest} = { error => "Invalid project_id" };
+      return;
+  }
+
+  $c->stash->{rest} = {
+       imputed => $found,
+       error => "",
+       protocol_id => $protocol_id
+   };
+
+  return;
+ 
+}
 
 sub get_genotyping_protocol_chromosomes : Path('/ajax/breeder/search/genotyping_protocol_chromosomes') Args(0) {
   my $self = shift;
   my $c = shift;
-  my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
-  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado", $sp_person_id);
+  my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
 
   my $genotyping_protocol_id = $c->req->param('genotyping_protocol');
   
@@ -148,13 +208,8 @@ sub get_genotyping_protocol_chromosomes : Path('/ajax/breeder/search/genotyping_
       my $genotyping_protocol_rs = $schema->resultset('NaturalDiversity::NdProtocol')->find({name=>$genotyping_protocol_name});
       if ( defined($genotyping_protocol_rs) ) {
         $genotyping_protocol_id = $genotyping_protocol_rs->nd_protocol_id();
-      } else {
-	print STDERR "error - protocol_id not defined, $genotyping_protocol_name\n";
-      }
+      } 
     }
-    print STDERR "protocol_id default = $genotyping_protocol_id\n";
-  } else {
-    print STDERR "protocol_id = $genotyping_protocol_id\n";
   }
 
   # Get chromosome names for the specified protocol
