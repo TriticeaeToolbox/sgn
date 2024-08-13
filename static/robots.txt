@@ -12,4 +12,5 @@ Disallow: /solgs/
 Disallow: /stock/*/datatables/
 Disallow: /stock/*/genotypes
 Disallow: /*genotypes
+Disallow: /search/markers/
 Crawl-delay: 30
