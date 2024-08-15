@@ -252,100 +252,8 @@ jQuery(document).ready(function ($) {
         }
     });
 
-    function toggleEmailField() {
-        var checkbox = jQuery('#email_option_to_recieve_accession_upload_status');
-        var emailField = jQuery('#email_address_upload');
-        var emailLabel = jQuery('#email_label_upload');
-        if (checkbox.prop('checked')) {
-            emailField.show();
-            emailLabel.show();
-        } else {
-            emailField.hide();
-            emailLabel.hide();
-        }
-    }
-
     jQuery('#email_option_to_recieve_accession_upload_status').on('change', toggleEmailField);
     toggleEmailField();
-
-    function add_accessions(full_info, species_names) {
-        var email_address = jQuery('#email_address_upload').val();
-        var email_option_enabled = jQuery('#email_option_to_recieve_accession_upload_status').prop('checked') ? 1 : 0;
-        console.log("check email address:", email_address);
-        console.log(full_info);
-
-        if (email_option_enabled) {
-            var user_response = confirm('You will receive an email when the process is complete. Do you want to continue ?');
-            if (!user_response) {
-                console.log("no accessions saved + no email sent");
-                return;
-            }
-        }
-        $.ajax({
-            type: 'POST',
-            url: '/ajax/accession_list/add',
-            dataType: "json",
-            timeout: 36000000,
-            data: {
-                'full_info': JSON.stringify(full_info),
-                'allowed_organisms': JSON.stringify(species_names),
-                'email_address_upload': email_address,
-                'email_option_enabled': email_option_enabled,
-            },
-            // beforeSend: function(){
-            //     disable_ui();
-            // },
-            success: function (response) {
-                console.log("email_option_enabled on success:", email_option_enabled);
-                if (!email_option_enabled) {
-                    enable_ui();
-                }
-		        //alert("ADD ACCESSIONS: "+JSON.stringify(response));
-                if (response.error) {
-                    alert(response.error);
-                } else {
-                    var html = 'The following stocks were added!<br/>';
-                    for (var i=0; i<response.added.length; i++){
-                        html = html + '<a href="/stock/'+response.added[i][0]+'/view">'+response.added[i][1]+'</a><br/>';
-                    }
-                    jQuery('#add_accessions_saved_message').html(html);
-                    jQuery('#add_accessions_saved_message_modal').modal('show');
-                }
-            },
-            error: function (response) {
-                console.log("email_option_enabled on error:", email_option_enabled);
-                if (!email_option_enabled) {
-                    enable_ui();
-                }
-                alert('An error occurred in processing. sorry'+response.responseText);
-            }
-        });
-    }
-
-    function verify_species_name() {
-        var speciesName = $("#species_name_input").val();
-        validSpecies = 0;
-        return $.ajax({
-            type: 'GET',
-            url: '/organism/verify_name',
-            dataType: "json",
-            data: {
-                'species_name': speciesName,
-            }
-            // success: function (response) {
-            //     if (response.error) {
-            //         alert(response.error);
-            //         validSpecies = 0;
-            //     } else {
-            //         validSpecies = 1;
-            //     }
-            // },
-            // error: function (response) {
-            //     alert('An error occurred verifying species name. sorry'+response.responseText);
-            //     validSpecies = 0;
-            // }
-        });
-    }
 
     $('#species_name_input').focusout(function () {
         verify_species_name().then( function(r) { if (r.error) { alert(r.error); } }, function(r) { alert('An error occurred. The site may not be available right now.'); });
@@ -505,8 +413,32 @@ jQuery(document).ready(function ($) {
     setup_synonym_search();
 });
 
+function toggleEmailField() {
+    var checkbox = jQuery('#email_option_to_recieve_accession_upload_status');
+    var emailField = jQuery('#email_address_upload');
+    var emailLabel = jQuery('#email_label_upload');
+    if (checkbox.prop('checked')) {
+        emailField.show();
+        emailLabel.show();
+    } else {
+        emailField.hide();
+        emailLabel.hide();
+    }
+}
+
 function add_accessions(full_info, species_names) {
+    var email_address = jQuery('#email_address_upload').val();
+    var email_option_enabled = jQuery('#email_option_to_recieve_accession_upload_status').prop('checked') ? 1 : 0;
+    console.log("check email address:", email_address);
     console.log(full_info);
+
+    if (email_option_enabled) {
+        var user_response = confirm('You will receive an email when the process is complete. Do you want to continue ?');
+        if (!user_response) {
+            console.log("no accessions saved + no email sent");
+            return;
+        }
+    }
     jQuery.ajax({
         type: 'POST',
         url: '/ajax/accession_list/add',
@@ -515,30 +447,54 @@ function add_accessions(full_info, species_names) {
         data: {
             'full_info': JSON.stringify(full_info),
             'allowed_organisms': JSON.stringify(species_names),
-            'overwrite_pedigrees': jQuery("#overwrite_pedigrees").is(":checked")
+            'email_address_upload': email_address,
+            'email_option_enabled': email_option_enabled,
         },
         beforeSend: function(){
-            disable_ui();
+            if ( !email_option_enabled ) {
+                disable_ui();
+            }
         },
         success: function (response) {
-            enable_ui();
-            //alert("ADD ACCESSIONS: "+JSON.stringify(response));
-            if (response.error) {
-                alert(response.error);
-            } else {
-                var html = 'The following stocks were added!<br/>';
-                for (var i=0; i<response.added.length; i++){
-                    html = html + '<a href="/stock/'+response.added[i][0]+'/view">'+response.added[i][1]+'</a><br/>';
+            console.log("email_option_enabled on success:", email_option_enabled);
+            if (!email_option_enabled) {
+                enable_ui();
+                //alert("ADD ACCESSIONS: "+JSON.stringify(response));
+                if (response.error) {
+                    alert(response.error);
+                } else {
+                    var html = 'The following stocks were added!<br/>';
+                    for (var i=0; i<response.added.length; i++){
+                        html = html + '<a href="/stock/'+response.added[i][0]+'/view">'+response.added[i][1]+'</a><br/>';
+                    }
+                    jQuery('#add_accessions_saved_message').html(html);
+                    jQuery('#add_accessions_saved_message_modal').modal('show');
                 }
-                jQuery('#add_accessions_saved_message').html(html);
-                jQuery('#add_accessions_saved_message_modal').modal('show');
             }
         },
         error: function (response) {
+            console.log("email_option_enabled on error:", email_option_enabled);
+            if (!email_option_enabled) {
+                enable_ui();
+            }
             alert('An error occurred in processing. sorry'+response.responseText);
         }
     });
 }
+
+function verify_species_name() {
+    var speciesName = jQuery("#species_name_input").val();
+    validSpecies = 0;
+    return jQuery.ajax({
+        type: 'GET',
+        url: '/organism/verify_name',
+        dataType: "json",
+        data: {
+            'species_name': speciesName,
+        }
+    });
+}
+
 
 function openWindowWithPost(fuzzyResponse) {
     var f = document.getElementById('add_accession_fuzzy_match_download');
