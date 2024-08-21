@@ -87,6 +87,18 @@ $design_types => ()
                                               <br /><br />
                                               <div class="well">
                                                 <div class="form-group">
+                                                    <label class="col-sm-4 control-label" style="margin-left: 0px;">Email Alert: </label>
+                                                    <div class="col-sm-8" style="text-align: left">
+                                                        <input id="email_option_to_recieve_trial_upload_status" name="email_option_to_recieve_trial_upload_status" type="checkbox" data-toggle="toggle">
+                                                        <div id="trial_email_field" style="display: none">
+                                                            <label class="control-label">Email: </label>
+                                                            <input id="trial_email_address_upload" name="trial_email_address_upload" type="email" value="<% $email_address %>">
+                                                        </div>
+                                                        <br />
+                                                        <small>Store the trials in the background and send an email report when done.</small>
+                                                    </div>
+                                                </div>
+                                                <div class="form-group">
                                                   <label class="col-sm-4 control-label">Ignore Warnings: </label>
                                                   <div class="col-sm-8" style="text-align: left">
                                                       <input id="upload_multiple_trials_ignore_warnings" name="upload_multiple_trials_ignore_warnings" type="checkbox" data-toggle="toggle" encoding="multipart/form-data">
@@ -119,20 +131,6 @@ $design_types => ()
                                                 </div>
                                                 <input type="hidden" id="multi_trial_synonym_search_replacements" name="multi_trial_synonym_search_replacements">
                                               </div>
-                                              <div class="form-group" style="margin-bottom: 50px;">
-                                                <div class="col-sm-4"></div>
-                                                <label class="col-sm-2 control-label" style="margin-left: 0px;">Email Alert: </label>
-                                                <div class="col-sm-2" style="margin-left: 0;">
-                                                    <input id="email_option_to_recieve_trial_upload_status" name="email_option_to_recieve_trial_upload_status" type="checkbox" data-toggle="toggle">
-                                                </div>
-                                                <div id="email_field" style = "display: inline-block; vertical-align: middle;">
-                                                    <label id="email_label_upload" class="control-label" style="display: inline-block; margin-left: 0px; vertical-align: middle;">Email: </label>
-                                                    <div style="display: inline-block; width: 150px; vertical-align: middle;">
-                                                        <input id="email_address_upload" name="email_address_upload" type="email" value="<% $email_address %>">
-                                                    </div>
-                                                </div>
-                                                <div class="col-sm-2"></div>
-                                            </div>
                                             </form>
 
                                             <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
