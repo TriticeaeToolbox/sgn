@@ -71,7 +71,7 @@ sub retrieve_plot_info {
 	     type_id => $genotyping_project_relationship_cvterm->cvterm_id()
 	 });
      my $genotyping_project_id = "";
-     $genotyping_project_name = "";
+     $genotyping_project_name = ""; # test correction
      my $genotyping_project ="";
 
      if ($genotyping_project_plate_relationship) {
