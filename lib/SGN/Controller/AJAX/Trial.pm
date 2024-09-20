@@ -1300,6 +1300,7 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     );
     $parser->load_plugin('MultipleTrialDesignExcelFormat');
     $parsed_data = $parser->parse();
+    print STDERR "the parsed data : " . Dumper($parsed_data) . "\n";
 
     # print STDERR "check the parsed data : \n" . Dumper($parsed_data); 
     if (!$parsed_data) {

@@ -325,7 +325,9 @@ jQuery(document).ready(function ($) {
         var checkbox = jQuery('#email_option_to_recieve_trial_upload_status');
         var emailField = jQuery('#trial_email_field');
         if (checkbox.prop('checked')) {
-            emailField.show();
+            emailField.css('display', 'inline-block');
+            jQuery('#trial_email_label_upload').show();
+            jQuery('#trial_email_address_upload').show();
         } else {
             emailField.hide();
         }
@@ -406,7 +408,7 @@ jQuery(document).ready(function ($) {
                 }
             }
             if (response.success) {
-                // console.log("Success!!");
+                console.log("Success!!");
                 refreshTrailJsTree(0);
                 jQuery("#upload_multiple_trials_success_messages").show();
                 jQuery("#upload_multiple_trials_success_messages").html("Success! All trials successfully loaded.");
