@@ -199,4 +199,24 @@ sub genotyping_protocol_pcr_markers_GET : Args(0) {
 }
 
 
+sub genotyping_protocol_marker_count : Path('/ajax/genotyping_protocol/marker_count') : ActionClass('REST') { }
+
+sub genotyping_protocol_marker_count_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $protocol_id = $c->req->param('genotyping_protocol_id');
+    my $schema = $c->dbic_schema('Bio::Chado::Schema');
+
+    my $q = "SELECT SUM(jsonb_array_length(value)) AS count
+            FROM nd_protocolprop
+            WHERE type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'vcf_map_details_markers_array')
+            AND nd_protocol_id = ?;";
+    my $h = $schema->storage->dbh()->prepare($q);
+    $h->execute($protocol_id);
+    my ($marker_count) = $h->fetchrow_array();
+
+    $c->stash->{rest} = {marker_count => $marker_count};
+}
+
+
 1;
