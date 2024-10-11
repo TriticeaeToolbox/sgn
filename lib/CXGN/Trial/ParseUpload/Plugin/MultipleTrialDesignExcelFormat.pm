@@ -634,6 +634,7 @@ sub _validate_with_plugin {
     "greenhouse" => 1,
     "p-rep" => 1,
     "splitplot" => 1,
+    "stripplot" => 1,
     "Westcott" => 1,
     "Analysis" => 1
   );
