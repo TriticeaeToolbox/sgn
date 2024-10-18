@@ -7,13 +7,14 @@ must exist in the database before a Trial can be created.  Also, you must refer 
 the Accession's name (or synonym) in the database when creating the Trial.</p>
 
 <p>We try very hard to <strong>avoid creating duplicate entries of an Accession</strong> based on variations in the spelling 
-and/or characters used in the Accession name.  Therefore, we <em>highly recommend</em> using the 
-<a href="<% $SYNONYM_SEARCH_HOST %>?db=<% our $T3_INSTANCE_NAME %>" target="_blank">BrAPI Germplasm Search Tool</a> to search for existing 
-Accession entries in the database and any that match possible variations in spelling and/or punctuation.</p>
+and/or characters used in the Accession name.  Therefore, whenever you upload an accession or trial template, all of the 
+accession names in the file are automatically sent to the <a href="<% $SYNONYM_SEARCH_HOST %>?db=<% our $T3_INSTANCE_NAME %>" target="_blank">BrAPI Germplasm Search Tool</a> 
+to find any existing Accession entries in the database that may match the names in your file due to variations in spelling and/or punctuation.
+You will then be able choose which potential matches are real and those matches will be replaced automatically in your upload file.</p>
 
 <br /><br />
 
-<p><strong>Search for existing Accession entries:</strong></p>
+<p>If you'd like to <strong>manually search for existing Accession entries:</strong></p>
 <ul>
   <li>
     Search for exact matches of individual entries using the <a href="/search/stocks" target="_blank">Search &gt; Accessions and Plots</a> page
@@ -21,7 +22,7 @@ Accession entries in the database and any that match possible variations in spel
   <li>
     Search for exact matches of multiple entries using the <a href="/search/bulk?type=accessions" target="_blank">Search &gt; Bulk Search</a> page
   </li>
-  <li>Search for multiple entries (and variations in spelling and/or punctuation) using the 
+  <li>Search potential matches of multiple entries using the 
     <a href="<% $SYNONYM_SEARCH_HOST %>?db=<% $T3_INSTANCE_NAME %>" target="_blank">BrAPI Germplasm Search Tool</a>
   </li>
 </ul>
