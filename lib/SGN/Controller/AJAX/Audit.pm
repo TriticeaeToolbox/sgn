@@ -172,4 +172,3 @@ sub retrieve_trial_audits : Path('/ajax/audit/retrieve_trial_audits'){
         match_project => $match_trial_json,
         }
 };
-}
