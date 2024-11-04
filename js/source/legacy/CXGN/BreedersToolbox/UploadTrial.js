@@ -272,10 +272,10 @@ jQuery(document).ready(function ($) {
             }
             else if ( response.synonym_search_check ) {
                 let terms = [];
-                if ( response && response.parsed_data ) {
-                    for ( let plot_number in response.parsed_data ) {
-                        if ( response.parsed_data.hasOwnProperty(plot_number) ) {
-                            let plot = response.parsed_data[plot_number];
+                if ( response && response.parsed_data && response.parsed_data.design ) {
+                    for ( let id in response.parsed_data.design ) {
+                        if ( response.parsed_data.design.hasOwnProperty(id) ) {
+                            let plot = response.parsed_data.design[id];
                             let accession_name = plot.stock_name;
                             if ( accession_name && !terms.includes(accession_name) ) {
                                 terms.push(accession_name);
