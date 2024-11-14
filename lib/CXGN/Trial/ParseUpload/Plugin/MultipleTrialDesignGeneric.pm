@@ -37,6 +37,8 @@ sub _validate_with_plugin {
     my $self = shift;
     my $filename = $self->get_filename();
     my $schema = $self->get_chado_schema();
+    my $skip_accession_checks = $self->get_skip_accession_checks();
+    my $accession_replacements = $self->get_accession_replacements();
 
     # Date and List validators
     my $calendar_funcs = CXGN::Calendar->new({});
@@ -72,6 +74,7 @@ sub _validate_with_plugin {
     }
 
     # Maps of plot-level data to use in overall validation
+    my %seen_accession_names;   # parsed accession names (with replacements, if provided)
     my %seen_plot_numbers;      # check for a plot numbers: used only once per trial
     my %seen_plot_names;        # check for plot names: used only once per trial
     my %seen_plot_positions;    # check for plot row / col positions: each position only used once per trial
@@ -111,6 +114,12 @@ sub _validate_with_plugin {
         my $num_seed_per_plot = $data->{'num_seed_per_plot'};
         my $weight_gram_seed_per_plot = $data->{'weight_gram_seed_per_plot'};
         my $entry_number = $data->{'entry_number'};
+
+        # Accession Name: use replacement, if available
+        if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+            $accession_name = $accession_replacements->{$accession_name};
+        }
+        $seen_accession_names{$accession_name} = 1;
 
         # Plot Number: must be a positive number
         if (!($plot_number =~ /^\d+?$/)) {
@@ -197,7 +206,6 @@ sub _validate_with_plugin {
         # Treatment Values: must be either blank, 0, or 1
         foreach my $treatment (@$treatments) {
             my $treatment_value = $data->{$treatment};
-            print STDERR "Row $row: $treatment = $treatment_value\n";
             if ( $treatment_value && $treatment_value ne '' && $treatment_value ne '0' && $treatment_value ne '1' ) {
                 push @error_messages, "Row $row: Treatment value for treatment <strong>$treatment</strong> should be either 1 (applied) or empty (not applied).";
             }
@@ -341,35 +349,37 @@ sub _validate_with_plugin {
     }
 
     # Accession Names: must exist in the database
-    my @accessions = @{$parsed_values->{'accession_name'}};
-    my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
+    if ( !$skip_accession_checks ) {
+        my @accessions = keys %seen_accession_names;
+        my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
 
-    #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
-    my @synonyms = @{$accessions_hashref->{'synonyms'}};
-    foreach my $synonym (@synonyms) {
-        my $found_acc_name_from_synonym = $synonym->{'uniquename'};
-        my $matched_synonym = $synonym->{'synonym'};
+        #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
+        my @synonyms = @{$accessions_hashref->{'synonyms'}};
+        foreach my $synonym (@synonyms) {
+            my $found_acc_name_from_synonym = $synonym->{'uniquename'};
+            my $matched_synonym = $synonym->{'synonym'};
 
-        push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
+            push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
 
-        @accessions = grep !/\Q$matched_synonym/, @accessions;
-        push @accessions, $found_acc_name_from_synonym;
-    }
-
-    #now validate again the accession names
-    $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
-    my @accessions_missing = @{$accessions_hashref->{'missing'}};
-    my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
-
-    if (scalar(@accessions_missing) > 0) {
-        push @error_messages, "Accession(s) <strong>".join(',',@accessions_missing)."</strong> are not in the database as uniquenames or synonyms.";
-    }
-    if (scalar(@multiple_synonyms) > 0) {
-        my @msgs;
-        foreach my $m (@multiple_synonyms) {
-            push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+            @accessions = grep !/\Q$matched_synonym/, @accessions;
+            push @accessions, $found_acc_name_from_synonym;
         }
-        push @error_messages, "Accession(s) <strong>".join(',',@msgs)."</strong> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+
+        #now validate again the accession names
+        $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
+        my @accessions_missing = @{$accessions_hashref->{'missing'}};
+        my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
+
+        if (scalar(@accessions_missing) > 0) {
+            push @error_messages, "Accession(s) <strong>".join(',',@accessions_missing)."</strong> are not in the database as uniquenames or synonyms.";
+        }
+        if (scalar(@multiple_synonyms) > 0) {
+            my @msgs;
+            foreach my $m (@multiple_synonyms) {
+                push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+            }
+            push @error_messages, "Accession(s) <strong>".join(',',@msgs)."</strong> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+        }
     }
 
     # Plot Names: should not exist (as any stock)
@@ -473,15 +483,25 @@ sub _validate_with_plugin {
 sub _parse_with_plugin {
     my $self = shift;
     my $schema = $self->get_chado_schema();
+    my $skip_accession_checks = $self->get_skip_accession_checks();
+    my $accession_replacements = $self->get_accession_replacements();
     my $parsed = $self->_get_validated_data();
     my $data = $parsed->{'data'};
     my $values = $parsed->{'values'};
     my $treatments = $parsed->{'additional_columns'};
 
+    # Get all accession names, with replacements if provided
+    my @accessions;
+    foreach my $a (@{$values->{'accession_name'}}) {
+        if ( $accession_replacements && exists $accession_replacements->{$a} ) {
+            $a = $accession_replacements->{$a};
+        }
+        push @accessions, $a;
+    }
+
     # Get synonyms for accessions in data
     my $accession_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
     my $synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'stock_synonym', 'stock_property')->cvterm_id();
-    my @accessions = @{$values->{'accession_name'}};
     my $acc_synonym_rs = $schema->resultset("Stock::Stock")->search({
         'me.is_obsolete' => { '!=' => 't' },
         'stockprops.value' => { -in => \@accessions},
@@ -520,6 +540,11 @@ sub _parse_with_plugin {
         my $num_seed_per_plot = $row->{'num_seed_per_plot'} || 0;
         my $weight_gram_seed_per_plot = $row->{'weight_gram_seed_per_plot'} || 0;
         my $entry_number = $row->{'entry_number'};
+
+        # Replace accession name, if a replacement is provided
+        if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+            $accession_name = $accession_replacements->{$accession_name};
+        }
 
         if ($current_trial_name && $current_trial_name ne $trial_name) {
 
@@ -587,12 +612,14 @@ sub _parse_with_plugin {
             }
         }
 
-        if ($acc_synonyms_lookup{$accession_name}){
-            my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
-            if (scalar(@accession_names)>1){
-                print STDERR "There is more than one uniquename for this synonym $accession_name. this should not happen!\n";
+        if ( !$skip_accession_checks ) {
+            if ($acc_synonyms_lookup{$accession_name}){
+                my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
+                if (scalar(@accession_names)>1){
+                    print STDERR "There is more than one uniquename for this synonym $accession_name. this should not happen!\n";
+                }
+                $accession_name = $accession_names[0];
             }
-            $accession_name = $accession_names[0];
         }
 
         my $key = $row_id;

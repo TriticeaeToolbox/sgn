@@ -130,92 +130,6 @@ jQuery(document).ready(function ($) {
         jQuery("#upload_trial_form").submit();
     }
 
-    function upload_multiple_trial_designs_file() {
-        jQuery("#multi_trial_synonym_search_replacements").val('');
-        jQuery("#upload_multiple_trials_warning_messages").html('');
-        jQuery("#upload_multiple_trials_error_messages").html('');
-        jQuery("#upload_multiple_trials_success_messages").html('');
-
-        var uploadedTrialLayoutFile = jQuery("#multiple_trial_designs_upload_file").val();
-        if ( !uploadedTrialLayoutFile || uploadedTrialLayoutFile === '' ) {
-            alert("No file selected");
-            return;
-        }
-
-        jQuery("#working_modal").modal("show");
-        jQuery.ajax({
-            url: '/ajax/trial/upload_multiple_trial_designs_file',
-            type: 'POST',
-            data: new FormData(jQuery("#upload_multiple_trial_designs_form")[0]),
-            processData: false,
-            contentType: false,
-            success : function(response) {
-                jQuery("#working_modal").modal("hide");
-                if (response.warnings) {
-                    warnings = response.warnings;
-                    warning_html = "<li>"+warnings.join("</li><li>")+"</li>"
-                    jQuery("#upload_multiple_trials_warning_messages").show();
-                    jQuery("#upload_multiple_trials_warning_messages").html('<b>Warnings. Fix or ignore the following warnings and try again.</b><br><br>'+warning_html);
-                    return;
-                }
-                if (response.errors) {
-                    errors = response.errors;
-                    if (Array.isArray(errors)) {
-                        error_html = "<li>"+errors.join("</li><li>")+"</li>";
-                    } else {
-                        error_html = "<li>"+errors+"</li>";
-                    }
-                    jQuery("#upload_multiple_trials_error_messages").show();
-                    jQuery("#upload_multiple_trials_error_messages").html('<b>Errors found. Fix the following problems and try again.</b><br><br>'+error_html);
-                    return;
-                }
-                if ( response.synonym_search_check ) {
-                    let terms = [];
-                    if ( response && response.parsed_data ) {
-                        for ( let trial in response.parsed_data ) {
-                            if ( response.parsed_data.hasOwnProperty(trial) ) {
-                                for ( let plot_number in response.parsed_data[trial].design_details ) {
-                                    let plot = response.parsed_data[trial].design_details[plot_number];
-                                    let accession_name = plot.stock_name;
-                                    if ( accession_name && !terms.includes(accession_name) ) {
-                                        terms.push(accession_name);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if ( response.synonym_search_update ) {
-                        trial_update_synonym_search_cache(terms, multi_trial_store_synonym_search);
-                    }
-                    else {
-                        trial_perform_synonym_search(terms, multi_trial_store_synonym_search);
-                    }
-                }
-                if (response.success) {
-                    refreshTrailJsTree(0);
-                    jQuery("#upload_multiple_trials_success_messages").show();
-                    jQuery("#upload_multiple_trials_success_messages").html("Success! All trials successfully loaded.");
-                    jQuery("#multiple_trial_designs_upload_submit").hide();
-                    jQuery("#upload_multiple_trials_success_button").show();
-                    return;
-                }
-                if (response.background) {
-                    jQuery("#upload_multiple_trials_success_messages").show();
-                    jQuery("#upload_multiple_trials_success_messages").html("Your file has been uploaded.  You will receive an email once the process is complete.");
-                    jQuery("#multiple_trial_designs_upload_submit").hide();
-                    jQuery("#upload_multiple_trials_success_button").show();
-                    return;
-                }
-            },
-            error: function() {
-                jQuery("#working_modal").modal("hide");
-                jQuery("#upload_multiple_trials_error_messages").html("An error occurred while trying to upload this file. Please check the formatting and try again");
-                return;
-            }
-        });
-    }
-
-
     function open_upload_trial_dialog() {
         jQuery('#upload_trial_dialog').modal("show");
         //add a blank line to design method select dropdown that dissappears when dropdown is opened
@@ -277,6 +191,19 @@ jQuery(document).ready(function ($) {
     });
 
     jQuery('#multiple_trial_designs_upload_submit').click(function () {
+        jQuery("#multi_trial_synonym_search_replacements").val('');
+        jQuery("#multi_trial_test").val(jQuery("#multi_trial_synonym_search_check").is(":checked"));
+
+        jQuery("#upload_multiple_trials_warning_messages").html('');
+        jQuery("#upload_multiple_trials_error_messages").html('');
+        jQuery("#upload_multiple_trials_success_messages").html('');
+
+        var uploadedTrialLayoutFile = jQuery("#multiple_trial_designs_upload_file").val();
+        if ( !uploadedTrialLayoutFile || uploadedTrialLayoutFile === '' ) {
+            alert("No file selected");
+            return;
+        }
+
         upload_multiple_trial_designs_file();
     });
 
@@ -430,6 +357,71 @@ jQuery(document).ready(function ($) {
 
 
 /**
+ * Upload the multi-trial upload template to the server
+ * and handle the response:
+ *  - display warnings / error messages
+ *  - start the synonym search check
+ *  - display a success message
+ */
+function upload_multiple_trial_designs_file() {
+    jQuery("#working_modal").modal("show");
+    jQuery.ajax({
+        url: '/ajax/trial/upload_multiple_trial_designs_file',
+        type: 'POST',
+        data: new FormData(jQuery("#upload_multiple_trial_designs_form")[0]),
+        processData: false,
+        contentType: false,
+        success : function(response) {
+            jQuery("#working_modal").modal("hide");
+            if (response.errors) {
+                errors = response.errors;
+                if (Array.isArray(errors)) {
+                    error_html = "<li>"+errors.join("</li><li>")+"</li>";
+                } else {
+                    error_html = "<li>"+errors+"</li>";
+                }
+                jQuery("#upload_multiple_trials_error_messages").show();
+                jQuery("#upload_multiple_trials_error_messages").html('<b>Errors found. Fix the following problems and try again.</b><br><br>'+error_html);
+            }
+            else if (response.warnings) {
+                warnings = response.warnings;
+                warning_html = "<li>"+warnings.join("</li><li>")+"</li>"
+                jQuery("#upload_multiple_trials_warning_messages").show();
+                jQuery("#upload_multiple_trials_warning_messages").html('<b>Warnings. Fix or ignore the following warnings and try again.</b><br><br>'+warning_html);
+            }
+            else if (response.success) {
+                refreshTrailJsTree(0);
+                jQuery("#upload_multiple_trials_success_messages").show();
+                jQuery("#upload_multiple_trials_success_messages").html("Success! All trials successfully loaded.");
+                jQuery("#multiple_trial_designs_upload_submit").hide();
+                jQuery("#upload_multiple_trials_success_button").show();
+            }
+            else if (response.background) {
+                jQuery("#upload_multiple_trials_success_messages").show();
+                jQuery("#upload_multiple_trials_success_messages").html("Your file has been uploaded.  You will receive an email once the process is complete.");
+                jQuery("#multiple_trial_designs_upload_submit").hide();
+                jQuery("#upload_multiple_trials_success_button").show();
+            }
+            else if ( response.synonym_search_check ) {
+                let terms = response && response.terms ? response.terms : [];
+                if ( response.synonym_search_update ) {
+                    trial_update_synonym_search_cache(terms, multi_trial_store_synonym_search);
+                }
+                else {
+                    trial_perform_synonym_search(terms, multi_trial_store_synonym_search);
+                }
+            }
+        },
+        error: function() {
+            jQuery("#working_modal").modal("hide");
+            jQuery("#upload_multiple_trials_error_messages").html("An error occurred while trying to upload this file. Please check the formatting and try again");
+            return;
+        }
+    });
+}
+
+
+/**
  * Setup the synonym search integration
  * - Get the synonym search tool properties from the server
  * - Set the SYNONYM_SEARCH_HOST and SYNONYM_SEARCH_DATABASE variables
@@ -460,7 +452,7 @@ function trial_setup_synonym_search() {
  * Check if this server is cached by the Synonym Search Tool
  * - Display the Date of the last cache update
  */
- function trial_check_synonym_search_cache() {
+function trial_check_synonym_search_cache() {
     jQuery.ajax({
         type: 'GET',
         url: `${TRIAL_SYNONYM_SEARCH_HOST}/api/cache?address=${TRIAL_SYNONYM_SEARCH_DATABASE}`,
@@ -891,11 +883,9 @@ function trial_complete_synonym_search(callback) {
  * @param {Object[]} replacements User's selected accession replacements
  */
 function multi_trial_store_synonym_search(replacements) {
-    let init_synonym_search_check = jQuery("#multi_trial_synonym_search_check").prop("checked");
-    jQuery("#multi_trial_synonym_search_check").prop("checked", false);
     jQuery("#multi_trial_synonym_search_replacements").val(encodeURIComponent(JSON.stringify(replacements)));
-    jQuery("#upload_multiple_trial_designs_form").submit();
-    jQuery("#multi_trial_synonym_search_check").prop("checked", init_synonym_search_check);
+    jQuery("#multi_trial_test").val('');
+    upload_multiple_trial_designs_file();
 }
 
 /**

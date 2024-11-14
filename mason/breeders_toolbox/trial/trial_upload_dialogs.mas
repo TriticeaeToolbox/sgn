@@ -130,6 +130,7 @@ $design_types => ()
                                                   </div>
                                                 </div>
                                                 <input type="hidden" id="multi_trial_synonym_search_replacements" name="multi_trial_synonym_search_replacements">
+                                                <input type="hidden" id="multi_trial_test" name="multi_trial_test">
                                               </div>
                                             </form>
 

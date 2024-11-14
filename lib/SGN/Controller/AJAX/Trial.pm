@@ -1189,9 +1189,10 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     my ($self, $c) = @_;
     my $upload                     = $c->req->upload('multiple_trial_designs_upload_file');
     my $ignore_warnings            = $c->req->param('upload_multiple_trials_ignore_warnings');
+    my $test                       = $c->req->param('multi_trial_test') eq 'true';
+    my $replacements_encoded       = $c->req->param('multi_trial_synonym_search_replacements');
     my $synonym_search_check       = $c->req->param('multi_trial_synonym_search_check');
     my $synonym_search_update      = $c->req->param('multi_trial_synonym_search_update');
-    my $replacements_encoded       = $c->req->param('multi_trial_synonym_search_replacements');
     my $email_address              = $c->req->param('trial_email_address_upload');
     my $email_option_enabled       = $c->req->param('email_option_to_recieve_trial_upload_status') eq 'on';
 
@@ -1246,13 +1247,15 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
 
     # Build the backend script command to parse, validate, and upload the trials
     my $cmd = "perl \"$basepath/bin/upload_multiple_trial_design.pl\" -H \"$dbhost\" -D \"$dbname\" -U \"$dbuser\" -P \"$dbpass\" -w \"$basepath\" -i \"$archived_filename_with_path\" -un \"$username\"";
-    $cmd .= " -e \"$email_address\"" if $email_option_enabled && $email_address;
+    $cmd .= " -e \"$email_address\"" if $email_option_enabled && $email_address && !$test;
     $cmd .= " -iw" if $ignore_warnings;
+    $cmd .= " -t" if $test;
+    $cmd .= " -sa" if $test;
     $cmd .= " -r \"$replacements_encoded\"" if $replacements_encoded;
 
     # Run asynchronously if email option is enabled
     my $runner = CXGN::Tools::Run->new();
-    if ( $email_option_enabled && $email_address ) {
+    if ( $email_option_enabled && $email_address && !$test ) {
         $runner->run_async($cmd);
         my $err = $runner->err();
         my $out = $runner->out();
@@ -1278,6 +1281,7 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
         # Collect errors and warnings from STDERR
         my @errors;
         my @warnings;
+        my @accessions; # Accession Names for the Synonym Search Tool integration
         foreach (split(/\n/, $err)) {
             if ($_ =~ /^ERROR/) {
                 $_ =~ s/ERROR:? ?//;
@@ -1287,22 +1291,30 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
                 $_ =~ s/WARNING:? ?//;
                 push @warnings, $_;
             }
+            elsif ($_ =~ /^ACCESSION/) {
+                $_ =~ s/ACCESSION:? ?//;
+                push @accessions, $_;
+            }
         }
 
+        my %rtn;
         if ( scalar(@errors) > 0 ) {
-            $c->stash->{rest} = {errors => \@errors};
-            return;
+            $rtn{errors} = \@errors;
         }
-        if ( scalar(@warnings) > 0 ) {
-            $c->stash->{rest} = {warnings => \@warnings};
-            return;
+        elsif ( scalar(@warnings) > 0 ) {
+            $rtn{warnings} = \@warnings;
         }
+        elsif ( $test ) {
+            $rtn{synonym_search_check} = $synonym_search_check && $synonym_search_check eq 'on';
+            $rtn{synonym_search_update} = $synonym_search_update && $synonym_search_check eq 'on';
+            $rtn{terms} = \@accessions;
+        }
+        else {
+            $rtn{success} = 1;
+        }
+        $c->stash->{rest} = \%rtn;
+        return;
     }
-
-
-    # Return success
-    $c->stash->{rest} = {success => "1"};
-    return;
 
 }
 

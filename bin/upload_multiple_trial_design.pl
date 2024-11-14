@@ -6,7 +6,7 @@ upload_multiple_trial_design.pl
 
 =head1 SYNOPSIS
 
-upload_multiple_trial_design.pl -H [dbhost] -D [dbname] -P [dbpass] -w [basepath] -U [dbuser] -i [infile] -un [username] -e [email address] -r [accession replacements]
+upload_multiple_trial_design.pl -H [dbhost] -D [dbname] -P [dbpass] -w [basepath] -U [dbuser] -i [infile] -un [username] -e [email address] -r [accession replacements] -iw -t
 
 =head1 COMMAND-LINE OPTIONS
 ARGUMENTS
@@ -19,6 +19,8 @@ ARGUMENTS
  -un username of uploader (required)
  -e email address of the user
  -r accession replacements (an HTML encoded string of accession replacements)
+ -iw (add to ignore validation warnings and continue with storing if not errors found)
+ -t (add to just test the file for errors and warnings, do not store the trials yet)
 
 if loading trial data from metadata file, phenotypes + layout from infile 
 
@@ -51,7 +53,7 @@ use CXGN::Trial::TrialCreate;
 use CXGN::Contact;
 use CXGN::TrialStatus;
 
-my ( $help, $dbhost, $dbname, $basepath, $dbuser, $dbpass, $infile, $username, $email_address, $ignore_warnings, $replacements_encoded);
+my ( $help, $dbhost, $dbname, $basepath, $dbuser, $dbpass, $infile, $username, $email_address, $ignore_warnings, $test, $skip_accession_checks, $replacements_encoded);
 GetOptions(
     'dbhost|H=s'           => \$dbhost,
     'dbname|D=s'           => \$dbname,
@@ -62,7 +64,9 @@ GetOptions(
     'user|un=s'            => \$username,
     'email|e=s'            => \$email_address,
     'ignore_warnings|iw!'  => \$ignore_warnings,
-    'r=s'                  => \$replacements_encoded,
+    'test|t!'              => \$test,
+    'skip_accession_checks|sa!'   => \$skip_accession_checks,
+    'accession_replacements|r=s'  => \$replacements_encoded,
     'help'                 => \$help,
 );
 pod2usage(1) if $help;
@@ -104,14 +108,11 @@ if ( $replacements_encoded ) {
     }
 }
 
-print STDERR "\n\n\n\nACCESSION REPLACEMENTS:\n";
-print STDERR Dumper \%replacements;
-
-
 # Parse uploaded file with appropriate plugin
 my $parser = CXGN::Trial::ParseUpload->new(
     chado_schema => $chado_schema,
     filename => $infile,
+    skip_accession_checks => $skip_accession_checks,
     accession_replacements => \%replacements
 );
 $parser->load_plugin('MultipleTrialDesignGeneric');
@@ -143,6 +144,23 @@ finish("There is no parsed data!") if !$parsed_data;
 # Get User ID
 my $sp_person_id = CXGN::People::Person->get_person_by_username($dbh, $username);
 finish("User not found in database for username $username!") if !$sp_person_id;
+
+# Get Accessions from Parsed Data
+my %stocks;
+foreach my $tn ( keys %$parsed_data ) {
+    my $t = $parsed_data->{$tn};
+    my $d = $t->{design_details};
+    foreach my $p ( keys %$d ) {
+        my $s = $d->{$p}->{stock_name};
+        $stocks{$s} = 1;
+    }
+}
+foreach my $s ( sort(keys %stocks) ) {
+    print STDERR "ACCESSION: $s\n" if $s && $s ne '';
+}
+
+# Do not save trials, if just testing
+finish() if $test;
 
 # Create and Save Trials
 my %all_designs = %{$parsed_data};
@@ -242,7 +260,6 @@ my $coderef = sub {
             $trial->set_entry_numbers(\%entry_numbers_prop);
         }
     }
-
 };
 
 try {
