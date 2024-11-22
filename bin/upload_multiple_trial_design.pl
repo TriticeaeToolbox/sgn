@@ -111,7 +111,12 @@ if ( $replacements_encoded ) {
 my $parsed_data;
 my $validation_coderef = sub {
     # Parse uploaded file with appropriate plugin
-    my $parser = CXGN::Trial::ParseUpload->new(chado_schema => $chado_schema, filename => $infile);
+    my $parser = CXGN::Trial::ParseUpload->new(
+        chado_schema => $chado_schema,
+        filename => $infile,
+        skip_accession_checks => $test,
+        accession_replacements => \%replacements
+    );
     $parser->load_plugin('MultipleTrialDesignGeneric');
     $parsed_data = $parser->parse();
 
