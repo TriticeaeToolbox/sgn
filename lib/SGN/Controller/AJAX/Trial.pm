@@ -1020,7 +1020,7 @@ sub upload_trial_file_POST : Args(0) {
         skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
         accession_replacements => \%replacements
     );
-    $parser->load_plugin('TrialExcelFormat');
+    $parser->load_plugin('TrialGeneric');
     $parsed_data = $parser->parse();
 
     if (!$parsed_data) {
