@@ -424,6 +424,7 @@ $design_types => ()
                                         </div>
                                     </div>
                                     <input type="hidden" id="trial_synonym_search_replacements" name="trial_synonym_search_replacements">
+                                    <input type="hidden" id="trial_test" name="trial_test">
                                     </div>
 
                                 <br/><br/>

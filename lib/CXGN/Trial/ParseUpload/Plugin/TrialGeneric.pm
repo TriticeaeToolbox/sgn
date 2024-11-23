@@ -52,7 +52,7 @@ sub _validate_with_plugin {
 
 
     # Maps of plot-level data to use in overall validation
-    my $seen_stock_names;       # The set of stock names (with replacements)
+    my %seen_stock_names;       # The set of stock names (with replacements)
     my %seen_plot_numbers;      # check for a plot numbers: used only once per trial
     my %seen_plot_names;        # check for plot names: used only once per trial
     my %seen_plot_positions;    # check for plot row / col positions: each position only used once per trial
@@ -353,7 +353,7 @@ sub _parse_with_plugin {
 
     # Get (replaced) seen stock names
     my %seen_stock_names;
-    foreach my $stock_name (@{$parsed_values->{'stock_name'}}) {
+    foreach my $stock_name (@{$values->{'stock_name'}}) {
         if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
             $stock_name = $accession_replacements->{$stock_name};
         }

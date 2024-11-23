@@ -927,10 +927,15 @@ sub upload_trial_file_POST : Args(0) {
     my $add_project_trial_genotype_trial_select = [$add_project_trial_genotype_trial];
     my $add_project_trial_crossing_trial_select = [$add_project_trial_crossing_trial];
     my $trial_stock_type = $c->req->param('trial_upload_trial_stock_type');
-    my $synonym_search_check = $c->req->param('trial_synonym_search_check');
-    my $synonym_search_update = $c->req->param('trial_synonym_search_update');
+    my $synonym_search_check = $c->req->param('trial_synonym_search_check') eq 'on';
+    my $synonym_search_update = $c->req->param('trial_synonym_search_update') eq 'on';
+    my $test = $c->req->param('trial_test') eq 'true' || 0;
     my $replacements_encoded = $c->req->param('trial_synonym_search_replacements');
     my $ignore_warnings = $c->req->param('upload_trial_ignore_warnings');
+
+    print STDERR "\n\n\n\n\n\n=======> UPLOAD SINGLE TRIAL FILE:\n";
+    print STDERR "Synonym Search Check: $synonym_search_check\n";
+    print STDERR "Test: $test\n";
 
     my $upload = $c->req->upload('trial_uploaded_file');
     my $parser;
@@ -1017,7 +1022,7 @@ sub upload_trial_file_POST : Args(0) {
         filename => $archived_filename_with_path, 
         trial_stock_type => $trial_stock_type,
         trial_name => $trial_name,
-        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
+        skip_accession_checks => $synonym_search_check && $test,
         accession_replacements => \%replacements
     );
     $parser->load_plugin('TrialGeneric');
@@ -1055,10 +1060,10 @@ sub upload_trial_file_POST : Args(0) {
     # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
     # Do not continue to save the trials...
     ###
-    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
+    if ( $synonym_search_check && $test ) {
         $c->stash->{rest} = {
-            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
-            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
+            synonym_search_check => $synonym_search_check,
+            synonym_search_update => $synonym_search_update,
             parsed_data => $parsed_data
         };
         return;
