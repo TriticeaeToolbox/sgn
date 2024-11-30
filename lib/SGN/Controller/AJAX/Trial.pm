@@ -927,10 +927,15 @@ sub upload_trial_file_POST : Args(0) {
     my $add_project_trial_genotype_trial_select = [$add_project_trial_genotype_trial];
     my $add_project_trial_crossing_trial_select = [$add_project_trial_crossing_trial];
     my $trial_stock_type = $c->req->param('trial_upload_trial_stock_type');
-    my $synonym_search_check = $c->req->param('trial_synonym_search_check');
-    my $synonym_search_update = $c->req->param('trial_synonym_search_update');
+    my $synonym_search_check = $c->req->param('trial_synonym_search_check') eq 'on';
+    my $synonym_search_update = $c->req->param('trial_synonym_search_update') eq 'on';
+    my $test = $c->req->param('trial_test') eq 'true' || 0;
     my $replacements_encoded = $c->req->param('trial_synonym_search_replacements');
     my $ignore_warnings = $c->req->param('upload_trial_ignore_warnings');
+
+    print STDERR "\n\n\n\n\n\n=======> UPLOAD SINGLE TRIAL FILE:\n";
+    print STDERR "Synonym Search Check: $synonym_search_check\n";
+    print STDERR "Test: $test\n";
 
     my $upload = $c->req->upload('trial_uploaded_file');
     my $parser;
@@ -1017,10 +1022,10 @@ sub upload_trial_file_POST : Args(0) {
         filename => $archived_filename_with_path, 
         trial_stock_type => $trial_stock_type,
         trial_name => $trial_name,
-        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
+        skip_accession_checks => $synonym_search_check && $test,
         accession_replacements => \%replacements
     );
-    $parser->load_plugin('TrialExcelFormat');
+    $parser->load_plugin('TrialGeneric');
     $parsed_data = $parser->parse();
 
     if (!$parsed_data) {
@@ -1055,10 +1060,10 @@ sub upload_trial_file_POST : Args(0) {
     # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
     # Do not continue to save the trials...
     ###
-    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
+    if ( $synonym_search_check && $test ) {
         $c->stash->{rest} = {
-            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
-            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
+            synonym_search_check => $synonym_search_check,
+            synonym_search_update => $synonym_search_update,
             parsed_data => $parsed_data
         };
         return;
@@ -1187,74 +1192,46 @@ sub upload_multiple_trial_designs_file : Path('/ajax/trial/upload_multiple_trial
 
 sub upload_multiple_trial_designs_file_POST : Args(0) {
     my ($self, $c) = @_;
-
-    # print STDERR "Check 1: ".localtime()."\n";
-
-    # print STDERR Dumper $c->req->params();
-    my $chado_schema               = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
-    my $metadata_schema            = $c->dbic_schema("CXGN::Metadata::Schema");
-    my $phenome_schema             = $c->dbic_schema("CXGN::Phenome::Schema");
-    my $dbh                        = $c->dbc->dbh;
     my $upload                     = $c->req->upload('multiple_trial_designs_upload_file');
     my $ignore_warnings            = $c->req->param('upload_multiple_trials_ignore_warnings');
+    my $test                       = $c->req->param('multi_trial_test') eq 'true';
+    my $replacements_encoded       = $c->req->param('multi_trial_synonym_search_replacements');
     my $synonym_search_check       = $c->req->param('multi_trial_synonym_search_check');
     my $synonym_search_update      = $c->req->param('multi_trial_synonym_search_update');
-    my $replacements_encoded       = $c->req->param('multi_trial_synonym_search_replacements');
-    my $dir                        = $c->tempfiles_subdir('/delete_nd_experiment_ids');
+    my $email_address              = $c->req->param('trial_email_address_upload');
+    my $email_option_enabled       = $c->req->param('email_option_to_recieve_trial_upload_status') eq 'on';
+
     my $dbhost                     = $c->config->{dbhost};
     my $dbname                     = $c->config->{dbname};
     my $dbpass                     = $c->config->{dbpass};
     my $basepath                   = $c->config->{basepath};
     my $dbuser                     = $c->config->{dbuser};
-    my $temp_file_nd_experiment_id = $c->config->{basepath}."/".$c->tempfile( TEMPLATE => 'delete_nd_experiment_ids/fileXXXX');
     my $time                       = DateTime->now();
     my $timestamp                  = $time->ymd()."_".$time->hms();
     my $upload_original_name       = $upload->filename();
     my $upload_tempfile            = $upload->tempname;
     my $subdirectory               = "trial_upload";
     my $archive_filename           = $timestamp . "_" . $upload_original_name;
-    my $archived_filename_with_path;
-    my $parser;
-    my $parsed_data;
-    my $md5;
-    my $validate_file;
-    my $parsed_file;
-    my $parse_errors;
-    my %parsed_data;
-    my %upload_metadata;
-    my $user_id;
-    my $username;
-    my $error;
-    my $email_address ;
-    my $email_option_enabled;
-    my $breeding_program_name;
 
-
-    # print STDERR "Check 2: ".localtime()."\n";
-    print STDERR "Ignore warnings is $ignore_warnings\n";
-    if ($upload_original_name =~ /\s/ || $upload_original_name =~ /\// || $upload_original_name =~ /\\/ ) {
-        print STDERR "File name must not have spaces or slashes.\n";
-        $c->stash->{rest} = {errors => "Uploaded file name must not contain spaces or slashes." };
-        return;
-    }
-
+    # Check if user is logged in and has curator or submitter privileges
     if (!$c->user()) {
         print STDERR "User not logged in... not uploading a trial.\n";
         $c->stash->{rest} = {errors => "You need to be logged in to upload a trial." };
         return;
     }
-    if (!any { $_ eq "curator" || $_ eq "submitter" } ($c->user()->roles)  ) {
+    if (!any { $_ eq "curator" || $_ eq "submitter" } ($c->user()->roles)) {
         $c->stash->{rest} = {errors =>  "You have insufficient privileges to upload a trial." };
         return;
     }
+    my $user_id = $c->user()->get_object()->get_sp_person_id();
+    my $username = $c->user()->get_object()->get_username();
 
-    $user_id              = $c->user()->get_object()->get_sp_person_id();
-    $username             = $c->user()->get_object()->get_username();
-    $email_address        = $c->req->param('trial_email_address_upload');
-    $email_option_enabled = $c->req->param('email_option_to_recieve_trial_upload_status') eq 'on';
-
-    print STDERR "email option enabled : $email_option_enabled\n";
-    print STDERR "recieved  address: $email_address\n";
+    # Check filename for spaces and/or slashes
+    if ($upload_original_name =~ /\s/ || $upload_original_name =~ /\// || $upload_original_name =~ /\\/ ) {
+        print STDERR "File name must not have spaces or slashes.\n";
+        $c->stash->{rest} = {errors => "Uploaded file name must not contain spaces or slashes." };
+        return;
+    }
 
     ## Store uploaded temporary file in archive
     my $uploader = CXGN::UploadFile->new({
@@ -1266,138 +1243,81 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
         user_id => $user_id,
         user_role => $c->user->get_object->get_user_type()
     });
-    $archived_filename_with_path = $uploader->archive();
-    $md5 = $uploader->get_md5($archived_filename_with_path);
+    my $archived_filename_with_path = $uploader->archive();
     if (!$archived_filename_with_path) {
         $c->stash->{rest} = {errors => "Could not save file $archive_filename in archive",};
         return;
     }
     unlink $upload_tempfile;
 
-    my $infile = $archived_filename_with_path;
-    # print STDERR "Check 3: ".localtime()."\n";
-    $upload_metadata{'archived_file'} = $archived_filename_with_path;
-    $upload_metadata{'archived_file_type'}="trial upload file";
-    $upload_metadata{'user_id'}=$user_id;
-    $upload_metadata{'date'}="$timestamp";
+    # Build the backend script command to parse, validate, and upload the trials
+    my $cmd = "perl \"$basepath/bin/upload_multiple_trial_design.pl\" -H \"$dbhost\" -D \"$dbname\" -U \"$dbuser\" -P \"$dbpass\" -w \"$basepath\" -i \"$archived_filename_with_path\" -un \"$username\"";
+    $cmd .= " -e \"$email_address\"" if $email_option_enabled && $email_address && !$test;
+    $cmd .= " -iw" if $ignore_warnings;
+    $cmd .= " -t" if $test;
+    $cmd .= " -sa" if $test;
+    $cmd .= " -r \"$replacements_encoded\"" if $replacements_encoded;
 
-    # set replacements from request, if provided
-    my %replacements;
-    if ( $replacements_encoded ) {
-        my $replacements_string = uri_unescape($replacements_encoded);
-        my $replacements_json = decode_json($replacements_string);
-        foreach my $i (@$replacements_json) {
-            $replacements{$i->{user_name}} = $i->{db_name};
-        }
+    # Run asynchronously if email option is enabled
+    my $runner = CXGN::Tools::Run->new();
+    if ( $email_option_enabled && $email_address && !$test ) {
+        $runner->run_async($cmd);
+        my $err = $runner->err();
+        my $out = $runner->out();
+
+        print STDERR "Upload Trials Output (async):\n";
+        print STDERR "$err\n";
+        print STDERR "$out\n";
+
+        $c->stash->{rest} = {background => 1};
+        return;
     }
 
-    #parse uploaded file with appropriate plugin
-    $parser = CXGN::Trial::ParseUpload->new(
-        chado_schema => $chado_schema, 
-        filename => $archived_filename_with_path, 
-        skip_accession_checks => $synonym_search_check && $synonym_search_check eq 'on',
-        accession_replacements => \%replacements
-    );
-    $parser->load_plugin('MultipleTrialDesignExcelFormat');
-    $parsed_data = $parser->parse();
-    print STDERR "the parsed data : " . Dumper($parsed_data) . "\n";
+    # Otherwise run synchronously
+    else {
+        $runner->run($cmd);
+        my $err = $runner->err();
+        my $out = $runner->out();
 
-    # print STDERR "check the parsed data : \n" . Dumper($parsed_data); 
-    if (!$parsed_data) {
-        my $return_error = '';
-        my $email_subject = "Errors in multiple trial upload";
-        my $email_body    = "Dear $username, \n\nErrors found. Please fix the following errors and try re-uploading again: $upload_original_name\n\n";
+        print STDERR "Upload Trials Output (sync):\n";
+        print STDERR "$err\n";
+        print STDERR "$out\n";
 
-        if (! $parser->has_parse_errors() ){
-            # $c->stash->{rest} = {errors => "Could not get parsing errors"};
-            # return;
-            $return_error = "Could not get parsing errors";
+        # Collect errors and warnings from STDERR
+        my @errors;
+        my @warnings;
+        my @accessions; # Accession Names for the Synonym Search Tool integration
+        foreach (split(/\n/, $err)) {
+            if ($_ =~ /^ERROR/) {
+                $_ =~ s/ERROR:? ?//;
+                push @errors, $_;
+            }
+            elsif ($_ =~ /^WARNING/) {
+                $_ =~ s/WARNING:? ?//;
+                push @warnings, $_;
+            }
+            elsif ($_ =~ /^ACCESSION/) {
+                $_ =~ s/ACCESSION:? ?//;
+                push @accessions, $_;
+            }
+        }
+
+        my %rtn;
+        if ( scalar(@errors) > 0 ) {
+            $rtn{errors} = \@errors;
+        }
+        elsif ( scalar(@warnings) > 0 ) {
+            $rtn{warnings} = \@warnings;
+        }
+        elsif ( $test ) {
+            $rtn{synonym_search_check} = $synonym_search_check && $synonym_search_check eq 'on';
+            $rtn{synonym_search_update} = $synonym_search_update && $synonym_search_check eq 'on';
+            $rtn{terms} = \@accessions;
         }
         else {
-            # print STDERR "Parse errors are:\n";
-            # print STDERR Dumper $parse_errors;
-            $parse_errors = $parser->get_parse_errors();
-            if (ref($parse_errors) eq 'HASH' && exists $parse_errors->{'error_messages'}) {
-                $return_error = join("\n", @{$parse_errors->{'error_messages'}});
-            }
-            # $c->stash->{rest} = {errors => $parse_errors->{'error_messages'}};
-            # return;
+            $rtn{success} = 1;
         }
-
-        #to remove HTML tags in the email message content
-        $return_error =~ s/<[^>]*>//g;
-
-        $email_body .= $return_error;
-        $email_body .= "\n\nThank you\nHave a nice day\n";
-
-        if ($email_option_enabled == 1 && $email_address) {
-            CXGN::Contact::send_email($email_subject, $email_body, $email_address);
-        }
-
-        $c->stash->{rest} = {errors => $return_error};
-        return;
-    }
-
-    if ($parser->has_parse_warnings()) {
-        unless ($ignore_warnings) {
-            my $warnings = $parser->get_parse_warnings();
-            $c->stash->{rest} = {warnings => $warnings->{'warning_messages'}};
-            return;
-        }
-    }
-
-    ###
-    # RETURN THE PARSED DATA IN THE RESPONSE IF SYNONYM CHECK IS ENABLED
-    # Do not continue to save the trials...
-    ###
-    if ( $synonym_search_check && $synonym_search_check eq 'on' ) {
-        $c->stash->{rest} = {
-            synonym_search_check => $synonym_search_check && $synonym_search_check eq 'on',
-            synonym_search_update => $synonym_search_update && $synonym_search_check eq 'on',
-            parsed_data => $parsed_data
-        };
-        return;
-    }
-
-    # print STDERR "Check 4: ".localtime()."\n";
-    # extract the breeding_program_name from the trial
-
-    for my $trial (values%$parsed_data) {
-        if (exists $trial->{'breeding_program'}) {
-            $breeding_program_name = $trial->{'breeding_program'};
-        }
-    }
-    unless ($breeding_program_name) {
-        $c->stash->{rest} = {errors => "Breeding program not found in the uploaded file."};
-        return;
-    }
-    print STDERR "Breeding program name: $breeding_program_name\n";
-
-    # my $projects = CXGN::BreedersToolbox::Projects->new({ schema => $chado_schema });
-    # my $breeding_program = $projects->get_breeding_program_by_name($breeding_program_name);
-
-    my %all_designs = %{$parsed_data};
-    my %save;
-    $save{'errors'} = [];
-
-    # print STDERR "breeding_program_name:  $breeding_program_name \n";
-    # print STDERR "infile:  $infile \n";
-
-    my $async_upload = CXGN::Tools::Run->new();
-    $async_upload->run_async("perl $basepath/bin/upload_multiple_trial_design.pl -H $dbhost -D $dbname -P \"$dbpass\" -w \"$basepath\" -U \"$dbuser\" -b \"$breeding_program_name\" -i \"$infile\" -un \"$username\" -e \"$email_address\" -eo $email_option_enabled -r $temp_file_nd_experiment_id");
-
-    #print STDERR "Check 5: ".localtime()."\n";
-    if (scalar @{$save{'errors'}} > 0) {
-        print STDERR "Errors saving trials: ".@{$save{'errors'}};
-        $c->stash->{rest} = {errors => $save{'errors'}};
-        return;
-    # } elsif ($save->{'trial_id'}) {
-    } else {
-        my $dbh = $c->dbc->dbh();
-        my $bs = CXGN::BreederSearch->new( { dbh=>$dbh, dbname=>$c->config->{dbname}, } );
-        my $refresh = $bs->refresh_matviews($c->config->{dbhost}, $c->config->{dbname}, $c->config->{dbuser}, $c->config->{dbpass}, 'all_but_genoview', 'concurrent', $c->config->{basepath});
-
-        $c->stash->{rest} = {success => "1",};
+        $c->stash->{rest} = \%rtn;
         return;
     }
 

@@ -139,6 +139,7 @@ sub get_trial_folder_select : Path('/ajax/html/select/folders') Args(0) {
     my $folder_for_genotyping_trials = 1 ? $c->req->param("folder_for_genotyping_trials") eq 'true' : 0;
     my $folder_for_genotyping_projects = 1 ? $c->req->param("folder_for_genotyping_projects") eq 'true' : 0;
     my $folder_for_tracking_activities = 1 ? $c->req->param("folder_for_tracking_activities") eq 'true' : 0;
+    my $folder_for_transformations = 1 ? $c->req->param("folder_for_transformations") eq 'true' : 0;
 
     my $id = $c->req->param("id") || "folder_select";
     my $name = $c->req->param("name") || "folder_select";
@@ -153,7 +154,8 @@ sub get_trial_folder_select : Path('/ajax/html/select/folders') Args(0) {
         folder_for_crosses => $folder_for_crosses,
         folder_for_genotyping_trials => $folder_for_genotyping_trials,
         folder_for_genotyping_projects => $folder_for_genotyping_projects,
-        folder_for_tracking_activities => $folder_for_tracking_activities
+        folder_for_tracking_activities => $folder_for_tracking_activities,
+        folder_for_transformations => $folder_for_transformations,
     });
 
     if (scalar(@folders)>0){
@@ -258,6 +260,7 @@ sub get_projects_select : Path('/ajax/html/select/projects') Args(0) {
     my $get_genotyping_trials = $c->req->param("get_genotyping_trials");
     my $get_genotyping_projects = $c->req->param("get_genotyping_projects");
     my $get_tracking_activities_projects = $c->req->param("get_tracking_activities_projects");
+    my $get_transformation_projects = $c->req->param("get_transformation_projects");
     my $include_analyses = $c->req->param("include_analyses");
     my $excluded_plates_in_project_id = $c->req->param("excluded_plates_in_project_id");
 
@@ -333,6 +336,12 @@ sub get_projects_select : Path('/ajax/html/select/projects') Args(0) {
         if ($get_tracking_activities_projects){
             if ($tracking_activities_projects && scalar(@$tracking_activities_projects)>0){
                 my @g_projects = sort { $a->[1] cmp $b->[1] } @$tracking_activities_projects;
+                push @projects, @g_projects;
+            }
+        }
+        if ($get_transformation_projects){
+            if ($transformation_projects && scalar(@$transformation_projects)>0){
+                my @g_projects = sort { $a->[1] cmp $b->[1] } @$transformation_projects;
                 push @projects, @g_projects;
             }
         }
@@ -681,7 +690,7 @@ sub get_stocks_select : Path('/ajax/html/select/stocks') Args(0) {
     }
 
     my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
-	
+
     my $stock_search = CXGN::Stock::Search->new({
 		bcs_schema=>$c->dbic_schema("Bio::Chado::Schema", "sgn_chado", $sp_person_id),
 		people_schema=>$c->dbic_schema("CXGN::People::Schema", undef, $sp_person_id),
@@ -2344,6 +2353,32 @@ sub _clean_inputs {
 		$params->{$_} = $ret_val;
 	}
 	return $params;
+}
+
+
+sub get_related_attributes_select : Path('/ajax/html/select/related_attributes') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    my $id = $c->req->param("id") || "related_attributes_select";
+    my $name = $c->req->param("name") || "related_attributes_select";
+    my $empty = $c->req->param("empty") || "";
+    my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
+    my @related_attributes;
+    push @related_attributes, ["", "Select Attribute"];
+    push @related_attributes, ['breedingProgram', 'breeding program'];
+    push @related_attributes, ['transformationProject', 'transformation project'];
+    push @related_attributes, ['transfomationID', 'transformation id'];
+    push @related_attributes, ['vectorConstruct', 'vector construct'];
+    push @related_attributes, ['plantMaterial', 'plant material'];
+    push @related_attributes, ['text', 'text'];
+
+    my $html = simple_selectbox_html(
+        name => $name,
+        id => $id,
+        choices => \@related_attributes,
+    );
+    $c->stash->{rest} = { select => $html };
 }
 
 
