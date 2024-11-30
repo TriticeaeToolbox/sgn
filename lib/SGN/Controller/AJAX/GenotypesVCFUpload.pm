@@ -14,6 +14,8 @@ Uploading Genotype VCF
 
 package SGN::Controller::AJAX::GenotypesVCFUpload;
 
+use strict;
+use warnings;
 use Moose;
 use Try::Tiny;
 use DateTime;
