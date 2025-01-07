@@ -268,5 +268,9 @@ $latest_trial_activity => undef
                 </td>
             </tr>
         </table>
+
+% if ( $m->comp_exists("/breeders_toolbox/trial/trial_details_d2s.mas") ) {
+        <& /breeders_toolbox/trial/trial_details_d2s.mas, trial_id => $trial_id &>
+% }
     </div>
 </div>
