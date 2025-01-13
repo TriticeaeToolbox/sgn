@@ -57,6 +57,9 @@ use CXGN::Contact;
 use CXGN::File::Parse;
 use CXGN::People::Person;
 use CXGN::Tools::Run;
+use LWP::UserAgent;
+use HTTP::Request;
+use HTTP::Cookies;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -932,12 +935,8 @@ sub upload_trial_file_POST : Args(0) {
     my $test = $c->req->param('trial_test') eq 'true' || 0;
     my $replacements_encoded = $c->req->param('trial_synonym_search_replacements');
     my $ignore_warnings = $c->req->param('upload_trial_ignore_warnings');
-
-    print STDERR "\n\n\n\n\n\n=======> UPLOAD SINGLE TRIAL FILE:\n";
-    print STDERR "Synonym Search Check: $synonym_search_check\n";
-    print STDERR "Test: $test\n";
-
     my $upload = $c->req->upload('trial_uploaded_file');
+
     my $parser;
     my $parsed_data;
     my $upload_original_name = $upload->filename();
@@ -1626,25 +1625,78 @@ sub upload_soil_data_POST : Args(0) {
 
 }
 
-sub geo_fieldmap_tileserver : Path('/ajax/trial/geo_fieldmap_tileserver') : ActionClass('REST') { }
+sub geo_fieldmap_orthos : Path('/ajax/trial/orthos') : ActionClass('REST') { }
 
-sub geo_fieldmap_tileserver_GET : Args(0) {
+sub geo_fieldmap_orthos_GET : Args(0) {
     my $self = shift;
     my $c = shift;
-    my ($attr, $url) = split(',', $c->config->{geo_fieldmap_tileserver});
+    my $trial_id = $c->req->param('trial');
+    my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+    my @orthos;
 
-    if ( $attr && $url ) { 
-        $c->stash->{rest} = {
-            success => "1",
-            attribution => $attr,
-            url => $url
-        };
+    # Get trial additional info
+    my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
+    my $additional_info = $trial->get_additional_info();
+
+    # Get orthos from D2S if there is a d2s_project_id
+    if ( exists($additional_info->{'d2s_project_id'}) ) {
+        my $d2s_project_id = $additional_info->{'d2s_project_id'};
+        my $d2s_host = $c->config->{'d2s_host'};
+        my $d2s_user = $c->config->{'d2s_user'};
+        my $d2s_pass = $c->config->{'d2s_pass'};
+        my $tileserver = $c->config->{'geo_fieldmap_tileserver'};
+
+        my $ua = LWP::UserAgent->new();
+        my $cookie_jar = HTTP::Cookies->new();
+        $ua->cookie_jar($cookie_jar);
+
+        # Log in to D2S to get auth token
+        my $auth;
+        my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
+        if ( $response->is_success() ) {
+            $cookie_jar->scan(sub {
+                my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $hash) = @_;
+                if ( $key eq 'access_token' ) {
+                    $auth = $value;
+                }
+            });
+        }
+
+        # Get the Project Flights
+        my $flights;
+        if ( $auth ) {
+            my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/flights");
+            $request->header('Authorization' => $auth);
+            my $response = $ua->request($request);
+            if ( $response->is_success() ) {
+                $flights = $response->decoded_content();
+                $flights = decode_json($flights);
+            }
+        }
+
+        # Parse each of the flights
+        foreach my $flight (@$flights) {
+            my $date = $flight->{'acquisition_date'};
+            foreach my $d (@{$flight->{'data_products'}}) {
+                my $type = $d->{'data_type'};
+                if ( $type eq 'ortho' ) {
+                    my $url = $d->{'url'};
+                    my $layer = $tileserver =~ s/{url}/$url/r;
+
+                    my %rtn;
+                    $rtn{'date'} = $date;
+                    $rtn{'url'} = $layer;
+                    $rtn{'attribution'} = "Data2Science";
+                    push(@orthos, \%rtn);
+                }
+            }
+        }
     }
-    else {
-        $c->stash->{rest} = {
-            success => "0",
-        };
-    }
+
+    $c->stash->{rest} = {
+        success => "1",
+        orthos => \@orthos
+    };
 }
 
 

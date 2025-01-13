@@ -2286,59 +2286,65 @@
 	      this.loading.style("display", loading ? 'block' : 'none');
 	    }
 
-	    this.displayOrthoSelection = (orthos) => {
-	      orthos.sort((a, b) => b.date > a.date ? -1 : 1);
-	      let html = '';
-	      if ( orthos && orthos.length > 0 ) {
-	        html = "<div style='display: flex; align-items: baseline; gap: 25px; padding: 15px'>";
-	        html += "<p><strong>View Orthomosaic Imagery</strong></p>";
-	        html += `<select class='ortho-select form-control' style='width: 200px'>`;
-	        html += "<option value=''>Select a Date</option>";
-	        orthos.forEach((o) => {
-	          html += `<option value='${o.url}'>${o.date}</option>`;
-	        });
-	        html += "</select>";
-	        html += "</div>";
-	      }
-	      this.ortho_selection_container.html(html);
-	      var map = this.map;
-	      jQuery(".ortho-select").on('change', function() { window.onOrthoSelection(this, map) });
-	    }
+      // Check if there are any orthos available for this trial
+      this.getOrthos = (studyDbId) => {
+        let _this = this;
+        jQuery.ajax({
+          method: 'GET',
+          url: '/ajax/trial/orthos',
+          data: { trial: studyDbId },
+          success: function(response) {
+            if ( response && response.orthos ) {
+              _this.displayOrthoSelection(response.orthos);
+            }
+          }
+        });
+      }
 
-	    // Handle the selection of an orthomosaic to display
-	    window.onOrthoSelection = (e, map) => {
-	      var select = jQuery(e);
-	      var url = select.find(":selected").val();
+      // Display select input for available orthos
+      this.displayOrthoSelection = (orthos = []) => {
+        let html = '';
+        if ( orthos && orthos.length > 0 ) {
+          html = "<div style='display: flex; align-items: baseline; gap: 25px; padding: 15px'>";
+          html += "<p><strong>View Orthomosaic Imagery</strong></p>";
+          html += `<select class='ortho-select form-control' style='width: 200px'>`;
+          html += "<option value=''>Select a Date</option>";
 
-	      // Remove any previous layer
-	      if ( window.orthoMapLayer ) {
-	        map.removeLayer(window.orthoMapLayer);
-	      }
+          orthos.sort((a, b) => a.date > b.date);
+          orthos.forEach((o) => {
+            html += `<option data-attribution='${o.attribution}' value='${o.url}'>${o.date}</option>`;
+          });
 
-	      // Add a new map layer
-	      if ( url && url !== '' ) {
+          html += "</select>";
+          html += "</div>";
+        }
+        this.ortho_selection_container.html(html);
+        var map = this.map;
+        jQuery(".ortho-select").on('change', function() { window.onOrthoSelection(this, map) });
+      }
 
-	        // Get the server-defined tile server
-	        jQuery.ajax( {
-	          url: '/ajax/trial/geo_fieldmap_tileserver',
-	          async: false,
-	          success: function(response) {
+      // Handle the selection of an orthomosaic to display
+      window.onOrthoSelection = (e, map) => {
+        var select = jQuery(e);
+        var url = select.find(":selected").val();
+        var attribution = select.find(":selected").data("attribution");
 
-	            // add map layer if tile server is defined
-	            if ( response && response.success && response.success === "1" ) {
-	              window.orthoMapLayer = L.tileLayer(response.url.replaceAll("{url}", url), {
-	                minZoom: 16,
-	                maxZoom: 30,
-	                attribution: response.attribution
-	              });
-	              window.orthoMapLayer.addTo(map);
-	            }
-	          }
+        // Remove any previous layer
+        if ( window.orthoMapLayer ) {
+          map.removeLayer(window.orthoMapLayer);
+        }
 
-	        });
-	      }
+        // Add a new map layer
+        if ( url && url !== '' ) {
+          window.orthoMapLayer = L.tileLayer(url, {
+            minZoom: 16,
+            maxZoom: 30,
+            attribution: attribution
+          });
+          window.orthoMapLayer.addTo(map);
+        }
 
-	    }
+      }
 	  }
 
 	  removeControls() {
@@ -2349,8 +2355,8 @@
 
 	  load(studyDbId) {
 	    this.onLoading(true);
-	    this.loadStudy(studyDbId);
 	    this.generatePlots(studyDbId);
+	    this.getOrthos(studyDbId);
 	    return this.data.then(()=>{
 	      this.drawPlots();
 	      this.onLoading(false);
@@ -2359,16 +2365,6 @@
 	      console.log(resp);
 	      this.onLoading(false);
 	    });
-	  }
-
-	  loadStudy(studyDbId) {
-	    const brapi = BrAPI(this.brapi_endpoint, "2.0", this.opts.brapi_auth);
-	    brapi.studies_detail({ studyDbId }).map((study) => this.enableOrthomosaics(study));
-	  }
-
-	  enableOrthomosaics(study) {
-	    const orthos = study && study.additionalInfo && study.additionalInfo.orthomosaics ? study.additionalInfo.orthomosaics : [];
-	    this.displayOrthoSelection(orthos);
 	  }
 
 	  drawPlots() {
