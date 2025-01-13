@@ -2286,6 +2286,25 @@
 	      this.loading.style("display", loading ? 'block' : 'none');
 	    }
 
+      // Check if there are any external coordinates available for this trial
+      this._coords = {}
+      this.getCoords = async (studyDbId) => {
+        let _this = this;
+        return new Promise((resolve) => {
+          jQuery.ajax({
+            method: 'GET',
+            url: '/ajax/trial/coords',
+            data: { trial: studyDbId },
+            success: function(response) {
+              _this._coords = response?.coords || {};
+            },
+            complete: function() {
+              resolve();
+            }
+          });
+        })
+      }
+
       // Check if there are any orthos available for this trial
       this.getOrthos = (studyDbId) => {
         let _this = this;
@@ -2312,7 +2331,7 @@
 
           orthos.sort((a, b) => a.date > b.date);
           orthos.forEach((o) => {
-            html += `<option data-attribution='${o.attribution}' value='${o.url}'>${o.date}</option>`;
+            html += `<option data-attribution='${o.attribution}' value='${o.url}'>${o.date} (${o.attribution})</option>`;
           });
 
           html += "</select>";
@@ -2353,8 +2372,9 @@
 	    this.map.removeControl(this.clearPolygonsControl);
 	  }
 
-	  load(studyDbId) {
+	  async load(studyDbId) {
 	    this.onLoading(true);
+	    await this.getCoords(studyDbId);
 	    this.generatePlots(studyDbId);
 	    this.getOrthos(studyDbId);
 	    return this.data.then(()=>{
@@ -2583,8 +2603,19 @@
 	      ou._X = ou.X || oup.positionCoordinateX;
 	      ou._Y = ou.Y || oup.positionCoordinateY;
 	      try {
-	        ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates)
-	                      || null;
+
+          // Set external geoJSON from _coords, if available
+          let c;
+          const levels = ou?.observationUnitPosition?.observationLevelRelationships || [];
+          for ( let i = 0; i < levels.length; i++ ) {
+            if ( levels[i].levelName === 'plot' && this._coords.hasOwnProperty(levels[i].levelCode) ) {
+              c = this._coords[levels[i].levelCode];
+            }
+          }
+
+          // Use the internal geo coordinates by default or the external coordinates if available
+          ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || (this.opts.useGeoJson && c) || null;
+
 	      } catch (e) {}
 	      ou._type = "";
 	      if (!isNaN(ou._X) && !isNaN(ou._Y)){
@@ -2662,11 +2693,11 @@
 
 	    // Shape Plots
 	    data.plots_shaped = false;
-	    if(data.plots.every(plot=>(plot._type=="Polygon"))){
+	    if(data.plots.every(plot=>(plot._type=="Polygon"||plot._type=="MultiPolygon"))){
 	      // Plot shapes already exist!
 	      data.plots_shaped = this.opts.useGeoJson;
 	    }
-	    else if(data.plots.every(plot=>(plot._type=="Point"||plot._type=="Polygon"))){
+	    else if(data.plots.every(plot=>(plot._type=="Point"||plot._type=="Polygon"||plot._type=="MultiPolygon"))){
 	      // Create plot shapes using centroid Voronoi
 	      var centroids = turf.featureCollection(data.plots.map((plot,pos)=>{
 	        return turf.centroid(plot._geoJSON)
