@@ -1634,6 +1634,8 @@ sub geo_fieldmap_orthos_GET : Args(0) {
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my @orthos;
 
+    print STDERR "==> GEO FIELD MAP | GET ORTHOS: $trial_id\n";
+
     # Get trial additional info
     my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
     my $additional_info = $trial->get_additional_info();
@@ -1645,6 +1647,8 @@ sub geo_fieldmap_orthos_GET : Args(0) {
         my $d2s_user = $c->config->{'d2s_user'};
         my $d2s_pass = $c->config->{'d2s_pass'};
         my $tileserver = $c->config->{'geo_fieldmap_tileserver'};
+
+        print STDERR "... D2S Project ID: $d2s_project_id\n";
 
         my $ua = LWP::UserAgent->new();
         my $cookie_jar = HTTP::Cookies->new();
@@ -1662,6 +1666,8 @@ sub geo_fieldmap_orthos_GET : Args(0) {
             });
         }
 
+        print STDERR "... Auth Token: $auth\n";
+
         # Get the Project Flights
         my $flights;
         if ( $auth ) {
@@ -1673,6 +1679,9 @@ sub geo_fieldmap_orthos_GET : Args(0) {
                 $flights = decode_json($flights);
             }
         }
+
+        print STDERR "... Flights:\n";
+        print STDERR Dumper $flights->[0];
 
         # Parse each of the flights
         foreach my $flight (@$flights) {
@@ -1692,6 +1701,9 @@ sub geo_fieldmap_orthos_GET : Args(0) {
             }
         }
     }
+
+    print STDERR "... Orthos:\n";
+    print STDERR Dumper @orthos[0];
 
     $c->stash->{rest} = {
         success => "1",
