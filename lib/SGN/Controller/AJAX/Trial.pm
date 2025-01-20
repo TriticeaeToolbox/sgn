@@ -1656,7 +1656,9 @@ sub geo_fieldmap_orthos_GET : Args(0) {
 
         # Log in to D2S to get auth token
         my $auth;
+        print STDERR "... requesting auth token from D2S...\n";
         my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
+        print STDERR Dumper $response;
         if ( $response->is_success() ) {
             $cookie_jar->scan(sub {
                 my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $hash) = @_;
@@ -1671,19 +1673,22 @@ sub geo_fieldmap_orthos_GET : Args(0) {
         # Get the Project Flights
         my $flights;
         if ( $auth ) {
+            print STDERR "... requesting flights for project from D2S...\n";
             my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/flights");
             $request->header('Authorization' => $auth);
             my $response = $ua->request($request);
+            print STDERR Dumper $response;
             if ( $response->is_success() ) {
                 $flights = $response->decoded_content();
                 $flights = decode_json($flights);
             }
         }
 
-        print STDERR "... Flights:\n";
+        print STDERR "... Flights (1st):\n";
         print STDERR Dumper $flights->[0];
 
         # Parse each of the flights
+        print STDERR "... parsing flights to get orthos...\n";
         foreach my $flight (@$flights) {
             my $date = $flight->{'acquisition_date'};
             foreach my $d (@{$flight->{'data_products'}}) {
@@ -1702,7 +1707,7 @@ sub geo_fieldmap_orthos_GET : Args(0) {
         }
     }
 
-    print STDERR "... Orthos:\n";
+    print STDERR "... Orthos (1st):\n";
     print STDERR Dumper @orthos[0];
 
     $c->stash->{rest} = {
@@ -1721,6 +1726,8 @@ sub geo_fieldmap_coords_GET : Args(0) {
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my %coords;
 
+    print STDERR "==> GEO FIELD MAP | GET COORDS: $trial_id\n";
+
     # Get trial additional info
     my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
     my $additional_info = $trial->get_additional_info();
@@ -1732,13 +1739,17 @@ sub geo_fieldmap_coords_GET : Args(0) {
         my $d2s_user = $c->config->{'d2s_user'};
         my $d2s_pass = $c->config->{'d2s_pass'};
 
+        print STDERR "... D2S Project ID: $d2s_project_id\n";
+
         my $ua = LWP::UserAgent->new();
         my $cookie_jar = HTTP::Cookies->new();
         $ua->cookie_jar($cookie_jar);
 
         # Log in to D2S to get auth token
         my $auth;
+        print STDERR "... requesting auth token from D2S...\n";
         my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
+        print STDERR Dumper $response;
         if ( $response->is_success() ) {
             $cookie_jar->scan(sub {
                 my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $hash) = @_;
@@ -1748,12 +1759,16 @@ sub geo_fieldmap_coords_GET : Args(0) {
             });
         }
 
+        print STDERR "... Auth Token: $auth\n";
+
         # Get vector layers (specify vector layer id)
         my $vector;
         if ( $auth ) {
+            print STDERR "... requesting vector layers for project from D2S...\n";
             my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/vector_layers");
             $request->header('Authorization' => $auth);
             my $response = $ua->request($request);
+            print STDERR Dumper $response;
             if ( $response->is_success() ) {
                 my $vectors = $response->decoded_content();
                 $vectors = decode_json($vectors);
@@ -1765,11 +1780,15 @@ sub geo_fieldmap_coords_GET : Args(0) {
             }
         }
 
+        print STDERR "... Vector Layer: $vector\n";
+
         # Get GeoJSON
         if ( $vector ) {
-            my $request = HTTP::Request->new(GET => "$d2s_host/projects/d567c929-e893-484a-a8d0-89f2d132391a/vector_layers/DpLRr9CaDJ0/download?format=json");
+            print STDERR "... requesting vector layer geoJSON from D2S...\n";
+            my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/vector_layers/$vector/download?format=json");
             $request->header('Authorization' => $auth);
             my $response = $ua->request($request);
+            print STDERR Dumper $response;
             if ( $response->is_success() ) {
                 my $data = $response->decoded_content();
                 $data = decode_json($data);
