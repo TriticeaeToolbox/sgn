@@ -1651,6 +1651,7 @@ sub geo_fieldmap_orthos_GET : Args(0) {
         print STDERR "... D2S Project ID: $d2s_project_id\n";
 
         my $ua = LWP::UserAgent->new();
+        $ua->timeout(300);
         my $cookie_jar = HTTP::Cookies->new();
         $ua->cookie_jar($cookie_jar);
 
@@ -1742,6 +1743,7 @@ sub geo_fieldmap_coords_GET : Args(0) {
         print STDERR "... D2S Project ID: $d2s_project_id\n";
 
         my $ua = LWP::UserAgent->new();
+        $ua->timeout(300);
         my $cookie_jar = HTTP::Cookies->new();
         $ua->cookie_jar($cookie_jar);
 
