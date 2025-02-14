@@ -159,7 +159,7 @@ sub name_like {
   # clean the name to see what WE would call it. 
   # We'll search for both the input name and the cleaned name.
   #my $clean_name = clean_marker_name($name);
-  $clean_name = s/\s+//g;
+  my $clean_name = s/\s+//g;
 
   # also allow to search on marker SGN-M type identifiers in the name 
   # field. exact/starts with etc won't be supported for SGN-M ids.
