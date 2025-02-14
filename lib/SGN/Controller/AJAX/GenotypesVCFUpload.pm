@@ -313,7 +313,7 @@ sub upload_genotype_verify_POST : Args(0) {
         $parser_plugin = 'IntertekCSV';
 
         if ($obs_type eq 'accession') {
-            $include_lab_numbers = 1;
+	#    $include_lab_numbers = 1;
         }
 
         my $upload_inteterk_marker_info_original_name = $upload_inteterk_marker_info->filename();
@@ -403,7 +403,7 @@ sub upload_genotype_verify_POST : Args(0) {
         $organism_species = $protocol->species_name;
         $obs_type = $protocol->sample_observation_unit_type_name;
         if ($obs_type eq 'accession') {
-            $include_lab_numbers = 1;
+	#    $include_lab_numbers = 1;
         }
     }
 
@@ -432,7 +432,7 @@ sub upload_genotype_verify_POST : Args(0) {
         organism_id => $organism_id,
         create_missing_observation_units_as_accessions => $add_accessions,
         igd_numbers_included => $include_igd_numbers,
-        # lab_numbers_included => $include_lab_numbers
+        lab_numbers_included => $include_lab_numbers
     });
     $parser->load_plugin($parser_plugin);
 
