@@ -60,6 +60,7 @@ use CXGN::Tools::Run;
 use LWP::UserAgent;
 use HTTP::Request;
 use HTTP::Cookies;
+use Cache::FastMmap;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -67,14 +68,15 @@ __PACKAGE__->config(
     default   => 'application/json',
     stash_key => 'rest',
     map       => { 'application/json' => 'JSON', 'text/html' => 'JSON'  },
-   );
+);
 
 has 'schema' => (
-		 is       => 'rw',
-		 isa      => 'DBIx::Class::Schema',
-		 lazy_build => 1,
-		);
+    is         => 'rw',
+    isa        => 'DBIx::Class::Schema',
+    lazy_build => 1,
+);
 
+my $Cache = Cache::FastMmap->new();
 
 sub generate_experimental_design : Path('/ajax/trial/generate_experimental_design') : ActionClass('REST') { }
 
@@ -1650,33 +1652,14 @@ sub geo_fieldmap_orthos_GET : Args(0) {
 
         print STDERR "... D2S Project ID: $d2s_project_id\n";
 
-        my $ua = LWP::UserAgent->new();
-        $ua->timeout(300);
-        my $cookie_jar = HTTP::Cookies->new();
-        $ua->cookie_jar($cookie_jar);
-
-        # Log in to D2S to get auth token
-        my $auth;
-        print STDERR "... requesting auth token from D2S...\n";
-        my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
-        print STDERR Dumper $response;
-        if ( $response->is_success() ) {
-            $cookie_jar->scan(sub {
-                my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $hash) = @_;
-                if ( $key eq 'access_token' ) {
-                    $auth = $value;
-                }
-            });
-        }
-
-        print STDERR "... Auth Token: $auth\n";
+        # Setup UA for HTTP Requests
+        my $ua = $self->d2s_setup_ua($c);
 
         # Get the Project Flights
         my $flights;
-        if ( $auth ) {
+        if ( $ua ) {
             print STDERR "... requesting flights for project from D2S...\n";
             my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/flights");
-            $request->header('Authorization' => $auth);
             my $response = $ua->request($request);
             print STDERR Dumper $response;
             if ( $response->is_success() ) {
@@ -1742,35 +1725,15 @@ sub geo_fieldmap_coords_GET : Args(0) {
 
         print STDERR "... D2S Project ID: $d2s_project_id\n";
 
-        my $ua = LWP::UserAgent->new();
-        $ua->timeout(300);
-        my $cookie_jar = HTTP::Cookies->new();
-        $ua->cookie_jar($cookie_jar);
-
-        # Log in to D2S to get auth token
-        my $auth;
-        print STDERR "... requesting auth token from D2S...\n";
-        my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
-        print STDERR Dumper $response;
-        if ( $response->is_success() ) {
-            $cookie_jar->scan(sub {
-                my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $hash) = @_;
-                if ( $key eq 'access_token' ) {
-                    $auth = $value;
-                }
-            });
-        }
-
-        print STDERR "... Auth Token: $auth\n";
+        # Setup UA for HTTP Requests
+        my $ua = $self->d2s_setup_ua($c);
 
         # Get vector layers (specify vector layer id)
         my $vector;
-        if ( $auth ) {
+        if ( $ua ) {
             print STDERR "... requesting vector layers for project from D2S...\n";
             my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/vector_layers");
-            $request->header('Authorization' => $auth);
             my $response = $ua->request($request);
-            print STDERR Dumper $response;
             if ( $response->is_success() ) {
                 my $vectors = $response->decoded_content();
                 $vectors = decode_json($vectors);
@@ -1785,12 +1748,10 @@ sub geo_fieldmap_coords_GET : Args(0) {
         print STDERR "... Vector Layer: $vector\n";
 
         # Get GeoJSON
-        if ( $vector ) {
+        if ( $ua && $vector ) {
             print STDERR "... requesting vector layer geoJSON from D2S...\n";
             my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/vector_layers/$vector/download?format=json");
-            $request->header('Authorization' => $auth);
             my $response = $ua->request($request);
-            print STDERR Dumper $response;
             if ( $response->is_success() ) {
                 my $data = $response->decoded_content();
                 $data = decode_json($data);
@@ -1811,6 +1772,74 @@ sub geo_fieldmap_coords_GET : Args(0) {
     };
 }
 
+
+# Get a LWP::UserAgent with an auth cookie set in its cookie jar
+# Use a cached cookie, if present and still valid
+# Otherwise, login to D2S to get a fresh cookie
+sub d2s_setup_ua {
+    my $self = shift;
+    my $c = shift;
+    my $d2s_host = $c->config->{'d2s_host'};
+    my $d2s_user = $c->config->{'d2s_user'};
+    my $d2s_pass = $c->config->{'d2s_pass'};
+
+    # Setup LWP UA
+    my $cookie_jar = HTTP::Cookies->new();
+    my $ua = LWP::UserAgent->new();
+    $ua->timeout(300);
+    $ua->cookie_jar($cookie_jar);
+
+    my $refresh_auth = 1;
+    my $ck = $Cache->get('d2s_cookie');
+
+    # Use cached cookie in UA cookie jar
+    if ( $ck ) {
+        my $created = $ck->{created};
+        if ( $created ) {
+            my $age = time() - $created;
+            my $max_age = 4*86400;  # 4 days
+            if ( $age < $max_age ) {
+                $cookie_jar->set_cookie($ck->{version}, $ck->{key}, $ck->{value}, $ck->{path}, $ck->{domain}, $ck->{port}, $ck->{path_spec}, $ck->{secure}, $ck->{expires}, $ck->{discard}, $ck->{rest});
+                $refresh_auth = 0;
+            }
+        }
+    }
+
+    # Get fresh auth token and save new cookie in cache
+    if ( $refresh_auth ) {
+
+        # Log in to D2S to get auth token
+        my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
+        if ( $response->is_success() ) {
+            $cookie_jar->scan(sub {
+                my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $rest) = @_;
+
+                # save access_token cookie in cache
+                if ( $key eq 'access_token' ) {
+                    my %cookie = (
+                        version => $version,
+                        key => $key,
+                        value => $value,
+                        path => $path,
+                        domain => $domain,
+                        port => $port,
+                        path_spec => $path_spec,
+                        secure => $secure,
+                        expires => $expires,
+                        discard => $discard,
+                        rest => $rest,
+                        created => time()
+                    );
+                    $Cache->set('d2s_cookie', \%cookie);
+                }
+            });
+        }
+
+    }
+
+    # Return the UA with the auth cookie set in its cookie jar
+    return $ua;
+}
 
 
 1;
