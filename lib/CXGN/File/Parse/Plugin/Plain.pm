@@ -5,6 +5,7 @@ use strict;
 use Data::Dumper;
 use CXGN::File::Parse;
 use Text::CSV;
+use List::MoreUtils qw|uniq|;
 
 sub type {
   return "plain";
@@ -15,6 +16,7 @@ sub parse {
   my $super = shift;
   my $file = $super->file();
   my $type = $super->type();
+  my $column_arrays = $super->column_arrays();
 
   # Parsed data to return
   my %rtn = (
@@ -100,7 +102,15 @@ sub parse {
       $h = $super->clean_header($h);
       my $v = $rows[$r]->[$c];
       $v = $super->clean_value($v, $h);
-      $row_info{$h} = $v;
+
+      # Merge with existing data if column occurs more than once and allowed to be an array
+      if ( exists $row_info{$h} && exists $column_arrays->{$h} ) {
+        my @merged = uniq(@{$row_info{$h}}, @$v);
+        $row_info{$h} = \@merged;
+      }
+      else {
+        $row_info{$h} = $v;
+      }
 
       if ( defined($v) && $v ne '' ) {
         if ( ref($v) eq 'ARRAY' ) {
