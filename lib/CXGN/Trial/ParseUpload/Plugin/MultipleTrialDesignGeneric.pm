@@ -353,7 +353,7 @@ sub _validate_with_plugin {
     # Accession Names: must exist in the database
     if ( !$skip_accession_checks ) {
         my @accessions = keys %seen_accession_names;
-        my @intercrop_accessions = @{$parsed_values->{'intercrop_accession_name'}};
+        my @intercrop_accessions = $parsed_values->{'intercrop_accession_name'} ? @{$parsed_values->{'intercrop_accession_name'}} : ();
         my @merged_accessions = uniq(@accessions, @intercrop_accessions);
         my $accessions_hashref = $validator->validate($schema,'accessions',\@merged_accessions);
 
