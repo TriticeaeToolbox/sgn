@@ -50,6 +50,7 @@ use SGN::Model::Cvterm;
 use CXGN::Stock::StockLookup;
 use CXGN::Phenotypes::SearchFactory;
 use CXGN::BreedersToolbox::Projects;
+use CXGN::Trial;
 
 has 'bcs_schema' => (
     isa => 'Bio::Chado::Schema',
@@ -182,6 +183,18 @@ has 'include_dateless_items' => (
     default => sub { return 1; },
     );
 
+has 'include_intercrop_stocks' => (
+    isa => 'Bool|Undef',
+    is => 'rw',
+    default => 0
+);
+
+has 'include_entry_numbers' => (
+    isa => 'Bool|Undef',
+    is => 'rw',
+    default => 0
+);
+
 has 'limit' => (
     isa => 'Int|Undef',
     is => 'rw'
@@ -197,6 +210,9 @@ sub get_phenotype_matrix {
     my $include_pedigree_parents = $self->include_pedigree_parents();
     my $include_timestamp = $self->include_timestamp;
     my $include_phenotype_primary_key = $self->include_phenotype_primary_key;
+    my $include_intercrop_stocks = $self->include_intercrop_stocks;
+    my $include_entry_numbers = $self->include_entry_numbers;
+    my %trial_entry_numbers;
 
     print STDERR "GET PHENOMATRIX ".$self->search_type."\n";
 
@@ -221,9 +237,10 @@ sub get_phenotype_matrix {
             trait_contains=>$self->trait_contains,
             phenotype_min_value=>$self->phenotype_min_value,
             phenotype_max_value=>$self->phenotype_max_value,
-	    start_date => $self->start_date(),
-	    end_date => $self->end_date(),
-	    include_dateless_items => $self->include_dateless_items(),
+            start_date => $self->start_date(),
+            end_date => $self->end_date(),
+            include_dateless_items => $self->include_dateless_items(),
+            include_intercrop_stocks => $include_intercrop_stocks,
             limit=>$self->limit,
             offset=>$self->offset
         }
@@ -243,6 +260,26 @@ sub get_phenotype_matrix {
 
         if ($include_pedigree_parents){
             push @line, ('germplasmPedigreeFemaleParentName', 'germplasmPedigreeFemaleParentDbId', 'germplasmPedigreeMaleParentName', 'germplasmPedigreeMaleParentDbId');
+        }
+
+        if ( $include_intercrop_stocks ) {
+            push(@line, 'intercropGermplasmDbId', 'intercropGermplasmName');
+        }
+
+        if ( $include_entry_numbers ) {
+            push(@line, 'germplasmEntryNumber');
+
+            # Get unique set of trial ids in data
+            my %trial_ids;
+            foreach (@$data) {
+                $trial_ids{$_->{'trial_id'}} = 1;
+            }
+
+            # Get the entry numbers for each trial
+            foreach my $trial_id (keys %trial_ids) {
+                my $trial = CXGN::Trial->new({ bcs_schema => $self->bcs_schema, trial_id => $trial_id });
+                $trial_entry_numbers{$trial_id} = $trial->get_entry_numbers();
+            }
         }
 
         my @sorted_traits = sort keys(%$unique_traits);
@@ -295,8 +332,25 @@ sub get_phenotype_matrix {
                 push @line, ($parents->{'mother'}, $parents->{'mother_id'}, $parents->{'father'}, $parents->{'father_id'});
             }
 
+            if ( $include_intercrop_stocks ) {
+                my @ic_stock_ids;
+                my @ic_stock_names;
+                my $ic_stocks = $obs_unit->{intercrop_germplasm};
+                foreach my $ic_stock (@$ic_stocks) {
+                    push(@ic_stock_ids, $ic_stock->{stock_id});
+                    push(@ic_stock_names, $ic_stock->{stock_uniquename});
+                }
+                push(@line, join(',', @ic_stock_ids), join(',', @ic_stock_names));
+            }
+
+            if ( $include_entry_numbers ) {
+                my $trial = $obs_unit->{trial_id};
+                my $germplasm = $obs_unit->{germplasm_stock_id};
+                my $entry_number = $trial_entry_numbers{$trial}{$germplasm} || '';
+                push(@line, $entry_number);
+            }
+
             my $observations = $obs_unit->{observations};
-#            print STDERR "OBSERVATIONS =".Dumper($observations)."\n";
             my $include_timestamp = $self->include_timestamp;
             my %trait_observations;
             my %phenotype_ids;
@@ -355,70 +409,113 @@ sub get_phenotype_matrix {
         print STDERR "No of lines retrieved: ".scalar(@$data)."\n";
         print STDERR "Construct Pheno Matrix Start:".localtime."\n";
         my @unique_obsunit_list = ();
-        my %seen_obsunits;        
+        my %seen_obsunits;
+
+        # Add intercrop stock headers, if requested
+        if ( $include_intercrop_stocks ) {
+            push(@metadata_headers, 'intercropGermplasmDbId', 'intercropGermplasmName');
+        }
+
+        # Add entry number stock headers, if requested
+        if ( $include_entry_numbers ) {
+            push(@metadata_headers, 'germplasmEntryNumber');
+
+            # Get unique set of trial ids in data
+            my %trial_ids;
+            foreach (@$data) {
+                $trial_ids{$_->{'trial_id'}} = 1;
+            }
+
+            # Get the entry numbers for each trial
+            foreach my $trial_id (keys %trial_ids) {
+                my $trial = CXGN::Trial->new({ bcs_schema => $self->bcs_schema, trial_id => $trial_id });
+                $trial_entry_numbers{$trial_id} = $trial->get_entry_numbers();
+            }
+        }
 
         foreach my $d (@$data) {
-            my $cvterm = $d->{trait_name};
-            if ($cvterm){
-                my $obsunit_id = $d->{obsunit_stock_id};
-                if (!exists($seen_obsunits{$obsunit_id})) {
-                    push @unique_obsunit_list, $obsunit_id;
-                    $seen_obsunits{$obsunit_id} = 1;
-                }
+            my $obsunit_id = $d->{obsunit_stock_id};
+            if (!exists($seen_obsunits{$obsunit_id})) {
+                push @unique_obsunit_list, $obsunit_id;
+                $seen_obsunits{$obsunit_id} = 1;
+            }
 
-                my $timestamp_value = $d->{timestamp};
-                my $value = $d->{phenotype_value};
-                #my $cvterm = $trait."|".$cvterm_accession;
+            my $timestamp_value = $d->{timestamp};
+            my $value = $d->{phenotype_value};
+
+            my $cvterm = $d->{trait_name};
+            if ( $cvterm ) {
                 if ($include_timestamp && $timestamp_value) {
                     $obsunit_data{$obsunit_id}->{$cvterm} = "$value,$timestamp_value";
                 } else {
                     $obsunit_data{$obsunit_id}->{$cvterm} = $value;
                 }
-                $obsunit_data{$obsunit_id}->{'notes'} = $d->{notes};
-
-                my $synonyms = $d->{synonyms};
-                my $synonym_string = $synonyms ? join ("," , @$synonyms) : '';
-                my $entry_type = $d->{is_a_control} ? 'check' : 'test';
-
-                my $trial_name = $d->{trial_name};
-                my $trial_desc = $d->{trial_description};
-
-                $trial_name =~ s/\s+$//g;
-                $trial_desc =~ s/\s+$//g;
-
-                $obsunit_data{$obsunit_id}->{metadata} = [
-                    $d->{year},
-                    $d->{breeding_program_id},
-                    $d->{breeding_program_name},
-                    $d->{breeding_program_description},
-                    $d->{trial_id},
-                    $trial_name,
-                    $trial_desc,
-                    $d->{design},
-                    $d->{plot_width},
-                    $d->{plot_length},
-                    $d->{field_size},
-                    $d->{field_trial_is_planned_to_be_genotyped},
-                    $d->{field_trial_is_planned_to_cross},
-                    $d->{planting_date},
-                    $d->{harvest_date},
-                    $d->{location_id},
-                    $d->{location_name},
-                    $d->{accession_stock_id},
-                    $d->{accession_uniquename},
-                    $synonym_string,
-                    $d->{obsunit_type_name},
-                    $d->{obsunit_stock_id},
-                    $d->{obsunit_uniquename},
-                    $d->{rep},
-                    $d->{block},
-                    $d->{plot_number},
-                    $d->{row_number},
-                    $d->{col_number},
-                    $entry_type,
-                    $d->{plant_number}
-                ];
                 $traits{$cvterm}++;
+            }
+            $obsunit_data{$obsunit_id}->{'notes'} = $d->{notes};
+
+            my $synonyms = $d->{synonyms};
+            my $synonym_string = $synonyms ? join ("," , @$synonyms) : '';
+            my $entry_type = $d->{is_a_control} ? 'check' : 'test';
+
+            my $trial_name = $d->{trial_name};
+            my $trial_desc = $d->{trial_description};
+
+            $trial_name =~ s/\s+$//g;
+            $trial_desc =~ s/\s+$//g;
+
+            $obsunit_data{$obsunit_id}->{metadata} = [
+                $d->{year},
+                $d->{breeding_program_id},
+                $d->{breeding_program_name},
+                $d->{breeding_program_description},
+                $d->{trial_id},
+                $trial_name,
+                $trial_desc,
+                $d->{design},
+                $d->{plot_width},
+                $d->{plot_length},
+                $d->{field_size},
+                $d->{field_trial_is_planned_to_be_genotyped},
+                $d->{field_trial_is_planned_to_cross},
+                $d->{planting_date},
+                $d->{harvest_date},
+                $d->{location_id},
+                $d->{location_name},
+                $d->{accession_stock_id},
+                $d->{accession_uniquename},
+                $synonym_string,
+                $d->{obsunit_type_name},
+                $d->{obsunit_stock_id},
+                $d->{obsunit_uniquename},
+                $d->{rep},
+                $d->{block},
+                $d->{plot_number},
+                $d->{row_number},
+                $d->{col_number},
+                $entry_type,
+                $d->{plant_number}
+            ];
+
+            # add intercrop stocks, if requested
+            if ( $include_intercrop_stocks ) {
+                my @ic_stock_ids;
+                my @ic_stock_names;
+                my $ic_stocks = $d->{intercrop_stocks};
+                foreach my $ic_stock (@$ic_stocks) {
+                    push(@ic_stock_ids, $ic_stock->{id});
+                    push(@ic_stock_names, $ic_stock->{name});
+                }
+                push(@{$obsunit_data{$obsunit_id}->{metadata}}, join(',', @ic_stock_ids));
+                push(@{$obsunit_data{$obsunit_id}->{metadata}}, join(',', @ic_stock_names));
+            }
+
+            # Include entry numbers, if requested
+            if ( $include_entry_numbers ) {
+                my $trial = $d->{trial_id};
+                my $germplasm = $d->{accession_stock_id};
+                my $entry_number = $trial_entry_numbers{$trial}{$germplasm} || '';
+                push(@{$obsunit_data{$obsunit_id}->{metadata}}, $entry_number);
             }
         }
         #print STDERR Dumper \%plot_data;
