@@ -227,8 +227,10 @@ if (!grepl('genotype', kResultFile)) {
 }
 
 pca <- c()
-if (is.null(selectedIndexGenotypes)) {
-    pca    <- prcomp(clusterData, retx=TRUE) # scale=TRUE generates an error if column has no variance
+if (grepl("genotype", dataType, ignore.case = TRUE)) {
+    pca    <- prcomp(clusterData, retx=TRUE)
+} else if (is.null(selectedIndexGenotypes)) {
+    pca    <- prcomp(clusterData, scale=TRUE, retx=TRUE)
 } else {
     pca    <- prcomp(clusterData, retx=TRUE)
 }
