@@ -80,7 +80,7 @@ $dialog_name => undef
                 <div class="col-sm-9" >
                     <select class="form-control" id="download_trial_phenotypes_intercrop_option">
                         <option value="0">No</option>
-                        <option value="1">Yes</option>
+                        <option value="1" selected>Yes</option>
                     </select>
                 </div>
             </div>

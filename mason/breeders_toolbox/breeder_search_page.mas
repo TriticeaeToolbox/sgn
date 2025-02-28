@@ -414,7 +414,7 @@ $dataset_id => undef
               <td colspan="2" style="border-top: none; padding-top: 0">
                 <div class="checkbox">
                   <label>
-                    <input class="wizard-download-phenotypes-intercrop" type="checkbox">
+                    <input class="wizard-download-phenotypes-intercrop" type="checkbox" checked>
                     Include intercrop accessions
                   </label>
                 </div>
