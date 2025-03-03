@@ -289,7 +289,7 @@ sub germplasm_detail {
     my @result = _simple_search($self,[$stock_id],undef,$c);
     my $total_count = scalar(@result);
 
-    print STDERR "germ detail: " . Dumper @result ."\n";
+    # print STDERR "germ detail: " . Dumper @result ."\n";
 
     my $pagination = CXGN::BrAPI::Pagination->pagination_response($total_count,$page_size,$page);
     return CXGN::BrAPI::JSONResponse->return_success(@result, $pagination, \@data_files, $status, 'Germplasm detail result constructed');

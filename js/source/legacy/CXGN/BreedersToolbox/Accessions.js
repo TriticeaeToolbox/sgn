@@ -1055,7 +1055,7 @@ function display_synonym_search(response) {
         for ( let db_term of Object.keys(matches) ) {
             let match = matches[db_term];
             let selected = exact_match && exact_match === db_term ? 'checked' : '';
-            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='" + db_term + "' data-stock-id='" + match.germplasmDbId + "' " + selected + ">&nbsp;&nbsp;";
+            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='" + db_term + "' data-stock-id='" + match.germplasmDbId + "' data-stock-synonyms='" + encodeURIComponent(JSON.stringify(match.germplasmSynonyms)) + "' " + selected + ">&nbsp;&nbsp;";
             html += "<a href='/stock/" + match.germplasmDbId + "/view' target='_blank'><strong>" + match.germplasmName + ":</strong></a>";
             html += "<ul>";
             for ( let i = 0; i < match.matched_db_terms.length; i++ ) {
@@ -1071,7 +1071,7 @@ function display_synonym_search(response) {
 
         // No exact match found, create new entry
         if ( !exact_match || match_count === 0 ) {
-            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='' data-stock-id='' checked>&nbsp;&nbsp;";
+            html += "<input class='synonym_search_radio' type='radio' name='" + search_term + "' value='' data-stock-id='' data-stock-synoynms='' checked>&nbsp;&nbsp;";
             html += "<em>Create New Accession Entry</em>";
         }
 
@@ -1146,6 +1146,7 @@ function toggle_synonym_search_checkbox() {
  */
 function complete_synonym_search() {
     let selections = jQuery('.synonym_search_radio:checked');
+    let append_synonyms = jQuery('#append_synonyms').is(':checked');
     
     // Pull out replacements, existing, and new entries
     let replacements = [];
@@ -1158,6 +1159,7 @@ function complete_synonym_search() {
         let user_name = selection.attr('name');
         let db_name = selection.attr('value');
         let db_id = selection.data("stock-id");
+        let db_synonyms = selection.data("stock-synonyms");
         if ( !db_name || db_name === '' ) {
             create.push(user_name);
         }
@@ -1165,10 +1167,17 @@ function complete_synonym_search() {
             existing.push(user_name);
         }
         else if ( db_name !== user_name ) {
+            if ( db_synonyms ) {
+                try {
+                    db_synonyms = JSON.parse(decodeURIComponent(db_synonyms));
+                }
+                catch {}
+            }
             replacements.push({
                 user_name: user_name,
                 db_name: db_name,
                 db_id: db_id,
+                db_synonyms: append_synonyms ? db_synonyms : [],
                 add_synonym: jQuery(".synonym_search_checkbox[name='" + user_name + "']").is(':checked')
             });
         }
@@ -1247,7 +1256,9 @@ function store_synonym_search(replacements) {
                 infoToAdd[i].defaultDisplayName = replacements[j].db_name;
                 infoToAdd[i].stock_id = replacements[j].db_id;
                 if ( !infoToAdd[i].synonyms ) infoToAdd[i].synonyms = [];
+                if ( replacements[j].db_synonyms ) infoToAdd[i].synonyms.push(...replacements[j].db_synonyms);
                 if ( replacements[j].add_synonym ) infoToAdd[i].synonyms.push(replacements[j].user_name);
+                infoToAdd[i].synonyms = [...new Set(infoToAdd[i].synonyms)];
             }
 
             // Replace parent information
@@ -1262,7 +1273,7 @@ function store_synonym_search(replacements) {
     }
 
     // Add the accessions
-    add_accessions(infoToAdd, speciesNames)
+    add_accessions(infoToAdd, speciesNames);
 
 }
 
