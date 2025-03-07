@@ -559,6 +559,9 @@ sub _parse_with_plugin {
         if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
             $accession_name = $accession_replacements->{$accession_name};
         }
+        if ( $accession_replacements && exists $accession_replacements->{$intercrop_accession_name} ) {
+            $intercrop_accession_name = $accession_replacements->{$intercrop_accession_name};
+        }
 
         if ($current_trial_name && $current_trial_name ne $trial_name) {
 
