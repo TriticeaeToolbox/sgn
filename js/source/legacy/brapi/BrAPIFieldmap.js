@@ -1,3 +1,5 @@
+const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
+
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['d3', 'leaflet'], factory) :
@@ -2286,36 +2288,66 @@
 	      this.loading.style("display", loading ? 'block' : 'none');
 	    }
 
+      // Get D2S Project ID for Trial - stored in BrAPI additional info
+      this.getD2SProjectId = async (studyDbId) => {
+        return new Promise((resolve) => {
+          let proj;
+          jQuery.ajax({
+            url: `/brapi/v2/studies/${studyDbId}`,
+            success: (resp) => {
+              if ( resp && resp.result && resp.result.additionalInfo && resp.result.additionalInfo.d2s_project_id ) {
+                proj = resp.result.additionalInfo.d2s_project_id;
+              }
+            },
+            complete: () => {
+              resolve(proj);
+            }
+          });
+        });
+      }
+
       // Check if there are any external coordinates available for this trial
       this._coords = {}
       this.getCoords = async (studyDbId) => {
         let _this = this;
-        return new Promise((resolve) => {
-          jQuery.ajax({
-            method: 'GET',
-            url: '/ajax/trial/coords',
-            data: { trial: studyDbId },
-            success: function(response) {
-              _this._coords = response?.coords || {};
-            },
-            complete: function() {
-              resolve();
-            }
-          });
-        })
+        return new Promise(async (resolve) => {
+          const proj = await this.getD2SProjectId(studyDbId);
+          if ( proj && proj !== '' ) {
+            jQuery.ajax({
+              method: 'GET',
+              url: `${D2S_PROXY_SERVER}/coords/${proj}`,
+              success: function(response) {
+                _this._coords = response?.coords || {};
+              },
+              complete: () => {
+                resolve();
+              }
+            });
+          }
+          else {
+            resolve();
+          }
+        });
       }
 
       // Check if there are any orthos available for this trial
-      this.getOrthos = (studyDbId) => {
+      this.getOrthos = async (studyDbId) => {
         let _this = this;
-        jQuery.ajax({
-          method: 'GET',
-          url: '/ajax/trial/orthos',
-          data: { trial: studyDbId },
-          success: function(response) {
-            if ( response && response.orthos ) {
-              _this.displayOrthoSelection(response.orthos);
-            }
+        return new Promise(async (resolve) => {
+          const proj = await this.getD2SProjectId(studyDbId);
+          if ( proj && proj !== '' ) {
+            jQuery.ajax({
+              method: 'GET',
+              url: `${D2S_PROXY_SERVER}/orthos/${proj}`,
+              success: function(response) {
+                if ( response && response.orthos ) {
+                  _this.displayOrthoSelection(response.orthos);
+                }
+              },
+              complete: () => {
+                resolve();
+              }
+            });
           }
         });
       }
