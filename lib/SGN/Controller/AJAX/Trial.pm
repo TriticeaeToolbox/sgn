@@ -1636,6 +1636,8 @@ sub geo_fieldmap_orthos_GET : Args(0) {
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $orthos = [];
 
+    print STDERR "==> GET GEO FIELDMAP ORTHOS: trial $trial_id\n";
+
     # Get trial additional info
     my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
     my $additional_info = $trial->get_additional_info();
@@ -1645,10 +1647,17 @@ sub geo_fieldmap_orthos_GET : Args(0) {
         my $d2s_project_id = $additional_info->{'d2s_project_id'};
         my $d2s_proxy = $c->config->{'d2s_proxy'};
 
+        print STDERR "... D2S Project ID: $d2s_project_id\n";
+        print STDERR "... D2S Proxy Server: $d2s_proxy\n";
+        print STDERR "... making request to /orthos/$d2s_project_id...\n";
+
         # Make HTTP Request to Proxy Server
         my $ua = LWP::UserAgent->new();
         my $request = HTTP::Request->new(GET => "$d2s_proxy/orthos/$d2s_project_id");
         my $response = $ua->request($request);
+
+        print STDERR "... got response!\n";
+
         if ( $response->is_success() ) {
             $orthos = $response->decoded_content();
             $orthos = decode_json($orthos);
@@ -1668,6 +1677,8 @@ sub geo_fieldmap_coords_GET : Args(0) {
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $coords = {};
 
+    print STDERR "==> GET GEO FIELDMAP COORDS: trial $trial_id\n";
+
     # Get trial additional info
     my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
     my $additional_info = $trial->get_additional_info();
@@ -1677,10 +1688,17 @@ sub geo_fieldmap_coords_GET : Args(0) {
         my $d2s_project_id = $additional_info->{'d2s_project_id'};
         my $d2s_proxy = $c->config->{'d2s_proxy'};
 
+        print STDERR "... D2S Project ID: $d2s_project_id\n";
+        print STDERR "... D2S Proxy Server: $d2s_proxy\n";
+        print STDERR "... making request to /coords/$d2s_project_id...\n";
+
         # Make HTTP Request to Proxy Server
         my $ua = LWP::UserAgent->new();
         my $request = HTTP::Request->new(GET => "$d2s_proxy/coords/$d2s_project_id");
         my $response = $ua->request($request);
+
+        print STDERR "... got response!\n";
+
         if ( $response->is_success() ) {
             $coords = $response->decoded_content();
             $coords = decode_json($coords);
