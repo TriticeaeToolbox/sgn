@@ -1634,9 +1634,7 @@ sub geo_fieldmap_orthos_GET : Args(0) {
     my $c = shift;
     my $trial_id = $c->req->param('trial');
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
-    my @orthos;
-
-    print STDERR "==> GEO FIELD MAP | GET ORTHOS: $trial_id\n";
+    my $orthos = [];
 
     # Get trial additional info
     my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
@@ -1645,59 +1643,19 @@ sub geo_fieldmap_orthos_GET : Args(0) {
     # Get orthos from D2S if there is a d2s_project_id
     if ( exists($additional_info->{'d2s_project_id'}) ) {
         my $d2s_project_id = $additional_info->{'d2s_project_id'};
-        my $d2s_host = $c->config->{'d2s_host'};
-        my $d2s_user = $c->config->{'d2s_user'};
-        my $d2s_pass = $c->config->{'d2s_pass'};
-        my $tileserver = $c->config->{'geo_fieldmap_tileserver'};
+        my $d2s_proxy = $c->config->{'d2s_proxy'};
 
-        print STDERR "... D2S Project ID: $d2s_project_id\n";
-
-        # Setup UA for HTTP Requests
-        my $ua = $self->d2s_setup_ua($c);
-
-        # Get the Project Flights
-        my $flights;
-        if ( $ua ) {
-            print STDERR "... requesting flights for project from D2S...\n";
-            my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/flights");
-            my $response = $ua->request($request);
-            print STDERR Dumper $response;
-            if ( $response->is_success() ) {
-                $flights = $response->decoded_content();
-                $flights = decode_json($flights);
-            }
-        }
-
-        print STDERR "... Flights (1st):\n";
-        print STDERR Dumper $flights->[0];
-
-        # Parse each of the flights
-        print STDERR "... parsing flights to get orthos...\n";
-        foreach my $flight (@$flights) {
-            my $date = $flight->{'acquisition_date'};
-            foreach my $d (@{$flight->{'data_products'}}) {
-                my $type = $d->{'data_type'};
-                if ( $type eq 'ortho' ) {
-                    my $url = $d->{'url'};
-                    my $layer = $tileserver =~ s/{url}/$url/r;
-
-                    my %rtn;
-                    $rtn{'date'} = $date;
-                    $rtn{'url'} = $layer;
-                    $rtn{'attribution'} = "Data2Science";
-                    push(@orthos, \%rtn);
-                }
-            }
+        # Make HTTP Request to Proxy Server
+        my $ua = LWP::UserAgent->new();
+        my $request = HTTP::Request->new(GET => "$d2s_proxy/orthos/$d2s_project_id");
+        my $response = $ua->request($request);
+        if ( $response->is_success() ) {
+            $orthos = $response->decoded_content();
+            $orthos = decode_json($orthos);
         }
     }
 
-    print STDERR "... Orthos (1st):\n";
-    print STDERR Dumper @orthos[0];
-
-    $c->stash->{rest} = {
-        success => "1",
-        orthos => \@orthos
-    };
+    $c->stash->{rest} = $orthos;
 }
 
 
@@ -1708,9 +1666,7 @@ sub geo_fieldmap_coords_GET : Args(0) {
     my $c = shift;
     my $trial_id = $c->req->param('trial');
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
-    my %coords;
-
-    print STDERR "==> GEO FIELD MAP | GET COORDS: $trial_id\n";
+    my $coords = {};
 
     # Get trial additional info
     my $trial = CXGN::Project->new({ bcs_schema => $schema, trial_id => $trial_id });
@@ -1719,127 +1675,19 @@ sub geo_fieldmap_coords_GET : Args(0) {
     # Get coords from D2S if there is a d2s_project_id
     if ( exists($additional_info->{'d2s_project_id'}) ) {
         my $d2s_project_id = $additional_info->{'d2s_project_id'};
-        my $d2s_host = $c->config->{'d2s_host'};
-        my $d2s_user = $c->config->{'d2s_user'};
-        my $d2s_pass = $c->config->{'d2s_pass'};
+        my $d2s_proxy = $c->config->{'d2s_proxy'};
 
-        print STDERR "... D2S Project ID: $d2s_project_id\n";
-
-        # Setup UA for HTTP Requests
-        my $ua = $self->d2s_setup_ua($c);
-
-        # Get vector layers (specify vector layer id)
-        my $vector;
-        if ( $ua ) {
-            print STDERR "... requesting vector layers for project from D2S...\n";
-            my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/vector_layers");
-            my $response = $ua->request($request);
-            if ( $response->is_success() ) {
-                my $vectors = $response->decoded_content();
-                $vectors = decode_json($vectors);
-                foreach my $v (@$vectors) {
-                    if ( $v->{'geom_type'} eq 'polygon' ) {
-                        $vector = $v->{'layer_id'};
-                    }
-                }
-            }
-        }
-
-        print STDERR "... Vector Layer: $vector\n";
-
-        # Get GeoJSON
-        if ( $ua && $vector ) {
-            print STDERR "... requesting vector layer geoJSON from D2S...\n";
-            my $request = HTTP::Request->new(GET => "$d2s_host/projects/$d2s_project_id/vector_layers/$vector/download?format=json");
-            my $response = $ua->request($request);
-            if ( $response->is_success() ) {
-                my $data = $response->decoded_content();
-                $data = decode_json($data);
-                my $features = $data->{'features'};
-
-                # Parse each feature and collect by plot number
-                foreach my $f (@$features) {
-                    my $plot = $f->{'properties'}->{'properties'}->{'plot_num'};
-                    $coords{$plot} = $f;
-                }
-            }
-        }
-    }
-
-    $c->stash->{rest} = {
-        succss => "1",
-        coords => \%coords
-    };
-}
-
-
-# Get a LWP::UserAgent with an auth cookie set in its cookie jar
-# Use a cached cookie, if present and still valid
-# Otherwise, login to D2S to get a fresh cookie
-sub d2s_setup_ua {
-    my $self = shift;
-    my $c = shift;
-    my $d2s_host = $c->config->{'d2s_host'};
-    my $d2s_user = $c->config->{'d2s_user'};
-    my $d2s_pass = $c->config->{'d2s_pass'};
-
-    # Setup LWP UA
-    my $cookie_jar = HTTP::Cookies->new();
-    my $ua = LWP::UserAgent->new();
-    $ua->timeout(300);
-    $ua->cookie_jar($cookie_jar);
-
-    my $refresh_auth = 1;
-    my $ck = $Cache->get('d2s_cookie');
-
-    # Use cached cookie in UA cookie jar
-    if ( $ck ) {
-        my $created = $ck->{created};
-        if ( $created ) {
-            my $age = time() - $created;
-            my $max_age = 4*86400;  # 4 days
-            if ( $age < $max_age ) {
-                $cookie_jar->set_cookie($ck->{version}, $ck->{key}, $ck->{value}, $ck->{path}, $ck->{domain}, $ck->{port}, $ck->{path_spec}, $ck->{secure}, $ck->{expires}, $ck->{discard}, $ck->{rest});
-                $refresh_auth = 0;
-            }
-        }
-    }
-
-    # Get fresh auth token and save new cookie in cache
-    if ( $refresh_auth ) {
-
-        # Log in to D2S to get auth token
-        my $response = $ua->post("$d2s_host/auth/access-token", {'username' => $d2s_user, 'password' => $d2s_pass});
+        # Make HTTP Request to Proxy Server
+        my $ua = LWP::UserAgent->new();
+        my $request = HTTP::Request->new(GET => "$d2s_proxy/coords/$d2s_project_id");
+        my $response = $ua->request($request);
         if ( $response->is_success() ) {
-            $cookie_jar->scan(sub {
-                my ($version, $key, $value, $path, $domain, $port, $path_spec, $secure, $expires, $discard, $rest) = @_;
-
-                # save access_token cookie in cache
-                if ( $key eq 'access_token' ) {
-                    my %cookie = (
-                        version => $version,
-                        key => $key,
-                        value => $value,
-                        path => $path,
-                        domain => $domain,
-                        port => $port,
-                        path_spec => $path_spec,
-                        secure => $secure,
-                        expires => $expires,
-                        discard => $discard,
-                        rest => $rest,
-                        created => time()
-                    );
-                    $Cache->set('d2s_cookie', \%cookie);
-                }
-            });
+            $coords = $response->decoded_content();
+            $coords = decode_json($coords);
         }
-
     }
 
-    # Return the UA with the auth cookie set in its cookie jar
-    return $ua;
+    $c->stash->{rest} = $coords;
 }
-
 
 1;
