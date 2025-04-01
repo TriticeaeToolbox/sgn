@@ -86,7 +86,20 @@ $design_types => ()
                                               <div class="form-group">
                                                   <input type="file" name="multiple_trial_designs_upload_file" id="multiple_trial_designs_upload_file" encoding="multipart/form-data" />
                                               </div>
+
+                                              <br />
+
+                                              <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert"></div>
+                                              <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert"></div>
+                                              <div style="display:none" id="upload_multiple_trials_success_messages" class="alert-success" role="alert"></div>
+
                                               <br /><br />
+
+                                              <button type="button" class="btn btn-primary" id="multiple_trial_designs_upload_submit" disabled>Upload Trial Designs</button>
+                                              <button style="display:none" class="btn btn-primary" id="upload_multiple_trials_success_button">Reload Page</button>
+
+                                              <br /><br />
+
                                               <div class="well">
                                                 <div class="form-group">
                                                     <label class="col-sm-4 control-label" style="margin-left: 0px;">Email Alert: </label>
@@ -135,18 +148,6 @@ $design_types => ()
                                                 <input type="hidden" id="multi_trial_test" name="multi_trial_test">
                                               </div>
                                             </form>
-
-                                            <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
-                                            </div>
-                                            <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert">
-                                            </div>
-                                            <div style="display:none" id="upload_multiple_trials_success_messages" class="alert-success" role="alert">
-                                            </div>
-
-                                            <br>
-                                            <button type="button" class="btn btn-primary" id="multiple_trial_designs_upload_submit" disabled>Upload Trial Designs</button>
-                                            <button style="display:none" class="btn btn-primary" id="upload_multiple_trials_success_button">Reload Page</button>
-                                            <br /><br />
                                         </center>
                                         <& /help/file_upload_type.mas, type => "Multiple Trial Designs", optional_column => 1 &>
                                     </div>
