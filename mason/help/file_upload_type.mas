@@ -3,7 +3,7 @@
   $optional_column => undef
 </%args>
 
-<div class="file_upload_type">
+<div class="file_upload_type" style="text-align: left">
   <span class="file_icon glyphicon glyphicon-file"></span>
   <div>
     <p>

@@ -66,8 +66,6 @@ $design_types => ()
                                             </&>
                                             <button id="next_step_file_formatting_button" class="btn btn-primary" onclick="Workflow.complete(this); return false;">Go to Next Step</button>
                                         </center>
-                                        <br /><br />
-                                        <& /help/file_upload_type.mas, type => "Single Trial Designs", optional_column => 1 &>
                                     </div>
 
                                     <div id="multiple_tab" class="tab-pane fade in active">
@@ -97,6 +95,10 @@ $design_types => ()
 
                                               <button type="button" class="btn btn-primary" id="multiple_trial_designs_upload_submit" disabled>Upload Trial Designs</button>
                                               <button style="display:none" class="btn btn-primary" id="upload_multiple_trials_success_button">Reload Page</button>
+
+                                              <br /><br />
+
+                                              <& /help/file_upload_type.mas, type => "Multiple Trial Designs", optional_column => 1 &>
 
                                               <br /><br />
 
@@ -149,7 +151,6 @@ $design_types => ()
                                               </div>
                                             </form>
                                         </center>
-                                        <& /help/file_upload_type.mas, type => "Multiple Trial Designs", optional_column => 1 &>
                                     </div>
 
                                 </div>
@@ -399,7 +400,10 @@ $design_types => ()
                                     <div class="col-sm-9" >
                                         <input type="file" name="trial_uploaded_file" id="trial_uploaded_file" encoding="multipart/form-data" />
                                     </div>
+                                    <br /><br />
+                                    <& /help/file_upload_type.mas, type => "Single Trial Designs", optional_column => 1 &>
                                 </div>
+                                <br /><br />
                                 <div class="well">
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
@@ -945,6 +949,16 @@ $design_types => ()
       </div>
       <div class="modal-body">
         <div class="container-fluid">
+          <div id="trial_review_synonym_search_dialog_create_well" class="well well-warning">
+            <p><strong>Missing Accessions:</strong></p>
+            <p>The following Accession entries will <strong>need to be added to the Database before adding the Trial(s)</strong>.</p>
+            <div id="trial_review_synonym_search_dialog_create"></div>
+            <div style="margin-top: 25px">
+              <button id="trial_review_synonym_search_dialog_create_download" class='btn btn-primary'>Download Accession Template</button>
+              <p style="margin-top: 5px;"><em>Download an Accession Template to fill in and upload to add the missing Accessions to the Database</em></p>
+            </div>
+          </div>
+          <br />
           <div class="well">
             <p><strong>Selected Replacements:</strong></p>
             <p>The following existing Database Accession entries will replace your provided Accession name(s) in your Trial(s).</p>
@@ -955,16 +969,6 @@ $design_types => ()
             <p><strong>Existing Accessions:</strong></p>
             <p>The following Accession entries already exist in the Database.</p>
             <div id="trial_review_synonym_search_dialog_existing"></div>
-          </div>
-          <br />
-          <div id="trial_review_synonym_search_dialog_create_well" class="well well-warning">
-            <p><strong>Missing Accessions:</strong></p>
-            <p>The following Accession entries will <strong>need to be added to the Database before adding the Trial(s)</strong>.</p>
-            <div id="trial_review_synonym_search_dialog_create"></div>
-            <div style="margin-top: 25px">
-                <button id="trial_review_synonym_search_dialog_create_download" class='btn btn-primary'>Download Accession Template</button>
-                <p style="margin-top: 5px;"><em>Download an Accession Template to fill in and upload to add the missing Accessions to the Database</em></p>
-            </div>
           </div>
         </div>
       </div>
