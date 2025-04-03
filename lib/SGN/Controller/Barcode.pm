@@ -174,6 +174,40 @@ sub barcode_qrcode_jpg : Path('/barcode/tempfile') Args(2){
        $c->res->body($barcode_file);
    }
 
+sub generic_qrcode_jpg : Path('/barcode/qrcode') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $params = $c->req->params();
+    my $contents = $params->{contents};
+    my $size = $params->{size};
+    my $margin = $params->{margin};
+    my $version = $params->{version};
+    my $level = $params->{level};
+
+    if ( !$contents || $contents eq '' ) {
+        my $barcode = $self->barcode('', "ERROR");
+        $c->tempfiles_subdir('barcode');
+        my ($file, $uri) = $c->tempfile( TEMPLATE => [ 'barcode', 'bc-XXXXX'], SUFFIX=>'.jpg');
+
+        open(my $F, ">", $file) || die "Can't open file $file $@";
+        print $F $barcode->jpeg();
+        close($F);
+
+        $c->res->headers->content_type('image/jpg');
+        $c->res->body($file);
+    }
+
+    else {
+        $c->tempfiles_subdir('barcode');
+        my ($file_location, $uri) = $c->tempfile(TEMPLATE => [ 'barcode', 'bc-XXXXX'], SUFFIX=>'.jpg');
+        my $barcode_generator = CXGN::QRcode->new(text => $contents, size => $size, margin => $margin);
+        my $barcode_file = $barcode_generator->get_barcode_file($file_location);
+
+        $c->res->headers->content_type('image/jpg');
+        $c->res->body($barcode_file);
+    }
+}
+
 =head2 barcode
 
  Usage:        $self->barcode($code, $text, $size, 30);
