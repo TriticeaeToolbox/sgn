@@ -161,7 +161,13 @@ foreach my $tn ( keys %$parsed_data ) {
     my $d = $t->{design_details};
     foreach my $p ( keys %$d ) {
         my $s = $d->{$p}->{stock_name};
+        my $is = $d->{$p}->{intercrop_stock_name};
         $stocks{$s} = 1;
+        if ( $is ) {
+            foreach (@$is) {
+                $stocks{$_} = 1;
+            }
+        }
     }
 }
 foreach my $s ( sort(keys %stocks) ) {
