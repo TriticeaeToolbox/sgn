@@ -130,11 +130,7 @@ $design_types => ()
                                                 <div class="form-group">
                                                   <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
                                                   <div class="col-sm-8" style="text-align: left">
-% if ( $user_role eq 'curator' ) {
                                                     <input type="checkbox" id="multi_trial_synonym_search_check" name="multi_trial_synonym_search_check" checked>
-% } else { 
-                                                    <input type="checkbox" id="multi_trial_synonym_search_check" name="multi_trial_synonym_search_check" checked disabled>
-% }
                                                     <br/>
                                                     <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
                                                     <strong>Host:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_host"></span></small>
@@ -414,11 +410,7 @@ $design_types => ()
                                     <div class="form-group">
                                         <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
                                         <div class="col-sm-8" style="text-align: left">
-% if ( $user_role eq 'curator' ) {
                                         <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked>
-% } else { 
-                                        <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked disabled>
-% }
                                         <br/>
                                         <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
                                         <strong>Host:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_host"></span></small>
@@ -1122,6 +1114,16 @@ jQuery(document).ready(function(){
         jQuery('#upload_multiple_trials_warning_messages').hide();
       }
     });
+
+% if ( $user_role ne 'curator' ) {
+    jQuery('#multi_trial_synonym_search_check, #trial_synonym_search_check').change(function() {
+        if ( !this.checked ) {
+            alert("Only a curator can disable the synonym search check!");
+            jQuery(this).prop("checked", true);
+        }
+    });
+% }
+
 });
 </script>
 
