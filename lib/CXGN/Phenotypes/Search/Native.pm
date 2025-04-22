@@ -340,7 +340,7 @@ sub search {
       LEFT JOIN stock_relationship AS icsr ON (observationunit.stock_id=icsr.subject_id) AND icsr.type_id = $intercrop_plot_rel_type_id
       LEFT JOIN stock AS ics ON (icsr.object_id=ics.stock_id)
       LEFT JOIN cvterm as observationunit_type ON (observationunit_type.cvterm_id = observationunit.type_id)
-      LEFT JOIN stock as germplasm ON (stock_relationship.object_id=germplasm.stock_id) AND germplasm.type_id IN ($accession_type_id, $analysis_result_type_id, $cross_type_id,$family_name_type_id)
+      LEFT JOIN stock as germplasm ON (stock_relationship.object_id=germplasm.stock_id) AND germplasm.type_id IN ($accession_type_id, $analysis_result_type_id, $cross_type_id, $family_name_type_id)
       $design_layout_sql
       LEFT JOIN nd_experiment_stock ON(nd_experiment_stock.stock_id=observationunit.stock_id)
       LEFT JOIN nd_experiment_phenotype ON (nd_experiment_phenotype.nd_experiment_id=nd_experiment_stock.nd_experiment_id)
@@ -369,44 +369,44 @@ sub search {
       LEFT JOIN project_relationship folder_rel ON (project.project_id = folder_rel.subject_project_id AND folder_rel.type_id = $folder_rel_type_id)
       LEFT JOIN project folder ON (folder.project_id = folder_rel.object_project_id)";
 
-    my $select_clause = "SELECT observationunit.stock_id,
-                        observationunit.uniquename,
-                        observationunit_type.name,
-                        germplasm.uniquename,
-                        germplasm.stock_id,
-                        project.project_id,
-                        project.name,
-                        project.description,
-                        plot_width.value,
-                        plot_length.value,
-                        field_size.value,
-                        field_trial_is_planned_to_be_genotyped.value,
-                        field_trial_is_planned_to_cross.value,
-                        breeding_program.project_id,
-                        breeding_program.name,
-                        breeding_program.description,
-                        year.value,
-                        design.value,
-                        location.value,
-                        planting_date.value,
-                        harvest_date.value,
-                        folder.project_id,
-                        folder.name,
-                        folder.description,
-                        cvterm.cvterm_id,
-                        (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text,
-                        phenotype.value,
-                        phenotype.uniquename,
-                        phenotype.phenotype_id,
-                        phenotype.collect_date,
-                        phenotype.operator,
-                        additional_info.value,
-                        external_references.value,
-                        count(phenotype.phenotype_id) OVER() AS full_count,
+    my $select_clause = "SELECT observationunit.stock_id, 
+                        observationunit.uniquename, 
+                        observationunit_type.name, 
+                        germplasm.uniquename, 
+                        germplasm.stock_id, 
+                        project.project_id, 
+                        project.name, 
+                        project.description, 
+                        plot_width.value, 
+                        plot_length.value, 
+                        field_size.value, 
+                        field_trial_is_planned_to_be_genotyped.value, 
+                        field_trial_is_planned_to_cross.value, 
+                        breeding_program.project_id, 
+                        breeding_program.name, 
+                        breeding_program.description, 
+                        year.value, 
+                        design.value, 
+                        location.value, 
+                        planting_date.value, 
+                        harvest_date.value, 
+                        folder.project_id, 
+                        folder.name, 
+                        folder.description, 
+                        cvterm.cvterm_id, 
+                        (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text, 
+                        phenotype.value, 
+                        phenotype.uniquename, 
+                        phenotype.phenotype_id, 
+                        phenotype.collect_date, 
+                        phenotype.operator, 
+                        additional_info.value, 
+                        external_references.value, 
+                        count(phenotype.phenotype_id) OVER() AS full_count, 
                         string_agg(distinct(notes.value), ', ') AS notes,
-                        STRING_AGG(ics.stock_id::text, '|'),
-                        STRING_AGG(ics.uniquename, ',') "
-                        .$design_layout_select;
+                        STRING_AGG(DISTINCT(ics.stock_id)::text, '|'), 
+                        STRING_AGG(DISTINCT(ics.uniquename), ',')
+                        ".$design_layout_select;
 
     my $order_clause = " ORDER BY 6, 2, 29";
 
@@ -661,8 +661,8 @@ sub search {
         if ($breeding_program_description) { $breeding_program_description =~ s/\R//g };
         if ($folder_description) { $folder_description =~ s/\R//g };
 
-        my @intercrop_stock_ids = split(/\|/, $intercrop_stock_id);
-        my @intercrop_stock_names = split(',', $intercrop_stock_name);
+        my @intercrop_stock_ids = $intercrop_stock_id ? split(/\|/, $intercrop_stock_id) : ();
+        my @intercrop_stock_names = $intercrop_stock_name ? split(',', $intercrop_stock_name) : ();
         my @intercrop_stocks;
         for my $i (0 .. $#intercrop_stock_ids) {
             my $id = $intercrop_stock_ids[$i];
