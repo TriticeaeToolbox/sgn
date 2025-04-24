@@ -1001,15 +1001,20 @@ jQuery(document).ready(function(){
 
     jQuery('#select_breeding_program').change(function() {
         filter_options(jQuery(this).val(), 'program', 'add_project_location');
+        jQuery('#add_project_location option[value="no-locations-breeding-program"]').remove();
+        if ( jQuery("#add_project_location option:visible").length === 0 ) {
+            jQuery("#add_project_location").append('<option value="no-locations-breeding-program" disabled>No locations associated with this breeding program</option>');
+        }
     });
 
     jQuery('#add_project_location').change(function() {
         var number_selected = jQuery(this).val().length;
+        var names_selected = jQuery(this).val().join('; ');
         if (number_selected > 1) {
-            jQuery('#locations_count').html('Locations Selected: '+number_selected);
+            jQuery('#locations_count').html('Locations Selected: ' + number_selected + '<br />' + names_selected);
             jQuery('#randomization_div').show();
         } else if (number_selected > 0) {
-            jQuery('#locations_count').html('Locations Selected: '+number_selected);
+            jQuery('#locations_count').html('Locations Selected: ' + number_selected + '<br />' + names_selected);
             jQuery('#randomization_div').hide();
         } else {
             jQuery('#locations_count').html('No Locations Selected');
