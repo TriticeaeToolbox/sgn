@@ -902,7 +902,8 @@ function perform_synonym_search(terms) {
             database_terms: {
                 name: true,
                 synonyms: true,
-                accession_numbers: true
+                accession_numbers: true,
+                crosses: true
             },
             search_routines: {
                 name: true,

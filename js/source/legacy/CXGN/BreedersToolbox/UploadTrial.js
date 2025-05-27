@@ -632,7 +632,8 @@ jQuery(document).ready(function ($) {
                 database_terms: {
                     name: true,
                     synonyms: true,
-                    accession_numbers: true
+                    accession_numbers: true,
+                    crosses: true
                 },
                 search_routines: {
                     name: true,
