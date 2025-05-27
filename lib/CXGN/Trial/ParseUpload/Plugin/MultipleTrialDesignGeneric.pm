@@ -373,6 +373,7 @@ sub _validate_with_plugin {
         my @intercrop_accessions = $parsed_values->{'intercrop_accession_name'} ? @{$parsed_values->{'intercrop_accession_name'}} : ();
         my @merged_accessions = uniq(@accessions, @intercrop_accessions);
         my $accessions_hashref = $validator->validate($schema,'accessions',\@merged_accessions);
+        my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
 
         #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
         my @synonyms = @{$accessions_hashref->{'synonyms'}};
@@ -389,7 +390,6 @@ sub _validate_with_plugin {
         #now validate again the accession names
         $accessions_hashref = $validator->validate($schema,'accessions_or_crosses_or_familynames',\@merged_accessions);
         my @accessions_missing = @{$accessions_hashref->{'missing'}};
-        my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
 
         if (scalar(@accessions_missing) > 0) {
             push @error_messages, "Accession(s) <strong>".join(',',@accessions_missing)."</strong> are not in the database as uniquenames or synonyms.";
