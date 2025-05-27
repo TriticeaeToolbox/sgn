@@ -808,6 +808,7 @@ $design_types => ()
                                 <td>design_type</td>
                                 <td>description</td>
                                 <td>trial_type</td>
+                                <td>trial_stock_type</td>
                                 <td>plot_width</td>
                                 <td>plot_length</td>
                                 <td>field_size</td>
@@ -815,6 +816,7 @@ $design_types => ()
                                 <td>harvest_date</td>
                                 <td>plot_name</td>
                                 <td>accession_name</td>
+                                <td>intercrop_accession_name</td>
                                 <td>plot_number</td>
                                 <td>block_number</td>
                                 <td>is_a_control</td>
@@ -832,7 +834,7 @@ $design_types => ()
                     </table>
 
                     <b>Header as a string:</b><br/>
-                    <p>trial_name,breeding_program,location,year,transplanting_date,design_type,description,trial_type,plot_width,plot_length,field_size,planting_date,harvest_date,plot_name,accession_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number,is_private</p>
+                    <p>trial_name,breeding_program,location,year,transplanting_date,design_type,description,trial_type,trial_stock_type,plot_width,plot_length,field_size,planting_date,harvest_date,plot_name,accession_name,intercrop_accession_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number,is_private</p>
 
                     <b> Required fields:</b>
                     <ul>
@@ -843,7 +845,7 @@ $design_types => ()
 
                     <li>design_type (The shorthand for the design type, must exist in the database. Possible values include CRD (Completely Randomized Design), RCBD (Randomized Complete Block Design), RRC (Resolvable Row-Column), DRRC (Doubly-Resolvable Row-Column), ARC (Augmented Row-Column), Alpha (Alpha Lattice Design), Lattice (Lattice Design), Augmented (Augmented Design), MAD (Modified Augmented Design), greenhouse (undesigned Nursery/Greenhouse), splitplot (Split Plot), stripplot (Strip Plot / Split Block), p-rep (Partially Replicated), Westcott (Westcott Design))</li>
                     <li>description (Additional text with any other relevant information about the trial.)</li>
-                    <li>accession_name (The accession being tested in the plot, must exist in the database.)</li>
+                    <li>accession_name OR cross_unique_id OR family_name (The accession, cross, or family being tested in the plot, must exist in the database.)</li>
                     <li>plot_number (A sequential number for the plot in the field (e.g. 1001, 1002, 2001, 2002). These numbers should be unique for the trial.)</li>
                     <li>block_number (A design parameter indicating which block the plot is in.)</li>
                     </ul>
@@ -852,6 +854,7 @@ $design_types => ()
                     <ul>
                     <li>plot_name (Must be unique across entire database. If not provided in the file, it will be automatically generated as <code>{trial_name}-PLOT_{plot_number}</code>)</li>
                     <li>trial_type (The name of the trial type, must exist in the database. Possible values include Seedling Nursery, phenotyping_trial, Advanced Yield Trial, Preliminary Yield Trial, Uniform Yield Trial, Variety Release Trial, Clonal Evaluation, genetic_gain_trial, storage_trial, heterosis_trial, health_status_trial, grafting_trial, Screen House, Seed Multiplication, crossing_block_trial, Specialty Trial)</li>
+                    <li>trial_stock_type (The type of stocks that are being evaluated in the trial.  Can be either 'accession', 'cross', or 'family_name'.  When not provided, 'accession' is used as the default)
                     <li>plot_width (plot width in meters)</li>
                     <li>plot_length (plot length in meters)</li>
                     <li>field_size (field size in hectares)</li>
@@ -867,6 +870,7 @@ $design_types => ()
                     <li>num_seed_per_plot (number seeds per plot. seed is transferred from seedlot mentioned in seedlot_name. numeric)</li>
                     <li>weight_gram_seed_per_plot (weight in gram of seeds in plot. seed is transferred from seedlot mentioned in seedlot name. numeric)</li>
                     <li>entry_number (a trial-level entry number assigned to the stock. Numeric)</li>
+                    <li>intercrop_accession_name (the name(s) of additional accessions that are planted in this plot along with the primary accession.  the name must already exist in the database. this column can be included more than once for multiple intercropped accessions.)
                     <li>is_private (type 1 in this field if the plot contains private data and should be skipped and not added to the database, otherwise leave blank.)</li>
                     </ul>
 
