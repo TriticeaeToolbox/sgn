@@ -237,7 +237,8 @@ export function Wizard(main_id,col_number){
       .then(resp=>resp.json())
       .then(json=>{
         if ( json && json.trials ) {
-          setColumn(index, "trials", null, ()=>true, json.trials);
+          var trials = json.trials.map((x) => { return { ...x, url: `/breeders/trial/${x.id}` } })
+          setColumn(index, "trials", null, ()=>true, trials);
           allCols.filter(d=>d.index==index)
             .style("opacity","1")
             .select(".wizard-loader")
