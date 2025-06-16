@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 24:04:2025 11:28
+date: 16:06:2025 14:20
 saved-by: DJW
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [./traits_t3.obo]
@@ -3153,6 +3153,13 @@ def: "The Visiable Atmospherically Resistant Index (VARI) is commonly used to es
 relationship: method_of CO_321:0500092
 
 [Term]
+id: CO_321:0500289
+name: AUDPC Computation
+namespace: wheat_trait_method
+def: "Calculate area under disease progress curve." []
+relationship: method_of CO_321:0001019
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -3336,6 +3343,7 @@ relationship: scale_of CO_321:0500278
 relationship: scale_of CO_321:0500280
 relationship: scale_of CO_321:0500281
 relationship: scale_of CO_321:0500282
+relationship: scale_of CO_321:0500289
 relationship: scale_of CO_321:0000290
 relationship: scale_of CO_321:0000309
 relationship: scale_of CO_321:0000316
@@ -7889,7 +7897,7 @@ relationship: variable_of CO_321:0500504
 
 [Term]
 id: CO_321:0501110
-name: Stem rust seedling infection type - BCCBC - 0-9 Linearized Stakman Scale Rating 
+name: Stem rust seedling infection type - BCCBC - 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race BCCBC during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500054
@@ -7898,7 +7906,7 @@ relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501111
-name: Stem rust seedling infection type - Field Bulk -  0-9 Linearized Stakman Scale Rating 
+name: Stem rust seedling infection type - Field Bulk -  0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) a bulk of stem rust races from the field during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500054
@@ -7907,7 +7915,7 @@ relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501112
-name: Stem rust seedling infection type - JRCQC - 0-9 Linearized Stakman Scale Rating 
+name: Stem rust seedling infection type - JRCQC - 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race JRCQC during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500054
@@ -7916,7 +7924,7 @@ relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501113
-name: Stem rust seedling infection type - TRTTF - 0-9 Linearized Stakman Scale Rating 
+name: Stem rust seedling infection type - TRTTF - 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race TRTTF during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500054
@@ -7925,7 +7933,7 @@ relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501114
-name: Stem rust seedling infection type - TTKSK - 0-9 Linearized Stakman Scale Rating 
+name: Stem rust seedling infection type - TTKSK - 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race TTKSK during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500054
@@ -7934,7 +7942,7 @@ relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501115
-name: Stem rust seedling infection type - TTTTF - 0-9 Linearized Stakman Scale Rating 
+name: Stem rust seedling infection type - TTTTF - 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by seedlings inoculated during greenhouse trials. METHOD: A qualitative analysis of the type of disease symptoms exhibited by seedlings inoculated with stem rust (Puccinia graminis f. sp. tritici) race TTTTF during greenhouse trials. The original ratings, made using the scale from Stakman et al. (1962), were converted to a 0-9 linear disease scale for analysis: 0, 1-, 1, 1+, 2-, 2 2+, 3-, 3, 3+ were coded as 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, respectively (Zhang et al, 2014). SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500054
@@ -8142,7 +8150,7 @@ relationship: variable_of CO_321:0500533
 
 [Term]
 id: CO_321:0501167
-name: Stem rust plant infection type - QFCSC - 0-9 Linearized Stakman Scale Rating 
+name: Stem rust plant infection type - QFCSC - 0-9 Linearized Stakman Scale Rating
 namespace: wheat_trait
 def: "TRAIT: Stem rust (black rust) infection type exhibited by adult plants. METHOD: Infection phenotype of pustules on upper stems of adult plants inoculated with stem rust (Puccinia graminis f. sp. tritici) race QFCSC SCALE: 0-9 Linearized Stakman Scale Rating (0= 0, 1= 1-, 2= 1, 3= 1+, 4= 2-, 5= 2, 6= 2+, 7= 3-, 8= 3, 9= 3+/4)" []
 relationship: variable_of CO_321:0500062
@@ -8697,3 +8705,12 @@ def: "TRAIT: The plant damage caused by sawfly, Cephus cinctus. METHOD: Standard
 relationship: variable_of CO_321:0000092
 relationship: variable_of CO_321:0000312
 relationship: variable_of CO_321:0500550
+
+[Term]
+id: CO_321:0501231
+name: Bacterial Leaf Streak Severity - Area Under the Disease Progression Curve
+namespace: wheat_trait
+def: "TRAIT: Bacterial leaf streak severity in the plants caused by the agent Xanthomonas translucens. The disease, called black chaff when on the glumes. METHOD: Calculate area under disease progress curve. SCALE: %" []
+relationship: variable_of CO_321:0001019
+relationship: variable_of CO_321:0500289
+relationship: variable_of CO_321:0000410
