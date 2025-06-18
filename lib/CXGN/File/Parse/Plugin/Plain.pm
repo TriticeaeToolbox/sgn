@@ -103,6 +103,15 @@ sub parse {
       my $v = $rows[$r]->[$c];
       $v = $super->clean_value($v, $h);
 
+      # Merge with existing data if column occurs more than once and allowed to be an array
+      if ( exists $row_info{$h} && exists $column_arrays->{$h} ) {
+        my @merged = uniq(@{$row_info{$h}}, @$v);
+        $row_info{$h} = \@merged;
+      }
+      else {
+        $row_info{$h} = $v;
+      }
+
       # Only process defined and non-empty values...
       if ( defined($v) && $v ne '' ) {
 
