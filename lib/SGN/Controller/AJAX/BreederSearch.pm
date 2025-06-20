@@ -60,9 +60,8 @@ sub get_data : Path('/ajax/breeder/search') Args(0) {
     if (defined($param) && ($param ne '')) { @data =  $c->req->param("data[$i][]"); }
 
     if (@data) {
-      print STDERR "Validating dataref ids\n";
-      for (my $i=0; $i<@data; $i++) { # ensure dataref arguements (ids) are numeric
-        if (m/\D/) {
+      foreach (@data) { # ensure dataref arguements (ids) are numeric
+        if ( $_ !~ /^\d+$/ ) {
           $error = "Valid values for dataref are numeric ids";
           $c->stash->{rest} = { error => $error };
           return;
