@@ -449,6 +449,61 @@ sub get_existing_associations {
 }
 
 #
+# Get all genetic character associations for the specified Accessions
+# PARAMS:
+#   - accession_ids = arrayref of accession stock ids to query
+# RETURNS:
+#   a hashref of genentic character associations divided by stock (key = stock_id)
+#       stock_id
+#       stock_name
+#       genetic_characters = hashref of genetic character associations with the accession (key = locus_id)
+#           locus_id
+#           locus_name
+#           locus_symbol
+#           allele_id
+#           allele_name
+#           allele_symbol
+#
+sub get_all_associations {
+    my $self = shift;
+    my $accession_ids = shift;
+    my $c = SGN::Context->new;
+    my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+    my $dbh = $c->dbc->dbh();
+
+    my $placeholders = join ( ',', ('?') x @$accession_ids );
+    my $q = "SELECT s.stock_id, s.uniquename, l.locus_id, l.locus_name, l.locus_symbol, a.allele_id, a.allele_name, a.allele_symbol
+            FROM phenome.stock_allele AS sa
+            LEFT JOIN phenome.allele AS a ON (sa.allele_id = a.allele_id)
+            LEFT JOIN phenome.locus AS l ON (a.locus_id = l.locus_id)
+            LEFT JOIN public.stock AS s ON (sa.stock_id = s.stock_id)
+            WHERE sa.stock_id IN ($placeholders)";
+    my $sth = $dbh->prepare($q);
+    $sth->execute(@$accession_ids);
+
+    my %rtn;
+    while ( my ($stock_id, $stock_name, $locus_id, $locus_name, $locus_symbol, $allele_id, $allele_name, $allele_symbol) = $sth->fetchrow_array() ) {
+        if ( ! exists $rtn{$stock_id} ) {
+            $rtn{$stock_id} = {
+                stock_id => $stock_id,
+                stock_name => $stock_name,
+                genetic_characters => {}
+            };
+        }
+        $rtn{$stock_id}->{genetic_characters}->{$locus_id} = {
+            locus_id => $locus_id,
+            locus_name => $locus_name,
+            locus_symbol => $locus_symbol,
+            allele_id => $allele_id,
+            allele_name => $allele_name,
+            allele_symbol => $allele_symbol
+        };
+    }
+
+    return \%rtn;
+}
+
+#
 # Get information on all of the T3 Genetic Character Ontology terms
 # PARAMS:
 # RETURNS:
