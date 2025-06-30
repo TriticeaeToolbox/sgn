@@ -255,12 +255,12 @@ fitLMbyTrait <- function(trait, data){
 }
 
 calcLSmeanParms <- function(fitLM){
-  lineLSmeans <- summary(lsmeans(fitLM, "lineName"))
+  lineLSmeans <- summary(lsmeans(fitLM, "lineName", rg.limit = 15000))
   meanSE <- mean(lineLSmeans$SE)
   meanDF <- mean(lineLSmeans$df)
   leastSigDiff <- sqrt(2)*meanSE*qt(1 - 0.025, meanDF)
   tukeysHSD <- meanSE*qtukey(1 - 0.05, nrow(lineLSmeans), meanDF) # Tukey is already two-sided
-  trialLSmeans <- summary(lsmeans(fitLM, "trial"))
+  trialLSmeans <- summary(lsmeans(fitLM, "trial", rg.limit = 15000))
   return(list(lsmeans=lineLSmeans$lsmean, leastSigDiff=leastSigDiff, tukeysHSD=tukeysHSD, trialNames=levels(trialLSmeans$trial), trialMeans=trialLSmeans$lsmean, fitLM=fitLM))
 }
 
