@@ -1,8 +1,8 @@
 format-version: 1.2
-date: 10:07:2025 14:32
-saved-by: DJW
+date: 30:07:2025 14:08
+saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
-remark: This file was converted to an SGN-compatible obo file from a standard obo file [./traits.obo]
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
 default-namespace: wheat_trait
 ontology: CO_321
 
@@ -1715,13 +1715,6 @@ def: "Both the total number of spikelets and the number of fertile spikelets (i.
 relationship: method_of CO_321:0000058
 
 [Term]
-id: CO_321:0000283
-name: StmSol Estimation
-namespace: wheat_trait_method
-def: "Standard method for stem solidness." []
-relationship: method_of CO_321:0000061
-
-[Term]
 id: CO_321:0000284
 name: StmDia Measurement
 namespace: wheat_trait_method
@@ -3158,6 +3151,20 @@ name: AUDPC Computation
 namespace: wheat_trait_method
 def: "Calculate area under disease progress curve." []
 relationship: method_of CO_321:0001019
+
+[Term]
+id: CO_321:0500290
+name: Adjusted 5 Stem Solidness Computation
+namespace: wheat_trait_method
+def: "Compute the adjusted five stem total solidness rating as: (sum of individual stem solidness ratings)/(number of stems rated) * 5" []
+relationship: method_of CO_321:0000061
+
+[Term]
+id: CO_321:0500291
+name: Bottom Internode Stem Solidness Measurement
+namespace: wheat_trait_method
+def: "Measure the 1-5 stem solidness rating for the bottom internode on a signle stem." []
+relationship: method_of CO_321:0000061
 
 [Term]
 id: CO_321:0000804
@@ -6035,7 +6042,7 @@ id: CO_321:0500522
 name: 5-25 5 Stem Solidness Rating
 namespace: wheat_trait_scale
 def: "5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid" []
-relationship: scale_of CO_321:0000283
+relationship: scale_of CO_321:0500290
 
 [Term]
 id: CO_321:0500522/0
@@ -6969,6 +6976,48 @@ name: 100% cut
 namespace: wheat_trait_scale
 synonym: "9" EXACT []
 is_a: CO_321:0500550
+
+[Term]
+id: CO_321:0500551
+name: 1-5 Stem Solidness Rating
+namespace: wheat_trait_scale
+def: "1= Stem Hollow, 2= , 3= , 4= , 5= Stem Solid" []
+relationship: scale_of CO_321:0500291
+
+[Term]
+id: CO_321:0500551/0
+name: Stem Hollow
+namespace: wheat_trait_scale
+synonym: "1" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/1
+name: 2
+namespace: wheat_trait_scale
+synonym: "2" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/2
+name: 3
+namespace: wheat_trait_scale
+synonym: "3" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/3
+name: 4
+namespace: wheat_trait_scale
+synonym: "4" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/4
+name: Stem Solid
+namespace: wheat_trait_scale
+synonym: "5" EXACT []
+is_a: CO_321:0500551
 
 [Term]
 id: CO_321:0001043
@@ -8604,11 +8653,11 @@ relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501154
-name: Stem solidness - 5-25 5 Stem Solidness Rating
+name: Stem solidness - 5 Stem Adjusted 5-25 Solidness Rating
 namespace: wheat_trait
-def: "TRAIT: Solidness of stem. METHOD: Standard method for stem solidness. SCALE: 5-25 5 Stem Solidness Rating (5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid)" []
+def: "TRAIT: Solidness of stem. METHOD: Compute the adjusted five stem total solidness rating as: (sum of individual stem solidness ratings)/(number of stems rated) * 5 SCALE: 5-25 5 Stem Solidness Rating (5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid)" []
 relationship: variable_of CO_321:0000061
-relationship: variable_of CO_321:0000283
+relationship: variable_of CO_321:0500290
 relationship: variable_of CO_321:0500522
 
 [Term]
@@ -9357,3 +9406,12 @@ def: "TRAIT: Bacterial leaf streak severity in the plants caused by the agent Xa
 relationship: variable_of CO_321:0001019
 relationship: variable_of CO_321:0500289
 relationship: variable_of CO_321:0000470
+
+[Term]
+id: CO_321:0501232
+name: Stem solidness - Bottom Internode 1-5 Solidness Rating
+namespace: wheat_trait
+def: "TRAIT: Solidness of stem. METHOD: Measure the 1-5 stem solidness rating for the bottom internode on a signle stem. SCALE: 1-5 Stem Solidness Rating (1= Stem Hollow, 2= , 3= , 4= , 5= Stem Solid)" []
+relationship: variable_of CO_321:0000061
+relationship: variable_of CO_321:0500291
+relationship: variable_of CO_321:0500551
