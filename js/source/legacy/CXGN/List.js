@@ -979,6 +979,9 @@ CXGN.List.prototype = {
 			//alert('Please provide a valid list');
 			valid = 0;
 		    }
+		    if (type != 'accessions' && r.warning != 0) {
+                        alert(r.warning.join(", "));
+                    }
 		}
 	    },
 	    error: function(e) { alert('An error occurred validating the list '+list_id+' (type='+type+')'); }
@@ -1257,7 +1260,6 @@ function setUpLists() {
         function() { show_lists(); }
     );
 }
-
 
 function show_lists() {
    jQuery('#list_dialog').modal("show");
@@ -1878,6 +1880,7 @@ jQuery(document).ready(function() {
 
 function validate_interactive(response, type, list_id) {
     missing = response.missing;
+    warning = response.warning;
     wrong_case = response.wrong_case;
     multiple_wrong_case = response.multiple_wrong_case;
     synonym_matches = response.synonyms;
@@ -1885,6 +1888,9 @@ function validate_interactive(response, type, list_id) {
     valid = response.valid;
 
     //alert("validate_interactive: "+JSON.stringify(response));
+    if (type != 'accessions' && warning.length != 0) {
+        alert(warning.join(", "));
+    }
     if (type == 'accessions' && valid == 1) {
 	alert("This list passed validation.");
 	return;
