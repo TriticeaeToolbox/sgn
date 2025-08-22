@@ -2414,16 +2414,18 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	    }).on('mousemove', (e)=>{
 	      let sourceTarget = e.sourceTarget;
 	      let ou = this.plot_map[sourceTarget.feature.properties.observationUnitDbId];
-	      get_oup_rel(ou).forEach((levels)=>{ 
-	          if(levels.levelName == 'replicate'){ ou.replicate = levels.levelCode;}
-	        else if(levels.levelName == 'block'){ ou.blockNumber = levels.levelCode;}
-	        else if(levels.levelName == 'plot'){ ou.plotNumber = levels.levelCode;}});
-	      this.info.html(`<div style="padding: 5px"><div>Germplasm: ${ou.germplasmName}</div>
-       <div>Replicate: ${ou.replicate}</div>
-       <div>    Block: ${ou.blockNumber}</div>
-       <div>  Row,Col: ${ou._row},${ou._col}</div>
-       <div>   Plot #: ${ou.plotNumber}</div></div>`);
-	    }).on('mouseout', ()=>{
+	      get_oup_rel(ou).forEach((levels)=>{
+          if(levels.levelName === 'replicate' || levels.levelName === 'rep'){ ou.replicate = levels.levelCode;}
+          else if(levels.levelName === 'block'){ ou.blockNumber = levels.levelCode;}
+          else if(levels.levelName === 'plot'){ ou.plotNumber = levels.levelCode;}
+        });
+        this.info.html(`<div style="padding: 5px"><div>Germplasm: ${ou.germplasmName}</div>
+          <div>Replicate: ${ou.replicate}</div>
+          <div>    Block: ${ou.blockNumber}</div>
+          <div>  Row,Col: ${ou._row},${ou._col}</div>
+          <div>   Plot #: ${ou.plotNumber}</div></div>
+        `);
+      }).on('mouseout', ()=>{
 	      this.info.html("");
 	    }).addTo(this.map);
 	  }
