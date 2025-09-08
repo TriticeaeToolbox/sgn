@@ -32,8 +32,6 @@
         <select disabled multiple class="form-control input-sm" id="trait_select" size="10">
           <option selected="selected" value=""> </option>
         </select>
-        <p><strong>Note:</strong> Only traits that are observed across all Trials are 
-        available to summarize.</p>
       </div>
     </form>
   </center>
@@ -90,44 +88,38 @@
       return;
     }
 
-    // Get phenotype data for Trials in selected List
+    // Get traits for Trials in selected List
     setTimeout(function(){ //use setTimeout to pull sync call list.getListData out of event listener thread.
       var item_data = list.getListData(trial_list_id);
       var ids = list.transform2Ids(trial_list_id, item_data);
-
-      BrAPI("/brapi/v1")
-        .phenotypes_search({
-            "studyDbIds" : ids,
-            "observationLevel": "plot",
-            "pageSize" : 10000000})
-        .all(createSComp);
+      BrAPI("/brapi/v2").search("variables", { studyDbIds: ids, pageSize: 10000 }).all(createSComp);
     },1);
 
   }
 
   /**
-   * Parse the phenotype data
-   * - Get traits that are observed in ALL trials
+   * Display the select list of traits
+   * - include any trait that is observed in any of the selected trials
    */
-  function createSComp(data){
+  function createSComp(data = []){
+    const traits = data.map((e) => {
+      return { id: e.observationVariableDbId, name: e.observationVariableName }
+    });
 
-    // Get Traits that are common in all trials
-    let traits = getCommonTraits(data);
-
-      $("#trait_select option").remove();
-      for ( let i = 0; i < traits.length; i++ ) {
-        $("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
+    $("#trait_select option").remove();
+    for ( let i = 0; i < traits.length; i++ ) {
+      $("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
+    }
+    $("#trials-loading-spinner").hide();
+    $("#trait_select").attr("disabled",false);
+    $("#trait_select").change(function() {
+      if ( $("#trait_select").children("option:selected").length > 0 ) {
+        $("#summarize").attr("disabled", false);
       }
-      $("#trials-loading-spinner").hide();
-      $("#trait_select").attr("disabled",false);
-      $("#trait_select").change(function() {
-        if ( $("#trait_select").children("option:selected").length > 0 ) {
-          $("#summarize").attr("disabled", false);
-        }
-        else {
-          $("#summarize").attr("disabled", true);
-        }
-      });
+      else {
+        $("#summarize").attr("disabled", true);
+      }
+    });
 
   }
 
@@ -139,98 +131,6 @@
       url += "&trait_id=" + $(selected_traits[i]).val();
     }
     window.location = url;
-  }
-
-
-  /**
-   * Get a list of unique traits from the phenotype data
-   * that are observed across all trials
-   * @param  {Object[]} data  Phenotype data from BrAPI
-   * @return {Object[]}       Array of trait properties (name, observation count, id)
-   */
-  function getCommonTraits(data) {
-    let traits = {};
-    let trials = {};
-    let total = 0;
-
-    // Parse each plot of phenotype data
-    for ( let i = 0; i < data.length; i++ ) {
-
-      // Parse the plot's observations
-      let observations = data[i].observations;
-      if ( observations ) {
-        total++;
-
-        // Parse each observation
-        for ( let j = 0; j < observations.length; j++ ) {
-          let observation = observations[j];
-          let name = observation.observationVariableName;
-          let id = observation.observationVariableDbId;
-          let trial = data[i].studyName;
-
-          if ( name && id ) {
-
-            // Add Trait information
-            if ( !traits.hasOwnProperty(name) ) {
-              traits[name] = {name: name, id: id, count: 1};
-            }
-            else {
-              traits[name].count = traits[name].count + 1;
-            }
-
-            // Add Trial information
-            if ( !trials.hasOwnProperty(trial) ) {
-              trials[trial] = [name];
-            }
-            else if ( !trials[trial].includes(name) ) {
-              trials[trial].push(name);
-            }
-
-          }
-        }
-      }
-    }
-
-    // Sort traits by observation count
-    let sorted = sortProperties(traits);
-
-    // Get common traits
-    let common = [];
-    for ( var trait in traits ) {
-      if ( traits.hasOwnProperty(trait) ) {
-        let c = true;
-        for ( var trial in trials ) {
-          if ( trials.hasOwnProperty(trial) ) {
-            if ( !trials[trial].includes(trait) ) {
-              c = false;
-            }
-          }
-        }
-        if ( c ) {
-          common.push(traits[trait]);
-        }
-      }
-    }
-
-    // Return the common traits
-    return common;
-
-  }
-
-  /**
-   * Sort the traits object into an array sorted by trait observation count
-   * @param  {Object} obj Object to sort
-   * @return {Array}      Array of sorted trait obejcts
-   */
-  function sortProperties(obj, sort_key="count") {
-    var sortable=[];
-    for(var key in obj)
-      if(obj.hasOwnProperty(key))
-        sortable.push(obj[key]);
-    sortable.sort(function(a, b) {
-      return b[sort_key]-a[sort_key];
-    });
-    return sortable;
   }
 
 }());
