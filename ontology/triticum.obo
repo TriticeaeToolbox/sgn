@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 30:07:2025 14:08
+date: 22:09:2025 16:09
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1558,6 +1558,14 @@ namespace: wheat_trait
 def: "Visible atmospherically resistant index obtained from RGB images and commonly used to estimate the greenness / healthiness of plants while taking into account illumination differences and atmospheric effects (average of plot) " []
 synonym: "VARI" EXACT []
 is_a: CO_321:Physiological
+
+[Term]
+id: CO_321:0500093
+name: Jointing time
+namespace: wheat_trait
+def: "Jointing time is when the first node above the soil surface is first detected. Jointing time refers to the onset of the stem elongation period." []
+synonym: "JT" EXACT []
+is_a: CO_321:Phenological
 
 [Term]
 id: CO_321:0000229
@@ -3165,6 +3173,13 @@ name: Bottom Internode Stem Solidness Measurement
 namespace: wheat_trait_method
 def: "Measure the 1-5 stem solidness rating for the bottom internode on a signle stem." []
 relationship: method_of CO_321:0000061
+
+[Term]
+id: CO_321:0500292
+name: Jointing Time Measurement
+namespace: wheat_trait_method
+def: "Examine the growth stage of the plots every every four days once pseudostems become visible indicating that jointing is imminent. Estimate the date when at least 50% of the plants in the plot have jointed." []
+relationship: method_of CO_321:0500093
 
 [Term]
 id: CO_321:0000804
@@ -4928,6 +4943,7 @@ relationship: scale_of CO_321:0000840
 relationship: scale_of CO_321:0000842
 relationship: scale_of CO_321:0500194
 relationship: scale_of CO_321:0500195
+relationship: scale_of CO_321:0500292
 
 [Term]
 id: CO_321:0000460
@@ -9415,3 +9431,12 @@ def: "TRAIT: Solidness of stem. METHOD: Measure the 1-5 stem solidness rating fo
 relationship: variable_of CO_321:0000061
 relationship: variable_of CO_321:0500291
 relationship: variable_of CO_321:0500551
+
+[Term]
+id: CO_321:0501233
+name: Jointing time - Julian date (JD)
+namespace: wheat_trait
+def: "TRAIT: Jointing time is when the first node above the soil surface is first detected. Jointing time refers to the onset of the stem elongation period. METHOD: Examine the growth stage of the plots every every four days once pseudostems become visible indicating that jointing is imminent. Estimate the date when at least 50% of the plants in the plot have jointed. SCALE: Julian date (JD)" []
+relationship: variable_of CO_321:0500093
+relationship: variable_of CO_321:0500292
+relationship: variable_of CO_321:0000855
