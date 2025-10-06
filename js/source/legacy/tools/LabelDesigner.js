@@ -1327,30 +1327,35 @@ function addSortOrders(add_fields, data_type, data_level) {
         .attr("value", function(d) {
             return d
         });
-    jQuery("#sort_order_1").off("change").on("change", () => {
-        const sel = jQuery("#sort_order_1").val();
-        if ( sel === 'Select a field' ) {
-            jQuery("#sort_order_2_container, #sort_order_3_container").hide();
-            jQuery("#sort_order_layout_order_container, #sort_order_layout_start_container").hide();
-        }
-        else if ( sel === 'Trial Layout: Plot Order' ) {
-            jQuery("#sort_order_2_container, #sort_order_3_container").hide();
-            jQuery("#sort_order_layout_order_container, #sort_order_layout_start_container").show();
-        }
-        else {
-            jQuery("#sort_order_2_container").show();
-            jQuery("#sort_order_layout_order_container, #sort_order_layout_start_container").hide();
-        }
-    });
-    jQuery("#sort_order_2").off("change").on("change", () => {
-        const sel = jQuery("#sort_order_2").val();
-        if ( sel === 'Select a field' ) {
-            jQuery("#sort_order_3_container").hide();
-        }
-        else {
-            jQuery("#sort_order_3_container").show();
-        }
-    });
+    jQuery("#sort_order_1").off("change").on("change", onSortOrderChange1);
+    jQuery("#sort_order_2").off("change").on("change", onSortOrderChange2);
+    onSortOrderChange1();
+}
+
+function onSortOrderChange1() {
+    const sel = jQuery("#sort_order_1").val();
+    if ( sel === 'Select a field' ) {
+        jQuery("#sort_order_2_container, #sort_order_3_container").hide();
+        jQuery("#sort_order_layout_order_container, #sort_order_layout_start_container").hide();
+    }
+    else if ( sel === 'Trial Layout: Plot Order' ) {
+        jQuery("#sort_order_2_container, #sort_order_3_container").hide();
+        jQuery("#sort_order_layout_order_container, #sort_order_layout_start_container").show();
+    }
+    else {
+        jQuery("#sort_order_2_container").show();
+        jQuery("#sort_order_layout_order_container, #sort_order_layout_start_container").hide();
+    }
+}
+
+function onSortOrderChange2() {
+    const sel = jQuery("#sort_order_2").val();
+    if ( sel === 'Select a field' ) {
+        jQuery("#sort_order_3_container").hide();
+    }
+    else {
+        jQuery("#sort_order_3_container").show();
+    }
 }
 
 function checkIfVisible(element) {

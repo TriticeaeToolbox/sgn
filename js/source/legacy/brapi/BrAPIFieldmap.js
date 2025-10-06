@@ -2132,7 +2132,9 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	  plotLength: 0,
 	  plotScaleFactor: 1,
 	  style: {
-	    weight: 1
+	    weight: 1.5,
+	    fillOpacity: 0.1,
+	    color: '#ffffff'
 	  },
 	  useGeoJson: true,
 	  tileLayer: {
@@ -2142,7 +2144,8 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	      maxZoom: 28,
 	      maxNativeZoom: 19
 	    }
-	  }
+	  },
+	  d2s_api: null
 	};
 
 	class Fieldmap {
@@ -2288,68 +2291,48 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	      this.loading.style("display", loading ? 'block' : 'none');
 	    }
 
-      // Get D2S Project ID for Trial - stored in BrAPI additional info
-      this.getD2SProjectId = async (studyDbId) => {
-        return new Promise((resolve) => {
-          let proj;
-          jQuery.ajax({
-            url: `/brapi/v2/studies/${studyDbId}`,
-            success: (resp) => {
-              if ( resp && resp.result && resp.result.additionalInfo && resp.result.additionalInfo.d2s_project_id ) {
-                proj = resp.result.additionalInfo.d2s_project_id;
-              }
-            },
-            complete: () => {
-              resolve(proj);
-            }
-          });
-        });
-      }
-
-      // Check if there are any external coordinates available for this trial
-      this._coords = {}
+      // Get any externally stored Geo Coords from D2S
+      this._coords = { by_plot: {}, by_row_col: {} };
       this.getCoords = async (studyDbId) => {
-        let _this = this;
-        return new Promise(async (resolve) => {
-          const proj = await this.getD2SProjectId(studyDbId);
-          if ( proj && proj !== '' ) {
-            jQuery.ajax({
-              method: 'GET',
-              url: `${D2S_PROXY_SERVER}/coords/${proj}`,
-              success: function(response) {
-                _this._coords = response?.coords || {};
-              },
-              complete: () => {
-                resolve();
+        if ( this.opts.d2s_api ) {
+          try {
+            const projects = await this.opts.d2s_api.getBBConnections(studyDbId) || [];
+            for ( const project of projects ) {
+              const project_coords = await this.opts.d2s_api.getCoords(project.id) || {};
+              for ( const p of project_coords ) {
+                const plot = p.properties?._parsed_plot;
+                const row = p.properties?._parsed_row;
+                const col = p.properties?._parsed_col;
+                if ( plot ) this._coords.by_plot[`plot-${plot}`] = p;
+                if ( row && col ) {
+                  if ( !this._coords.by_row_col[`row-${row}`] ) this._coords.by_row_col[`row-${row}`] = {};
+                  this._coords.by_row_col[`row-${row}`][`col-${col}`] = p;
+                }
               }
-            });
+            }
           }
-          else {
-            resolve();
+          catch (err) {
+            console.log(err);
           }
-        });
+        }
       }
 
       // Check if there are any orthos available for this trial
       this.getOrthos = async (studyDbId) => {
-        let _this = this;
-        return new Promise(async (resolve) => {
-          const proj = await this.getD2SProjectId(studyDbId);
-          if ( proj && proj !== '' ) {
-            jQuery.ajax({
-              method: 'GET',
-              url: `${D2S_PROXY_SERVER}/orthos/${proj}`,
-              success: function(response) {
-                if ( response && response.orthos ) {
-                  _this.displayOrthoSelection(response.orthos);
-                }
-              },
-              complete: () => {
-                resolve();
-              }
-            });
+        if ( this.opts.d2s_api ) {
+          let orthos = [];
+          try {
+            const projects = await this.opts.d2s_api.getBBConnections(studyDbId) || [];
+            for ( const project of projects ) {
+              const project_orthos = await this.opts.d2s_api.getOrthos(project.id) || [];
+              orthos = [...orthos, ...project_orthos];
+            }
+            this.displayOrthoSelection(orthos);
           }
-        });
+          catch (err) {
+            console.log(err);
+          }
+        }
       }
 
       // Display select input for available orthos
@@ -2362,10 +2345,17 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
           html += "<option value=''>Select a Date</option>";
 
           orthos.sort((a, b) => a.date > b.date);
+          let dl;
           orthos.forEach((o) => {
-            html += `<option data-attribution='${o.attribution}' value='${o.url}'>${o.date} (${o.attribution})</option>`;
+            if ( o.date !== dl ) {
+              if ( dl ) html += `</optgroup>`;
+              html += `<optgroup label="${o.date}">`;
+              dl = o.date;
+            }
+            html += `<option data-attribution='${o.attribution}' value='${o.url}'>${o.sensor} ${o.data_type} (${o.attribution})</option>`;
           });
 
+          html += "</optgroup>";
           html += "</select>";
           html += "</div>";
         }
@@ -2407,7 +2397,7 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	  async load(studyDbId) {
 	    this.onLoading(true);
 	    await this.getCoords(studyDbId);
-	    this.generatePlots(studyDbId);
+ 	    this.generatePlots(studyDbId);
 	    this.getOrthos(studyDbId);
 	    return this.data.then(()=>{
 	      this.drawPlots();
@@ -2433,16 +2423,18 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	    }).on('mousemove', (e)=>{
 	      let sourceTarget = e.sourceTarget;
 	      let ou = this.plot_map[sourceTarget.feature.properties.observationUnitDbId];
-	      get_oup_rel(ou).forEach((levels)=>{ 
-	          if(levels.levelName == 'replicate'){ ou.replicate = levels.levelCode;}
-	        else if(levels.levelName == 'block'){ ou.blockNumber = levels.levelCode;}
-	        else if(levels.levelName == 'plot'){ ou.plotNumber = levels.levelCode;}});
-	      this.info.html(`<div style="padding: 5px"><div>Germplasm: ${ou.germplasmName}</div>
-       <div>Replicate: ${ou.replicate}</div>
-       <div>    Block: ${ou.blockNumber}</div>
-       <div>  Row,Col: ${ou._row},${ou._col}</div>
-       <div>   Plot #: ${ou.plotNumber}</div></div>`);
-	    }).on('mouseout', ()=>{
+	      get_oup_rel(ou).forEach((levels)=>{
+          if(levels.levelName === 'replicate' || levels.levelName === 'rep'){ ou.replicate = levels.levelCode;}
+          else if(levels.levelName === 'block'){ ou.blockNumber = levels.levelCode;}
+          else if(levels.levelName === 'plot'){ ou.plotNumber = levels.levelCode;}
+        });
+        this.info.html(`<div style="padding: 5px"><div>Germplasm: ${ou.germplasmName}</div>
+          <div>Replicate: ${ou.replicate}</div>
+          <div>    Block: ${ou.blockNumber}</div>
+          <div>  Row,Col: ${ou._row},${ou._col}</div>
+          <div>   Plot #: ${ou.plotNumber}</div></div>
+        `);
+      }).on('mouseout', ()=>{
 	      this.info.html("");
 	    }).addTo(this.map);
 	  }
@@ -2634,21 +2626,6 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	      const oup = get_oup(ou);
 	      ou._X = ou.X || oup.positionCoordinateX;
 	      ou._Y = ou.Y || oup.positionCoordinateY;
-	      try {
-
-          // Set external geoJSON from _coords, if available
-          let c;
-          const levels = ou?.observationUnitPosition?.observationLevelRelationships || [];
-          for ( let i = 0; i < levels.length; i++ ) {
-            if ( levels[i].levelName === 'plot' && this._coords.hasOwnProperty(levels[i].levelCode) ) {
-              c = this._coords[levels[i].levelCode];
-            }
-          }
-
-          // Use the internal geo coordinates by default or the external coordinates if available
-          ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || (this.opts.useGeoJson && c) || null;
-
-	      } catch (e) {}
 	      ou._type = "";
 	      if (!isNaN(ou._X) && !isNaN(ou._Y)){
 	        if(oup.positionCoordinateXType
@@ -2674,6 +2651,28 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	          }
 	        }
 	      }
+        const levels = ou?.observationUnitPosition?.observationLevelRelationships || [];
+        for ( let i = 0; i < levels.length; i++ ) {
+          if ( levels[i].levelName === 'plot' ) {
+            ou._plot = parseInt(levels[i].levelCode);
+          }
+        }
+
+        // Set external geoJSON from _coords, if available
+        // Prefer matching by plot number, fallback to row and col position
+        let external_geojson;
+        if ( ou._plot && this._coords.by_plot[`plot-${ou._plot}`] ) {
+          external_geojson = this._coords.by_plot[`plot-${ou._plot}`];
+        }
+        else if ( ou._row && ou._col && this._coords.by_row_col[`row-${ou._row}`] && this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`] ) {
+          external_geojson = this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`];
+        }
+
+        // Use the internal geo coordinates by default or the external coordinates if available
+        try {
+          ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || (this.opts.useGeoJson && external_geojson) || null;
+	      } catch (e) {}
+
 	      if(ou._geoJSON){
 	        try {
 	          ou._type = turf.getType(ou._geoJSON);
@@ -2699,8 +2698,17 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	      }
 	      else if ( plots_invalid.length > 0 ) {
 	        let html = "Plots with no geo coordinates:";
-	        html += "<ul style='padding-left: 25px; margin-bottom: 0'>";
-	        plots_invalid.forEach((p) => html += `<li>${p.observationUnitName}</li>`);
+	        html += "<ul style='padding-left: 25px; margin-bottom: 0; list-style-type: disc;'>";
+	        plots_invalid.forEach((p) => {
+	          html += `<li>${p.observationUnitName}</li>`
+	          let labels = [];
+	          if ( p._plot ) labels.push({ key: 'plot', value: p._plot })
+	          if ( p._row ) labels.push({ key: 'row', value: p._row })
+	          if ( p._col ) labels.push({ key: 'col', value: p._col })
+	          if ( labels.length > 0 ) {
+	            html += ` (${labels.map((e) => `${e.key}: ${e.value}`).join(', ')})`;
+	          }
+          });
 	        html += "</ul>";
 	        this.missing_plots.style("display", "block");
 	        this.missing_plots.html(html);

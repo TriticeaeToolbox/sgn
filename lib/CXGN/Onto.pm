@@ -25,29 +25,29 @@ Side Effects: none
 =cut
 
 sub get_terms {
-      my $self = shift;
-      my $cv_id = shift;
+    my $self = shift;
+    my $cv_id = shift;
 
-      my $query = "SELECT distinct(cvterm_id), dbxref.accession, (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text AS name
-                  FROM cvterm
-                  JOIN dbxref USING(dbxref_id)
-                  JOIN db USING(db_id)
-                  JOIN cvterm_relationship is_subject ON cvterm.cvterm_id = is_subject.subject_id
-                  WHERE cv_id = ? AND is_obsolete = ?
-                  GROUP BY 1,2,3
-                  ORDER BY 3";
+    my $query = "SELECT distinct(cvterm.cvterm_id), dbxref.accession, (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text AS name, relationship_type.name
+                FROM cvterm
+                JOIN dbxref USING(dbxref_id)
+                JOIN db USING(db_id)
+                JOIN cvterm_relationship is_subject ON cvterm.cvterm_id = is_subject.subject_id
+                JOIN cvterm AS relationship_type ON is_subject.type_id = relationship_type.cvterm_id
+                WHERE cvterm.cv_id = ? AND cvterm.is_obsolete = ? AND relationship_type.name = 'VARIABLE_OF'
+                ORDER BY 3";
 
-      my $h = $self->schema->storage->dbh->prepare($query);
-      $h->execute($cv_id, '0');
+    my $h = $self->schema->storage->dbh->prepare($query);
+    $h->execute($cv_id, '0');
 
-      my @results;
-      while (my ($id, $accession, $name) = $h->fetchrow_array()) {
-	  if ($accession +0 != 0) {
-	      push @results, [$id, $name];
-	  }
-      }
+    my @results;
+    while (my ($id, $accession, $name) = $h->fetchrow_array()) {
+        if ($accession +0 != 0) {
+            push @results, [$id, $name];
+        }
+    }
 
-      return @results;
+    return @results;
 }
 
 sub get_root_nodes {

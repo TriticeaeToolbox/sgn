@@ -616,6 +616,71 @@ $(document).ready(function() {
 <!-- end of code for seedlot maintenance event download -->
 
 
+<!-- START Download Genetic Characters -->
+
+<div class="well well-sm">
+  <form id="download_genetic_characters" action="/breeders/download_genetic_characters_action" method="POST">
+    <table class="table"  cellpadding="10">
+      <thead>
+        <tr><td colspan="2"><h4>Download Genetic Characters by Accession</h4><p>Select parameters:</p></tr>
+        <tr>
+          <th>Accessions</th>
+          <th>Format</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+      <tr>
+        <td>
+          <div id="genetic_characters_accessions"></div>
+        </td>
+        <td>
+          <select class="form-control" id="genetic_characters_format" name="file_format">
+            <option value=".xlsx">XLSX</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-primary" type="button" id="genetic_characters_download">Download</button>
+          <input type="hidden" id="genetic_characters_download_token" name="genetic_characters_download_token"/>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </form>
+</div>
+
+<script>
+jQuery(document).ready(function() {
+
+  var lo = new CXGN.List();
+
+  jQuery('#genetic_characters_accessions').html(lo.listSelect('genetic_characters_accessions_lists', [ 'accessions' ], 'select', undefined, undefined));
+
+  jQuery('#genetic_characters_download').click(function() {
+    var accession_list_id = jQuery('#genetic_characters_accessions_lists_list_select').val();
+    if (!accession_list_id) {
+      alert("You need to select an accession list!");
+      return;
+    }
+
+    jQuery('#working_modal').modal('show');
+    lo.validate(accession_list_id, 'accessions', true).then(function(r) {
+      jQuery('#working_modal').modal('hide');
+      if (r.valid != 1) {
+        alert("The accession list did not pass validation. Please correct the list and try again");
+      }
+      else {
+        jQuery('#download_genetic_characters').submit();
+      }
+    });
+  });
+});
+
+</script>
+
+<!-- END Download Genetic Characters -->
+
+
 <div class="well well-sm">
 <form id="download_gbs" action="/breeders/download_gbs_action" method="POST">
 <table class="table"  cellpadding="10">

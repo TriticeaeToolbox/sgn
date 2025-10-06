@@ -43,6 +43,7 @@ use CXGN::Stock::Seedlot::Maintenance;
 use CXGN::Dataset;
 use CXGN::Stock;
 use CXGN::Project;
+use CXGN::GeneticCharacters;
 use IO::Compress::Gzip qw(gzip $GzipError);
 use Catalyst::Utils;
 use SGN::Image;
@@ -1086,6 +1087,98 @@ sub download_seedlot_maintenance_events_action : Path('/breeders/download_seedlo
 }
 
 # seedlot maintenanve events download -- end
+
+#
+# Download a file of accession genetic characters
+#
+# POST Params:
+#   genetic_characters_accessions_lists_list_select = list id of a accession list
+#   file_format: format of the file output (.xls)
+#
+sub download_genetic_characters_action : Path('/breeders/download_genetic_characters_action') {
+    my $self = shift;
+    my $c = shift;
+    my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado", $sp_person_id);
+
+    # Get request params
+    my $accession_list_id = $c->req->param("genetic_characters_accessions_lists_list_select");
+    my $file_format = $c->req->param("file_format") || ".xlsx";
+    my $dl_token = $c->req->param("genetic_characters_download_token") || "no_token";
+    my $dl_cookie = "download".$dl_token;
+    if ( !$accession_list_id ) {
+        print STDERR "ERROR: No accession list id provided to download download genetic characters action";
+        return;
+    }
+
+    # Get accessions from list
+    my $tf = CXGN::List::Transform->new();
+    my $accession_list_data = SGN::Controller::AJAX::List->retrieve_list($c, $accession_list_id);
+    my @accession_names = map { $_->[1] } @$accession_list_data;
+    my $unique_transform = $tf->can_transform("accession_synonyms", "accession_names");
+    my $unique_list = $tf->transform($c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id), $unique_transform, \@accession_names);
+
+    # get array ref out of hash ref so Transform/Plugins can use it
+    my %unique_hash = %$unique_list;
+    my $unique_accessions = $unique_hash{transform};
+    my $t = CXGN::List::Transform->new();
+    my $acc_t = $t->can_transform("accessions", "accession_ids");
+    my $accession_id_data = $t->transform($schema, $acc_t, $unique_accessions);
+    my $accession_ids = $accession_id_data->{transform};
+
+    # Fetch Genetic Characters for requested accessions
+    my $genetic_characters = CXGN::GeneticCharacters->get_genetic_characters();
+    my @gc_symbols = sort keys %$genetic_characters;
+    my $genetic_characters_associations = CXGN::GeneticCharacters->get_all_associations($accession_ids);
+
+    # Create tempfile
+    my ($tempfile, $uri) = $c->tempfile(TEMPLATE => "download_genetic_characters_XXXXX", UNLINK => 0);
+
+    # Create and Return XLSX file
+    if ( $file_format eq ".xlsx" ) {
+        my $file_path = $tempfile . ".xlsx";
+        my $file_name = basename($file_path);
+
+        # Get Excel worksheet
+        my $workbook = Excel::Writer::XLSX->new($file_path);
+        my $worksheet = $workbook->add_worksheet();
+
+        # Write header
+        my @header = ("accession", @gc_symbols);
+        $worksheet->write_row(0, 0, \@header);
+
+        # Write a row for each stock
+        my $row_count = 1;
+        foreach my $stock_id (keys %$genetic_characters_associations) {
+            my $gca = $genetic_characters_associations->{$stock_id};
+            my @row = ( $gca->{stock_name} );
+
+            # Write a column for each GC
+            foreach my $gc_symbol (@gc_symbols) {
+                my $gc = $genetic_characters->{$gc_symbol};
+                my $locus_id = $gc->{id};
+                my $as = $gca->{genetic_characters}->{$locus_id}->{allele_symbol} || "";
+                push @row, $as;
+            }
+
+            $worksheet->write_row($row_count, 0, \@row);
+            $row_count++;
+        }
+        $workbook->close();
+
+        # Return the xls file
+        $c->res->content_type('application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $c->res->cookies->{$dl_cookie} = {
+          value => $dl_token,
+          expires => '+1m',
+        };
+        $c->res->header('Content-Disposition', qq[attachment; filename="$file_name"]);
+
+        my $output = read_file($file_path);  ### works here because it is xls, otherwise does not work with utf8
+
+        $c->res->body($output);
+    }
+}
 
 
 #Used from wizard page and manage download page for downloading gbs from accessions

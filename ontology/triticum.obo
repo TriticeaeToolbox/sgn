@@ -1,8 +1,8 @@
 format-version: 1.2
-date: 16:06:2025 14:20
-saved-by: DJW
+date: 22:09:2025 16:09
+saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
-remark: This file was converted to an SGN-compatible obo file from a standard obo file [./traits_t3.obo]
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
 default-namespace: wheat_trait
 ontology: CO_321
 
@@ -1560,6 +1560,14 @@ synonym: "VARI" EXACT []
 is_a: CO_321:Physiological
 
 [Term]
+id: CO_321:0500093
+name: Jointing time
+namespace: wheat_trait
+def: "Jointing time is when the first node above the soil surface is first detected. Jointing time refers to the onset of the stem elongation period." []
+synonym: "JT" EXACT []
+is_a: CO_321:Phenological
+
+[Term]
 id: CO_321:0000229
 name: BM Measurement
 namespace: wheat_trait_method
@@ -1713,13 +1721,6 @@ name: SplN Counting
 namespace: wheat_trait_method
 def: "Both the total number of spikelets and the number of fertile spikelets (i.e., those containing grain) per spike should be counted towards the end of grain-filling, but before physiological maturity (to avoid losses due to movement through the plots). Randomly sample 5-10 spikes per plot, by selecting at the base of the culm. Count the total number of spikelets (pair-by-pair, from the base to the tip), then obtain the average. When sampling large numbers of samples or plots, time may be saved by randomly counting one side of the spike and multiplying by two." []
 relationship: method_of CO_321:0000058
-
-[Term]
-id: CO_321:0000283
-name: StmSol Estimation
-namespace: wheat_trait_method
-def: "Standard method for stem solidness." []
-relationship: method_of CO_321:0000061
 
 [Term]
 id: CO_321:0000284
@@ -3160,6 +3161,27 @@ def: "Calculate area under disease progress curve." []
 relationship: method_of CO_321:0001019
 
 [Term]
+id: CO_321:0500290
+name: Adjusted 5 Stem Solidness Computation
+namespace: wheat_trait_method
+def: "Compute the adjusted five stem total solidness rating as: (sum of individual stem solidness ratings)/(number of stems rated) * 5" []
+relationship: method_of CO_321:0000061
+
+[Term]
+id: CO_321:0500291
+name: Bottom Internode Stem Solidness Measurement
+namespace: wheat_trait_method
+def: "Measure the 1-5 stem solidness rating for the bottom internode on a signle stem." []
+relationship: method_of CO_321:0000061
+
+[Term]
+id: CO_321:0500292
+name: Jointing Time Measurement
+namespace: wheat_trait_method
+def: "Examine the growth stage of the plots every every four days once pseudostems become visible indicating that jointing is imminent. Estimate the date when at least 50% of the plants in the plot have jointed." []
+relationship: method_of CO_321:0500093
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -3343,7 +3365,6 @@ relationship: scale_of CO_321:0500278
 relationship: scale_of CO_321:0500280
 relationship: scale_of CO_321:0500281
 relationship: scale_of CO_321:0500282
-relationship: scale_of CO_321:0500289
 relationship: scale_of CO_321:0000290
 relationship: scale_of CO_321:0000309
 relationship: scale_of CO_321:0000316
@@ -3417,6 +3438,650 @@ id: CO_321:0000727
 name: 0-9 percentage scale + text
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0000702
+
+[Term]
+id: CO_321:0000470
+name: Double digit (00-99)
+namespace: wheat_trait_scale
+def: "00= no disease, 10= 10, 11= 10% plant height affected, 10% coverage, 12= 10% plant height affected, 20% coverage, 13= 10% plant height affected, 30% coverage, 14= 10% plant height affected, 40% coverage, 15= 10% plant height affected, 50% coverage, 16= 10% plant height affected, 60% coverage, 17= 10% plant height affected, 70% coverage, 18= 10% plant height affected, 80% coverage, 19= 10% plant height affected, 90% coverage, 20= 20, 21= 20% plant height affected, 10% coverage, 22= 20% plant height affected, 20% coverage, 23= 20% plant height affected, 30% coverage, 24= 20% plant height affected, 40% coverage, 25= 20% plant height affected, 50% coverage, 26= 20% plant height affected, 60% coverage, 27= 20% plant height affected, 70% coverage, 28= 20% plant height affected, 80% coverage, 29= 20% plant height affected, 90% coverage, 30= 30, 31= 30% plant height affected, 10% coverage, 32= 30% plant height affected, 20% coverage, 33= 30% plant height affected, 30% coverage, 34= 30% plant height affected, 40% coverage, 35= 30% plant height affected, 50% coverage, 36= 30% plant height affected, 60% coverage, 37= 30% plant height affected, 70% coverage, 38= 30% plant height affected, 80% coverage, 39= 30% plant height affected, 90% coverage, 40= 40, 41= 40% plant height affected, 10% coverage, 42= 40% plant height affected, 20% coverage, 43= 40% plant height affected, 30% coverage, 44= 40% plant height affected, 40% coverage, 45= 40% plant height affected, 50% coverage, 46= 40% plant height affected, 60% coverage, 47= 40% plant height affected, 70% coverage, 48= 40% plant height affected, 80% coverage, 49= 40% plant height affected, 90% coverage, 50= 50, 51= 50% plant height affected, 10% coverage, 52= 50% plant height affected, 20% coverage, 53= 50% plant height affected, 30% coverage, 54= 50% plant height affected, 40% coverage, 55= 50% plant height affected, 50% coverage, 56= 50% plant height affected, 60% coverage, 57= 50% plant height affected, 70% coverage, 58= 50% plant height affected, 80% coverage, 59= 50% plant height affected, 90% coverage, 60= 60, 61= 60% plant height affected, 10% coverage, 62= 60% plant height affected, 20% coverage, 63= 60% plant height affected, 30% coverage, 64= 60% plant height affected, 40% coverage, 65= 60% plant height affected, 50% coverage, 66= 60% plant height affected, 60% coverage, 67= 60% plant height affected, 70% coverage, 68= 60% plant height affected, 80% coverage, 69= 60% plant height affected, 90% coverage, 70= 70, 71= 70% plant height affected, 10% coverage, 72= 70% plant height affected, 20% coverage, 73= 70% plant height affected, 30% coverage, 74= 70% plant height affected, 40% coverage, 75= 70% plant height affected, 50% coverage, 76= 70% plant height affected, 60% coverage, 77= 70% plant height affected, 70% coverage, 78= 70% plant height affected, 80% coverage, 79= 70% plant height affected, 90% coverage, 80= 80, 81= 80% plant height affected, 10% coverage, 82= 80% plant height affected, 20% coverage, 83= 80% plant height affected, 30% coverage, 84= 80% plant height affected, 40% coverage, 85= 80% plant height affected, 50% coverage, 86= 80% plant height affected, 60% coverage, 87= 80% plant height affected, 70% coverage, 88= 80% plant height affected, 80% coverage, 89= 80% plant height affected, 90% coverage, 90= 90, 91= 90% plant height affected, 10% coverage, 92= 90% plant height affected, 20% coverage, 93= 90% plant height affected, 30% coverage, 94= 90% plant height affected, 40% coverage, 95= 90% plant height affected, 50% coverage, 96= 90% plant height affected, 60% coverage, 97= 90% plant height affected, 70% coverage, 98= 90% plant height affected, 80% coverage, 99= 90% plant height affected, 90% coverage" []
+relationship: scale_of CO_321:0500289
+
+[Term]
+id: CO_321:0000470/0
+name: no disease
+namespace: wheat_trait_scale
+synonym: "00" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/1
+name: 10
+namespace: wheat_trait_scale
+synonym: "10" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/2
+name: 10% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "11" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/3
+name: 10% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "12" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/4
+name: 10% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "13" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/5
+name: 10% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "14" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/6
+name: 10% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "15" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/7
+name: 10% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "16" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/8
+name: 10% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "17" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/9
+name: 10% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "18" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/10
+name: 10% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "19" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/11
+name: 20
+namespace: wheat_trait_scale
+synonym: "20" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/12
+name: 20% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "21" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/13
+name: 20% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "22" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/14
+name: 20% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "23" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/15
+name: 20% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "24" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/16
+name: 20% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "25" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/17
+name: 20% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "26" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/18
+name: 20% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "27" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/19
+name: 20% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "28" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/20
+name: 20% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "29" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/21
+name: 30
+namespace: wheat_trait_scale
+synonym: "30" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/22
+name: 30% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "31" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/23
+name: 30% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "32" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/24
+name: 30% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "33" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/25
+name: 30% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "34" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/26
+name: 30% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "35" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/27
+name: 30% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "36" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/28
+name: 30% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "37" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/29
+name: 30% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "38" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/30
+name: 30% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "39" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/31
+name: 40
+namespace: wheat_trait_scale
+synonym: "40" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/32
+name: 40% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "41" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/33
+name: 40% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "42" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/34
+name: 40% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "43" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/35
+name: 40% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "44" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/36
+name: 40% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "45" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/37
+name: 40% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "46" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/38
+name: 40% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "47" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/39
+name: 40% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "48" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/40
+name: 40% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "49" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/41
+name: 50
+namespace: wheat_trait_scale
+synonym: "50" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/42
+name: 50% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "51" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/43
+name: 50% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "52" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/44
+name: 50% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "53" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/45
+name: 50% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "54" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/46
+name: 50% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "55" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/47
+name: 50% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "56" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/48
+name: 50% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "57" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/49
+name: 50% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "58" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/50
+name: 50% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "59" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/51
+name: 60
+namespace: wheat_trait_scale
+synonym: "60" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/52
+name: 60% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "61" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/53
+name: 60% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "62" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/54
+name: 60% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "63" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/55
+name: 60% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "64" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/56
+name: 60% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "65" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/57
+name: 60% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "66" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/58
+name: 60% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "67" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/59
+name: 60% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "68" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/60
+name: 60% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "69" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/61
+name: 70
+namespace: wheat_trait_scale
+synonym: "70" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/62
+name: 70% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "71" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/63
+name: 70% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "72" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/64
+name: 70% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "73" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/65
+name: 70% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "74" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/66
+name: 70% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "75" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/67
+name: 70% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "76" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/68
+name: 70% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "77" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/69
+name: 70% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "78" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/70
+name: 70% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "79" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/71
+name: 80
+namespace: wheat_trait_scale
+synonym: "80" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/72
+name: 80% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "81" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/73
+name: 80% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "82" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/74
+name: 80% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "83" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/75
+name: 80% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "84" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/76
+name: 80% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "85" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/77
+name: 80% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "86" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/78
+name: 80% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "87" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/79
+name: 80% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "88" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/80
+name: 80% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "89" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/81
+name: 90
+namespace: wheat_trait_scale
+synonym: "90" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/82
+name: 90% plant height affected, 10% coverage
+namespace: wheat_trait_scale
+synonym: "91" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/83
+name: 90% plant height affected, 20% coverage
+namespace: wheat_trait_scale
+synonym: "92" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/84
+name: 90% plant height affected, 30% coverage
+namespace: wheat_trait_scale
+synonym: "93" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/85
+name: 90% plant height affected, 40% coverage
+namespace: wheat_trait_scale
+synonym: "94" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/86
+name: 90% plant height affected, 50% coverage
+namespace: wheat_trait_scale
+synonym: "95" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/87
+name: 90% plant height affected, 60% coverage
+namespace: wheat_trait_scale
+synonym: "96" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/88
+name: 90% plant height affected, 70% coverage
+namespace: wheat_trait_scale
+synonym: "97" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/89
+name: 90% plant height affected, 80% coverage
+namespace: wheat_trait_scale
+synonym: "98" EXACT []
+is_a: CO_321:0000470
+
+[Term]
+id: CO_321:0000470/90
+name: 90% plant height affected, 90% coverage
+namespace: wheat_trait_scale
+synonym: "99" EXACT []
+is_a: CO_321:0000470
 
 [Term]
 id: CO_321:0000446
@@ -4278,6 +4943,7 @@ relationship: scale_of CO_321:0000840
 relationship: scale_of CO_321:0000842
 relationship: scale_of CO_321:0500194
 relationship: scale_of CO_321:0500195
+relationship: scale_of CO_321:0500292
 
 [Term]
 id: CO_321:0000460
@@ -5392,7 +6058,7 @@ id: CO_321:0500522
 name: 5-25 5 Stem Solidness Rating
 namespace: wheat_trait_scale
 def: "5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid" []
-relationship: scale_of CO_321:0000283
+relationship: scale_of CO_321:0500290
 
 [Term]
 id: CO_321:0500522/0
@@ -6326,6 +6992,48 @@ name: 100% cut
 namespace: wheat_trait_scale
 synonym: "9" EXACT []
 is_a: CO_321:0500550
+
+[Term]
+id: CO_321:0500551
+name: 1-5 Stem Solidness Rating
+namespace: wheat_trait_scale
+def: "1= Stem Hollow, 2= , 3= , 4= , 5= Stem Solid" []
+relationship: scale_of CO_321:0500291
+
+[Term]
+id: CO_321:0500551/0
+name: Stem Hollow
+namespace: wheat_trait_scale
+synonym: "1" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/1
+name: 2
+namespace: wheat_trait_scale
+synonym: "2" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/2
+name: 3
+namespace: wheat_trait_scale
+synonym: "3" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/3
+name: 4
+namespace: wheat_trait_scale
+synonym: "4" EXACT []
+is_a: CO_321:0500551
+
+[Term]
+id: CO_321:0500551/4
+name: Stem Solid
+namespace: wheat_trait_scale
+synonym: "5" EXACT []
+is_a: CO_321:0500551
 
 [Term]
 id: CO_321:0001043
@@ -7961,11 +8669,11 @@ relationship: variable_of CO_321:0000446
 
 [Term]
 id: CO_321:0501154
-name: Stem solidness - 5-25 5 Stem Solidness Rating
+name: Stem solidness - 5 Stem Adjusted 5-25 Solidness Rating
 namespace: wheat_trait
-def: "TRAIT: Solidness of stem. METHOD: Standard method for stem solidness. SCALE: 5-25 5 Stem Solidness Rating (5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid)" []
+def: "TRAIT: Solidness of stem. METHOD: Compute the adjusted five stem total solidness rating as: (sum of individual stem solidness ratings)/(number of stems rated) * 5 SCALE: 5-25 5 Stem Solidness Rating (5= All 5 Stems Hollow, 6= , 7= , 8= , 9= , 10= , 11= , 12= , 13= , 14= , 15= , 16= , 17= , 18= , 19= , 20= , 21= , 22= , 23= , 24= , 25= All 5 Stems Solid)" []
 relationship: variable_of CO_321:0000061
-relationship: variable_of CO_321:0000283
+relationship: variable_of CO_321:0500290
 relationship: variable_of CO_321:0500522
 
 [Term]
@@ -8708,9 +9416,27 @@ relationship: variable_of CO_321:0500550
 
 [Term]
 id: CO_321:0501231
-name: Bacterial Leaf Streak Severity - Area Under the Disease Progression Curve
+name: Bacterial Leaf Streak Severity - AUDPC
 namespace: wheat_trait
-def: "TRAIT: Bacterial leaf streak severity in the plants caused by the agent Xanthomonas translucens. The disease, called black chaff when on the glumes. METHOD: Calculate area under disease progress curve. SCALE: %" []
+def: "TRAIT: Bacterial leaf streak severity in the plants caused by the agent Xanthomonas translucens. The disease, called black chaff when on the glumes. METHOD: Calculate area under disease progress curve. SCALE: Double digit (00-99) (00= no disease, 10= 10, 11= 10% plant height affected, 10% coverage, 12= 10% plant height affected, 20% coverage, 13= 10% plant height affected, 30% coverage, 14= 10% plant height affected, 40% coverage, 15= 10% plant height affected, 50% coverage, 16= 10% plant height affected, 60% coverage, 17= 10% plant height affected, 70% coverage, 18= 10% plant height affected, 80% coverage, 19= 10% plant height affected, 90% coverage, 20= 20, 21= 20% plant height affected, 10% coverage, 22= 20% plant height affected, 20% coverage, 23= 20% plant height affected, 30% coverage, 24= 20% plant height affected, 40% coverage, 25= 20% plant height affected, 50% coverage, 26= 20% plant height affected, 60% coverage, 27= 20% plant height affected, 70% coverage, 28= 20% plant height affected, 80% coverage, 29= 20% plant height affected, 90% coverage, 30= 30, 31= 30% plant height affected, 10% coverage, 32= 30% plant height affected, 20% coverage, 33= 30% plant height affected, 30% coverage, 34= 30% plant height affected, 40% coverage, 35= 30% plant height affected, 50% coverage, 36= 30% plant height affected, 60% coverage, 37= 30% plant height affected, 70% coverage, 38= 30% plant height affected, 80% coverage, 39= 30% plant height affected, 90% coverage, 40= 40, 41= 40% plant height affected, 10% coverage, 42= 40% plant height affected, 20% coverage, 43= 40% plant height affected, 30% coverage, 44= 40% plant height affected, 40% coverage, 45= 40% plant height affected, 50% coverage, 46= 40% plant height affected, 60% coverage, 47= 40% plant height affected, 70% coverage, 48= 40% plant height affected, 80% coverage, 49= 40% plant height affected, 90% coverage, 50= 50, 51= 50% plant height affected, 10% coverage, 52= 50% plant height affected, 20% coverage, 53= 50% plant height affected, 30% coverage, 54= 50% plant height affected, 40% coverage, 55= 50% plant height affected, 50% coverage, 56= 50% plant height affected, 60% coverage, 57= 50% plant height affected, 70% coverage, 58= 50% plant height affected, 80% coverage, 59= 50% plant height affected, 90% coverage, 60= 60, 61= 60% plant height affected, 10% coverage, 62= 60% plant height affected, 20% coverage, 63= 60% plant height affected, 30% coverage, 64= 60% plant height affected, 40% coverage, 65= 60% plant height affected, 50% coverage, 66= 60% plant height affected, 60% coverage, 67= 60% plant height affected, 70% coverage, 68= 60% plant height affected, 80% coverage, 69= 60% plant height affected, 90% coverage, 70= 70, 71= 70% plant height affected, 10% coverage, 72= 70% plant height affected, 20% coverage, 73= 70% plant height affected, 30% coverage, 74= 70% plant height affected, 40% coverage, 75= 70% plant height affected, 50% coverage, 76= 70% plant height affected, 60% coverage, 77= 70% plant height affected, 70% coverage, 78= 70% plant height affected, 80% coverage, 79= 70% plant height affected, 90% coverage, 80= 80, 81= 80% plant height affected, 10% coverage, 82= 80% plant height affected, 20% coverage, 83= 80% plant height affected, 30% coverage, 84= 80% plant height affected, 40% coverage, 85= 80% plant height affected, 50% coverage, 86= 80% plant height affected, 60% coverage, 87= 80% plant height affected, 70% coverage, 88= 80% plant height affected, 80% coverage, 89= 80% plant height affected, 90% coverage, 90= 90, 91= 90% plant height affected, 10% coverage, 92= 90% plant height affected, 20% coverage, 93= 90% plant height affected, 30% coverage, 94= 90% plant height affected, 40% coverage, 95= 90% plant height affected, 50% coverage, 96= 90% plant height affected, 60% coverage, 97= 90% plant height affected, 70% coverage, 98= 90% plant height affected, 80% coverage, 99= 90% plant height affected, 90% coverage)" []
 relationship: variable_of CO_321:0001019
 relationship: variable_of CO_321:0500289
-relationship: variable_of CO_321:0000410
+relationship: variable_of CO_321:0000470
+
+[Term]
+id: CO_321:0501232
+name: Stem solidness - Bottom Internode 1-5 Solidness Rating
+namespace: wheat_trait
+def: "TRAIT: Solidness of stem. METHOD: Measure the 1-5 stem solidness rating for the bottom internode on a signle stem. SCALE: 1-5 Stem Solidness Rating (1= Stem Hollow, 2= , 3= , 4= , 5= Stem Solid)" []
+relationship: variable_of CO_321:0000061
+relationship: variable_of CO_321:0500291
+relationship: variable_of CO_321:0500551
+
+[Term]
+id: CO_321:0501233
+name: Jointing time - Julian date (JD)
+namespace: wheat_trait
+def: "TRAIT: Jointing time is when the first node above the soil surface is first detected. Jointing time refers to the onset of the stem elongation period. METHOD: Examine the growth stage of the plots every every four days once pseudostems become visible indicating that jointing is imminent. Estimate the date when at least 50% of the plants in the plot have jointed. SCALE: Julian date (JD)" []
+relationship: variable_of CO_321:0500093
+relationship: variable_of CO_321:0500292
+relationship: variable_of CO_321:0000855

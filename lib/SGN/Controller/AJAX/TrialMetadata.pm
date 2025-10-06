@@ -31,10 +31,12 @@ use CXGN::Trial::TrialLayoutDownload;
 use CXGN::Genotype::DownloadFactory;
 use POSIX qw | !qsort !bsearch |;
 use CXGN::Phenotypes::StorePhenotypes;
+use CXGN::Phenotypes::HighDimensionalPhenotypesSearch;
 use Statistics::Descriptive::Full;
 use CXGN::TrialStatus;
 use CXGN::BreedersToolbox::SoilData;
 use CXGN::Genotype::GenotypingProject;
+
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -326,7 +328,7 @@ sub trait_phenotypes : Chained('trial') PathPart('trait_phenotypes') Args(0) {
 
     my $stock_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'analysis_instance', 'stock_type')->cvterm_id();
     my $rel_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'analysis_of', 'stock_relationship')->cvterm_id();
-    
+
     my $phenotypes_search = CXGN::Phenotypes::PhenotypeMatrix->new(
         bcs_schema=> $schema,
         search_type => "Native",
@@ -415,18 +417,18 @@ sub phenotype_summary : Chained('trial') PathPart('phenotypes') Args(0) {
         $stock_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'analysis_instance', 'stock_type')->cvterm_id();
         $rel_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'analysis_of', 'stock_relationship')->cvterm_id();
     }
-    
+
     my $accession_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'accession', 'stock_type')->cvterm_id();
     my $family_name_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'family_name', 'stock_type')->cvterm_id();
     my $cross_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'cross', 'stock_type')->cvterm_id();
-    
+
     my $trial_stock_type_id;
-    
+
     if ($trial_stock_type eq 'family_name') {
         $trial_stock_type_id = $family_name_type_id;
     } elsif ($trial_stock_type eq 'cross') {
         $trial_stock_type_id = $cross_type_id;
-    } 
+    }
     else {
         $trial_stock_type_id = $accession_type_id;
         if ($display eq 'analysis_instance') {
@@ -434,9 +436,9 @@ sub phenotype_summary : Chained('trial') PathPart('phenotypes') Args(0) {
             if ($analysis_stock_type eq 'analysis_result') {
                 my $analysis_result_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'analysis_result', 'stock_type')->cvterm_id();
                 $trial_stock_type_id = $analysis_result_type_id;
-            } 
-        }    
-    }    
+            }
+        }
+    }
 
     my $h = $dbh->prepare("SELECT (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text AS trait,
         cvterm.cvterm_id,
@@ -463,7 +465,7 @@ sub phenotype_summary : Chained('trial') PathPart('phenotypes') Args(0) {
         GROUP BY (((cvterm.name::text || '|'::text) || db.name::text) || ':'::text) || dbxref.accession::text, cvterm.cvterm_id $group_by_additional
         ORDER BY cvterm.name ASC
         $order_by_additional;");
-    
+
     my $numeric_regex = '^-?[0-9]+([,.][0-9]+)?$';
     $h->execute($c->stash->{trial_id}, $numeric_regex, $rel_type_id, $stock_type_id, $trial_stock_type_id);
 
@@ -2299,6 +2301,34 @@ sub trial_add_treatment : Chained('trial') PathPart('add_treatment') Args(0) {
     } else {
         $c->stash->{rest} = {success => 1};
     }
+}
+
+sub trial_remove_treatment : Chained('trial') PathPart('remove_treatment') Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $treatment_id = $c->req->param('treatment_id');
+
+    if (!($c->user()->check_roles('curator'))) {
+        $c->stash->{rest} = { error => 'You do not have the privileges to remove a treatment from this trial.'};
+        return;
+    }
+    my $trial = $c->stash->{trial};
+    my $trial_id = $c->stash->{trial_id};
+
+    my $result;
+    eval {
+        $result = $trial->remove_treatment($treatment_id);
+    };
+    if ($@) {
+        $c->stash->{rest} = { error => "An error occurred while removing the treatment: $@" };
+        return;
+    }
+    if ($result->{error}) {
+        $c->stash->{rest} = { error => $result->{error} };
+        return;
+    }
+
+    $c->stash->{rest} = { success => 1, message => "Treatment removed from trial." };
 }
 
 sub trial_layout : Chained('trial') PathPart('layout') Args(0) {
@@ -4937,14 +4967,14 @@ sub upload_entry_number_template_POST : Args(0) {
 sub delete_entry_numbers :Path('/ajax/breeders/trial_entry_numbers/delete') Args(0) {
     my $self = shift;
     my $c = shift;
-    
+
     my $trial_id = $c->req->param("trial_id");
 
     if (! $trial_id) {
 	$c->stash->{rest} = { error_string => 'A trial id must be provided to delete the entry numbers.' };
 	return;
     }
-    
+
     if (!$c->user()) {
         $c->stash->{rest} = {error_string => "You must be logged in to update trial status." };
         return;
@@ -4954,15 +4984,15 @@ sub delete_entry_numbers :Path('/ajax/breeders/trial_entry_numbers/delete') Args
 	$c->stash->{rest} = {error_string => "Your account must have the curator role to delete entry numbers" };
 	return;
     }
-    
+
     my $user_id = $c->user()->get_object()->get_sp_person_id();
     my $schema = $c->dbic_schema('Bio::Chado::Schema', undef, $user_id);
     my $project_entry_number_map_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'project_entry_number_map', 'project_property')->cvterm_id();
 
-    
+
     my $row = $schema->resultset("Project::Projectprop")->find( { type_id => $project_entry_number_map_cvterm_id, project_id => $trial_id });
 
-    eval { 
+    eval {
 	$row->delete();
     };
 
@@ -5637,9 +5667,10 @@ sub delete_all_genotyping_plates_in_project : Chained('trial') PathPart('delete_
     my $genotyping_project_id = $c->stash->{trial_id};
 
     if (!$c->user()){
-        $c->stash->{rest} = { error => "You must be logged in to delete genotyping plates" };
-        $c->detach();
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
     }
+
     if (!$c->user()->check_roles("curator")) {
         $c->stash->{rest} = { error => "You do not have the correct role to delete genotyping plates. Please contact us." };
         $c->detach();
@@ -5652,8 +5683,14 @@ sub delete_all_genotyping_plates_in_project : Chained('trial') PathPart('delete_
     my ($data, $total_count) = $plate_info->get_plate_info();
     my @genotyping_plate_ids;
     foreach  my $plate(@$data){
-        my $plate_id = $plate->{plate_id};
-        push @genotyping_plate_ids, $plate_id;
+        my $number_of_samples_with_data = $plate->{number_of_samples_with_data};
+        if ($number_of_samples_with_data > 0) {
+            $c->stash->{rest} = { error => 'Cannot delete! One or more plates have genotyping data' };
+            return;
+        } else {
+            my $plate_id = $plate->{plate_id};
+            push @genotyping_plate_ids, $plate_id;
+        }
     }
 
     my $number_of_plates = @genotyping_plate_ids;
@@ -5691,7 +5728,7 @@ sub get_analysis_instance_stock_type {
     my $trial_id = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
     my $project = $schema->resultset('Project::Project')->find({
-        project_id => $trial_id, 
+        project_id => $trial_id,
     });
 
     my $trial_layout_json_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'trial_layout_json', 'project_property')->cvterm_id();
@@ -5716,5 +5753,36 @@ sub get_analysis_instance_stock_type {
     }
 
 }
+
+
+sub stock_entry_summary_trial : Chained('trial') PathPart('stock_entry_summary') Args(0) {
+
+    my $self = shift;
+    my $c = shift;
+    my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id);
+    my $trial_id = $c->stash->{trial_id};
+    my $trial = CXGN::Trial->new( { bcs_schema => $schema, trial_id => $trial_id});
+    my $stock_entries = $trial->get_stock_entry_summary();
+    
+    my @summary;
+    foreach my $entry (@$stock_entries) {
+        my ($parent_stock_name, $parent_stock_id, $parent_stock_type, $plot_name, $plot_id, $plant_name, $plant_id, $tissue_sample_name, $tissue_sample_id) =@$entry;
+        my $parent_stock_link;
+        if ($parent_stock_type eq 'accession') {
+            $parent_stock_link = qq{<a href="/stock/$parent_stock_id/view">$parent_stock_name</a>};
+        } elsif ($parent_stock_type eq 'cross') {
+            $parent_stock_link = qq{<a href="/cross/$parent_stock_id">$parent_stock_name</a>};
+        } elsif ($parent_stock_type eq 'family_name') {
+            $parent_stock_link = qq{<a href="/family/$parent_stock_id">$parent_stock_name</a>};
+        }
+
+        push @summary, [$parent_stock_link, qq{<a href="/stock/$plot_id/view">$plot_name</a>}, qq{<a href="/stock/$plant_id/view">$plant_name</a>}, qq{<a href="/stock/$tissue_sample_id/view">$tissue_sample_name</a>}];
+    }
+
+
+    $c->stash->{rest} = { data => \@summary };
+}
+
 
 1;

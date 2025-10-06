@@ -49,8 +49,7 @@ sub subscribed : Path('/ajax/listmonk/subscribed') : Args(0) {
     if ( $props->{'enabled'} eq 1 ) {
 
         # Build Request
-        my $auth = encode_base64($props->{'user'} . ':' . $props->{'pass'});
-        my $headers = ['Authorization' => "Basic $auth", 'Accepts' => 'application/json'];
+        my $headers = ['Authorization' => "token " . $props->{'user'} . ":" . $props->{'pass'}, 'Accepts' => 'application/json'];
         my $url = $props->{'host'} . "/api/subscribers?list_id=" . $props->{'list'} . "&query=subscribers.email='$email'";
         my $r = HTTP::Request->new("GET", $url, $headers);
 
@@ -95,8 +94,7 @@ sub register : Path('/ajax/listmonk/register') : Args(0) {
     if ( $props->{'enabled'} eq 1 ) {
 
         # Build Request
-        my $auth = encode_base64($props->{'user'} . ':' . $props->{'pass'});
-        my $headers = ['Authorization' => "Basic $auth", 'Content-Type' => 'application/json'];
+        my $headers = ['Authorization' => "token " . $props->{'user'} . ":" . $props->{'pass'}, 'Content-Type' => 'application/json', 'Accepts' => 'application/json'];
         my $data = {
             email => $email,
             name => $name,
@@ -143,9 +141,8 @@ sub campaigns : Path('/ajax/listmonk/campaigns') : Args(0) {
     if ( $props->{'enabled'} eq 1 ) {
 
         # Build Request
-        my $auth = encode_base64($props->{'user'} . ':' . $props->{'pass'});
-        my $headers = ['Authorization' => "Basic $auth", 'Accepts' => 'application/json'];
-        my $url = $props->{'host'} . "/api/campaigns?list_id=" . $props->{'list'};
+        my $headers = ['Authorization' => "token " . $props->{'user'} . ":" . $props->{'pass'}, 'Accepts' => 'application/json'];
+        my $url = $props->{'host'} . "/api/campaigns?list_id=" . $props->{'list'} . "&order_by=created_at&order=DESC&per_page=2";
         my $r = HTTP::Request->new("GET", $url, $headers);
 
         # Send Request
@@ -193,7 +190,12 @@ sub archive : Path('/ajax/listmonk/archive') : Args(0) {
     my $uuid = $c->req->param("uuid");
     my $props = _listmonk_properties($c);
 
-    $c->res->redirect($props->{'host'} . "/archive/$uuid");
+    if ( defined $uuid ) {
+        $c->res->redirect($props->{'host'} . "/archive/$uuid");
+    }
+    else {
+        $c->res->redirect($props->{'host'} . "/archive");
+    }
 }
 
 
@@ -205,8 +207,8 @@ sub _listmonk_properties {
     my $c = shift;
     my %props = (
         host => $c->config->{listmonk_host},
-        user => $c->config->{listmonk_user},
-        pass => $c->config->{listmonk_pass},
+        user => $c->config->{listmonk_api_user},
+        pass => $c->config->{listmonk_api_key},
         list => $c->config->{listmonk_list}
     );
     $props{'enabled'} = defined($props{'host'}) && defined($props{'user'}) && defined($props{'pass'}) && defined($props{'list'});
