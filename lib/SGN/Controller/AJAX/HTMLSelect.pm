@@ -1633,10 +1633,7 @@ sub ontology_children_select : Path('/ajax/html/select/ontology_children') Args(
     }
 
     @ontology_children = sort { ncmp($a->[1], $b->[1]) } @ontology_children;
-<<<<<<< HEAD
-=======
 
->>>>>>> master
     if ($empty) {
         unshift @ontology_children, [ 0, "None" ];
     }

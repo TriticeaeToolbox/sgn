@@ -474,11 +474,13 @@ sub get_phenotype_matrix {
 	    }
 	
         foreach my $d (@$data) {
-            my $obsunit_id = $d->{obsunit_stock_id};
-            if (!exists($seen_obsunits{$obsunit_id})) {
-                push @unique_obsunit_list, $obsunit_id;
-                $seen_obsunits{$obsunit_id} = 1;
-            }
+            my $cvterm = $d->{trait_name};
+            if ($cvterm){
+                my $obsunit_id = $d->{obsunit_stock_id};
+                if (!exists($seen_obsunits{$obsunit_id})) {
+                    push @unique_obsunit_list, $obsunit_id;
+                    $seen_obsunits{$obsunit_id} = 1;
+                }
 
                 my $timestamp_value = $d->{timestamp};
                 my $value = $d->{phenotype_value};
@@ -629,71 +631,27 @@ sub get_phenotype_matrix {
                     $d->{plant_number}
                 ];
                 $traits{$cvterm}++;
-            }
-            $obsunit_data{$obsunit_id}->{'notes'} = $d->{notes};
 
-            my $synonyms = $d->{synonyms};
-            my $synonym_string = $synonyms ? join ("," , @$synonyms) : '';
-            my $entry_type = $d->{is_a_control} ? 'check' : 'test';
-
-            my $trial_name = $d->{trial_name};
-            my $trial_desc = $d->{trial_description};
-
-            $trial_name =~ s/\s+$//g;
-            $trial_desc =~ s/\s+$//g;
-
-            $obsunit_data{$obsunit_id}->{metadata} = [
-                $d->{year},
-                $d->{breeding_program_id},
-                $d->{breeding_program_name},
-                $d->{breeding_program_description},
-                $d->{trial_id},
-                $trial_name,
-                $trial_desc,
-                $d->{design},
-                $d->{plot_width},
-                $d->{plot_length},
-                $d->{field_size},
-                $d->{field_trial_is_planned_to_be_genotyped},
-                $d->{field_trial_is_planned_to_cross},
-                $d->{planting_date},
-                $d->{harvest_date},
-                $d->{location_id},
-                $d->{location_name},
-                $d->{accession_stock_id},
-                $d->{accession_uniquename},
-                $synonym_string,
-                $d->{obsunit_type_name},
-                $d->{obsunit_stock_id},
-                $d->{obsunit_uniquename},
-                $d->{rep},
-                $d->{block},
-                $d->{plot_number},
-                $d->{row_number},
-                $d->{col_number},
-                $entry_type,
-                $d->{plant_number}
-            ];
-
-            # add intercrop stocks, if requested
-            if ( $include_intercrop_stocks ) {
-                my @ic_stock_ids;
-                my @ic_stock_names;
-                my $ic_stocks = $d->{intercrop_stocks};
-                foreach my $ic_stock (@$ic_stocks) {
-                    push(@ic_stock_ids, $ic_stock->{id});
-                    push(@ic_stock_names, $ic_stock->{name});
+                # add intercrop stocks, if requested
+                if ( $include_intercrop_stocks ) {
+                    my @ic_stock_ids;
+                    my @ic_stock_names;
+                    my $ic_stocks = $d->{intercrop_stocks};
+                    foreach my $ic_stock (@$ic_stocks) {
+                        push(@ic_stock_ids, $ic_stock->{id});
+                        push(@ic_stock_names, $ic_stock->{name});
+                    }
+                    push(@{$obsunit_data{$obsunit_id}->{metadata}}, join(',', @ic_stock_ids));
+                    push(@{$obsunit_data{$obsunit_id}->{metadata}}, join(',', @ic_stock_names));
                 }
-                push(@{$obsunit_data{$obsunit_id}->{metadata}}, join(',', @ic_stock_ids));
-                push(@{$obsunit_data{$obsunit_id}->{metadata}}, join(',', @ic_stock_names));
-            }
 
-            # Include entry numbers, if requested
-            if ( $include_entry_numbers ) {
-                my $trial = $d->{trial_id};
-                my $germplasm = $d->{accession_stock_id};
-                my $entry_number = $trial_entry_numbers{$trial}{$germplasm} || '';
-                push(@{$obsunit_data{$obsunit_id}->{metadata}}, $entry_number);
+                # Include entry numbers, if requested
+                if ( $include_entry_numbers ) {
+                    my $trial = $d->{trial_id};
+                    my $germplasm = $d->{accession_stock_id};
+                    my $entry_number = $trial_entry_numbers{$trial}{$germplasm} || '';
+                    push(@{$obsunit_data{$obsunit_id}->{metadata}}, $entry_number);
+                }
             }
         }
         #print STDERR "PLOT DATA = ".Dumper \%plot_data;
