@@ -15,7 +15,7 @@ Code structure copied from CXGN::Stock::Seedlot, with inheritance from CXGN::Sto
 =head1 AUTHOR
 
 
-=head1 ACCESSORS & METHODS 
+=head1 ACCESSORS & METHODS
 
 =cut
 
@@ -256,6 +256,14 @@ has 'other_editable_stock_props' => (
     is => 'rw'
 );
 
+has 'number_of_insertions' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+    lazy     => 1,
+    builder  => '_retrieve_number_of_insertions',
+);
+
+
 sub BUILD {
     my $self = shift;
 
@@ -411,6 +419,11 @@ sub _retrieve_filialGeneration {
     $self->filialGeneration($self->_retrieve_stockprop('filial generation'));
 }
 
+sub _retrieve_number_of_insertions {
+    my $self = shift;
+    $self->number_of_insertions($self->_retrieve_stockprop('number_of_insertions'));
+}
+
 =head2 store()
 
  Usage:        my $stock_id = $accession->store();
@@ -478,13 +491,13 @@ sub store {
             $self->_store_stockprop('donor PUI', $_->{germplasmPUI});
         }
     }
-    $self->_remove_parent_relationship('female_parent');
     if ($self->mother_accession) {
+        $self->_remove_parent_relationship('female_parent');
         my $return = $self->_store_parent_relationship('female_parent', $self->mother_accession, 'biparental');
         # TODO: delete accession if error and return error
     }
-    $self->_remove_parent_relationship('male_parent');
     if ($self->father_accession) {
+        $self->_remove_parent_relationship('male_parent');
         my $return = $self->_store_parent_relationship('male_parent', $self->father_accession, 'biparental');
         # TODO: delete accession if error and return error
     }
@@ -540,6 +553,9 @@ sub store {
     if ($self->filialGeneration){
         $self->_store_stockprop('filial generation', $self->filialGeneration);
     }
+    if ($self->number_of_insertions){
+        $self->_update_stockprop('number_of_insertions', $self->number_of_insertions);
+    }
     if ($self->other_editable_stock_props){
         while (my ($key, $value) = each %{$self->other_editable_stock_props}) {
 
@@ -556,7 +572,7 @@ sub store {
                 $cvterm_id = $new_term->cvterm_id();
             }
 
-            $self->_update_stockprop($key, $value);
+            if ($value) { $self->_update_stockprop($key, $value); }
         }
     }
 
@@ -571,4 +587,3 @@ no Moose;
 __PACKAGE__->meta->make_immutable;
 
 1;
-

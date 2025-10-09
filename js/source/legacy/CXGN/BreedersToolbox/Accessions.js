@@ -25,6 +25,8 @@ var infoToAdd;
 var accessionListFound;
 var speciesNames;
 var doFuzzySearch;
+var doSynonymSearch;
+var updateSynonymSearchCache;
 var SYNONYM_SEARCH_HOST;
 var SYNONYM_SEARCH_DATABASE;
 
@@ -729,7 +731,7 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
         }
     }
 
-    jQuery('#review_found_matches_hide').click(function(){
+    jQuery('#review_found_matches_hide').off('click').on('click', function(){
 
         if (fuzzy.length > 0 && doFuzzySearch){
             jQuery('#review_fuzzy_matches_dialog').modal('show');
