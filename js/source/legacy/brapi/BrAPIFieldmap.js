@@ -2984,11 +2984,9 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 
 			let params = {};
 			this.plots.features.forEach((plot)=>{
-				if (plot._originalType === "Polygon") {
-					params[plot.properties.observationUnitDbId] = {
+				params[plot.properties.observationUnitDbId] = {
 					observationUnitPosition: {geoCoordinates: plot, observationLevel:{levelName: this.opts.brapi_levelName }}
-					};
-				}
+				};
 			});
 
 			return new Promise((resolve, reject)=> {
