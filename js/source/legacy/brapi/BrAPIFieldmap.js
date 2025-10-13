@@ -2705,8 +2705,13 @@ const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
 	        ou._type = "missing";
 	      }
 		});
+
+		// Separate types
+		const plots_missing = data.plots.filter(p => p._type === "missing" || p._type === "invalid");
+		const plots_points = data.plots.filter(p => p._type === "Point");
+		const plots_polygons = data.plots.filter(p => p._type === "Polygon");
 	  
-		// Separate out plots with invalid / missing geojson
+		// Notify on missing
 	    if ( this.opts.viewOnly ) {
 	      const plots_invalid = data.plots.filter((e) => e._type === 'invalid' || e._type === 'missing');
 	      const plots_valid = data.plots.filter((e) => e._type !== 'invalid' && e._type !== 'missing');
