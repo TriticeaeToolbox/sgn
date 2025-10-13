@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 22:09:2025 16:09
+date: 13:10:2025 13:11
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -798,6 +798,14 @@ synonym: "RachLng" EXACT []
 is_a: CO_321:Morphological
 
 [Term]
+id: CO_321:0000979
+name: Grain length
+namespace: wheat_trait
+def: "Length of whole grain." []
+synonym: "GLng" EXACT []
+is_a: CO_321:Quality
+
+[Term]
 id: CO_321:0000980
 name: Grain width
 namespace: wheat_trait
@@ -1568,6 +1576,14 @@ synonym: "JT" EXACT []
 is_a: CO_321:Phenological
 
 [Term]
+id: CO_321:0500094
+name: Grain area
+namespace: wheat_trait
+def: "Computation of the whole grain area" []
+synonym: "GA" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
 id: CO_321:0000229
 name: BM Measurement
 namespace: wheat_trait_method
@@ -2075,6 +2091,13 @@ name: RachLng Measurement
 namespace: wheat_trait_method
 def: "Standard method for rachis length." []
 relationship: method_of CO_321:0000970
+
+[Term]
+id: CO_321:0001002
+name: GLng Measurement
+namespace: wheat_trait_method
+def: "Standard method for whole grain length." []
+relationship: method_of CO_321:0000979
 
 [Term]
 id: CO_321:0001003
@@ -3182,6 +3205,13 @@ def: "Examine the growth stage of the plots every every four days once pseudoste
 relationship: method_of CO_321:0500093
 
 [Term]
+id: CO_321:0500293
+name: Grain Area Computation
+namespace: wheat_trait_method
+def: "Computation of the grain area by multiplying the grain length by the grain width" []
+relationship: method_of CO_321:0500094
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -4269,6 +4299,7 @@ id: CO_321:0000428
 name: mm
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0000993
+relationship: scale_of CO_321:0001002
 relationship: scale_of CO_321:0001003
 
 [Term]
@@ -5062,6 +5093,83 @@ id: CO_321:0000813
 name: m
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0500262
+
+[Term]
+id: CO_321:0000447
+name: 0-9 AWNS scale
+namespace: wheat_trait_scale
+def: "0= awnless, 1= , 2= , 3= awnletted (short), 4= , 5= , 6= , 7= awned (conspicuous), 8= , 9= completely covered in long awns" []
+relationship: scale_of CO_321:0000248
+
+[Term]
+id: CO_321:0000447/0
+name: awnless
+namespace: wheat_trait_scale
+synonym: "0" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/1
+name: 1
+namespace: wheat_trait_scale
+synonym: "1" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/2
+name: 2
+namespace: wheat_trait_scale
+synonym: "2" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/3
+name: awnletted (short)
+namespace: wheat_trait_scale
+synonym: "3" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/4
+name: 4
+namespace: wheat_trait_scale
+synonym: "4" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/5
+name: 5
+namespace: wheat_trait_scale
+synonym: "5" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/6
+name: 6
+namespace: wheat_trait_scale
+synonym: "6" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/7
+name: awned (conspicuous)
+namespace: wheat_trait_scale
+synonym: "7" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/8
+name: 8
+namespace: wheat_trait_scale
+synonym: "8" EXACT []
+is_a: CO_321:0000447
+
+[Term]
+id: CO_321:0000447/9
+name: completely covered in long awns
+namespace: wheat_trait_scale
+synonym: "9" EXACT []
+is_a: CO_321:0000447
 
 [Term]
 id: CO_321:0000441
@@ -7036,6 +7144,12 @@ synonym: "5" EXACT []
 is_a: CO_321:0500551
 
 [Term]
+id: CO_321:0500552
+name: mm2
+namespace: wheat_trait_scale
+relationship: scale_of CO_321:0500293
+
+[Term]
 id: CO_321:0001043
 name: Agronomic score - 1-5 scoring scale
 namespace: wheat_trait
@@ -7512,6 +7626,15 @@ relationship: variable_of CO_321:0000241
 relationship: variable_of CO_321:0000411
 
 [Term]
+id: CO_321:0001361
+name: Spike awnedness - 0-9 AWNS scale
+namespace: wheat_trait
+def: "TRAIT: Observation of awn type whether awnless/awnletted (short awns)/awned (conspicious awns). METHOD: Standard method for awnedness. SCALE: 0-9 AWNS scale (0= awnless, 1= , 2= , 3= awnletted (short), 4= , 5= , 6= , 7= awned (conspicuous), 8= , 9= completely covered in long awns)" []
+relationship: variable_of CO_321:0000027
+relationship: variable_of CO_321:0000248
+relationship: variable_of CO_321:0000447
+
+[Term]
 id: CO_321:0001364
 name: Spike length - cm
 namespace: wheat_trait
@@ -7640,6 +7763,15 @@ namespace: wheat_trait
 def: "TRAIT: Length of rachis. METHOD: Standard method for rachis length. SCALE: mm" []
 relationship: variable_of CO_321:0000970
 relationship: variable_of CO_321:0000993
+relationship: variable_of CO_321:0000428
+
+[Term]
+id: CO_321:0001467
+name: Grain length - mm
+namespace: wheat_trait
+def: "TRAIT: Length of whole grain. METHOD: Standard method for whole grain length. SCALE: mm" []
+relationship: variable_of CO_321:0000979
+relationship: variable_of CO_321:0001002
 relationship: variable_of CO_321:0000428
 
 [Term]
@@ -9440,3 +9572,12 @@ def: "TRAIT: Jointing time is when the first node above the soil surface is firs
 relationship: variable_of CO_321:0500093
 relationship: variable_of CO_321:0500292
 relationship: variable_of CO_321:0000855
+
+[Term]
+id: CO_321:0501234
+name: Grain Area - mm2
+namespace: wheat_trait
+def: "TRAIT: Computation of the whole grain area METHOD: Computation of the grain area by multiplying the grain length by the grain width SCALE: mm2" []
+relationship: variable_of CO_321:0500094
+relationship: variable_of CO_321:0500293
+relationship: variable_of CO_321:0500552
