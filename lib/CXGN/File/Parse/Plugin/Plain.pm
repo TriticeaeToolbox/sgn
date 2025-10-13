@@ -149,7 +149,7 @@ sub parse {
 
       }
       else {
-        $row_info{$h} = undef;
+        $row_info{$h} = $row_info{$h} || undef;
       }
     }
 
