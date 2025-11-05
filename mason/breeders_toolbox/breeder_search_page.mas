@@ -944,12 +944,11 @@ document.addEventListener("DOMContentLoaded", function() {
     $(".wizard-download-genotypes-chromosome-number").html(html);
   }
 
-<<<<<<< HEAD
   // Set the message if imputed project found
   function updateImputed(msg) {
     document.getElementById("panel3").value = " " + msg;
   }
-=======
+
   jQuery('input[title="phenotype_start_date"]').daterangepicker(
    {
        "singleDatePicker": true,
@@ -983,6 +982,5 @@ jQuery('input[title="phenotype_end_date"]').daterangepicker(
 
 );
 
->>>>>>> master
 
 </script>
