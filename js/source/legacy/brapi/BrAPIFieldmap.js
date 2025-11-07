@@ -1,5 +1,3 @@
-const D2S_PROXY_SERVER = "https://tcap.pw.usda.gov/d2sproxy";
-
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('d3'), require('leaflet')) :
 	typeof define === 'function' && define.amd ? define(['d3', 'leaflet'], factory) :
