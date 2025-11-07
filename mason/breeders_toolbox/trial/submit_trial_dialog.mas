@@ -38,6 +38,7 @@ $location
           <textarea id='submit_trial_comments' class='form-control' rows=4></textarea>
           <br />
           <p>If you are ready to submit the trial, click the <strong>Submit Trial</strong> button below.</p>
+          <p><input type="checkbox" id="submit_trial_copy" />&nbsp;&nbsp;Send me a copy of the trial submission</p>
         </div>
       </div>
       <div class="modal-footer">
@@ -96,7 +97,8 @@ $location
         type: "POST",
         data: {
           trial_id: <% $trial %>,
-          comments: jQuery("#submit_trial_comments").val()
+          comments: jQuery("#submit_trial_comments").val(),
+          copy: jQuery("#submit_trial_copy").is(":checked")
         },
         success: function(data, status, jqXHR) {
           if ( data && data.status && data.message) {

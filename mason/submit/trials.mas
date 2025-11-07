@@ -45,6 +45,10 @@
 
   <br /><br />
 
+  <p><input type="checkbox" id="submit_trial_copy" />&nbsp;&nbsp;Send me a copy of the trial submission</p>
+
+  <br /><br />
+
   <button type="button" class="btn btn-primary" id="submit_trial_dialog_submit">Submit Trials</button>
 
   <br /><br />
@@ -159,7 +163,8 @@
         type: "POST",
         data: {
           trial_id: trial_ids_string,
-          comments: jQuery("#submit_trial_comments").val()
+          comments: jQuery("#submit_trial_comments").val(),
+          copy: jQuery("#submit_trial_copy").is(":checked")
         },
         success: function(data, status, jqXHR) {
           if ( data && data.status && data.message) {

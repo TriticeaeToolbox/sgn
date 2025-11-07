@@ -4668,7 +4668,7 @@ sub get_accessions {
 		JOIN nd_experiment using(nd_experiment_id)
 		JOIN nd_experiment_project using(nd_experiment_id)
 		JOIN project using(project_id)
-        JOIN organism ON (accession.organism_id = organism.organism_id)
+        JOIN public.organism ON (accession.organism_id = organism.organism_id)
 		WHERE accession.type_id IN (?, ?, ?)
 		AND stock_relationship.type_id IN (?, ?, ?, ?, ?)
 		AND project.project_id = ?

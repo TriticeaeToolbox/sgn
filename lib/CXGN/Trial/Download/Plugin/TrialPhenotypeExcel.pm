@@ -96,9 +96,9 @@ sub download {
     my $search_type = $self->search_type();
     my $include_intercrop_stocks = $self->include_intercrop_stocks();
     my $include_entry_numbers = $self->include_entry_numbers();
-    my $phenotype_start_date = $self->phenotype_start_date();
-    my $phenotype_end_date = $self->phenotype_end_date();
-    my $repetitive_measurements_type = $self->repetitive_measurements_type();
+    my $phenotype_start_date = $self->start_date();
+    my $phenotype_end_date = $self->end_date();
+    my $repetitive_measurements_type = $self->repetitive_measurements();
 
 
     $self->trial_download_log($trial_id, "trial phenotypes");
