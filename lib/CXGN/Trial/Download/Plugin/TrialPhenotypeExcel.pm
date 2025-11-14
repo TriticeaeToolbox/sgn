@@ -98,7 +98,7 @@ sub download {
     my $include_entry_numbers = $self->include_entry_numbers();
     my $phenotype_start_date = $self->start_date();
     my $phenotype_end_date = $self->end_date();
-    my $repetitive_measurements_type = $self->repetitive_measurements();
+    my $repetitive_measurements = $self->repetitive_measurements();
 
 
     $self->trial_download_log($trial_id, "trial phenotypes");
@@ -135,7 +135,7 @@ sub download {
             include_entry_numbers=>$include_entry_numbers,
             phenotype_start_date => $phenotype_start_date,
             phenotype_end_date => $phenotype_end_date,
-            repetitive_measurements_type => $repetitive_measurements_type,
+            repetitive_measurements_type => $repetitive_measurements,
         );
         @data = $phenotypes_search->get_phenotype_matrix();
     }
