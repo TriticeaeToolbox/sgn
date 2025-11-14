@@ -107,6 +107,7 @@ $design_types => ()
                                               <br /><br />
 
                                               <div class="well">
+                                                <!-- Disable Email since it doesn't work well with the synonym search tool integration
                                                 <div class="form-group">
                                                     <label class="col-sm-4 control-label" style="margin-left: 0px;">Email Alert: </label>
                                                     <div class="col-sm-8" style="text-align: left">
@@ -119,6 +120,7 @@ $design_types => ()
                                                         <small>Store the trials in the background and send an email report when done.</small>
                                                     </div>
                                                 </div>
+                                                -->
                                                 <div class="form-group">
                                                   <label class="col-sm-4 control-label">Ignore Warnings: </label>
                                                   <div class="col-sm-8" style="text-align: left">
