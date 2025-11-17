@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 13:10:2025 13:11
+date: 17:11:2025 10:32
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1582,6 +1582,30 @@ namespace: wheat_trait
 def: "Computation of the whole grain area" []
 synonym: "GA" EXACT []
 is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500095
+name: Spike wet weight
+namespace: wheat_trait
+def: "Wet weight of spikes" []
+synonym: "SpkWW" EXACT []
+is_a: CO_321:Agronomical
+
+[Term]
+id: CO_321:0500096
+name: FHB inoculation
+namespace: wheat_trait
+def: "Date of Fusarium inoculation" []
+synonym: "FHBInoc" EXACT []
+is_a: CO_321:Biotic_stress
+
+[Term]
+id: CO_321:0500097
+name: Plot damage
+namespace: wheat_trait
+def: "The plot damage caused by non-disease or animal related incidences (spray track, herbicide injury, etc)" []
+synonym: "PLTDMG" EXACT []
+is_a: CO_321:Abiotic_stress
 
 [Term]
 id: CO_321:0000229
@@ -3212,6 +3236,34 @@ def: "Computation of the grain area by multiplying the grain length by the grain
 relationship: method_of CO_321:0500094
 
 [Term]
+id: CO_321:0500294
+name: Spike Wet Weight Measurement
+namespace: wheat_trait_method
+def: "Measure the spike weight (grain + glumes/rachis/awns) from plants cut at physiological maturity" []
+relationship: method_of CO_321:0500095
+
+[Term]
+id: CO_321:0500295
+name: FHB Inoculation Measurement
+namespace: wheat_trait_method
+def: "Record the date of fusarium inoculation" []
+relationship: method_of CO_321:0500096
+
+[Term]
+id: CO_321:0500296
+name: Canopy Cover HH Measurement
+namespace: wheat_trait_method
+def: "Measurement of the canopy cover using a handheld device" []
+relationship: method_of CO_321:0500066
+
+[Term]
+id: CO_321:0500297
+name: Plot Damage Estimation
+namespace: wheat_trait_method
+def: "Estimation of the plot damage" []
+relationship: method_of CO_321:0500097
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -3378,14 +3430,15 @@ relationship: scale_of CO_321:0000278
 relationship: scale_of CO_321:0500193
 relationship: scale_of CO_321:0500197
 relationship: scale_of CO_321:0500199
+relationship: scale_of CO_321:0500202
 relationship: scale_of CO_321:0500209
 relationship: scale_of CO_321:0500226
 relationship: scale_of CO_321:0500236
 relationship: scale_of CO_321:0500237
 relationship: scale_of CO_321:0500238
 relationship: scale_of CO_321:0500243
-relationship: scale_of CO_321:0500246
 relationship: scale_of CO_321:0000289
+relationship: scale_of CO_321:0500246
 relationship: scale_of CO_321:0500252
 relationship: scale_of CO_321:0500260
 relationship: scale_of CO_321:0500268
@@ -3396,6 +3449,8 @@ relationship: scale_of CO_321:0500280
 relationship: scale_of CO_321:0500281
 relationship: scale_of CO_321:0500282
 relationship: scale_of CO_321:0000290
+relationship: scale_of CO_321:0500296
+relationship: scale_of CO_321:0500297
 relationship: scale_of CO_321:0000309
 relationship: scale_of CO_321:0000316
 relationship: scale_of CO_321:0000319
@@ -4975,6 +5030,7 @@ relationship: scale_of CO_321:0000842
 relationship: scale_of CO_321:0500194
 relationship: scale_of CO_321:0500195
 relationship: scale_of CO_321:0500292
+relationship: scale_of CO_321:0500295
 
 [Term]
 id: CO_321:0000460
@@ -5279,6 +5335,7 @@ relationship: scale_of CO_321:0500182
 relationship: scale_of CO_321:0500200
 relationship: scale_of CO_321:0500232
 relationship: scale_of CO_321:0500256
+relationship: scale_of CO_321:0500294
 
 [Term]
 id: CO_321:0500517
@@ -9581,3 +9638,52 @@ def: "TRAIT: Computation of the whole grain area METHOD: Computation of the grai
 relationship: variable_of CO_321:0500094
 relationship: variable_of CO_321:0500293
 relationship: variable_of CO_321:0500552
+
+[Term]
+id: CO_321:0501235
+name: Spike wet weight - g
+namespace: wheat_trait
+def: "TRAIT: Wet weight of spikes METHOD: Measure the spike weight (grain + glumes/rachis/awns) from plants cut at physiological maturity SCALE: g" []
+relationship: variable_of CO_321:0500095
+relationship: variable_of CO_321:0500294
+relationship: variable_of CO_321:0001593
+
+[Term]
+id: CO_321:0501236
+name: Plant stand - percent
+namespace: wheat_trait
+def: "TRAIT: Plant population or plant density. METHOD: Estimation of the number of living plants. SCALE: %" []
+synonym: "STAND %" EXACT []
+relationship: variable_of CO_321:0000187
+relationship: variable_of CO_321:0500202
+relationship: variable_of CO_321:0000410
+
+[Term]
+id: CO_321:0501237
+name: FHB Inoculation - Julian date (JD)
+namespace: wheat_trait
+def: "TRAIT: Date of Fusarium inoculation METHOD: Record the date of fusarium inoculation SCALE: Julian date (JD)" []
+synonym: "FHB INOC JD" EXACT []
+relationship: variable_of CO_321:0500096
+relationship: variable_of CO_321:0500295
+relationship: variable_of CO_321:0000855
+
+[Term]
+id: CO_321:0501238
+name: Canopy Cover - handheld - %
+namespace: wheat_trait
+def: "TRAIT: The percentage of green canopy cover in the plot METHOD: Measurement of the canopy cover using a handheld device SCALE: %" []
+synonym: "CANOPY HH %" EXACT []
+relationship: variable_of CO_321:0500066
+relationship: variable_of CO_321:0500296
+relationship: variable_of CO_321:0000410
+
+[Term]
+id: CO_321:0501239
+name: Plot Damage - %
+namespace: wheat_trait
+def: "TRAIT: The plot damage caused by non-disease or animal related incidences (spray track, herbicide injury, etc) METHOD: Estimation of the plot damage SCALE: %" []
+synonym: "PD %" EXACT []
+relationship: variable_of CO_321:0500097
+relationship: variable_of CO_321:0500297
+relationship: variable_of CO_321:0000410
