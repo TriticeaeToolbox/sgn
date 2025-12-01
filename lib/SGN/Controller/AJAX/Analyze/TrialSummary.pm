@@ -39,10 +39,6 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
   my @trait_ids = $c->req->param("trait_id");
   my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
 
-  print STDERR "\n\n\n\n\n====> SUMMARIZE TRIALS:\n";
-  print STDERR "Trials List: $trials_list_id\n";
-  print STDERR "Traits: " . join(', ', @trait_ids) . "\n";
-
   # Get List Info
   my $trial_data;
   if ($trials_list_id) {
@@ -83,10 +79,6 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
 
   # Write the rows to a CSV tempfile
   my ($src_file, $out_dir) = $self->write_rows_to_tempfile($c, $rows);
-
-  print STDERR "SRC FILE: $src_file\n";
-  print STDERR "OUT DIR: $out_dir\n";
-  print STDERR "COMMAND: R CMD BATCH --no-save --no-restore '--args src=\"$src_file\" out=\"$out_dir\"' \"" . $c->config->{basepath} . "/R/summarize_trials_lsm.R\" \"$out_dir/output.txt\"\n";
 
   # Run the R script
   system("R CMD BATCH --no-save --no-restore '--args src=\"$src_file\" out=\"$out_dir\"' \"" . $c->config->{basepath} . "/R/summarize_trials_lsm.R\" \"$out_dir/output.txt\"");

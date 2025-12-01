@@ -76,7 +76,7 @@ summarizeTrialsAndTraits <- function(src, out) {
 generateLSMeansTable <- function(data, tableReportParams) {
 
   # Get traits and accessions from data
-  traits <- unique(data$trait)
+  traits <- colnames(tableReportParams)
   sorted_accessions <- data$accession |> unique() |> sort()
 
   # Setup the LS Means and metadata tables
@@ -133,7 +133,7 @@ generateLSMeansTable <- function(data, tableReportParams) {
 generateTraitSummaries <- function(data, tableReportParams) {
 
   # Get traits and accessions from data
-  traits <- unique(data$trait)
+  traits <- colnames(tableReportParams)
   sorted_accessions <- data$accession |> unique() |> sort()
 
   # List of trait summary info
