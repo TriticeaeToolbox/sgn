@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 17:11:2025 13:05
+date: 11:12:2025 14:26
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1606,6 +1606,22 @@ namespace: wheat_trait
 def: "The plot damage caused by non-disease or animal related incidences (spray track, herbicide injury, etc)" []
 synonym: "PLTDMG" EXACT []
 is_a: CO_321:Abiotic_stress
+
+[Term]
+id: CO_321:0500098
+name: Triticum mosaic virus plant response
+namespace: wheat_trait
+def: "Triticum mosaic virus response in the plants caused by the wheat curl mite (Aceria tosichella)." []
+synonym: "TriMVResp" EXACT []
+is_a: CO_321:Biotic_stress
+
+[Term]
+id: CO_321:0500099
+name: Winter Dormancy Release
+namespace: wheat_trait
+def: "Observation of the winter dormancy release of winter wheat" []
+synonym: "WDR" EXACT []
+is_a: CO_321:Phenological
 
 [Term]
 id: CO_321:0000229
@@ -3262,6 +3278,20 @@ name: Plot Damage Estimation
 namespace: wheat_trait_method
 def: "Estimation of the plot damage" []
 relationship: method_of CO_321:0500097
+
+[Term]
+id: CO_321:0500298
+name: TriMV Response Estimation
+namespace: wheat_trait_method
+def: "Estimation of plant response to triticum mosaic virus " []
+relationship: method_of CO_321:0500098
+
+[Term]
+id: CO_321:0500299
+name: Winter Dormancy Release Estimation
+namespace: wheat_trait_method
+def: "Estimation of the winter dormancy release on a single day by angle of predominant tiller growth. Plots were rated as plants entered Feekes growth stage 5 to maximize distribution of the trait." []
+relationship: method_of CO_321:0500099
 
 [Term]
 id: CO_321:0000804
@@ -5036,42 +5066,42 @@ relationship: scale_of CO_321:0500295
 id: CO_321:0000460
 name: 1-5 Phenological relative scale
 namespace: wheat_trait_scale
-def: "E= early (E), L= late (L), M= moderate (M), VE= very early (VE), VL= very late (VL)" []
+def: "1/VE= very early (VE), 2/E= early (E), 3/M= moderate (M), 4/L= late (L), 5/VL= very late (VL)" []
 relationship: scale_of CO_321:0000243
 
 [Term]
 id: CO_321:0000460/0
-name: early (E)
+name: very early (VE)
 namespace: wheat_trait_scale
-synonym: "E" EXACT []
+synonym: "1/VE" EXACT []
 is_a: CO_321:0000460
 
 [Term]
 id: CO_321:0000460/1
-name: late (L)
+name: early (E)
 namespace: wheat_trait_scale
-synonym: "L" EXACT []
+synonym: "2/E" EXACT []
 is_a: CO_321:0000460
 
 [Term]
 id: CO_321:0000460/2
 name: moderate (M)
 namespace: wheat_trait_scale
-synonym: "M" EXACT []
+synonym: "3/M" EXACT []
 is_a: CO_321:0000460
 
 [Term]
 id: CO_321:0000460/3
-name: very early (VE)
+name: late (L)
 namespace: wheat_trait_scale
-synonym: "VE" EXACT []
+synonym: "4/L" EXACT []
 is_a: CO_321:0000460
 
 [Term]
 id: CO_321:0000460/4
 name: very late (VL)
 namespace: wheat_trait_scale
-synonym: "VL" EXACT []
+synonym: "5/VL" EXACT []
 is_a: CO_321:0000460
 
 [Term]
@@ -6500,6 +6530,7 @@ def: "0= resistant, 1= , 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= susceptible" []
 relationship: scale_of CO_321:0500224
 relationship: scale_of CO_321:0500245
 relationship: scale_of CO_321:0500286
+relationship: scale_of CO_321:0500298
 
 [Term]
 id: CO_321:0500513/0
@@ -7207,6 +7238,48 @@ namespace: wheat_trait_scale
 relationship: scale_of CO_321:0500293
 
 [Term]
+id: CO_321:0500553
+name: 1-5 WDR Response Scale
+namespace: wheat_trait_scale
+def: "1= completely prostrate, 0 degree angle to soil, 2= slightly upright, 1 to 20 degree angle to soil, 3= 21 to 40 degree angle to soil, 4= 41 to 60 degree angle to soil, 5= upright, 61 to 90 degree angle to soil" []
+relationship: scale_of CO_321:0500299
+
+[Term]
+id: CO_321:0500553/0
+name: completely prostrate, 0 degree angle to soil
+namespace: wheat_trait_scale
+synonym: "1" EXACT []
+is_a: CO_321:0500553
+
+[Term]
+id: CO_321:0500553/1
+name: slightly upright, 1 to 20 degree angle to soil
+namespace: wheat_trait_scale
+synonym: "2" EXACT []
+is_a: CO_321:0500553
+
+[Term]
+id: CO_321:0500553/2
+name: 21 to 40 degree angle to soil
+namespace: wheat_trait_scale
+synonym: "3" EXACT []
+is_a: CO_321:0500553
+
+[Term]
+id: CO_321:0500553/3
+name: 41 to 60 degree angle to soil
+namespace: wheat_trait_scale
+synonym: "4" EXACT []
+is_a: CO_321:0500553
+
+[Term]
+id: CO_321:0500553/4
+name: upright, 61 to 90 degree angle to soil
+namespace: wheat_trait_scale
+synonym: "5" EXACT []
+is_a: CO_321:0500553
+
+[Term]
 id: CO_321:0001043
 name: Agronomic score - 1-5 scoring scale
 namespace: wheat_trait
@@ -7658,7 +7731,7 @@ relationship: variable_of CO_321:0000855
 id: CO_321:0001291
 name: Maturity time - 1-5 Phenological relative scale
 namespace: wheat_trait
-def: "TRAIT: Maturity time starts at hard dough stage (ds87) often called physiological maturity. METHOD: Assessment of physiological maturity (approx. DS87) compared to best local check which represents the best locally adopted germplasm at each location grown in standard or normal environment. SCALE: 1-5 Phenological relative scale (E= early (E), L= late (L), M= moderate (M), VE= very early (VE), VL= very late (VL))" []
+def: "TRAIT: Maturity time starts at hard dough stage (ds87) often called physiological maturity. METHOD: Assessment of physiological maturity (approx. DS87) compared to best local check which represents the best locally adopted germplasm at each location grown in standard or normal environment. SCALE: 1-5 Phenological relative scale (1/VE= very early (VE), 2/E= early (E), 3/M= moderate (M), 4/L= late (L), 5/VL= very late (VL))" []
 relationship: variable_of CO_321:0000022
 relationship: variable_of CO_321:0000243
 relationship: variable_of CO_321:0000460
@@ -9687,3 +9760,22 @@ synonym: "PD %" EXACT []
 relationship: variable_of CO_321:0500097
 relationship: variable_of CO_321:0500297
 relationship: variable_of CO_321:0000410
+
+[Term]
+id: CO_321:0501240
+name: Triticum mosaic virus plant response - 0-9 Response Scale
+namespace: wheat_trait
+def: "TRAIT: Triticum mosaic virus response in the plants caused by the wheat curl mite (Aceria tosichella). METHOD: Estimation of plant response to triticum mosaic virus  SCALE: 0-9 Response Scale (0= resistant, 1= , 2= , 3= , 4= , 5= , 6= , 7= , 8= , 9= susceptible)" []
+relationship: variable_of CO_321:0500098
+relationship: variable_of CO_321:0500298
+relationship: variable_of CO_321:0500513
+
+[Term]
+id: CO_321:0501241
+name: Winter Dormancy Release - 1-5 Response Scale
+namespace: wheat_trait
+def: "TRAIT: Observation of the winter dormancy release of winter wheat METHOD: Estimation of the winter dormancy release on a single day by angle of predominant tiller growth. Plots were rated as plants entered Feekes growth stage 5 to maximize distribution of the trait. SCALE: 1-5 WDR Response Scale (1= completely prostrate, 0 degree angle to soil, 2= slightly upright, 1 to 20 degree angle to soil, 3= 21 to 40 degree angle to soil, 4= 41 to 60 degree angle to soil, 5= upright, 61 to 90 degree angle to soil)" []
+synonym: "WDR 1-5" EXACT []
+relationship: variable_of CO_321:0500099
+relationship: variable_of CO_321:0500299
+relationship: variable_of CO_321:0500553
