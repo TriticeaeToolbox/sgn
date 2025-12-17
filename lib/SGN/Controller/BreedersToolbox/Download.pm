@@ -1270,7 +1270,9 @@ sub download_gbs_action : Path('/breeders/download_gbs_action') {
         @accession_ids = @{$accession_id_hash->{transform}};
     }
 
-    my ($fh, $filename) = tempfile("breedbase_genotype_data_XXXXX");
+    my ($fh, $file_path) = tempfile("breedbase_grm_XXXXX", DIR=> $c->config->{cluster_shared_tempdir});
+    my $filename = basename($file_path);
+
     if ($download_format eq 'VCF') {
         $filename .= '.vcf';
     }
