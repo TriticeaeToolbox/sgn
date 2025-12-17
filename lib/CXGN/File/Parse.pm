@@ -172,7 +172,7 @@ When both required_columns and optional_columns are included in the constructor,
 
 For example, the trial upload template can specify the required columns (such as trial_name, plot_number, etc),
 and the optional columns (such as planting_date, harvest_date, etc).  Any of the 'additional_columns' will
-be treated as management factors / treatments.
+be treated as treatments.
 
 =head1 PLUGINS
 
@@ -288,7 +288,7 @@ sub BUILDARGS {
 }
 
 
-# 
+#
 # PARSE DATA FILE
 # Read the data file and parse it into the uniform format using the appropriate plugin
 #
@@ -403,7 +403,7 @@ sub parse {
     }
 
     # Add columns that are arrays, as defined in the CXGN::File::Parse constructor
-    my @array_columns = keys %$column_arrays if $column_arrays;
+    my @array_columns = $column_arrays ? keys %$column_arrays : [];
     $parsed->{'array_columns'} = \@array_columns || [];
 
     return $parsed;
@@ -434,6 +434,9 @@ sub clean_header {
 
     # Do usual value cleaning
     $header = $self->clean_value($header);
+
+    # Strip BOM bytes, if present
+    $header =~ s/^\N{BOM}//;
 
     # check for case-insensitive required column match
     if ( $required_columns ) {
@@ -475,6 +478,9 @@ sub clean_value {
 
     # trim whitespace
     $value =~ s/^\s+|\s+$//g;
+
+    # trim unicode no-break space
+    $value =~s/\xa0//g;
 
     # split values
     if ( $column && $column_arrays && exists $column_arrays->{$column} ) {

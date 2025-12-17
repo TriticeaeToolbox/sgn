@@ -187,6 +187,7 @@ sub submit_trial_data_POST : Args(0) {
     my ($self, $c) = @_;
     my $trial_id_str = $c->req->param("trial_id");
     my $comments = $c->req->param("comments");
+    my $copy = $c->req->param("copy") eq 'true';
 
     my $user = $c->user();
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
@@ -284,6 +285,9 @@ sub submit_trial_data_POST : Args(0) {
         }
 
         CXGN::Contact::send_email($subject, $body, $submission_email, $user->get_private_email());
+        if ( $copy ) {
+            CXGN::Contact::send_email($subject, $body, $user->get_private_email());
+        }
     }
 
     # Return success

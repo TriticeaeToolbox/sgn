@@ -5,6 +5,7 @@ use Moose;
 use IO::File;
 use Data::Dumper;
 use HTML::Entities;
+use JSON;
 use CXGN::People::Roles;
 use CXGN::BreedingProgram;
 
@@ -689,20 +690,26 @@ ername.";}
         }
     }
 
+    my $encoded_username = encode_entities($username);
+    print STDERR "USERNAME: $username. ENCODED: $encoded_username\n";
+    $new_user_login->set_username($encoded_username);
+    $new_user_login->set_private_email(encode_entities($email_address));
+    $new_user_login->set_pending_email(encode_entities($email_address));
+    $new_user_login->set_password($password);
+
+    $new_user_login->store();
+    
+    my $new_user_person_id=$new_user_login->get_sp_person_id();
+    my $new_user = CXGN::People::Person->new($c->dbc->dbh, $new_user_person_id);
+
     eval {
-	$new_user_login->set_username(encode_entities($username));
-	$new_user_login->set_password($password);
-	$new_user_login->set_private_email(encode_entities($email_address));
-	$new_user_login->set_user_type(encode_entities($new_user_type));
-	$new_user_login->store();
-	my $new_user_person_id=$new_user_login->get_sp_person_id();
-	my $new_user_person=CXGN::People::Person->new($c->dbc->dbh, $new_user_person_id);
-	$new_user_person->set_first_name(encode_entities($first_name));
-	$new_user_person->set_last_name(encode_entities($last_name));
-	##removed. This was causing problems with creating new accounts for people,
-	##and then not finding it in the people search.
-	#$new_user_person->set_censor(1);#censor by default, since we are creating this account, not the person whose info might be displayed, and they might not want it to be displayed
-	$new_user_person->store();
+
+	$new_user->set_contact_email(encode_entities($email_address));
+	$new_user->set_user_type(encode_entities($new_user_type));
+	$new_user->set_first_name(encode_entities($first_name));
+	$new_user->set_last_name(encode_entities($last_name));
+	
+	$new_user->store();
     };
 
     if ($@) {
@@ -713,5 +720,55 @@ ername.";}
     }
 }
 
+sub user_prefs : Path('/ajax/user/preferences') : ActionClass('REST') { }
+
+sub user_prefs_GET : Args(1) {
+    my $self = shift;
+    my $c = shift;
+    my $key = shift;
+
+    if ( !$c->user() ) {
+        $c->stash->{rest} = { error => "Need to be logged in to use feature." };
+        return;
+    }
+
+    my $sp_person_id = $c->user()->get_sp_person_id();
+    my $people_schema = $c->dbic_schema("CXGN::People::Schema", undef, $sp_person_id);
+    my $p = $people_schema->resultset("SpPerson")->find({sp_person_id => $sp_person_id });
+    my $prefs = $p->user_prefs() || '{}';
+    my $prefs_json = decode_json($prefs);
+
+    if ( defined $key && $key ne '' ) {
+        $c->stash->{rest}->{$key} = $prefs_json->{$key} || '';
+    }
+    else {
+        $c->stash->{rest} = $prefs_json || {};
+    }
+}
+
+sub user_prefs_POST : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $body = $c->req->body_data();
+
+    if ( !$c->user() ) {
+        $c->stash->{rest} = { error => "Need to be logged in to use feature." };
+        return;
+    }
+
+    my $sp_person_id = $c->user()->get_sp_person_id();
+    my $people_schema = $c->dbic_schema("CXGN::People::Schema", undef, $sp_person_id);
+    my $p = $people_schema->resultset("SpPerson")->find({sp_person_id => $sp_person_id });
+    my $prefs = $p->user_prefs() || '{}';
+    my $prefs_json = decode_json($prefs);
+
+    foreach my $key (keys %$body) {
+        my $value = $body->{$key};
+        $prefs_json->{$key} = $value;
+    }
+    $p->update({ user_prefs => encode_json($prefs_json) });
+
+    $c->stash->{rest} = $prefs_json;
+}
 
 1;

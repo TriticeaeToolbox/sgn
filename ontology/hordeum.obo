@@ -1,8 +1,8 @@
 format-version: 1.2
-date: 15:07:2025 16:09
-saved-by: DJW
+date: 18:08:2025 11:18
+saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
-remark: This file was converted to an SGN-compatible obo file from a standard obo file [./barley.obo]
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
 default-namespace: barley_trait
 ontology: CO_323
 
@@ -382,6 +382,14 @@ namespace: barley_trait
 def: "The Spot Blotch (spot form of leaf blotch) severity caused by the agent Cochliobolus sativus (Bipolaris sorokiniana, Helminthosporium sativum)." []
 synonym: "SpotBloSev" EXACT []
 is_a: CO_323:Biotic_stress
+
+[Term]
+id: CO_323:0000036
+name: Thousand grain weight
+namespace: barley_trait
+def: "The weight of thousand grains." []
+synonym: "TGW" EXACT []
+is_a: CO_323:Agronomic
 
 [Term]
 id: CO_323:0000573
@@ -1193,6 +1201,30 @@ synonym: "AC" EXACT []
 is_a: CO_323:Quality
 
 [Term]
+id: CO_323:0005399
+name: Fusarium Head Blight Disease Index
+namespace: barley_trait
+def: "FHB Disease Index" []
+synonym: "FHBInd" EXACT []
+is_a: CO_323:Biotic_stress
+
+[Term]
+id: CO_323:0005400
+name: Fusarium Damaged Kernels
+namespace: barley_trait
+def: "Fusarium Damaged Kernels (FDK)" []
+synonym: "FDK" EXACT []
+is_a: CO_323:Biotic_stress
+
+[Term]
+id: CO_323:0005401
+name: Grain nivalenol content
+namespace: barley_trait
+def: "The content of the mycotoxin nivalenol in grains." []
+synonym: "GNIVC" EXACT []
+is_a: CO_323:Biotic_stress
+
+[Term]
 id: CO_323:0000267
 name: Awn type - Estimation
 namespace: barley_trait_method
@@ -1422,6 +1454,13 @@ name: Spike number - Counting
 namespace: barley_trait_method
 def: "Count the number of spikes per area and record it." []
 relationship: method_of CO_323:0000535
+
+[Term]
+id: CO_323:0000571
+name: Thousand grain weight - Measurement
+namespace: barley_trait_method
+def: "Count and weigh grains." []
+relationship: method_of CO_323:0000036
 
 [Term]
 id: CO_323:0000574
@@ -2261,6 +2300,34 @@ def: "A 1.6 mL of solution of 85 % ethanol and 15 % hydrochloric acid 1 M was ad
 relationship: method_of CO_323:0005398
 
 [Term]
+id: CO_323:0005217
+name: Fusarium Head Blight Disease Index - Computation
+namespace: barley_trait_method
+def: "The percentage of all spikelets showing FHB symptoms, primarily bleached glumes, was estimated at three locations per plot. Each estimate was obtained by holding a handful of spikes and visually estimating the percentage of spikelets showing symptoms. The three estimates were averaged to obtain a single percentage for each plot." []
+relationship: method_of CO_323:0005399
+
+[Term]
+id: CO_323:0005218
+name: Fusarium Damaged Kernels - Estimation
+namespace: barley_trait_method
+def: "A visual estimation of the percentage of fusarium damaged kernels." []
+relationship: method_of CO_323:0005400
+
+[Term]
+id: CO_323:0005219
+name: Grain nivalenol content - Measurement
+namespace: barley_trait_method
+def: "Use standard method to determine grain nivalenol content and record it." []
+relationship: method_of CO_323:0005401
+
+[Term]
+id: CO_323:0005220
+name: Fusarium Head Blight incidence - 20 HC - Computation
+namespace: barley_trait_method
+def: "Fusarium Head Blight (FHB) incidence reported as the mean FHB incidence per 20 heads counted." []
+relationship: method_of CO_323:0005316
+
+[Term]
 id: CO_323:0000236
 name: kg/ha
 namespace: barley_trait_scale
@@ -2348,6 +2415,9 @@ relationship: scale_of CO_323:0005213
 relationship: scale_of CO_323:0005214
 relationship: scale_of CO_323:0005215
 relationship: scale_of CO_323:0000380
+relationship: scale_of CO_323:0005217
+relationship: scale_of CO_323:0005218
+relationship: scale_of CO_323:0005220
 relationship: scale_of CO_323:0000406
 relationship: scale_of CO_323:0000457
 relationship: scale_of CO_323:0000459
@@ -2369,6 +2439,7 @@ relationship: scale_of CO_323:0000356
 relationship: scale_of CO_323:0000398
 relationship: scale_of CO_323:0000453
 relationship: scale_of CO_323:0000580
+relationship: scale_of CO_323:0005219
 
 [Term]
 id: CO_323:0000029
@@ -2505,6 +2576,7 @@ relationship: scale_of CO_323:0000536
 id: CO_323:0000038
 name: g
 namespace: barley_trait_scale
+relationship: scale_of CO_323:0000571
 relationship: scale_of CO_323:0005101
 
 [Term]
@@ -3615,6 +3687,15 @@ def: "TRAIT: The number of spikes per area. METHOD: Count the number of spikes p
 relationship: variable_of CO_323:0000535
 relationship: variable_of CO_323:0000536
 relationship: variable_of CO_323:0000537
+
+[Term]
+id: CO_323:0000572
+name: Thousand kernel weight - g
+namespace: barley_trait
+def: "TRAIT: The weight of thousand grains. METHOD: Count and weigh grains. SCALE: g" []
+relationship: variable_of CO_323:0000036
+relationship: variable_of CO_323:0000571
+relationship: variable_of CO_323:0000038
 
 [Term]
 id: CO_323:0000581
@@ -4902,3 +4983,39 @@ def: "TRAIT: Total anthocyanin content expressed as ug of cyanidin-3 glucoside e
 relationship: variable_of CO_323:0005398
 relationship: variable_of CO_323:0005216
 relationship: variable_of CO_323:0005040
+
+[Term]
+id: CO_323:0005643
+name: Fusarium Head Blight disease index - %
+namespace: barley_trait
+def: "TRAIT: FHB Disease Index METHOD: The percentage of all spikelets showing FHB symptoms, primarily bleached glumes, was estimated at three locations per plot. Each estimate was obtained by holding a handful of spikes and visually estimating the percentage of spikelets showing symptoms. The three estimates were averaged to obtain a single percentage for each plot. SCALE: %" []
+relationship: variable_of CO_323:0005399
+relationship: variable_of CO_323:0005217
+relationship: variable_of CO_323:0000002
+
+[Term]
+id: CO_323:0005644
+name: Fusarium Damaged Kernels - %
+namespace: barley_trait
+def: "TRAIT: Fusarium Damaged Kernels (FDK) METHOD: A visual estimation of the percentage of fusarium damaged kernels. SCALE: %" []
+relationship: variable_of CO_323:0005400
+relationship: variable_of CO_323:0005218
+relationship: variable_of CO_323:0000002
+
+[Term]
+id: CO_323:0005645
+name: Grain nivalenol content - ppm
+namespace: barley_trait
+def: "TRAIT: The content of the mycotoxin nivalenol in grains. METHOD: Use standard method to determine grain nivalenol content and record it. SCALE: ppm" []
+relationship: variable_of CO_323:0005401
+relationship: variable_of CO_323:0005219
+relationship: variable_of CO_323:0000227
+
+[Term]
+id: CO_323:0005646
+name: Fusarium Head Blight incidence - 20HC - %
+namespace: barley_trait
+def: "TRAIT: A measure of the incidence of FHB. METHOD: Fusarium Head Blight (FHB) incidence reported as the mean FHB incidence per 20 heads counted. SCALE: %" []
+relationship: variable_of CO_323:0005316
+relationship: variable_of CO_323:0005220
+relationship: variable_of CO_323:0000002

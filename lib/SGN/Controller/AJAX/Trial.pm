@@ -61,6 +61,7 @@ use LWP::UserAgent;
 use HTTP::Request;
 use HTTP::Cookies;
 use Cache::FastMmap;
+use CXGN::Job;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -99,7 +100,7 @@ sub generate_experimental_design_POST : Args(0) {
     my $plot_numbering_scheme = $c->req->param('plot_numbering_scheme') || 'block_based';
     print STDERR "Setting plot_numbering_scheme to $plot_numbering_scheme\n";
     $trial_design->set_plot_numbering_scheme($plot_numbering_scheme);
-    
+
     if ($c->req->param('stock_list')) {
 	@stock_names = @{_parse_list_from_json($c->req->param('stock_list'))};
     }
@@ -146,7 +147,7 @@ sub generate_experimental_design_POST : Args(0) {
 
     if ( !$start_number ) {
         $c->stash->{rest} = { error => "You need to select the starting plot number."};
-        
+
     }
 
     if ($design_type eq 'Westcott'){
@@ -188,6 +189,8 @@ sub generate_experimental_design_POST : Args(0) {
         }
     }
 
+
+
     my $row_in_design_number = $c->req->param('row_in_design_number');
     my $col_in_design_number = $c->req->param('col_in_design_number');
     my $no_of_rep_times = $c->req->param('no_of_rep_times');
@@ -195,6 +198,13 @@ sub generate_experimental_design_POST : Args(0) {
     my $unreplicated_stock_list = $c->req->param('unreplicated_stock_list');
     my $replicated_stock_list = $c->req->param('replicated_stock_list');
     my $no_of_sub_block_sequence = $c->req->param('no_of_sub_block_sequence');
+
+    if ($design_type eq 'URDD'){
+        if (!$row_in_design_number || !$col_in_design_number){
+            $c->stash->{rest} = { error => "You need to provide number of rows and cols for a unreplicated diagonal design."};
+            return;
+        }
+    }
 
     my @replicated_stocks;
     if ($c->req->param('replicated_stock_list')) {
@@ -212,7 +222,7 @@ sub generate_experimental_design_POST : Args(0) {
     my $use_same_layout = $c->req->param('use_same_layout');
     my $number_of_checks = scalar(@control_names_crbd);
 
-    if ($design_type eq "RCBD" || $design_type eq "RRC" || $design_type eq "DRRC" ||$design_type eq "Alpha" || $design_type eq "CRD" || $design_type eq "Lattice") {
+    if ($design_type eq "RCBD" || $design_type eq "RRC" || $design_type eq "DRRC" || $design_type eq "URDD" ||$design_type eq "Alpha" || $design_type eq "CRD" || $design_type eq "Lattice") {
         if (@control_names_crbd) {
             @stock_names = (@stock_names, @control_names_crbd);
         }
@@ -310,7 +320,7 @@ sub generate_experimental_design_POST : Args(0) {
         $trial_design->set_submit_host($c->config->{cluster_host});
         $trial_design->set_temp_base($c->config->{cluster_shared_tempdir});
 	$trial_design->set_plot_numbering_scheme($plot_numbering_scheme);
-	
+
         my $design_created = 0;
         if ($use_same_layout) {
             $design_created = 1;
@@ -534,7 +544,7 @@ sub save_experimental_design_POST : Args(0) {
         $c->stash->{rest} = {error =>  "You have insufficient privileges to add a trial." };
         return;
     }
-    
+
 
     my $user_name = $c->user()->get_object()->get_username();
     my $error;
@@ -1260,15 +1270,26 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
     $cmd .= " -r \"$replacements_encoded\"" if $replacements_encoded;
 
     # Run asynchronously if email option is enabled
-    my $runner = CXGN::Tools::Run->new();
-    if ( $email_option_enabled && $email_address && !$test ) {
-        $runner->run_async($cmd);
-        my $err = $runner->err();
-        my $out = $runner->out();
+    # my $runner = CXGN::Tools::Run->new();
+    my $job = CXGN::Job->new({
+        sp_person_id => $user_id,
+        schema => $c->dbic_schema("Bio::Chado::Schema"),
+        people_schema => $c->dbic_schema("CXGN::People::Schema"),
+        cmd => $cmd,
+        name => "$upload_original_name multiple trial designs upload",
+        results_page => '/breeders/trials',
+        job_type => 'upload',
+        finish_logfile => $c->config->{job_finish_log}
+    });
+    if ( $email_option_enabled && $email_address ) {
+        #$runner->run_async($cmd);
+        $job->submit();
+        #my $err = $runner->err();
+        #my $out = $runner->out();
 
-        print STDERR "Upload Trials Output (async):\n";
-        print STDERR "$err\n";
-        print STDERR "$out\n";
+        #print STDERR "Upload Trials Output (async):\n";
+        #print STDERR "$err\n";
+        #print STDERR "$out\n";
 
         $c->stash->{rest} = {background => 1};
         return;
@@ -1276,19 +1297,33 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
 
     # Otherwise run synchronously
     else {
-        $runner->run($cmd);
-        my $err = $runner->err();
-        my $out = $runner->out();
+        #$runner->run($cmd.$job->generate_finish_timestamp_cmd());
+        #$job->update_status("submitted");
+        #my $err = $runner->err();
+        #my $out = $runner->out();
+
+        $job->submit();
+
+        while($job->alive()) {
+            sleep(1);
+        }
+
+        my $err_file = $job->cxgn_tools_run_config->{err};
+        my $out_file = $job->cxgn_tools_run_config->{out};
 
         print STDERR "Upload Trials Output (sync):\n";
-        print STDERR "$err\n";
-        print STDERR "$out\n";
+        print STDERR "$err_file\n";
+        print STDERR "$out_file\n";
+
+        open my $err, "<", $err_file or die "No error file found!\n";
+        open my $out, "<", $out_file or die "No out file found!\n";
 
         # Collect errors and warnings from STDERR
         my @errors;
         my @warnings;
         my @accessions; # Accession Names for the Synonym Search Tool integration
-        foreach (split(/\n/, $err)) {
+        while (<$err>) {
+            chomp;
             if ($_ =~ /^ERROR/) {
                 $_ =~ s/ERROR:? ?//;
                 push @errors, $_;
@@ -1302,13 +1337,27 @@ sub upload_multiple_trial_designs_file_POST : Args(0) {
                 push @accessions, $_;
             }
         }
+        # foreach (split(/\n/, $err)) {
+        #     if ($_ =~ /^ERROR/) {
+        #         $_ =~ s/ERROR:? ?//;
+        #         push @errors, $_;
+        #     }
+        #     elsif ($_ =~ /^WARNING/) {
+        #         $_ =~ s/WARNING:? ?//;
+        #         push @warnings, $_;
+        #     }
+        # }
 
         my %rtn;
         if ( scalar(@errors) > 0 ) {
-            $rtn{errors} = \@errors;
+            $c->stash->{rest} = {errors => \@errors};
+            $job->update_status("failed");
+            return;
         }
-        elsif ( scalar(@warnings) > 0 ) {
-            $rtn{warnings} = \@warnings;
+        if ( scalar(@warnings) > 0 ) {
+            $c->stash->{rest} = {warnings => \@warnings};
+            $job->update_status("failed");
+            return;
         }
         elsif ( $test ) {
             $rtn{synonym_search_check} = $synonym_search_check && $synonym_search_check eq 'on';
@@ -1384,6 +1433,7 @@ sub upload_trial_metadata_file : Path('/ajax/trial/upload_trial_metadata_file') 
 sub upload_trial_metadata_file_POST : Args(0) {
     my ($self, $c)                 = @_;
     my $upload                     = $c->req->upload('trial_metadata_upload_file');
+    my $ignore_warnings            = $c->req->param('trial_metadata_upload_ignore_warnings');
 
     my $chado_schema               = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $dbhost                     = $c->config->{dbhost};
@@ -1453,9 +1503,11 @@ sub upload_trial_metadata_file_POST : Args(0) {
     }
 
     if ($parser->has_parse_warnings()) {
-        my $warnings = $parser->get_parse_warnings();
-        $c->stash->{rest} = { warnings => $warnings->{'warning_messages'} };
-        return;
+        unless ($ignore_warnings) {
+            my $warnings = $parser->get_parse_warnings();
+            $c->stash->{rest} = { warnings => $warnings->{'warning_messages'} };
+            return;
+        }
     }
 
     # Check breeding program permissions, if not a curator
@@ -1470,6 +1522,34 @@ sub upload_trial_metadata_file_POST : Args(0) {
         if ( scalar(@missing_breeding_programs) > 0 ) {
             $c->stash->{rest} = { errors => "You need to be either a curator, or a submitter associated with the breeding program(s) " . join(', ', @missing_breeding_programs) . " to change the details of trial(s) associated with these program(s)." };
             return;
+        }
+    }
+
+    # Create missing folders
+    my %created_folders;
+    foreach my $trial_id (keys %{$parsed_data->{trial_data}} ) {
+        my $details = $parsed_data->{trial_data}->{$trial_id};
+        if ( $details->{folder} ) {
+            if ( $details->{folder}->{type} eq 'missing' ) {
+                my $folder_id;
+
+                if ( exists $created_folders{$details->{folder}->{name}} ) {
+                    $folder_id = $created_folders{$details->{folder}->{name}};
+                }
+                else {
+                    my $f = CXGN::Trial::Folder->create({
+                        bcs_schema => $chado_schema,
+                        name => $details->{folder}->{name},
+                        breeding_program_id => $details->{folder}->{breeding_program_id},
+                        folder_for_trials => 1
+                    });
+                    $folder_id = $f->folder_id();
+                    $created_folders{$details->{folder}->{name}} = $folder_id;
+                }
+
+                $parsed_data->{trial_data}->{$trial_id}->{folder}->{type} = "exists";
+                $parsed_data->{trial_data}->{$trial_id}->{folder}->{id} = $folder_id;
+            }
         }
     }
 

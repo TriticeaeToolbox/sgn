@@ -1,4 +1,4 @@
-<%args> 
+<%args>
   $trials_list_id => undef;
   @trait_ids => ();
 </%args>
@@ -103,7 +103,6 @@
     let trait_info = response.overall.lsmeans_metadata;
     let lsmeans_results = response.overall.lsmeans;
     let trait_results = response.traits;
-    let trials = Object.keys(trait_results[trait_info[0].trait_code].results[0]).filter(function(e) { return e !== 'accession'}).sort();
 
     // Init LS Means Table
     let html = "<h3>LS Means</h3>";
@@ -121,8 +120,9 @@
     html += "<td>LSD</td>";
     for ( let i = 0; i < trait_info.length; i++ ) {
       let value = "--";
-      if ( trait_info[i].lsd !== "NA" ) {
-        value = parseFloat(trait_info[i].lsd).toFixed(2);
+      let lsd = trait_info[i].lsd
+      if ( lsd && lsd !== "NA" && lsd !== "NaN" ) {
+        value = parseFloat(lsd).toFixed(2);
       }
       html += "<td>" + value + "</td>";
     }
@@ -131,8 +131,9 @@
     html += "<td>HSD</td>";
     for ( let i = 0; i < trait_info.length; i++ ) {
       let value = "--";
-      if ( trait_info[i].lsd !== "NA" ) {
-        value = parseFloat(trait_info[i].hsd).toFixed(2);
+      let hsd = trait_info[i].hsd;
+      if ( hsd && hsd !== "NA" && hsd !== "NaN" ) {
+        value = parseFloat(hsd).toFixed(2);
       }
       html += "<td>" + value + "</td>";
     }
@@ -143,6 +144,7 @@
     // Init Each Trait Table
     for ( let i = 0; i < trait_info.length; i++ ) {
       let results = trait_results[trait_info[i].trait_code].results;
+      let trials = Object.keys(results[0]).filter(e => e !== 'accession');
 
       html += "<br /><br />";
       html += "<h3>" + trait_info[i].trait_name + "</h3>";
@@ -154,14 +156,23 @@
       }
       html += "</tr></thead>";
 
-      // Add footer with Trial Means
+      // Add footer with Trial Summary Stats
+      const footer_values = ["Trial Mean", "Trial LSD", "Trial HSD"];
       html += "<tfoot>";
-      html += "<tr>";
-      html += "<td>Trial Mean</td>";
-      for ( let i = 0; i < trials.length; i++ ) {
-        html += "<td>" + parseFloat(results[results.length-1][trials[i]]).toFixed(2) + "</td>";
+      for ( const footer of footer_values ) {
+        html += "<tr>";
+        html += "<td>" + footer + "</td>";
+        for ( const trial of trials ) {
+          let value = "--";
+          let match = results.filter((e) => e.accession === footer);
+          if ( match.length === 1 ) {
+            value = match[0][trial];
+            value = value && value !== "" && value !== "NA" && value !== "NaN"  ? parseFloat(value).toFixed(2) : "--";
+          }
+          html += "<td>" + value + "</td>";
+        }
+        html += "</tr>";
       }
-      html += "</tr>";
       html += "</tfoot>";
       html += "</table>";
     }
@@ -180,7 +191,7 @@
       lsmeans_columns.push({
         data: function(row, type, val, meta) {
           let rtn = row[trait_info[i].trait_code];
-          return parseFloat(rtn).toFixed(2)
+          return rtn && rtn !== "" && rtn !== "NA" && rtn !== "NaN" ? parseFloat(rtn).toFixed(2) : "--";
         }
       });
     }
@@ -197,6 +208,8 @@
 
     // Setup Each Trait Table
     for ( let i = 0; i < trait_info.length; i++ ) {
+      let results = trait_results[trait_info[i].trait_code].results;
+      let trials = Object.keys(results[0]).filter(e => e !== 'accession');
 
       // Setup Trait Columns
       let trait_columns = [];
@@ -205,7 +218,7 @@
         trait_columns.push({
           data: function(row, type, val, meta) {
             let rtn = row[trials[j]];
-            return rtn === "NA" ? "--" : parseFloat(rtn).toFixed(2);
+            return rtn === "NA" || rtn === undefined ? "--" : parseFloat(rtn).toFixed(2);
           }
         });
       }
