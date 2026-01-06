@@ -285,11 +285,11 @@ sub trial_details_POST  {
 
     my $dbh = $trial->bcs_schema->storage->dbh;
 
-    my $logged_in_user_q = "select * from logged_in_user";
-    my $logged_in_user_h = $dbh -> prepare($logged_in_user_q);
-    $logged_in_user_h->execute();
-    my $logged_in_user_arr = $logged_in_user_h->fetchall_arrayref();
-    print STDERR "logged in user TrialMetadata.pm BEFORE EVAL: ".Dumper($logged_in_user_arr)."\n";
+    # my $logged_in_user_q = "select * from logged_in_user";
+    # my $logged_in_user_h = $dbh -> prepare($logged_in_user_q);
+    # $logged_in_user_h->execute();
+    # my $logged_in_user_arr = $logged_in_user_h->fetchall_arrayref();
+    # print STDERR "logged in user TrialMetadata.pm BEFORE EVAL: ".Dumper($logged_in_user_arr)."\n";
 
 
     my $error = $trial->update_metadata($details);
