@@ -595,7 +595,7 @@ jQuery(document).ready(function ($) {
         let body = {
             address: TRIAL_SYNONYM_SEARCH_DATABASE,
             version: "v1.3",
-            auth_token: "",
+            auth_token: getCookie("sgn_session_id"),
             call_limit: 10
         }
         jQuery.ajax({
@@ -645,7 +645,7 @@ jQuery(document).ready(function ($) {
             database: {
                 address: TRIAL_SYNONYM_SEARCH_DATABASE,
                 version: "v1.3",
-                auth_token: "",
+                auth_token: getCookie("sgn_session_id"),
                 call_limit: 10
             },
             terms: terms,

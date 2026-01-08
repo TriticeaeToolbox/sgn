@@ -847,7 +847,7 @@ function update_synonym_search_cache(terms) {
     let body = {
         address: SYNONYM_SEARCH_DATABASE,
         version: "v1.3",
-        auth_token: "",
+        auth_token: getCookie("sgn_session_id"),
         call_limit: 10
     }
     jQuery.ajax({
@@ -896,7 +896,7 @@ function perform_synonym_search(terms) {
         database: {
             address: SYNONYM_SEARCH_DATABASE,
             version: "v1.3",
-            auth_token: "",
+            auth_token: getCookie("sgn_session_id"),
             call_limit: 10
         },
         terms: terms,

@@ -1,4 +1,4 @@
-package SGN::Controller::AJAX::Accessions::Rename;
+package SGN::Controller::AJAX::Accessions::SynonymSearchTool;
 
 use Moose;
 use URI::SmartURI;
