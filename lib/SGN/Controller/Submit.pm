@@ -26,6 +26,10 @@ sub submit_geno : Path('/submit/geno') Args(0) {
         $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
         $c->stash->{email} = $user->get_private_email();
     }
+    else {
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
+    }
 
     # Get Genotyping Protocols
     my @protocols = ([0, '']);
