@@ -3,6 +3,7 @@ package SGN::Controller::Submit;
 use Moose;
 use SGN::View::Stock qw/breeding_programs/;
 use CXGN::Genotype::Protocol qw/list_simple/;
+use URI::FromHash 'uri';
 
 BEGIN { extends "Catalyst::Controller"; }
 
