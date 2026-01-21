@@ -5609,6 +5609,8 @@ sub transformation_id_count {
 
  Usage:   my @trials = CXGN::Project::get_recently_added_trials()
  Params:  $interval - one of day, week, month, year
+          $interval_count - the number of $intervals (default: 1)
+          $limit - the max number of trials to return (default: 10)
  Returns: a list of trials, consisting of listrefs listing
           trial_name (with link), trial_type, breeding program
           (with link)
@@ -5620,7 +5622,8 @@ sub get_recently_added_trials {
     my $phenome_schema = shift;
     my $people_schema = shift;
     my $metadata_schema = shift;
-    my $interval = shift;
+    my $interval = shift || 'month';
+    my $interval_count = shift || 1;
     my $limit = shift || 10;
 
     if (! grep($interval, qw| day week month year | )) {
@@ -5628,7 +5631,7 @@ sub get_recently_added_trials {
 	return;
     }
 
-    my $q = "select project.project_id from project where create_date + interval '1 $interval' > current_date order by create_date desc limit ?";
+    my $q = "select project.project_id from project where create_date + interval '$interval_count $interval' > current_date AND project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview) order by create_date desc limit ?";
 
     my $h = $bcs_schema->storage->dbh()->prepare($q);
 

@@ -241,12 +241,14 @@ sub trials_in_folder : Path('/ajax/breeders/trial_folders/') : Args(1) {
 
 =cut  
 
-sub get_recent_trials : Path('/ajax/breeders/recent_trials') Args(1) {
+sub get_recent_trials : Path('/ajax/breeders/recent_trials') {
     my $self = shift;
     my $c = shift;
-    my $interval = shift; # 1 day, week, month, or year
+    my $interval = shift; # day, week, month, or year
+    my $interval_count = shift || 1;
+    my $limit = shift || 10;
     
-    my $trial_table = CXGN::Project::get_recently_added_trials($c->dbic_schema('Bio::Chado::Schema'),  $c->dbic_schema("CXGN::Phenome::Schema"),  $c->dbic_schema("CXGN::People::Schema"), $c->dbic_schema("CXGN::Metadata::Schema"), $interval);
+    my $trial_table = CXGN::Project::get_recently_added_trials($c->dbic_schema('Bio::Chado::Schema'),  $c->dbic_schema("CXGN::Phenome::Schema"),  $c->dbic_schema("CXGN::People::Schema"), $c->dbic_schema("CXGN::Metadata::Schema"), $interval, $interval_count, $limit);
 
     $c->stash->{rest} =  { data => $trial_table }
 }
