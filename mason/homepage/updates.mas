@@ -1,0 +1,93 @@
+<!-- WORKSHOP SURVEY LINK -->
+<div class="panel panel-warning">
+    <div class="panel-heading">Recently Added Trials</div>
+    <div class="panel-body">
+        <div style="display: flex; justify-content: space-around; align-items: baseline; gap: 5px">
+            <p style="white-space: nowrap">View Last:</p>
+            <select id="recent-interval-count" class="form-control recent-trials-select">
+                <option value="1" selected>1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+            </select>
+            <select id="recent-interval" class="form-control recent-trials-select">
+                <option value="days">days</option>
+                <option value="weeks">weeks</option>
+                <option value="months" selected>months</option>
+                <option value="years">years</option>
+            </select>
+        </div>
+
+        <br />
+
+        <ul id="recent-trials" style="padding-left: 15px"></ul>
+    </div>
+</div>
+
+<script type="text/javascript">
+    const MAX_RECENT_TRIALS = 20;
+
+    const reloadTable = () => {
+        var intervalCount = jQuery("#recent-interval-count").val();
+        var interval = jQuery("#recent-interval").val();
+
+        jQuery.ajax({
+            url: `/ajax/breeders/recent_trials/${interval}/${intervalCount}/${MAX_RECENT_TRIALS}`,
+            beforeSend: () => {
+                jQuery("#recent-trials").html("...loading...");
+            },
+            success: (response) => {
+                if ( response && response.data ) {
+                    if ( response.data.length > 0 ) {
+                        var data = {};
+                        response.data.forEach((e) => {
+                            const t = e[0];
+                            const bp = e[2];
+                            const d = new Date(e[3]).toLocaleDateString();
+                            if ( !data.hasOwnProperty(bp) ) data[bp] = [];
+                            data[bp].push(t);
+                        })
+
+                        var html = '';
+                        for ( const bp in data ) {
+                            html += `<li>${bp}</li>`;
+                            html += `<ul style='padding-left: 15px'>`;
+                            data[bp].forEach((t) => {
+                                html += `<li style='overflow-wrap: break-word;'>${t}</li>`;
+                            });
+                            html += `</ul>`;
+                        }
+
+                        if ( response.data.length === MAX_RECENT_TRIALS ) {
+                            html += "<br /><p>Max number of recent trials displayed, view all trials on the <a href='/search/trials'>Search &gt; Trials page</a>.</p>";
+                        }
+
+                        jQuery("#recent-trials").html(html);
+                    }
+                    else {
+                        jQuery("#recent-trials").html("No trials added during this time period");
+                    }
+                }
+                else {
+                    jQuery("#recent-trials").html("Could not load recent trials");
+                }
+            },
+            error: (response) => {
+                jQuery("#recent-trials").html("Could not load recent trials");
+            }
+        });
+    }
+
+    jQuery(document).ready(() => {
+        reloadTable();
+        jQuery(".recent-trials-select").on("change", reloadTable);
+    });
+</script>
