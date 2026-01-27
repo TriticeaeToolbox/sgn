@@ -178,11 +178,13 @@ sub trial_folders : Path('/ajax/breeders/trial_folders') {
     my $self = shift;
     my $c = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $tagged = $c->req->param('tagged') eq 'true';
 
     my @folders;
     my $trial_folder_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, "trial_folder", "project_property")->cvterm_id();
+    my $folder_for_experiments_menu_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'folder_for_experiments_menu', 'project_property')->cvterm_id();
     my $rs = $schema->resultset("Project::Project")->search(
-        { 'projectprops.type_id' => $trial_folder_type_id },
+        { 'projectprops.type_id' => $tagged ? $folder_for_experiments_menu_type_id : $trial_folder_type_id },
         { join => 'projectprops' }
     );
     if ( $rs ) {

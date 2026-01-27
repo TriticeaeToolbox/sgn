@@ -17,7 +17,7 @@
 </div>
 
 <script type='text/javascript'>
-  jQuery(document).ready(function() {
+  jQuery(window).on('pageshow', function() {
     getExperiments(function(experiments) {
       displayExperiments(experiments);
     });
@@ -31,7 +31,7 @@
   function getExperiments(callback) {
     jQuery.ajax({
       method: 'GET',
-      url: '/ajax/breeders/trial_folders',
+      url: '/ajax/breeders/trial_folders?tagged=true',
       error: function(response) {
         console.log("ERROR: Could not get experiments");
         console.log(response);

@@ -194,10 +194,10 @@ export function WizardSetup(main_id) {
   load_lists();
 
   var load_experiments = () => (new Promise((resolve, reject)=>{
-    let experiment_dict = {};
-    fetch(document.location.origin+'/ajax/breeders/trial_folders')
+    fetch(document.location.origin+'/ajax/breeders/trial_folders?tagged=true')
       .then(resp=>resp.json())
       .then(json=>{
+        let experiment_dict = {};
         if ( json && json.folders ) {
           for ( let i = 0; i < json.folders.length; i++ ) {
             experiment_dict[json.folders[i].id] = json.folders[i].name;
