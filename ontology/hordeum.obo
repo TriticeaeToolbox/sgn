@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 18:08:2025 11:18
+date: 29:01:2026 15:39
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1225,6 +1225,15 @@ synonym: "GNIVC" EXACT []
 is_a: CO_323:Biotic_stress
 
 [Term]
+id: CO_323:0005402
+name: Sprouting tolerance
+namespace: barley_trait
+def: "Tolerance of grain to sprout when in the spike." []
+synonym: "SproutTol" EXACT []
+synonym: "Pre-harvest" EXACT []
+is_a: CO_323:Abiotic_stress
+
+[Term]
 id: CO_323:0000267
 name: Awn type - Estimation
 namespace: barley_trait_method
@@ -2326,6 +2335,13 @@ name: Fusarium Head Blight incidence - 20 HC - Computation
 namespace: barley_trait_method
 def: "Fusarium Head Blight (FHB) incidence reported as the mean FHB incidence per 20 heads counted." []
 relationship: method_of CO_323:0005316
+
+[Term]
+id: CO_323:0005221
+name: SproutTol Estimation
+namespace: barley_trait_method
+def: "Observe the tendency of grain to sprout when in the spike and rate the tolerance." []
+relationship: method_of CO_323:0005402
 
 [Term]
 id: CO_323:0000236
@@ -3534,6 +3550,76 @@ name: basic
 namespace: barley_trait_scale
 synonym: "14" EXACT []
 is_a: CO_323:0005049
+
+[Term]
+id: CO_323:0005050
+name: 1-9 TOL scale
+namespace: barley_trait_scale
+def: "1= highly susceptible, 2= highly susceptible to susceptible, 3= susceptible, 4= susceptible to moderately susceptible, 5= moderately susceptible, 6= moderately susceptible to moderately tolerant, 7= moderately tolerant, 8= tolerant, 9= highly tolerant" []
+relationship: scale_of CO_323:0005221
+
+[Term]
+id: CO_323:0005050/0
+name: highly susceptible
+namespace: barley_trait_scale
+synonym: "1" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/1
+name: highly susceptible to susceptible
+namespace: barley_trait_scale
+synonym: "2" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/2
+name: susceptible
+namespace: barley_trait_scale
+synonym: "3" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/3
+name: susceptible to moderately susceptible
+namespace: barley_trait_scale
+synonym: "4" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/4
+name: moderately susceptible
+namespace: barley_trait_scale
+synonym: "5" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/5
+name: moderately susceptible to moderately tolerant
+namespace: barley_trait_scale
+synonym: "6" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/6
+name: moderately tolerant
+namespace: barley_trait_scale
+synonym: "7" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/7
+name: tolerant
+namespace: barley_trait_scale
+synonym: "8" EXACT []
+is_a: CO_323:0005050
+
+[Term]
+id: CO_323:0005050/8
+name: highly tolerant
+namespace: barley_trait_scale
+synonym: "9" EXACT []
+is_a: CO_323:0005050
 
 [Term]
 id: CO_323:0000323
@@ -5019,3 +5105,12 @@ def: "TRAIT: A measure of the incidence of FHB. METHOD: Fusarium Head Blight (FH
 relationship: variable_of CO_323:0005316
 relationship: variable_of CO_323:0005220
 relationship: variable_of CO_323:0000002
+
+[Term]
+id: CO_323:0005647
+name: Sprouting tolerance - 1-9 TOL scale
+namespace: barley_trait
+def: "TRAIT: Tolerance of grain to sprout when in the spike. METHOD: Observe the tendency of grain to sprout when in the spike and rate the tolerance. SCALE: 1-9 TOL scale (1= highly susceptible, 2= highly susceptible to susceptible, 3= susceptible, 4= susceptible to moderately susceptible, 5= moderately susceptible, 6= moderately susceptible to moderately tolerant, 7= moderately tolerant, 8= tolerant, 9= highly tolerant)" []
+relationship: variable_of CO_323:0005402
+relationship: variable_of CO_323:0005221
+relationship: variable_of CO_323:0005050
