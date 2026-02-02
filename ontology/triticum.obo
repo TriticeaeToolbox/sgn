@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 17:12:2025 10:15
+date: 02:02:2026 13:30
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -4400,6 +4400,83 @@ namespace: wheat_trait_scale
 relationship: scale_of CO_321:0000288
 
 [Term]
+id: CO_321:0000449
+name: 0-9 DAMAGE scale
+namespace: wheat_trait_scale
+def: "0= no damage, 1= trace, 2= very low damage, 3= low damage, 4= low to intermediate damage, 5= intermediate damage, 6= intermediate to high damage, 7= high damage, 8= high to very high damage, 9= very high damage" []
+relationship: scale_of CO_321:0000352
+
+[Term]
+id: CO_321:0000449/0
+name: no damage
+namespace: wheat_trait_scale
+synonym: "0" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/1
+name: trace
+namespace: wheat_trait_scale
+synonym: "1" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/2
+name: very low damage
+namespace: wheat_trait_scale
+synonym: "2" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/3
+name: low damage
+namespace: wheat_trait_scale
+synonym: "3" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/4
+name: low to intermediate damage
+namespace: wheat_trait_scale
+synonym: "4" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/5
+name: intermediate damage
+namespace: wheat_trait_scale
+synonym: "5" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/6
+name: intermediate to high damage
+namespace: wheat_trait_scale
+synonym: "6" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/7
+name: high damage
+namespace: wheat_trait_scale
+synonym: "7" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/8
+name: high to very high damage
+namespace: wheat_trait_scale
+synonym: "8" EXACT []
+is_a: CO_321:0000449
+
+[Term]
+id: CO_321:0000449/9
+name: very high damage
+namespace: wheat_trait_scale
+synonym: "9" EXACT []
+is_a: CO_321:0000449
+
+[Term]
 id: CO_321:0000425
 name: ppm
 namespace: wheat_trait_scale
@@ -7837,6 +7914,15 @@ synonym: "YR SEV %" EXACT []
 relationship: variable_of CO_321:0000908
 relationship: variable_of CO_321:0000693
 relationship: variable_of CO_321:0000410
+
+[Term]
+id: CO_321:0001424
+name: Winter kill damage - 0-9 DAMAGE scale
+namespace: wheat_trait
+def: "TRAIT: Plants killed as a result of winter conditions. METHOD: Observe winterkill of plants per plot and rate it. SCALE: 0-9 DAMAGE scale (0= no damage, 1= trace, 2= very low damage, 3= low damage, 4= low to intermediate damage, 5= intermediate damage, 6= intermediate to high damage, 7= high damage, 8= high to very high damage, 9= very high damage)" []
+relationship: variable_of CO_321:0000164
+relationship: variable_of CO_321:0000352
+relationship: variable_of CO_321:0000449
 
 [Term]
 id: CO_321:0001425
