@@ -38,12 +38,12 @@ jobs:
         with:
           context: ./docker
           file: ./Dockerfile
-          build-args:
-            - SGN_REPO=${{ github.repository }}
-            - SGN_BRANCH=${{ github.ref_name }}
-            - SGN_COMMIT=${{ github.sha }}
-            - DOCKER_TAG=${{ steps.vars.outputs.tag }}
-            - DOCKER_CREATED=${{ steps.create.outputs.create }}
+          build-args: |
+            SGN_REPO=${{ github.repository }}
+            SGN_BRANCH=${{ github.ref_name }}
+            SGN_COMMIT=${{ github.sha }}
+            DOCKER_TAG=${{ steps.vars.outputs.tag }}
+            DOCKER_CREATED=${{ steps.create.outputs.create }}
           platforms: linux/amd64
           push: true
           tags: |
