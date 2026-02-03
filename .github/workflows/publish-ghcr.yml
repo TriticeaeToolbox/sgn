@@ -41,7 +41,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: ./docker
-          file: ./Dockerfile
+          file: ./docker/Dockerfile
           build-args: |
             SGN_REPO=${{ github.repository }}
             SGN_BRANCH=${{ github.ref_name }}
