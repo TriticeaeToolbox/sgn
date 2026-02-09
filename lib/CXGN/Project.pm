@@ -5631,7 +5631,18 @@ sub get_recently_added_trials {
 	return;
     }
 
-    my $q = "select project.project_id from project where create_date + interval '$interval_count $interval' > current_date AND project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview) order by create_date desc limit ?";
+    # query to limit count of recent projects within breeding program instead of globally
+    my $q = "SELECT project_id FROM (
+        SELECT project.project_id, ROW_NUMBER() OVER (PARTITION BY bp.name ORDER BY project.create_date DESC) AS rank
+        FROM project 
+        LEFT JOIN project_relationship AS bpr ON (bpr.subject_project_id = project.project_id) 
+            AND bpr.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'breeding_program_trial_relationship')
+        LEFT JOIN project AS bp ON (bpr.object_project_id = bp.project_id)
+        WHERE project.create_date + interval '$interval_count $interval' > current_date 
+            AND project.project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview)
+    ) AS t
+    WHERE t.rank <= ?;";
+    # my $q = "select project.project_id from project where create_date + interval '$interval_count $interval' > current_date AND project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview) order by create_date desc limit ?";
 
     my $h = $bcs_schema->storage->dbh()->prepare($q);
 
