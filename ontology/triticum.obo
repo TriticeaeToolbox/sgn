@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 02:02:2026 13:30
+date: 12:02:2026 16:17
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -3294,12 +3294,20 @@ def: "Estimation of the winter dormancy release on a single day by angle of pred
 relationship: method_of CO_321:0500099
 
 [Term]
+id: CO_321:0500300
+name: ForgDM Computation Z85
+namespace: wheat_trait_method
+def: "Computation of above ground biomass, on dry weight basis, of plant material at soft dough (DS85)." []
+relationship: method_of CO_321:0001032
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0001028
 relationship: scale_of CO_321:0500156
 relationship: scale_of CO_321:0500183
+relationship: scale_of CO_321:0500300
 
 [Term]
 id: CO_321:0000412
@@ -8418,7 +8426,7 @@ relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501057
-name: Forage dry matter - kg/ha
+name: Forage dry matter - at heading - kg/ha
 namespace: wheat_trait
 def: "TRAIT: Forage dry matter. METHOD: Computation of above ground biomass, on dry weight basis, of plant material at heading (DS55). SCALE: kg/ha" []
 relationship: variable_of CO_321:0001032
@@ -9865,3 +9873,12 @@ synonym: "WDR 1-5" EXACT []
 relationship: variable_of CO_321:0500099
 relationship: variable_of CO_321:0500299
 relationship: variable_of CO_321:0500553
+
+[Term]
+id: CO_321:0501242
+name: Forage dry matter - at soft dough - kg/ha
+namespace: wheat_trait
+def: "TRAIT: Forage dry matter. METHOD: Computation of above ground biomass, on dry weight basis, of plant material at soft dough (DS85). SCALE: kg/ha" []
+relationship: variable_of CO_321:0001032
+relationship: variable_of CO_321:0500300
+relationship: variable_of CO_321:0000804
