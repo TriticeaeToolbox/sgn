@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 29:01:2026 15:39
+date: 02:03:2026 13:13
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -2344,6 +2344,13 @@ def: "Observe the tendency of grain to sprout when in the spike and rate the tol
 relationship: method_of CO_323:0005402
 
 [Term]
+id: CO_323:0005222
+name: Threshability - Observation
+namespace: barley_trait_method
+def: "To capture threshability, visually measure a sample for the percentage of grain that is naked. This measurement is taken after harvest and cleaning.  When measured on a percentage scale, a value of 0 is completely covered (0% naked, 100% hull retained), and a value of 100 is completely naked (100% naked, 0% hull retained)." []
+relationship: method_of CO_323:0005367
+
+[Term]
 id: CO_323:0000236
 name: kg/ha
 namespace: barley_trait_scale
@@ -2434,6 +2441,7 @@ relationship: scale_of CO_323:0000380
 relationship: scale_of CO_323:0005217
 relationship: scale_of CO_323:0005218
 relationship: scale_of CO_323:0005220
+relationship: scale_of CO_323:0005222
 relationship: scale_of CO_323:0000406
 relationship: scale_of CO_323:0000457
 relationship: scale_of CO_323:0000459
@@ -5114,3 +5122,12 @@ def: "TRAIT: Tolerance of grain to sprout when in the spike. METHOD: Observe the
 relationship: variable_of CO_323:0005402
 relationship: variable_of CO_323:0005221
 relationship: variable_of CO_323:0005050
+
+[Term]
+id: CO_323:0005648
+name: Threshability - %
+namespace: barley_trait
+def: "TRAIT: A rating of the threshability which is measured visually on a sample based on how many free-threshing hulls come off the grain after harvest and cleaning METHOD: To capture threshability, visually measure a sample for the percentage of grain that is naked. This measurement is taken after harvest and cleaning.  When measured on a percentage scale, a value of 0 is completely covered (0% naked, 100% hull retained), and a value of 100 is completely naked (100% naked, 0% hull retained). SCALE: %" []
+relationship: variable_of CO_323:0005367
+relationship: variable_of CO_323:0005222
+relationship: variable_of CO_323:0000002
