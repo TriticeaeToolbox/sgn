@@ -85,7 +85,8 @@ sub generate_accessions :Private {
 
     # Generate accession names
     my $names = $self->get_accession_names($prefix);
-    
+    my @columns = ("accession_name", "species_name", "organization", "synonym", "notes", "accession number", "purdy pedigree");
+
     # Generate accession properties
     my @rows;
     my $species = $self->get_species($dbh);
@@ -93,41 +94,17 @@ sub generate_accessions :Private {
         my @r = (
             $name,
             $species,
-            "",
             "Cornell University",
             $name =~ /-1000$/ ? $prefix . "SYNA," . $prefix . "SYNB" : "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
             $name =~ /-1000$/ ? "Any additional comments" : "",
             $name =~ /-1000$/ ? "PI 1234" : "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
             $name =~ /-1000$/ ? "FEMALE_PARENT/MALE_PARENT" : ""
         );
         push(@rows, \@r);
     }
 
     # Write the accession file
-    SGN::Controller::AJAX::Submit::Trial->write_accessions_file($file, \@rows);
+    SGN::Controller::AJAX::Submit::Trial->write_accessions_file($file, \@columns, \@rows);
 }
 
 sub generate_locations :Private {
@@ -356,7 +333,7 @@ sub get_trait_stats :Private {
     my $query = "SELECT AVG(value::float) AS mean, STDDEV(value::float) AS sd
                 FROM public.phenotype
                 WHERE cvalue_id = ?
-                AND value ~ '^[0-9\.\-]+\$';";
+                AND value ~ '^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?\$';";
     my $h = $dbh->prepare($query);
     $h->execute($cvterm_id);
     my ($mean, $sd) = $h->fetchrow_array();

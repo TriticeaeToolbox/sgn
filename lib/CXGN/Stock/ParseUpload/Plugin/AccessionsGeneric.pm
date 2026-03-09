@@ -37,7 +37,7 @@ sub _validate_with_plugin {
       column_aliases => {
         'accession_name' => ['accession', 'accession_name', 'accession name', 'accessionName', 'germplasm', 'germplasm name', 'germplasmName'],
         'species_name' => ['species', 'species_name', 'species name', 'speciesName'],
-        'synonyms' => ['synonym', 'synonyms', 'synonym(s)'],
+        'synonyms' => ['synonym', 'synonyms', 'synonym(s)', 'stock_synonym'],
         'populationName' => ['population name', 'population names', 'population name(s)', 'population_name', 'population_names', 'population_name(s)', 'populationName', 'populationNames', 'populationName(s)'],
         'organizationName' => ['organization_name', 'organization_names', 'organization_name(s)', 'organization name', 'organization names', 'organization name(s)', 'organizatioName', 'organizationNames', 'organizationName(s)', 'organization', 'organizations', 'organization(s)'],
         'locationCode' => ['location_code', 'location_codes', 'location_code(s)', 'location code', 'location codes', 'location code(s)', 'locationCode', 'locationCodes', 'locationCode(s)'],
