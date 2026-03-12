@@ -102,6 +102,17 @@
     let lsmeans_results = response.overall.lsmeans;
     let trait_results = response.traits;
 
+    // Sort trait info alphabetically by trait name
+    trait_info.sort((a, b) => {
+      if (a.trait_name < b.trait_name) {
+        return -1;
+      }
+      if (a.trait_name > b.trait_name) {
+        return 1;
+      }
+      return 0;
+    });
+
     // Init LS Means Table
     let html = "<h3>LS Means</h3>";
     html += "<table id='table-overall' class='tsr-table table table-hover table-striped table-bordered' width='100%'>";
@@ -223,7 +234,7 @@
 
       // Setup Trait Table Properties
       let trait_table = $("#table-" + trait_info[i].trait_code).DataTable({
-        data: trait_results[trait_info[i].trait_code].results.slice(0, -1),
+        data: trait_results[trait_info[i].trait_code].results.slice(0, -3),
         columns: trait_columns,
         scrollX: 600,
         lengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
