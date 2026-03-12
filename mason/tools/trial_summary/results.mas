@@ -1,6 +1,6 @@
 <%args>
-  $trials_list_id => undef;
-  @trait_ids => ();
+  $trials_string => undef;
+  $traits_string => undef;
 </%args>
 
 <%perl>
@@ -39,29 +39,27 @@
 (function() {
   'use strict';
 
-  var trials_list_id = <% $trials_list_id %>;
-  var trait_ids = <% encode_json(\@trait_ids) %>;
+  var trials_string = "<% $trials_string %>";
+  var traits_string = "<% $traits_string %>";
 
   $(document).ready(function(){
     $(".tsr-error").hide();
     $(".tsr-results").hide();
     $(".tsr-loading").show();
-    requestSummaryInformation(trials_list_id, trait_ids);
+    requestSummaryInformation(trials_string, traits_string);
   });
 
 
   /**
    * Request trial summary information for the specified trials and traits
-   * @param  {string} trials_list_id Trials List ID
-   * @param  {string[]} trait_ids    Array of Trait IDs
+   * @param  {string} trials_string   Comma-separated list of trial ids
+   * @param  {string} traits_string   Comma-separated list of trait ids
    */
-  function requestSummaryInformation(trials_list_id, trait_ids) {
+  function requestSummaryInformation(trials_string, traits_string) {
 
     let url = "/ajax/analyze/trial_trait_summary";
-    url += "?trials_list_id=" + trials_list_id;
-    for ( let i = 0; i < trait_ids.length; i++ ) {
-      url += "&trait_id=" + trait_ids[i];
-    }
+    url += "?trial_ids=" + trials_string;
+    url += "&trait_ids=" + traits_string;
 
     jQuery.ajax({ 
       url: url,

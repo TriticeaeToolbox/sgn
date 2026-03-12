@@ -382,6 +382,7 @@ sub get_trials_select : Path('/ajax/html/select/trials') Args(0) {
     my $p = CXGN::BreedersToolbox::Projects->new( { schema => $schema } );
     my $breeding_program_id = $c->req->param("breeding_program_id");
     my $breeding_program_name = $c->req->param("breeding_program_name");
+    my $year = $c->req->param("year");
     my $trial_name_values = $c->req->param("trial_name_values") || 0;
 
     my $projects;
@@ -413,13 +414,16 @@ sub get_trials_select : Path('/ajax/html/select/trials') Args(0) {
       foreach (@$field_trials) {
           my $trial_id = $_->[0];
           my $trial_name = $_->[1];
+          my $trial_year = $_->[3];
           if ($include_location_year) {
               my $trial = CXGN::Trial->new({bcs_schema => $schema,people_schema=>$people_schema,metadata_schema=>$metadata_schema,phenome_schema=>$phenome_schema,trial_id => $trial_id });
               my $location_array = $trial->get_location();
               my $year = $trial->get_year();
               $trial_name .= " (".$location_array->[1]." $year)";
           }
-          push @trials, [$trial_id, $trial_name];
+          if ( !$year || $year eq $trial_year ) {
+            push @trials, [$trial_id, $trial_name];
+          }
       }
     }
     if ($trial_name_values) {

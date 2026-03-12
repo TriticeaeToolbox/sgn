@@ -34,23 +34,9 @@ __PACKAGE__->config(
 sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(0) {
   my $self = shift;
   my $c = shift;
-  
-  my $trials_list_id = $c->req->param("trials_list_id");
-  my @trait_ids = $c->req->param("trait_id");
+  my @trial_ids = split(',', $c->req->param("trial_ids"));
+  my @trait_ids = split(',', $c->req->param("trait_ids"));
   my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado");
-
-  # Get List Info
-  my $trial_data;
-  if ($trials_list_id) {
-    $trial_data = SGN::Controller::AJAX::List->retrieve_list($c, $trials_list_id);
-  }
-
-  # Get Trial IDs
-  my @trial_list = map { $_->[1] } @$trial_data;
-  my $t = CXGN::List::Transform->new();
-  my $trial_t = $t->can_transform("trials", "trial_ids");
-  my $trial_id_hash = $t->transform($schema, $trial_t, \@trial_list);
-  my @trial_ids = @{$trial_id_hash->{transform}};
 
   # Get phenotype plot data for the matching Trials and Traits
   my $phenotypes_search = CXGN::Phenotypes::SearchFactory->instantiate(
