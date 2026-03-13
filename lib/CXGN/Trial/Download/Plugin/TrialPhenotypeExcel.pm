@@ -135,7 +135,7 @@ sub download {
             include_entry_numbers=>$include_entry_numbers,
             phenotype_start_date => $phenotype_start_date,
             phenotype_end_date => $phenotype_end_date,
-            repetitive_measurements_type => $repetitive_measurements,
+            repetitive_measurements => $repetitive_measurements
         );
         @data = $phenotypes_search->get_phenotype_matrix();
     }

@@ -147,20 +147,20 @@ sub _search {
         }
 
         ## Formatting treatments
-        my @brapi_treatments;
+        # my @brapi_treatments;
 
-        if ($c->config->{brapi_treatments_no_management_factor}) {
-            my $treatments = $obs_unit->{treatments};
-            foreach my $treatment (@$treatments) {
-                while (my ($factor, $modality) = each %$treatment) {
-                    my $modality = $modality ? $modality : undef;
-                    push @brapi_treatments, {
-                        factor   => $factor,
-                        modality => $modality,
-                    };
-                }
-            }
-        }
+        # if ($c->config->{brapi_treatments_no_management_factor}) {
+        #     my $treatments = $obs_unit->{treatments};
+        #     foreach my $treatment (@$treatments) {
+        #         while (my ($factor, $modality) = each %$treatment) {
+        #             my $modality = $modality ? $modality : undef;
+        #             push @brapi_treatments, {
+        #                 factor   => $factor,
+        #                 modality => $modality,
+        #             };
+        #         }
+        #     }
+        # }
 
 	my %numbers;
 
@@ -289,7 +289,7 @@ sub _search {
             foreach my $i (@{$obs_unit->{intercrop_stocks}}) {
                 push(@intercrop, { germplasmDbId => $i->{id}, germplasmName => $i->{name} });
             }
-            $additional_info->{intercropGermplasm} = \@intercrop;
+            $additional_info->{intercropGermplasm} = \@intercrop if scalar(@intercrop) > 0;
         }
 
         push @data_window, {
@@ -313,7 +313,7 @@ sub _search {
             studyDbId => qq|$obs_unit->{trial_id}|,
             studyName => $obs_unit->{trial_name},
             plotImageDbIds => $obs_unit->{image_ids},
-            treatments => \@brapi_treatments,
+            #treatments => \@brapi_treatments,
             trialDbId => $obs_unit->{folder_id} ? qq|$obs_unit->{folder_id}| : qq|$obs_unit->{trial_id}|,
             trialName => $obs_unit->{folder_name} ? $obs_unit->{folder_name} : $obs_unit->{trial_name},
         };
@@ -402,7 +402,7 @@ sub observationunits_update {
         my $observationUnit_position_arrayref = $params->{observationUnitPosition} ? $params->{observationUnitPosition} : undef;
         my $observationUnit_x_ref = $params->{externalReferences} ? $params->{externalReferences} : undef;
         my $seedlot_id = $params->{seedLotDbId} || ""; #not implemented yet
-        my $treatments = $params->{treatments} || ""; #not implemented yet
+        #my $treatments = $params->{treatments} || ""; #not implemented yet
 
         my $row_number = $params->{observationUnitPosition}->{positionCoordinateY} ? $params->{observationUnitPosition}->{positionCoordinateY} : undef;
         my $col_number = $params->{observationUnitPosition}->{positionCoordinateX} ? $params->{observationUnitPosition}->{positionCoordinateX} : undef;
@@ -812,8 +812,8 @@ sub observationunits_store {
                 nd_geolocation_id                 => $location_id,
                 # nd_experiment_id => $nd_experiment->nd_experiment_id(), #optional
                 is_genotyping                     => 0,
-                new_treatment_has_plant_entries   => 0,
-                new_treatment_has_subplot_entries => 0,
+                #new_treatment_has_plant_entries   => 0,
+                #new_treatment_has_subplot_entries => 0,
                 operator                          => $user_name,
                 trial_stock_type                  => 'accessions',
                 design_type                       => $design_type,
