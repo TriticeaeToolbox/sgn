@@ -11,11 +11,15 @@ BEGIN { extends 'Catalyst::Controller'; }
 sub trial_summary_input :Path('/tools/trial/summary/list') Args(0) {
     my $self = shift;
     my $c = shift;
+    my $year = $c->req->param('year');
+    my $breeding_program_id = $c->req->param('breeding_program_id');
 
     if (! $c->user) {
 	   $c->res->redirect(uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
 	   return;
     }
+    $c->stash->{year} = $year;
+    $c->stash->{breeding_program_id} = $breeding_program_id;
     $c->stash->{template} = '/tools/trial_summary/index.mas';
 }
 

@@ -84,9 +84,27 @@ sub get_breeding_program_select : Path('/ajax/html/select/breeding_programs') Ar
     my $id = $c->req->param("id") || "breeding_program_select";
     my $name = $c->req->param("name") || "breeding_program_select";
     my $empty = $c->req->param("empty") || "";
+    my $include_folders = $c->req->param("include_folders");
     my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
 
     my $breeding_programs = CXGN::BreedersToolbox::Projects->new( { schema => $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id) } )->get_breeding_programs();
+
+    if ( $include_folders ) {
+        my @bps_with_folders;
+        foreach my $bp (@$breeding_programs) {
+            push @bps_with_folders, $bp;
+            my $bp_id = $bp->[0];
+            my @folders = CXGN::Trial::Folder->list({
+                bcs_schema => $c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id),
+                breeding_program_id => $bp_id,
+                folder_for_trials => 1
+            });
+            foreach my $f (@folders) {
+                push @bps_with_folders, [ $f->[0], '--- ' . $f->[1], '' ];
+            }
+        }
+        $breeding_programs = \@bps_with_folders;
+    }
 
     if ($empty) { unshift @$breeding_programs, [ "", "Please select a program" ]; }
     my $default = $c->req->param("default") || @$breeding_programs[0]->[0];

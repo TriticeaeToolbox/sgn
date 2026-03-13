@@ -1,5 +1,6 @@
-<%args> 
-
+<%args>
+  $year => undef;
+  $breeding_program_id => undef;
 </%args>
 
 <& '/page/page_title.mas', title => "Summarize trials" &>
@@ -37,7 +38,7 @@
 
                 <br /><br />
 
-                <label for="breeding_program_select_div">Choose a breeding program:</label>
+                <label for="breeding_program_select_div">Choose a breeding program or experiment:</label>
                 <div id="breeding_program_select_div"></div>
 
                 <br /><br />
@@ -96,11 +97,11 @@
     if (isLoggedIn()) {
 
       // Set list of years
-      get_select_box("years", "year_select_div", {'auto_generate': 1});
+      get_select_box("years", "year_select_div", { 'auto_generate': 1, default: <% $year || 'undefined' %>, after_load: updateTrials });
       $("#year_select_div").change(updateTrials);
 
       // Set list of breeding programs
-      get_select_box('breeding_programs', 'breeding_program_select_div', { empty: 1 });
+      get_select_box('breeding_programs', 'breeding_program_select_div', { empty: 1, include_folders: 1, default: <% $breeding_program_id || 'undefined' %>, after_load: updateTrials });
       $("#breeding_program_select_div").change(updateTrials);
 
       // Get lists of Trials and set select menu
@@ -134,10 +135,18 @@
    * Update the list of trials when the year or breeding program change
    */
   function updateTrials() {
-    var breeding_program_id = $("#breeding_program_select").val();
-    var year = $("#year_select").val();
-    get_select_box('trials', 'trials_select_div', { 'id': 'trials_select', 'multiple':1, breeding_program_id, year });
+    setTimeout(() => {
+      var breeding_program_id = $("#breeding_program_select").val();
+      var year = $("#year_select").val();
+      if ( breeding_program_id !== previously_selected_breeding_program || year !== previously_selected_year ) {
+        get_select_box('trials', 'trials_select_div', { 'id': 'trials_select', 'multiple':1, breeding_program_id, year });
+        previously_selected_breeding_program = breeding_program_id;
+        previously_selected_year = year;
+      }
+    }, 1000);
   }
+  var previously_selected_breeding_program = -1;
+  var previously_selected_year = -1;
 
   /**
    * Upate the list of traits when the trials change
