@@ -116,37 +116,13 @@ sub plot_data_to_rows {
 
   # Parse each plot data item into rows
   foreach my $plot (@$results) {
+    my $trait = $plot->{trait_name};
     my $trial = $plot->{trial_name};
-    my $accession = $plot->{germplasm_uniquename};
-    my $observations = $plot->{observations};
+    my $accession = $plot->{accession_uniquename};
+    my $value = $plot->{phenotype_value};
 
-    # Add each trait value to the row
-    foreach my $trait_id (keys %{$trait_info}) {
-      
-      # Start array for current row
-      my @r = ();
-      my $f = 0;
-
-      foreach my $observation (@$observations) {
-        if ( $observation->{trait_id} == $trait_id ) {
-          push(@r, $trait_info->{$trait_id});
-          push(@r, $trial);
-          push(@r, $accession);
-          push(@r, $observation->{value});
-          $f = 1;
-        }
-      }
-      if ( $f == 0 ) {
-        push(@r, $trait_info->{$trait_id});
-        push(@r, $trial);
-        push(@r, $accession);
-        push(@r, "");
-      }
-
-      # Add Row to Array of rows
-      push(@rows, \@r);
-
-    }
+    my @r = ($trait, $trial, $accession, $value);
+    push(@rows, \@r);
   }
 
   # Return the array of rows
