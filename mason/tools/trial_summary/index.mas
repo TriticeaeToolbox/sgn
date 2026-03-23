@@ -29,7 +29,7 @@
             <li data-source="list"><a href="#list" aria-controls="list" role="tab" data-toggle="tab">By List</a></li>
           </ul>
 
-          <div class="tab-content" style="padding-top: 20px">
+          <div class="tab-content" style="padding: 20px 10px 10px 10px; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
 
               <!-- Trial by Breeding Program -->
               <div role="tabpanel" class="tab-pane active" id="breeding-program">
