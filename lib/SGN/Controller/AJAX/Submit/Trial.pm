@@ -555,7 +555,8 @@ sub generate_trial_observations_file :Private {
         filename => $trial_observations_file,
         format => $plugin,
         data_level => "plot",
-        search_type => 'Native'
+        search_type => 'Native',
+        repetitive_measurements => 'all_values_single_line'
     });
     my $error = $download->download();
 }
