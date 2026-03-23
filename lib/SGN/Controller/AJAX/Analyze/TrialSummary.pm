@@ -40,7 +40,7 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
 
   # Get phenotype plot data for the matching Trials and Traits
   my $phenotypes_search = CXGN::Phenotypes::SearchFactory->instantiate(
-    'MaterializedViewTable',
+    'Native',
     {
       bcs_schema=>$schema,
       data_level=>"plot",
