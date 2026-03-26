@@ -312,6 +312,25 @@ has 'repeat_type' => (
 	}
 );
 
+has 'conversions' => (
+	isa => 'Maybe[ArrayRef]',
+	is => 'rw',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		my @convs;
+		my $rows = $self->bcs_schema()->resultset("Cv::Cvtermprop")->search(
+			{ 'me.cvterm_id' => $self->cvterm_id(), 'type.name' => 'trait_conversion' },
+			{ join => 'type' }
+		);
+		while (my $r = $rows->next) {
+			my $value = decode_json $r->value();
+			push @convs, $value if $value;
+		}
+		return \@convs;
+	}
+);
+
 has 'associated_plots' => ( isa => 'Str',
 			    is => 'ro',
 			    lazy => 1,
