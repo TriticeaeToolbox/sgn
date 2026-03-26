@@ -1,0 +1,7 @@
+<%args>
+    $name => "",
+    $email => "",
+    @data_types => ("Locations", "Accessions", "Trials", "Phenotype Observations", "Multiple Files")
+</%args>
+
+<p>Put instance-specific phenotype submission information here.</p>

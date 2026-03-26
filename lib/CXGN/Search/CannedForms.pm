@@ -627,39 +627,20 @@ EOHTML
     $retstring .= blue_section_html( 'Marker Options', '<a style="font-size: 75%" href="/search/markers/markersearch.pl?random=yes">  
     [Select a marker at random]</a>', <<EOFOO);
 
-    $checkbox{bac_assoc}
-    Show only markers with BAC associations<br />
-      <div style="margin-left: 20px;">
-        $checkbox{overgo_assoc}
-        <span class="help" title="The overgo process associates BACs with certain markers from SGN tomato maps.">Overgo associations<small> <a href="/maps/physical/overgo_process_explained.pl">[About the overgo process]</a></small></span><br />
-
-        $checkbox{manual_assoc}
-        <span class="help" title="Some markers have been manually associated with BACs.">Manual associations</span><br />
-
-        $checkbox{comp_assoc}
-        <span class="help" title="Some markers have been BLASTed against our collection of BACs.">Computational associations</span><br />
-
-      </div>
-      <br />
-
       <div class="form-horizontal" >
 	<div class="form-group">
       	  <label class="col-sm-6 control-label">Show markers in species: </label>
-      	  <div class="col-sm-6" >
+      	  <div class="col-sm-8" >
 	    $species{yeah}
           </div>
 	</div>
 	<div class="form-group">
       	  <label class="col-sm-6 control-label"><span class="help" title="Protocol definitions: AFLP - Amplified Fragment Length Polymorphisms. CAPS - Cleaved Amplified Polymorphisms. PCR - any unspecified PCR-based method. RFLP - Restriction Fragment Length Polymorphism. SSR - Short Sequence Repeats (microsatellites)">Show markers in Protocol: </span></label>
-      	  <div class="col-sm-6" >
+      	  <div class="col-sm-8" >
 	    $protocols{'yeah'}
           </div>
 	</div>
 	<div class="form-group">
-	  <label class="col-sm-6 control-label"><span class="help" title="Collections: COS - Conserved Ortholog Sequences (tomato and Arabidopsis). COSII - Conserved Ortholog Sequences II (several Asterid species). KFG - Known Function Genes')">Show markers in group: </span></label>
-          <div class="col-sm-6" >
-	    $colls{'yeah'}
-	  </div>
 	</div>
       </div>
     </div>
@@ -691,10 +672,6 @@ EOHTML
 	  </div>
 	</div>
 	<div class="form-group">
-	  <label class="col-sm-6 control-label"><span class="help" title="Maps that have been made with MapMaker have confidence values associated with their positions. Leave this setting at &quot;uncalculated&quot; to see all markers on all maps.">Confidence at least: </span></label>
-          <div class="col-sm-6" >
-             $confs{yeah}
-          </div>
 	</div>
 	<div class="form-group">
       	  <label class="col-sm-6 control-label">On maps: </label>
@@ -907,7 +884,8 @@ sub nametype {
 sub protocol_select {
 
     my $self = shift;
-    my $protolist = $self->{dbh}->selectcol_arrayref("SELECT distinct protocol FROM marker_experiment WHERE protocol <> 'unknown'");
+    #my $protolist = $self->{dbh}->selectcol_arrayref("SELECT distinct protocol FROM marker_experiment WHERE protocol <> 'unknown'");
+    my $protolist = $self->{dbh}->selectcol_arrayref("SELECT name from nd_protocol order by name");
 
     #push(@$protolist, 'RFLP');
 

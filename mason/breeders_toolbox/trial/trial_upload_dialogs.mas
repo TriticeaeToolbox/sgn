@@ -48,10 +48,12 @@ $design_types => ()
                                 </center>
                             </&>
                             <&| /util/workflow.mas:step, title=> "File Formatting" &>
+                                <!--
                                 <ul class="nav nav-pills nav-justified" id="upload_trial_designs_tab_select">
                                     <li id="upload_single_trial_design_tab"><a data-toggle="tab" href="#single_tab">Single Trial Design</a></li>
                                     <li class="active" id="upload_multiple_trial_designs_tab"><a data-toggle="tab" href="#multiple_tab">Multiple Trial Designs</a></li>
                                 </ul>
+                                -->
                                 <div class="tab-content">
 
                                 <div id="single_tab" class="tab-pane fade">
@@ -67,7 +69,7 @@ $design_types => ()
                                             <button id="next_step_file_formatting_button" class="btn btn-primary" onclick="Workflow.complete(this); return false;">Go to Next Step</button>
                                         </center>
                                         <br /><br />
-                                        <& /help/file_upload_type.mas, type => "Single Trial Designs", optional_column => 1 &>
+                                        <p>Switch back to the <a data-toggle="tab" href="#multiple_tab">Multiple Trial Upload</a></p>
                                     </div>
 
                                     <div id="multiple_tab" class="tab-pane fade in active">
@@ -86,42 +88,73 @@ $design_types => ()
                                               <div class="form-group">
                                                   <input type="file" name="multiple_trial_designs_upload_file" id="multiple_trial_designs_upload_file" encoding="multipart/form-data" />
                                               </div>
-                                              <div class="form-group">
-                                                  <div class="col-sm-4"></div>
-                                                  <label class="col-sm-2 control-label">Ignore Warnings: </label>
-                                                  <div class="col-sm-2" >
-                                                      <input id="upload_multiple_trials_ignore_warnings" name="upload_multiple_trials_ignore_warnings" type="checkbox" data-toggle="toggle" encoding="multipart/form-data">
-                                                  </div>
-                                                  <div class="col-sm-4"></div>
-                                              </div>
-                                              <div class="form-group" style="margin-bottom: 50px;">
-                                                <div class="col-sm-4"></div>
-                                                <label class="col-sm-2 control-label" style="margin-left: 0px;">Email Alert: </label>
-                                                <div class="col-sm-2" style="margin-left: 0;">
-                                                    <input id="email_option_to_recieve_trial_upload_status" name="email_option_to_recieve_trial_upload_status" type="checkbox" data-toggle="toggle">
-                                                </div>
-                                                <div id="email_field" style="display: none; vertical-align: middle;">
-                                                    <label id="trial_email_label_upload" class="control-label">Email: </label>
-                                                    <div style="display: inline-block; width: 150px; vertical-align: middle;">
-                                                        <input id="trial_email_address_upload" name="trial_email_address_upload" type="email" value="<% $email_address %>">
+
+                                              <br />
+
+                                              <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert"></div>
+                                              <div style="display:none; text-align: left; padding: 15px;" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert"></div>
+                                              <div style="display:none" id="upload_multiple_trials_success_messages" class="alert-success" role="alert"></div>
+
+                                              <br /><br />
+
+                                              <button type="button" class="btn btn-primary" id="multiple_trial_designs_upload_submit" disabled>Upload Trial Designs</button>
+                                              <button style="display:none" class="btn btn-primary" id="upload_multiple_trials_success_button">Reload Page</button>
+
+                                              <br /><br />
+
+                                              <& /help/file_upload_type.mas, type => "Multiple Trial Designs", optional_column => 1 &>
+
+                                              <br /><br />
+
+                                              <div class="well">
+                                                <!-- Disable Email since it doesn't work well with the synonym search tool integration
+                                                <div class="form-group">
+                                                    <label class="col-sm-4 control-label" style="margin-left: 0px;">Email Alert: </label>
+                                                    <div class="col-sm-8" style="text-align: left">
+                                                        <input id="email_option_to_recieve_trial_upload_status" name="email_option_to_recieve_trial_upload_status" type="checkbox" data-toggle="toggle">
+                                                        <div id="trial_email_field" style="display: none">
+                                                            <label class="control-label">Email: </label>
+                                                            <input id="trial_email_address_upload" name="trial_email_address_upload" type="email" value="<% $email_address %>">
+                                                        </div>
+                                                        <br />
+                                                        <small>Store the trials in the background and send an email report when done.</small>
                                                     </div>
                                                 </div>
-                                                <div class="col-sm-2"></div>
+                                                -->
+                                                <div class="form-group">
+                                                  <label class="col-sm-4 control-label">Ignore Warnings: </label>
+                                                  <div class="col-sm-8" style="text-align: left">
+                                                      <input id="upload_multiple_trials_ignore_warnings" name="upload_multiple_trials_ignore_warnings" type="checkbox" data-toggle="toggle" encoding="multipart/form-data">
+                                                      <br />
+                                                      <small>Upload and store the trial design(s), ignoring any warnings that are found.</small>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                  <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                                                  <div class="col-sm-8" style="text-align: left">
+                                                    <input type="checkbox" id="multi_trial_synonym_search_check" name="multi_trial_synonym_search_check" checked>
+                                                    <br/>
+                                                    <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
+                                                    <strong>Host:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_host"></span></small>
+                                                  </div>
+                                                </div>
+                                                <div class="form-group">
+                                                  <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                                                  <div class="col-sm-8" style="text-align: left">
+                                                    <input type="checkbox" id="multi_trial_synonym_search_update" name="multi_trial_synonym_search_update" checked>
+                                                    <br/>
+                                                    <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                                    <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span><br />
+                                                    <strong>Database:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_database"></span></small>
+                                                  </div>
+                                                </div>
+                                                <input type="hidden" id="multi_trial_synonym_search_replacements" name="multi_trial_synonym_search_replacements">
+                                                <input type="hidden" id="multi_trial_test" name="multi_trial_test">
                                               </div>
                                             </form>
-                                            <div style="display:none" id="upload_multiple_trials_warning_messages" class="alert-warning" role="alert">
-                                            </div>
-                                            <div style="display:none" id="upload_multiple_trials_error_messages" class="alert-danger" role="alert">
-                                            </div>
-                                            <div style="display:none" id="upload_multiple_trials_success_messages" class="alert-success" role="alert">
-                                            </div>
-
-                                            <br>
-                                            <button type="button" class="btn btn-primary" id="multiple_trial_designs_upload_submit" disabled>Upload Trial Designs</button>
-                                            <button style="display:none" class="btn btn-primary" id="upload_multiple_trials_success_button">Reload Page</button>
-                                            <br /><br />
                                         </center>
-                                        <& /help/file_upload_type.mas, type => "Multiple Trial Designs", optional_column => 1 &>
+                                        <br /><br />
+                                        <p>This multi-trial upload can be used to upload a single trial.  However, you can still use the <a data-toggle="tab" href="#single_tab">Single Trial Upload</a> if you prefer.</p>
                                     </div>
 
                                 </div>
@@ -304,8 +337,8 @@ $design_types => ()
                                 <div class="form-group">
                                     <label class="col-sm-3 control-label">Plants per Plot: </label>
                                     <div class="col-sm-9">
-                                        <input class="form-control" id="trial_upload_plant_entries" name="trial_upload_plant_entries" type="text" />
-                                        <p><i>Creates plant entries for each plot. Ignore if not adding plant entries.</i></p>
+                                        <input class="form-control" id="trial_upload_plant_entries" name="trial_upload_plant_entries" type="number" />
+                                        <p><i>Create the specified number plant entries for each plot. Leave blank if not adding plant entries.</i></p>
                                     </div>
                                     <label style="font-size: 80%;" class="col-sm-3 control-label">Inherits Treatment(s) From Plots: </label>
                                     <div class="col-sm-8" >
@@ -398,7 +431,33 @@ $design_types => ()
                                     <div class="col-sm-9" >
                                         <input type="file" name="trial_uploaded_file" id="trial_uploaded_file" encoding="multipart/form-data" />
                                     </div>
+                                    <br /><br />
+                                    <& /help/file_upload_type.mas, type => "Single Trial Designs", optional_column => 1 &>
                                 </div>
+                                <br /><br />
+                                <div class="well">
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                                        <div class="col-sm-8" style="text-align: left">
+                                        <input type="checkbox" id="trial_synonym_search_check" name="trial_synonym_search_check" checked>
+                                        <br/>
+                                        <small>Use the Synonym Search Tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
+                                        <strong>Host:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_host"></span></small>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                                        <div class="col-sm-8" style="text-align: left">
+                                        <input type="checkbox" id="trial_synonym_search_update" name="trial_synonym_search_update" checked>
+                                        <br/>
+                                        <small>The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                        <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_last_updated"></span></small>
+                                        <strong>Database:</strong>&nbsp;&nbsp;<span class="trial_synonym_search_tool_database"></span></small>
+                                        </div>
+                                    </div>
+                                    <input type="hidden" id="trial_synonym_search_replacements" name="trial_synonym_search_replacements">
+                                    <input type="hidden" id="trial_test" name="trial_test">
+                                    </div>
 
                                 <br/><br/>
                                 <center>
@@ -637,11 +696,12 @@ $design_types => ()
                                         <td>num_seed_per_plot</td>
                                         <td>weight_gram_seed_per_plot</td>
                                         <td>entry_number</td>
+                                        <td>is_private</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <b>Header as a string:</b><br/>
-                            <p>plot_name,accession_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number</p>
+                            <p>plot_name,accession_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number,is_private</p>
                         </div>
                     </&>
 
@@ -668,11 +728,12 @@ $design_types => ()
                                         <td>num_seed_per_plot</td>
                                         <td>weight_gram_seed_per_plot</td>
                                         <td>entry_number</td>
+                                        <td>is_private</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <b>Header as a string:</b><br/>
-                            <p>plot_name,cross_unique_id,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number</p>
+                            <p>plot_name,cross_unique_id,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number,is_private</p>
                         </div>
                     </&>
 
@@ -699,11 +760,12 @@ $design_types => ()
                                         <td>num_seed_per_plot</td>
                                         <td>weight_gram_seed_per_plot</td>
                                         <td>entry_number</td>
+                                        <td>is_private</td>
                                     </tr>
                                 </tbody>
                             </table>
                             <b>Header as a string:</b><br/>
-                            <p>plot_name,family_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number</p>
+                            <p>plot_name,family_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number,is_private</p>
                         </div>
                     </&>
 
@@ -726,6 +788,7 @@ $design_types => ()
                     <li>num_seed_per_plot (number seeds per plot. Seed is transferred from seedlot mentioned in seedlot_name. Numeric)</li>
                     <li>weight_gram_seed_per_plot (weight in gram of seeds in plot. seed is transferred from seedlot mentioned in seedlot name. Numeric)</li>
                     <li>entry_number (a trial-level entry number assigned to the stock. Numeric)</li>
+                    <li>is_private (type 1 in this field if the plot contains private data and should be skipped and not added to the database, otherwise leave blank.)</li>
                     </ul>
 
                     <b>Treatments:</b>
@@ -782,6 +845,7 @@ $design_types => ()
                                 <td>harvest_date</td>
                                 <td>plot_name</td>
                                 <td>accession_name</td>
+                                <td>intercrop_accession_name</td>
                                 <td>plot_number</td>
                                 <td>block_number</td>
                                 <td>is_a_control</td>
@@ -793,12 +857,13 @@ $design_types => ()
                                 <td>num_seed_per_plot</td>
                                 <td>weight_gram_seed_per_plot</td>
                                 <td>entry_number</td>
+                                <td>is_private</td>
                             </tr>
                         </tbody>
                     </table>
 
                     <b>Header as a string:</b><br/>
-                    <p>trial_name,breeding_program,location,year,transplanting_date,design_type,description,trial_type,trial_stock_type,plot_width,plot_length,field_size,planting_date,harvest_date,plot_name,accession_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number</p>
+                    <p>trial_name,breeding_program,location,year,transplanting_date,design_type,description,trial_type,trial_stock_type,plot_width,plot_length,field_size,planting_date,harvest_date,plot_name,accession_name,intercrop_accession_name,plot_number,block_number,is_a_control,rep_number,range_number,row_number,col_number,seedlot_name,num_seed_per_plot,weight_gram_seed_per_plot,entry_number,is_private</p>
 
                     <b> Required fields:</b>
                     <ul>
@@ -834,6 +899,8 @@ $design_types => ()
                     <li>num_seed_per_plot (number seeds per plot. seed is transferred from seedlot mentioned in seedlot_name. numeric)</li>
                     <li>weight_gram_seed_per_plot (weight in gram of seeds in plot. seed is transferred from seedlot mentioned in seedlot name. numeric)</li>
                     <li>entry_number (a trial-level entry number assigned to the stock. Numeric)</li>
+                    <li>intercrop_accession_name (the name(s) of additional accessions that are planted in this plot along with the primary accession.  the name must already exist in the database. this column can be included more than once for multiple intercropped accessions.)
+                    <li>is_private (type 1 in this field if the plot contains private data and should be skipped and not added to the database, otherwise leave blank.)</li>
                     </ul>
 
                     <b>Treatments:</b>
@@ -851,6 +918,98 @@ $design_types => ()
             </div>
         </div>
     </div>
+</div>
+
+
+<!-- Synonym Search Tool Dialog for Trial Uploads -->
+<div class="modal fade" id="trial_synonym_search_dialog" name="trial_synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="trialSynonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="trialSynonymSearchDialog">Synonym Search</h4>
+      </div>
+      <div class="modal-body">
+  	    <div id="trial_synonym_search_dialog_starting" style="width: 100%">
+          <p style="margin: 25px auto; text-align: center">Starting Synonym Search....</p>
+        </div>
+        <div id="trial_synonym_search_dialog_working" style="display: none; width: 100%">
+          <p id="trial_synonym_search_dialog_working_message" style="margin: 25px auto; text-align: center">Searching...</p>
+          <div class="progress">
+            <div id="trial_synonym_search_dialog_working_progress" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+          </div>
+        </div>
+        <div id="trial_synonym_search_dialog_results" style="display: none; width: 100%">
+          <p><strong>Search Results:</strong></p>
+          <p>The table below lists the Accession names used in your Trials that have potential matches to existing Accession entries in the database.</p>
+          <p>
+            <strong>Your Accession names <em>need to be an EXACT match</em> with a Database entry in order for the Trial(s) to be created.  Any missing Accessions will need to be added to the Database before the Trial(s) can be added.</strong>
+            For each of your Accession names with a potential match, you can select a Database entry to use as a replacement.  This will replace your 
+            Accession name with the selected Database name in all of the Plots that it is used in your Trials.  If there are any missing Accessions, you can download an Accession upload template to fill in to add the new Accessions to the Database.
+          </p>
+          <br />
+          <p>
+            <strong>Filter by Match Type:</strong>&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="all">All</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="exact">Exact</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="exact_potential">Exact &amp; Potential</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="potential">Potential</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="none">None</a>
+          </p>
+          <div id="trial_synonym_search_dialog_results_table"></div>
+          <div id="trial_synonym_search_dialog_results_none" style="display: none">
+            <p><strong>No potential matches or missing Accessions found</strong></p>
+            <p>There are no potential Database Accession entries matching your provided Accession names or missing Accession entries.  Click the <strong>Continue</strong> button below to store your Trial(s).</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="trial_synonym_search_dialog_cancel" id="trial_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" name="trial_synonym_search_dialog_continue" id="trial_synonym_search_dialog_continue" data-dismiss="modal" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="trial_review_synonym_search_dialog" name="trial_review_synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="trialReviewSynonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="trialReviewSynonymSearchDialog">Synonym Search Results</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div id="trial_review_synonym_search_dialog_create_well" class="well well-warning">
+            <p><strong>Missing Accessions:</strong></p>
+            <p>The following Accession entries will <strong>need to be added to the Database before adding the Trial(s)</strong>.</p>
+            <div id="trial_review_synonym_search_dialog_create"></div>
+            <div style="margin-top: 25px">
+              <button id="trial_review_synonym_search_dialog_create_download" class='btn btn-primary'>Download Accession Template</button>
+              <p style="margin-top: 5px;"><em>Download an Accession Template to fill in and upload to add the missing Accessions to the Database</em></p>
+            </div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>Selected Replacements:</strong></p>
+            <p>The following existing Database Accession entries will replace your provided Accession name(s) in your Trial(s).</p>
+            <div id="trial_review_synonym_search_dialog_replacements"></div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>Existing Accessions:</strong></p>
+            <p>The following Accession entries already exist in the Database.</p>
+            <div id="trial_review_synonym_search_dialog_existing"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="trial_review_synonym_search_dialog_cancel" id="trial_review_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-default" name="trial_review_synonym_search_dialog_back" id="trial_review_synonym_search_dialog_back" data-dismiss="modal">Back</button>
+        <button type="button" class="btn btn-primary" name="trial_review_synonym_search_dialog_continue" id="trial_review_synonym_search_dialog_continue" data-dismiss="modal">Save Trial(s)</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div class="modal fade" id="upload_trial_metadata_dialog" name="upload_trial_metadata_dialog" tabindex="-1" role="dialog" aria-labelledby="uploadTrialMetadataDialog">
@@ -1013,5 +1172,21 @@ jQuery(document).ready(function(){
         jQuery('#upload_trial_metadata_warning_messages').hide();
       }
     });
+
+% if ( $user_role ne 'curator' ) {
+    jQuery('#multi_trial_synonym_search_check, #trial_synonym_search_check').change(function() {
+        if ( !this.checked ) {
+            alert("Only a curator can disable the synonym search check!");
+            jQuery(this).prop("checked", true);
+        }
+    });
+% }
 });
 </script>
+
+<style>
+    .well-warning {
+        border: 1px solid #dc3545;
+        background-color: #f8d7da;
+    }
+</style>

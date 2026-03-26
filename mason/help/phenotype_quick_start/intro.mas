@@ -1,0 +1,21 @@
+<div>
+  <p>This workflow will guide your through the basic steps required for adding one or more phenotyping / field trials to the database:
+  <ul>
+    <li>Ensuring the <a href="#" class="phenotype_quick_start_jump" data-page="1"><strong>Breeding Program(s)</strong></a> exist</li>
+    <li>Adding new <a href="#" class="phenotype_quick_start_jump" data-page="2"><strong>Locations</strong></a> where the trials were performed</li>
+    <li>Adding new or updated <a href="#" class="phenotype_quick_start_jump" data-page="3"><strong>Accessions</strong></a> (germplasm lines)</li>
+    <li>Creating <a href="#" class="phenotype_quick_start_jump" data-page="4"><strong>Trials</strong></a> and their plot layouts</li>
+    <li>Adding <a href="#" class="phenotype_quick_start_jump" data-page="5"><strong>Phenotype Observations</strong></a> to the plots</li>
+  </ul>
+</div>
+
+<& /help/phenotype_quick_start/intro_details.mas &>
+
+<script type="text/javascript">
+jQuery(document).ready(function() {
+  jQuery(".phenotype_quick_start_jump").click(function() {
+    let page = jQuery(this).data("page");
+    Workflow.focus('#phenotype_quick_start_workflow', page);
+  });
+});
+</script>

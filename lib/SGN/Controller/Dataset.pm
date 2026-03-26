@@ -6,6 +6,8 @@ use CXGN::Dataset;
 use Data::Dumper;
 use strict;
 use warnings;
+use Moose;
+use CXGN::Dataset;
 
 BEGIN { extends 'Catalyst::Controller'; }
 
@@ -87,7 +89,7 @@ sub dataset :Chained('/') Path('dataset') Args(1) {
     $c->stash->{dataset_id} = $dataset_id;
     $c->stash->{dataset_description} = $dataset->description;
     $c->stash->{dataset_contents} = $html;
-    print STDERR "dataset name $dataset->name()\n";
+    # print STDERR "dataset name $dataset->name()\n";
     $c->stash->{template} = '/dataset/index.mas';
     
 }

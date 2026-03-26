@@ -67,7 +67,7 @@ for (my $i = 0; $i < (scalar @folders); $i++) {
             system("bash -c '$cmd'");
 
             if (($? >> 8) == 255) { #execution error
-                die "Failed executing patch: $patch";
+                warn "Failed executing patch: $patch";
             }
 
             print STDERR "\n\n\n";

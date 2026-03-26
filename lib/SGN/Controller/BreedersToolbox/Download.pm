@@ -43,6 +43,7 @@ use CXGN::Stock::Seedlot::Maintenance;
 use CXGN::Dataset;
 use CXGN::Stock;
 use CXGN::Project;
+use CXGN::GeneticCharacters;
 use IO::Compress::Gzip qw(gzip $GzipError);
 use Catalyst::Utils;
 use SGN::Image;
@@ -240,15 +241,16 @@ sub download_phenotypes_action : Path('/breeders/trials/phenotype/download') Arg
         }
     }
 
-    my $has_header = defined($c->req->param('has_header')) ? $c->req->param('has_header') : 1;
+    my $has_header = defined($c->req->param('has_header')) ? $c->req->param('has_header') : 0;
     my $search_type = $c->req->param("speed") && $c->req->param("speed") ne 'null' ? $c->req->param("speed") : "Native";
     my $format = $c->req->param("format") && $c->req->param("format") ne 'null' ? $c->req->param("format") : "xlsx";
     my $data_level = $c->req->param("dataLevel") && $c->req->param("dataLevel") ne 'null' ? $c->req->param("dataLevel") : "plot";
     my $repetitive_measurements = $c->req->param("repetitive_measurements") || "average";
     my $timestamp_option = $c->req->param("timestamp") && $c->req->param("timestamp") ne 'null' ? $c->req->param("timestamp") : 0;
-    my $entry_numbers_option = $c->req->param("entry_numbers") && $c->req->param("entry_numbers") ne 'null' ? $c->req->param("entry_numbers") : 0;
     my $exclude_phenotype_outlier = $c->req->param("exclude_phenotype_outlier") && $c->req->param("exclude_phenotype_outlier") ne 'null' && $c->req->param("exclude_phenotype_outlier") ne 'undefined' ? $c->req->param("exclude_phenotype_outlier") : 0;
     my $include_pedigree_parents = $c->req->param('include_pedigree_parents');
+    my $include_intercrop_stocks = $c->req->param("intercrop") && $c->req->param("intercrop") ne 'null' && $c->req->param("intercrop") ne 'undefined' ? $c->req->param("intercrop") : 0;
+    my $include_entry_numbers = $c->req->param("entry_numbers") && $c->req->param("entry_numbers") ne 'null' ? $c->req->param("entry_numbers") : 0;
     my $trait_list = $c->req->param("trait_list");
     my $trait_component_list = $c->req->param("trait_component_list");
     my $year_list = $c->req->param("year_list");
@@ -399,14 +401,7 @@ sub download_phenotypes_action : Path('/breeders/trials/phenotype/download') Arg
         }
     }
 
-    my $plugin = "";
-    if ($format eq "xlsx") {
-        $plugin = $entry_numbers_option ? "TrialPhenotypeExcelEntryNumbers" : "TrialPhenotypeExcel";
-    }
-    if ($format eq "csv") {
-        $plugin = $entry_numbers_option ? "TrialPhenotypeCSVEntryNumbers" : "TrialPhenotypeCSV";
-    }
-
+    my $plugin = $format eq 'xlsx' ? "TrialPhenotypeExcel" : "TrialPhenotypeCSV";
     my $temp_file_name;
     my $download_file_name;
     my $dir = $c->tempfiles_subdir('download');
@@ -439,6 +434,8 @@ sub download_phenotypes_action : Path('/breeders/trials/phenotype/download') Arg
         data_level => $data_level,
         include_timestamp => $timestamp_option,
         include_pedigree_parents=>$include_pedigree_parents,
+        include_intercrop_stocks => $include_intercrop_stocks,
+        include_entry_numbers => $include_entry_numbers,
         exclude_phenotype_outlier => $exclude_phenotype_outlier,
         trait_contains => \@trait_contains_list,
         phenotype_min_value => $phenotype_min_value,
@@ -532,6 +529,8 @@ sub download_action : Path('/breeders/download_action') Args(0) {
         $datalevel         = $c->req->param("metadata_datalevel");
     }
     my $exclude_phenotype_outlier = $c->req->param("exclude_phenotype_outlier") || 0;
+    my $include_intercrop_stocks = $c->req->param("intercrop") || 0;
+    my $include_entry_numbers = $c->req->param("entry_numbers") || 0;
     my $timestamp_included = $c->req->param("timestamp") || 0;
 
     # parameters for outliers download
@@ -617,6 +616,8 @@ sub download_action : Path('/breeders/download_action') Args(0) {
     		accession_list=>$accession_id_data->{transform},
     		include_timestamp=>$timestamp_included,
             exclude_phenotype_outlier=>$exclude_phenotype_outlier,
+            include_intercrop_stocks=>$include_intercrop_stocks,
+            include_entry_numbers=>$include_entry_numbers,
             dataset_excluded_outliers=>$outliers,
     		data_level=>$datalevel,
     	);
@@ -1109,6 +1110,98 @@ sub download_seedlot_maintenance_events_action : Path('/breeders/download_seedlo
 }
 
 # seedlot maintenanve events download -- end
+
+#
+# Download a file of accession genetic characters
+#
+# POST Params:
+#   genetic_characters_accessions_lists_list_select = list id of a accession list
+#   file_format: format of the file output (.xls)
+#
+sub download_genetic_characters_action : Path('/breeders/download_genetic_characters_action') {
+    my $self = shift;
+    my $c = shift;
+    my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema", "sgn_chado", $sp_person_id);
+
+    # Get request params
+    my $accession_list_id = $c->req->param("genetic_characters_accessions_lists_list_select");
+    my $file_format = $c->req->param("file_format") || ".xlsx";
+    my $dl_token = $c->req->param("genetic_characters_download_token") || "no_token";
+    my $dl_cookie = "download".$dl_token;
+    if ( !$accession_list_id ) {
+        print STDERR "ERROR: No accession list id provided to download download genetic characters action";
+        return;
+    }
+
+    # Get accessions from list
+    my $tf = CXGN::List::Transform->new();
+    my $accession_list_data = SGN::Controller::AJAX::List->retrieve_list($c, $accession_list_id);
+    my @accession_names = map { $_->[1] } @$accession_list_data;
+    my $unique_transform = $tf->can_transform("accession_synonyms", "accession_names");
+    my $unique_list = $tf->transform($c->dbic_schema("Bio::Chado::Schema", undef, $sp_person_id), $unique_transform, \@accession_names);
+
+    # get array ref out of hash ref so Transform/Plugins can use it
+    my %unique_hash = %$unique_list;
+    my $unique_accessions = $unique_hash{transform};
+    my $t = CXGN::List::Transform->new();
+    my $acc_t = $t->can_transform("accessions", "accession_ids");
+    my $accession_id_data = $t->transform($schema, $acc_t, $unique_accessions);
+    my $accession_ids = $accession_id_data->{transform};
+
+    # Fetch Genetic Characters for requested accessions
+    my $genetic_characters = CXGN::GeneticCharacters->get_genetic_characters();
+    my @gc_symbols = sort keys %$genetic_characters;
+    my $genetic_characters_associations = CXGN::GeneticCharacters->get_all_associations($accession_ids);
+
+    # Create tempfile
+    my ($tempfile, $uri) = $c->tempfile(TEMPLATE => "download_genetic_characters_XXXXX", UNLINK => 0);
+
+    # Create and Return XLSX file
+    if ( $file_format eq ".xlsx" ) {
+        my $file_path = $tempfile . ".xlsx";
+        my $file_name = basename($file_path);
+
+        # Get Excel worksheet
+        my $workbook = Excel::Writer::XLSX->new($file_path);
+        my $worksheet = $workbook->add_worksheet();
+
+        # Write header
+        my @header = ("accession", @gc_symbols);
+        $worksheet->write_row(0, 0, \@header);
+
+        # Write a row for each stock
+        my $row_count = 1;
+        foreach my $stock_id (keys %$genetic_characters_associations) {
+            my $gca = $genetic_characters_associations->{$stock_id};
+            my @row = ( $gca->{stock_name} );
+
+            # Write a column for each GC
+            foreach my $gc_symbol (@gc_symbols) {
+                my $gc = $genetic_characters->{$gc_symbol};
+                my $locus_id = $gc->{id};
+                my $as = $gca->{genetic_characters}->{$locus_id}->{allele_symbol} || "";
+                push @row, $as;
+            }
+
+            $worksheet->write_row($row_count, 0, \@row);
+            $row_count++;
+        }
+        $workbook->close();
+
+        # Return the xls file
+        $c->res->content_type('application/application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        $c->res->cookies->{$dl_cookie} = {
+          value => $dl_token,
+          expires => '+1m',
+        };
+        $c->res->header('Content-Disposition', qq[attachment; filename="$file_name"]);
+
+        my $output = read_file($file_path);  ### works here because it is xls, otherwise does not work with utf8
+
+        $c->res->body($output);
+    }
+}
 
 
 #Used from wizard page and manage download page for downloading gbs from accessions

@@ -1,0 +1,102 @@
+<!-- 
+                    Mapped Marker/Variant Flanking Sequence 
+
+        This component displays the marker/variant flanking sequences that are 
+        stored in the feature/featureprop tables and returned with the 
+        mapped marker query.
+-->
+
+<%args>
+    $marker => undef
+</%args>
+
+<%init>
+    my $marker_id = $marker->marker_id();
+</%init>
+
+
+<p id="mapped-marker-flanking-sequence-loading">Loading...</p>
+<div id="mapped-marker-flanking-sequence"></div>
+
+
+<script type="text/javascript">
+
+jQuery(document).ready(function() {
+
+    // Get Flanking Sequence(s) via Mapped Marker Query
+    jQuery("#mapped-marker-flanking-sequence-loading").show();
+    jQuery.ajax({
+        method: 'GET',
+        url: '/ajax/markers/mapped/query',
+        data: {
+            marker_id: <% $marker_id %>
+        },
+        success: function(resp) {
+            if ( resp && resp.results ) {
+                displayFlankingSequence(resp.results);
+            }
+            else {
+                alert("ERROR: Database did not return marker flanking sequences!");
+            }
+        },
+        error: function(err) {
+            console.log(err);
+            alert("ERROR: Could not load flanking sequence from database!");
+        },
+        complete: function() {
+            jQuery("#mapped-marker-flanking-sequence-loading").hide();
+        }
+    });
+
+
+    function displayFlankingSequence(results) {
+        let markers = results && results.markers ? results.markers : [];
+
+        // Get flanking sequences and their marker(s)
+        let flanking_sequence_map = {};
+        for ( let i = 0; i < markers.length; i++ ) {
+            let marker = markers[i];
+            if ( flanking_sequence_map.hasOwnProperty(marker.flanking_sequence_snp) ) {
+                if ( ! (flanking_sequence_map[marker.flanking_sequence_snp]).includes(marker.marker_name) ) {
+                    flanking_sequence_map[marker.flanking_sequence_snp].push(marker.marker_name);
+                }
+            }
+            else {
+                flanking_sequence_map[marker.flanking_sequence_snp] = [ marker.marker_name ];
+            }
+        }
+
+        // Display marker(s) and their flanking sequence
+        let html = "";
+        for ( const flanking_sequence_snp in flanking_sequence_map ) {
+            if ( flanking_sequence_map.hasOwnProperty(flanking_sequence_snp) ) {
+                let markers = flanking_sequence_map[flanking_sequence_snp];
+                let flanking_sequence_html = flanking_sequence_snp.replace(/(.*)\[(.*)\](.*)/, "$1<span class='flanking-sequence-snp'>[$2]</span>$3");
+
+                html += "<p><strong>" + markers.join(', ') + "</strong></p>";
+                html += "<p class='flanking-sequence'>" + flanking_sequence_html + "</p>";
+                html += "<br />";
+            }
+        }
+        jQuery("#mapped-marker-flanking-sequence").html(html);
+    }
+
+});
+
+</script>
+
+
+
+<style>
+    .flanking-sequence {
+        word-break: break-all;
+        background-color: #f9f9f9;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        padding: 5px;
+    }
+    .flanking-sequence-snp {
+        font-weight: bolder;
+        color: #A2AD00;
+    }
+</style>

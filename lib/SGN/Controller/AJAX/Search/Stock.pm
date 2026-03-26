@@ -61,6 +61,8 @@ sub stock_search :Path('/ajax/search/stocks') Args(0) {
     #print STDERR Dumper $stockprop_columns_view;
     #print STDERR Dumper $stockprop_columns_view_array;
 
+    my $selected_loci = $params->{selected_loci} ? decode_json $params->{selected_loci} : [];
+
     my $stock_search = CXGN::Stock::Search->new({
         bcs_schema=>$schema,
         people_schema=>$people_schema,
@@ -84,6 +86,7 @@ sub stock_search :Path('/ajax/search/stocks') Args(0) {
         offset=>$offset,
         minimal_info=>$params->{minimal_info},
         display_pedigree=>0,
+        selected_loci=>$selected_loci,
         is_obsolete=>$params->{is_obsolete} eq 'true'
     });
     my ($result, $records_total) = $stock_search->search();

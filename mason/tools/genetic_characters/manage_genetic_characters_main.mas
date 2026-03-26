@@ -1,0 +1,8 @@
+
+<%args>
+</%args>
+
+
+<&| /page/info_section.mas, title=>'Existing Genetic Characters', is_subsection=>1, collapsible=>1, collapsed=>0, subtitle=>'View Existing Genetic Characters' &>
+    <& /tools/genetic_characters/existing_genetic_characters.mas &>
+</&>

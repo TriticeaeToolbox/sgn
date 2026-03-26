@@ -11,7 +11,14 @@ sub trial_search_page : Path('/search/trials/') Args(0) {
 
     $c->stash->{location_id} = $c->req->param('location_id') || 'not_provided';
     $c->stash->{template} = '/search/trials.mas';
+}
 
+sub trial_search_public : Path('/search/trials_public/') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    $c->stash->{location_id} = $c->req->param('location_id') || 'not_provided';
+    $c->stash->{template} = '/search/trials_public.mas';
 }
 
 sub genotyping_trial_search_page : Path('/search/genotyping_trials/') Args(0) {
@@ -27,5 +34,13 @@ sub genotyping_data_project_search_page : Path('/search/genotyping_data_projects
 
     $c->stash->{template} = '/search/genotyping_data_projects.mas';
 }
+
+sub genotyping_data_public_search_page : Path('/search/genotyping_data_public/') Args(0) {
+    my $self = shift;
+    my $c = shift;
+
+    $c->stash->{template} = '/search/genotyping_data_public.mas';
+}
+
 
 1;

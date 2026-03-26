@@ -38,8 +38,7 @@ sub _validate_with_plugin {
     my @observation_unit_names;
     open($F, "<", $filename) || die "Can't open file $filename\n";
         while (<$F>) {
-	    $_ =~ s/\r//g;
-	    chomp;
+            s/[\r\n]//sg;
             #print STDERR Dumper $_;
 
             if ($_ =~ m/^##/){
@@ -50,7 +49,7 @@ sub _validate_with_plugin {
                 my $header = $_;
                 @fields = split /\t/, $header;
                 @header = @fields[0 .. 8];
-                @observation_unit_names = @fields[9..$#fields];
+		@observation_unit_names = @fields[9..$#fields];
                 next;
             }
             last;
@@ -178,6 +177,7 @@ sub _validate_with_plugin {
         }
     } else {
         foreach (@observation_unit_names) {
+	    s/[\r\n]//sg;
             my ($observation_unit_name, $accession_name) = split(/\|\|\|/, $_);
             push @observation_units_names_trim, $observation_unit_name;
         }

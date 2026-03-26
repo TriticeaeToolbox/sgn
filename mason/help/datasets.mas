@@ -10,15 +10,23 @@ only be created and seen by the user while logged in. SGN databases use
 Datasets in analysis tools on the website such as Wizard, GWAS, GS,
 Heritability, and Stability tools.</p>
 
+<p><b>Link Dataset to publication</b><p>
+First select the dataset button in the upper right of the website. Then select the dataset name. The URL of
+this page can be used in a publication to reference the dataset stored in T3. It is also a good idea
+to enter the DOI URL of the publication into the description of the dataset.
+</p>
+
 <p><b>Creating Datasets</b></p>
 
 <p>Datasets are generated in the Wizard. Up to 4 identifiers
 can be selected. First select the categories and entries in each column. In
 this example we have selected Trials, Accessions, and Genotyping Protocols.
 Then enter a name in the “Create New Dataset” section. In this example we have
-used “Tinker QTL 2021”. After creating the dataset, you can make it public for
-others to use by first selecting the dataset using the “Load Dataset”
-list then selecting the “Make Public” button.</p>
+used “Tinker QTL 2021”. After creating the dataset, you can add a description and make it public for
+others to use. First select the dataset button in the upper right of the website. Then select
+the dataset name. This will open a detailed view that allows adding a description and making the
+dataset public</p>
+
 <img src="/static/documents/help/screenshots/DatasetHelpImage001.png" width="1000px">
 <img src="/static/documents/help/screenshots/DatasetHelpImage002.png" width="600px">
 

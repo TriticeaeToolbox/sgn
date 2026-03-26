@@ -111,8 +111,8 @@ sub get_variant_protocols : Path('/ajax/markers/genotyped/protocols') : Args(0) 
 #
 # PATH: GET /ajax/markers/genotyped/query
 # PARAMS:
-#   - name = (optional) name of marker or variant
-#   - name_match = (optional, default=exact) type of marker name match (exact, contains, starts_with, ends_with)
+#   - name = (optional) name of marker (or a comma-separated list of names, if name_match == 'list') or variant (if name_match == 'exact')
+#   - name_match = (optional, default=exact) type of marker name match (exact, contains, starts_with, ends_with, list)
 #   - species = (required if chrom, start or end provided) name of the species
 #   - reference_genome = (required if chrom, start or end provided) name of the reference genome
 #   - chrom = (required if start or end provided) name of the chromosome
@@ -155,6 +155,7 @@ sub query_variants_GET : Args(0) {
     my $nd_protocol_id = $c->req->param('nd_protocol_id');
     my $limit = $c->req->param('limit');
     my $page = $c->req->param('page');
+    my $download = $c->req->param('download');
 
     # Check required parameters
     if ( (!defined $species || $species eq '') && (defined $chrom || defined $start || defined $end) ) {
@@ -190,8 +191,44 @@ sub query_variants_GET : Args(0) {
     );
     my $results = $msearch->query(\%args);
 
-    # Return the results as JSON
-    $c->stash->{rest} = { results => $results };
+    # RETURN DOWNLOAD
+    if ( $download ) {
+        my @rows;
+        my @headers = ("Marker", "Protocol", "Species", "Reference Genome", "Chromosome", "Position", "Ref", "Alt", "Flanking Sequence");
+        push(@rows, \@headers);
+
+        my $variants = $results->{'variants'};
+        foreach my $vn (keys %{$variants}) {
+            my $vs = $variants->{$vn};
+            foreach my $v (@$vs) {
+                my @row = (
+                    $v->{'marker_name'},
+                    $v->{'nd_protocol_name'},
+                    $v->{'species_name'},
+                    $v->{'reference_genome_name'},
+                    $v->{'chrom'},
+                    $v->{'pos'},
+                    $v->{'ref'},
+                    $v->{'alt'},
+                    $v->{'flanking_sequence_snp'}
+                );
+                push(@rows, \@row);
+            }
+        }
+
+        $c->res->content_type('text/csv');
+        $c->res->headers->push_header('Content-disposition', 'attachment; filename=genotyped_markers.csv');
+        $c->res->body(
+            join '', map "$_\n",
+            map { join ',', map qq|"$_"|, @$_ }
+            @rows
+        );
+    }
+
+    # RETURN JSON
+    else {
+        $c->stash->{rest} = { results => $results };
+    }
 }
 
 

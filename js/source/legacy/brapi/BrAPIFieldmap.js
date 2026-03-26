@@ -1882,7 +1882,7 @@
 
 	    // 🍂namespace Editable; 🍂class EditableMixin
 	    // `EditableMixin` is included to `L.Polyline`, `L.Polygon`, `L.Rectangle`, `L.Circle`
-	    // and `L.Marker`. It adds some methods to them.
+	    // and `L.Marker`. It adds some methods to them.
 	    // *When editing is enabled, the editor is accessible on the instance with the
 	    // `editor` property.*
 	    var EditableMixin = {
@@ -2130,7 +2130,9 @@
 	  plotLength: 0,
 	  plotScaleFactor: 1,
 	  style: {
-	    weight: 1
+	    weight: 1.5,
+	    fillOpacity: 0.1,
+	    color: '#ffffff'
 	  },
 	  useGeoJson: true,
 	  tileLayer: {
@@ -2140,12 +2142,28 @@
 	      maxZoom: 28,
 	      maxNativeZoom: 19
 	    }
-	  }
+	  },
+	  d2s_api: null
 	};
 
 	class Fieldmap {
 	  constructor(map_container, brapi_endpoint, opts = {}) {
-	    this.map_container = d3.select(map_container).style("background-color", "#888");
+
+	    // Container for the leaflet map
+	    var leaflet_map_container = document.createElement('div');
+	    leaflet_map_container.setAttribute('class', 'leaflet-map-container');
+	    leaflet_map_container.setAttribute('style', 'height: 90%; background-color: #888');
+
+	    // Container for the orthomosaic selection
+	    var ortho_selection_container = document.createElement('div');
+	    ortho_selection_container.setAttribute('class', 'ortho-selection-container');
+
+	    // Add containers to the parent map container
+	    d3.select(map_container).node().appendChild(ortho_selection_container);
+	    d3.select(map_container).node().appendChild(leaflet_map_container);
+
+	    this.map_container = d3.select(leaflet_map_container);
+	    this.ortho_selection_container = d3.select(ortho_selection_container);
 	    this.brapi_endpoint = brapi_endpoint;
 
 	    // Parse Options
@@ -2270,6 +2288,102 @@
 	    this.onLoading = (loading) => {
 	      this.loading.style("display", loading ? 'block' : 'none');
 	    }
+
+      // Get any externally stored Geo Coords from D2S
+      this._coords = { by_plot: {}, by_row_col: {} };
+      this.getCoords = async (studyDbId) => {
+        if ( this.opts.d2s_api ) {
+          try {
+            const projects = await this.opts.d2s_api.getBBConnections(studyDbId) || [];
+            for ( const project of projects ) {
+              const project_coords = await this.opts.d2s_api.getCoords(project.id) || {};
+              for ( const p of project_coords ) {
+                const plot = p.properties?._parsed_plot;
+                const row = p.properties?._parsed_row;
+                const col = p.properties?._parsed_col;
+                if ( plot ) this._coords.by_plot[`plot-${plot}`] = p;
+                if ( row && col ) {
+                  if ( !this._coords.by_row_col[`row-${row}`] ) this._coords.by_row_col[`row-${row}`] = {};
+                  this._coords.by_row_col[`row-${row}`][`col-${col}`] = p;
+                }
+              }
+            }
+          }
+          catch (err) {
+            console.log(err);
+          }
+        }
+      }
+
+      // Check if there are any orthos available for this trial
+      this.getOrthos = async (studyDbId) => {
+        if ( this.opts.d2s_api ) {
+          let orthos = [];
+          try {
+            const projects = await this.opts.d2s_api.getBBConnections(studyDbId) || [];
+            for ( const project of projects ) {
+              const project_orthos = await this.opts.d2s_api.getOrthos(project.id) || [];
+              orthos = [...orthos, ...project_orthos];
+            }
+            this.displayOrthoSelection(orthos);
+          }
+          catch (err) {
+            console.log(err);
+          }
+        }
+      }
+
+      // Display select input for available orthos
+      this.displayOrthoSelection = (orthos = []) => {
+        let html = '';
+        if ( orthos && orthos.length > 0 ) {
+          html = "<div style='display: flex; align-items: baseline; gap: 25px; padding: 15px'>";
+          html += "<p><strong>View Orthomosaic Imagery</strong></p>";
+          html += `<select class='ortho-select form-control' style='width: 200px'>`;
+          html += "<option value=''>Select a Date</option>";
+
+          orthos.sort((a, b) => a.date > b.date);
+          let dl;
+          orthos.forEach((o) => {
+            if ( o.date !== dl ) {
+              if ( dl ) html += `</optgroup>`;
+              html += `<optgroup label="${o.date}">`;
+              dl = o.date;
+            }
+            html += `<option data-attribution='${o.attribution}' value='${o.url}'>${o.sensor} ${o.data_type} (${o.attribution})</option>`;
+          });
+
+          html += "</optgroup>";
+          html += "</select>";
+          html += "</div>";
+        }
+        this.ortho_selection_container.html(html);
+        var map = this.map;
+        jQuery(".ortho-select").on('change', function() { window.onOrthoSelection(this, map) });
+      }
+
+      // Handle the selection of an orthomosaic to display
+      window.onOrthoSelection = (e, map) => {
+        var select = jQuery(e);
+        var url = select.find(":selected").val();
+        var attribution = select.find(":selected").data("attribution");
+
+        // Remove any previous layer
+        if ( window.orthoMapLayer ) {
+          map.removeLayer(window.orthoMapLayer);
+        }
+
+        // Add a new map layer
+        if ( url && url !== '' ) {
+          window.orthoMapLayer = L.tileLayer(url, {
+            minZoom: 16,
+            maxZoom: 30,
+            attribution: attribution
+          });
+          window.orthoMapLayer.addTo(map);
+        }
+
+      }
 	  }
 
 	  removeControls() {
@@ -2278,9 +2392,11 @@
 	    this.map.removeControl(this.clearPolygonsControl);
 	  }
 
-	  load(studyDbId) {
+	  async load(studyDbId) {
 	    this.onLoading(true);
-	    this.generatePlots(studyDbId);
+	    await this.getCoords(studyDbId);
+ 	    this.generatePlots(studyDbId);
+	    this.getOrthos(studyDbId);
 	    return this.data.then(()=>{
 	      this.drawPlots();
 	      this.onLoading(false);
@@ -2321,16 +2437,18 @@
 	    }).on('mousemove', (e)=>{
 	      let sourceTarget = e.sourceTarget;
 	      let ou = this.plot_map[sourceTarget.feature.properties.observationUnitDbId];
-	      get_oup_rel(ou).forEach((levels)=>{ 
-	          if(levels.levelName == 'replicate'){ ou.replicate = levels.levelCode;}
-	        else if(levels.levelName == 'block'){ ou.blockNumber = levels.levelCode;}
-	        else if(levels.levelName == 'plot'){ ou.plotNumber = levels.levelCode;}});
-	      this.info.html(`<div style="padding: 5px"><div>Germplasm: ${ou.germplasmName}</div>
-       <div>Replicate: ${ou.replicate}</div>
-       <div>    Block: ${ou.blockNumber}</div>
-       <div>  Row,Col: ${ou._row},${ou._col}</div>
-       <div>   Plot #: ${ou.plotNumber}</div></div>`);
-	    }).on('mouseout', ()=>{
+	      get_oup_rel(ou).forEach((levels)=>{
+          if(levels.levelName === 'replicate' || levels.levelName === 'rep'){ ou.replicate = levels.levelCode;}
+          else if(levels.levelName === 'block'){ ou.blockNumber = levels.levelCode;}
+          else if(levels.levelName === 'plot'){ ou.plotNumber = levels.levelCode;}
+        });
+        this.info.html(`<div style="padding: 5px"><div>Germplasm: ${ou.germplasmName}</div>
+          <div>Replicate: ${ou.replicate}</div>
+          <div>    Block: ${ou.blockNumber}</div>
+          <div>  Row,Col: ${ou._row},${ou._col}</div>
+          <div>   Plot #: ${ou.plotNumber}</div></div>
+        `);
+      }).on('mouseout', ()=>{
 	      this.info.html("");
 	    }).addTo(this.map);
 	  }
@@ -2523,13 +2641,9 @@
 		  ou._X = ou.X || oup.positionCoordinateX;
 		  ou._Y = ou.Y || oup.positionCoordinateY;
 		  ou._originalType = (oup.geoCoordinates && oup.geoCoordinates.geometry && oup.geoCoordinates.geometry.type) ? oup.geoCoordinates.geometry.type : "missing";
-	  
-		  try {
-			ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || null;
-		  } catch (e) {}
-	  
-		  ou._type = "";
-	  
+	      ou._type = "";
+
+          // Set observation unit row and col numbers, if available
 		  if (!isNaN(ou._X) && !isNaN(ou._Y)) {
 			if (oup.positionCoordinateXType && oup.positionCoordinateYType) {
 			  if ((oup.positionCoordinateXType === "GRID_ROW" && oup.positionCoordinateYType === "GRID_COL") ||
@@ -2540,49 +2654,90 @@
 			  if (oup.positionCoordinateXType === "LONGITUDE" && oup.positionCoordinateYType === "LATITUDE") {
 				if (!ou._geoJSON) ou._geoJSON = turf.point([ou._X, ou._Y]);
 			  }
-			} else {
+			}
+            else {
 			  if (ou._X == Math.floor(ou._X) && ou._Y == Math.floor(ou._Y)) {
 				ou._row = parseInt(ou._Y);
 				ou._col = parseInt(ou._X);
-			  } else {
+			  }
+              else {
 				try {
 				  if (!ou._geoJSON) ou._geoJSON = turf.point([ou._X, ou._Y]);
 				} catch (e) {}
 			  }
 			}
 		  }
+
+          // Set observation unit plot number, if available
+          const levels = ou?.observationUnitPosition?.observationLevelRelationships || [];
+          for ( let i = 0; i < levels.length; i++ ) {
+            if ( levels[i].levelName === 'plot' ) {
+              ou._plot = parseInt(levels[i].levelCode);
+            }
+          }
+
+          // Set external geoJSON from _coords, if available
+          // Prefer matching by plot number, fallback to row and col position
+          let external_geojson;
+          if ( ou._plot && this._coords.by_plot[`plot-${ou._plot}`] ) {
+            external_geojson = this._coords.by_plot[`plot-${ou._plot}`];
+          }
+          else if ( ou._row && ou._col && this._coords.by_row_col[`row-${ou._row}`] && this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`] ) {
+            external_geojson = this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`];
+          }
 	  
-		  if (ou._geoJSON) {
-			try {
-			  ou._type = turf.getType(ou._geoJSON);
-			} catch (err) {
-			  ou._type = "invalid";
-			}
-		  } else {
-			ou._type = "missing";
-		  }
-	  
+	      // Use the internal geo coordinates by default or the external coordinates if available
+          try {
+            ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || (this.opts.useGeoJson && external_geojson) || null;
+	      } catch (e) {}
+
+	      if (ou._geoJSON) {
+	        try {
+	          ou._type = turf.getType(ou._geoJSON);
+	        }
+	        catch (err) {
+	          ou._type = "invalid";
+	        }
+	      }
+	      else {
+	        ou._type = "missing";
+	      }
 		});
-	  
+
 		// Separate types
 		const plots_missing = data.plots.filter(p => p._type === "missing" || p._type === "invalid");
 		const plots_points = data.plots.filter(p => p._type === "Point");
 		const plots_polygons = data.plots.filter(p => p._type === "Polygon");
 	  
 		// Notify on missing
-		if (this.opts.viewOnly) {
-		  if (plots_polygons.length + plots_points.length === 0) {
-			let html = "This trial does not have any plots with geo coordinates assigned.";
-			this.missing_plots.style("display", "block").html(html);
-			throw NO_POLYGON_ERROR;
-		  } else if (plots_missing.length > 0) {
-			let html = "Plots with no geo coordinates:";
-			html += "<ul style='padding-left: 25px; margin-bottom: 0'>";
-			plots_missing.forEach(p => html += `<li>${p.observationUnitName}</li>`);
-			html += "</ul>";
-			this.missing_plots.style("display", "block").html(html);
-		  }
-		}
+	    if ( this.opts.viewOnly ) {
+	      const plots_invalid = data.plots.filter((e) => e._type === 'invalid' || e._type === 'missing');
+	      const plots_valid = data.plots.filter((e) => e._type !== 'invalid' && e._type !== 'missing');
+	      if ( plots_valid.length === 0 ) {
+	        let html = "This trial does not have any plots with geo coordinates assigned."
+	        this.missing_plots.style("display", "block");
+	        this.missing_plots.html(html);
+	        throw NO_POLYGON_ERROR;
+	      }
+	      else if ( plots_invalid.length > 0 ) {
+	        let html = "Plots with no geo coordinates:";
+	        html += "<ul style='padding-left: 25px; margin-bottom: 0; list-style-type: disc;'>";
+	        plots_invalid.forEach((p) => {
+	          html += `<li>${p.observationUnitName}</li>`
+	          let labels = [];
+	          if ( p._plot ) labels.push({ key: 'plot', value: p._plot })
+	          if ( p._row ) labels.push({ key: 'row', value: p._row })
+	          if ( p._col ) labels.push({ key: 'col', value: p._col })
+	          if ( labels.length > 0 ) {
+	            html += ` (${labels.map((e) => `${e.key}: ${e.value}`).join(', ')})`;
+	          }
+          });
+	        html += "</ul>";
+	        this.missing_plots.style("display", "block");
+	        this.missing_plots.html(html);
+	      }
+	      data.plots = plots_valid;
+	    }
 	  
 		//Generate row/col layout if needed
 		if (data.plots.some(plot => isNaN(plot._row) || isNaN(plot._col))) {
@@ -2593,7 +2748,7 @@
 		  data.plots.forEach((plot, pos) => {
 			let row = Math.floor(pos / lyt_width);
 			let col = (pos % lyt_width);
-			if (row % 2 == 1) col = (lyt_width - 1) - col;
+			if (row % 2 === 1) col = (lyt_width - 1) - col;
 			plot._col = col;
 			plot._row = row;
 		  });

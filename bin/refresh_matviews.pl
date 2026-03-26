@@ -124,6 +124,8 @@ sub refresh_mvs {
 
     foreach my $name ( @$mv_names_ref ) {
         print STDERR "**Refreshing view $name ". localtime() . " \n";
+        # increase work_mem to avoud out of space error while refreshing
+        $dbh->prepare("SET work_mem = '256MB'")->execute();
         my $start_h = $dbh->prepare($start_q);
         $start_h->execute($name);
         print STDERR "**QUERY = " . $refresh_q . $name . "\n";

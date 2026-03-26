@@ -8,8 +8,14 @@ $has_plant_entries => undef
 $trial_stock_type => undef
 </%args>
 
+<%perl>
+  my $d2s_host = $c->config->{'d2s_host'};
+  my $d2s_tileserver = $c->config->{'d2s_tileserver'};
+  my $d2s_base_url = $c->config->{'d2s_base_url'};
+</%perl>
+
 <& /util/import_css.mas, paths => ['fieldmap/leaflet-search.min.css', 'fieldmap/leaflet.css'] &>
-<& /util/import_javascript.mas, entries => ['fieldmap'], classes => [ 'jqueryui.js', 'jquery.js', 'jstree.dist.jstree', "thickbox", "CXGN.Page.FormattingHelpers", 'brapi.fieldmap.leaflet', 'brapi.fieldmap.L-Path-Transform', 'brapi.fieldmap.leaflet-search', 'brapi.fieldmap.turf', 'brapi.BrAPI', 'brapi.BrAPIFieldmap' ] &>
+<& /util/import_javascript.mas, entries => ['fieldmap'], classes => [ 'jqueryui.js', 'jquery.js', 'jstree.dist.jstree', "thickbox", "CXGN.Page.FormattingHelpers", 'brapi.fieldmap.leaflet', 'brapi.fieldmap.L-Path-Transform', 'brapi.fieldmap.leaflet-search', 'brapi.fieldmap.turf', 'brapi.BrAPI', 'CXGN.BreedersToolbox.D2SIntegration', 'brapi.BrAPIFieldmap' ] &>
 
 <style id='heatmap_stylesheet'>
     #trait_heatmap {display: inline; }
@@ -770,6 +776,9 @@ my $image_ids =  $stockref->{image_ids} || [] ;
 <script defer="defer" type="text/javascript" >
 var trial_id = '<% $trial_id %>';
 var data_level = '<% $data_level %>';
+var D2S_HOST = '<% $d2s_host %>';
+var D2S_TILESERVER = '<% $d2s_tileserver %>';
+var D2S_BASE_URL = '<% $d2s_base_url %>';
 var FieldMap = window.jsMod['fieldmap'].init();
 FieldMap.set_id(trial_id);
 
@@ -962,7 +971,7 @@ jQuery(document).ready( function() {
         });
     }
 
-    function geo_field_map_view(){
+    async function geo_field_map_view(){
 
         jQuery('#container_heatmap_geo_div').width(jQuery('#container_heatmap_geo').parent().width());
         jQuery('#container_heatmap_geo_div').height(jQuery('#container_heatmap_geo').parent().width()*0.7);
@@ -978,12 +987,23 @@ jQuery(document).ready( function() {
             }
         }
       
-        var fieldMap = new BrAPIFieldmap("#container_heatmap_geo_div", brapi_endpoint, { viewOnly: true });
+        var d2s_api;
+        if ( D2S_HOST && D2S_HOST !== '' && D2S_TILESERVER && D2S_TILESERVER !== '' ) {
+            d2s_api = await new D2SAPI({ host: D2S_HOST, tileserver: D2S_TILESERVER, base_url: D2S_BASE_URL }).init();
+        }
+        var fieldMap = new BrAPIFieldmap("#container_heatmap_geo_div", brapi_endpoint, { viewOnly: true, d2s_api });
 
         fieldMap.brapi_endpoint = brapi_endpoint;
         fieldMap.opts.brapi_pageSize = 1000;
         fieldMap.opts.brapi_auth = auth_token;
-        fieldMap.load('<% $trial_id %>').then((value)=>{if (!value) alert("No geo reference data in this trial!"); } );
+        fieldMap.load('<% $trial_id %>').then((value)=>{
+            if (!value) alert("No geo reference data in this trial!");
+            else {
+                jQuery('#container_heatmap_geo_div .leaflet-map-container').height(
+                    jQuery('#container_heatmap_geo_div').height() - jQuery("#container_heatmap_geo_div .ortho-selection-container").height()
+                );
+            }
+        });
 
     }
 
@@ -1518,7 +1538,6 @@ function _finish() {
     let temp_plot_arr = [...FieldMap.plot_arr];
     let cellVal = '';
     for (let plot of temp_plot_arr.filter(plot => plot.type != "border")) {
-        console.log("plot:", plot);
         if (!coord_matrix[plot.observationUnitPosition[row] - FieldMap.meta_data.min_row]) {
             coord_matrix[plot.observationUnitPosition[row] - FieldMap.meta_data.min_row] = [];
         }
@@ -1528,8 +1547,18 @@ function _finish() {
             } else if (plot.crossName) {
                 cellVal = plot.crossName;
             }
+            if ( plot.additionalInfo?.intercropGermplasm ) {
+                for ( let i = 0; i < plot.additionalInfo.intercropGermplasm.length; i++ ) {
+                    cellVal += `,${plot.additionalInfo.intercropGermplasm[i].germplasmName}`;
+                }
+            }
         } else {
             cellVal = '';
+        }
+        if ( includeAccessionName && plot.additionalInfo.intercropGermplasm ) {
+            for ( let i = 0; i < plot.additionalInfo.intercropGermplasm.length; i++ ) {
+                cellVal += `,${plot.additionalInfo.intercropGermplasm[i].germplasmName}`;
+            }
         }
         if (includeObsUnitName && plot.observationUnitName) {
             cellVal += (cellVal ? '\n' : '') + plot.observationUnitName;

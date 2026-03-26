@@ -93,6 +93,73 @@ sub genotyping_data_project_search_GET : Args(0) {
     $c->stash->{rest} = { data => \@result };
 }
 
+sub genotyping_data_public_search : Path('/ajax/genotyping_data_public/search') : ActionClass('REST') { }
+
+sub genotyping_data_public_search_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $public_date;
+    my $create_date;
+    my $bcs_schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
+
+    my $trial_search = CXGN::Trial::Search->new({
+        bcs_schema=>$bcs_schema,
+        trial_design_list=>['genotype_data_project', 'pcr_genotype_data_project']
+    });
+    my ($data, $total_count) = $trial_search->search();
+    my $copied_to_t3_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($bcs_schema, 'copied_to_t3', 'project_property')->cvterm_id();
+    my $transferred = "";
+    my @result;
+    foreach (@$data){
+        my $folder_string = '';
+
+	my $q = "select create_date from project where project_id = ?";
+	my $h = $bcs_schema->storage->dbh()->prepare($q);
+	$h->execute($_->{trial_id});
+	my @info = $h->fetchrow_array();
+        $create_date = $info[0];
+	my $dt1 = DateTime->now;
+        my $dt2 = $dt1 - DateTime::Duration->new( years => 2 );
+	if ($create_date =~ /(\d+)-(\d+)-(\d+)/) {
+            my $dt3 = DateTime->new(
+                year => $1,
+                month => $2,
+                day => $3
+            );
+            $create_date = $1 . "-" . $2 . "-" . $3;
+            my $cmp = DateTime->compare( $dt2, $dt3 );
+	    if ($cmp < 0) {
+                $public_date = int($1) + 2 . "-" . $2 . "-" . $3;
+            } else {
+                $public_date = "now";
+            }
+	}
+
+	$q = "SELECT projectprop.value FROM projectprop WHERE projectprop.type_id = ? AND projectprop.project_id = ?";
+	$h = $bcs_schema->storage->dbh()->prepare($q);
+        $h->execute($copied_to_t3_cvterm_id, $_->{trial_id});
+        my @info = $h->fetchrow_array();
+        $transferred = $info[0];
+
+        if ($_->{folder_name}){
+            $folder_string = "<a href=\"/folder/$_->{folder_id}\">$_->{folder_name}</a>";
+        }
+        push @result,
+          [
+            "<a href=\"/breeders_toolbox/trial/$_->{trial_id}\">$_->{trial_name}</a>",
+            $_->{description},
+            "<a href=\"/breeders/program/$_->{breeding_program_id}\">$_->{breeding_program_name}</a>",
+            $_->{year},
+	    $create_date,
+            $public_date,
+            $transferred
+          ];
+	  #print STDERR Dumper $_;
+    }
+    #print STDERR Dumper \@result;
+
+    $c->stash->{rest} = { data => \@result };
+}
 
 sub genotyping_project_plates : Path('/ajax/genotyping_project/genotyping_plates') : ActionClass('REST') { }
 
@@ -421,7 +488,7 @@ sub genotyping_project_accession_search_POST : Args(0) {
         while (my ($acc_id, $gen_ids) = $h->fetchrow_array()) {
             $gen_by_acc{$acc_id} = $gen_ids;
             foreach my $gen_id ( @$gen_ids ) {
-                push @{$acc_by_gen{$gen_id}}, $acc_id;
+                push @{$acc_by_gen{$gen_id}}, $acc_id if $gen_id && $gen_id != '';
             }
         }
         foreach my $acc_id (keys %gen_by_acc) {

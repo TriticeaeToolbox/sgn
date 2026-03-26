@@ -39,6 +39,7 @@ use CXGN::Trial;
 use JSON;
 use CXGN::Genotype::Protocol;
 use List::MoreUtils qw(uniq);
+use HTML::Entities;
 
 has 'bcs_schema' => (
     isa => 'Bio::Chado::Schema',
@@ -176,7 +177,7 @@ sub search {
             marker_name => $marker_name
         };
         for my $s (0 .. scalar(@protocolprop_marker_hash_select_arr)-1){
-            $marker_obj->{$protocolprop_marker_hash_select->[$s]} = $protocolprop_info_return[$s];
+            $marker_obj->{$protocolprop_marker_hash_select->[$s]} = encode_entities($protocolprop_info_return[$s]);
         }
         push @results, $marker_obj;
     }

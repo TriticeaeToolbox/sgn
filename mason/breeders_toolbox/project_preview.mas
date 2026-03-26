@@ -1,0 +1,85 @@
+<%args>
+  $trial_id
+  $trial_name
+  $year
+  $breeding_program_name
+  $trial_type
+  $design_name
+  $planting_date
+  $harvest_date
+  $trial_description
+  $location_name
+  $genotyping_facility
+</%args>
+
+<& /page/page_title.mas, title=> "$trial_name Preview" &>
+
+
+<div class='well'>
+
+  <&| /page/info_section.mas, id => 'project_preview_details', title => 'Project Details', collapsible => 1, collapsed => 0, subtitle=> 'View basic data about the project' &>
+
+    <div class="panel panel-default">
+      <div class="panel-body">
+        
+        <table class='table table-bordered table-hover'>
+          <tr><td><strong>Project Name</strong></td><td><% $trial_name %></td></tr>
+          <tr><td><strong>Breeding Program</strong></td><td><% $breeding_program_name %></td></tr>
+          <tr><td><strong>Project Year</strong></td><td><% $year %></td></tr>
+% if ( $trial_type ) {
+          <tr><td><strong>Project Location</strong></td><td><% $location_name %></td></tr>
+% }
+% if ( $genotyping_facility ) {
+          <tr><td><strong>Genotyping Facility</strong></td><td><% $genotyping_facility %></td></tr>
+% }        
+% if ( $trial_type ) {
+          <tr><td><strong>Project Type</strong></td><td>Field Trial (<% $trial_type %>)</td></tr>
+          <tr><td><strong>Design Type</strong></td><td><% $design_name %></td></tr>
+% } else {
+          <tr><td><strong>Project Type</strong></td><td><% $design_name %></td></tr>
+% }
+% if ( $planting_date ) {
+          <tr><td><strong>Planting Date</strong></td><td><% $planting_date %></td></tr>
+% }
+% if ( $harvest_date ) {
+          <tr><td><strong>Harvest Date</strong></td><td><% $harvest_date %></td></tr>
+% }
+% if ( $trial_description ) {
+          <tr><td><strong>Project Description</strong></td><td><% $trial_description %></td></tr>
+% }
+        </table>
+
+      </div>
+    </div>
+
+  </&>
+
+</div>
+
+
+
+<div class='alert' style='color: #31708f; background-color: #d9edf7; border-color: #bce8f1;'>
+  <p style='font-size: 120%; border-bottom: 1px solid rgb(49, 112, 143, 0.2); margin-bottom: 15px'><strong>View More Information</strong></p>
+  <p>To view all of the information about this project, <strong>create an account</strong> and <strong>log in</strong>.</p>
+  <br />
+  <a href="/user/new?goto_url=/breeders/trial/<% $trial_id %>" class="btn btn-info btn-large btn-home">
+    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create an Account
+  </a>
+  <a href="/user/login?goto_url=/breeders/trial/<% $trial_id %>" class="btn btn-primary btn-large btn-home">
+    <span class="glyphicon glyphicon-user"></span>&nbsp;Login
+  </a>
+</div>
+
+
+
+<style>
+    .btn-info, .btn-primary {
+      color: #fff !important;
+    }
+    .btn-info:hover {
+      background-color: #31b0d5 !important;
+    }
+    .btn-primary:hover {
+      background-color: #286090 !important;
+    }
+</style>

@@ -237,6 +237,20 @@ has 'introgression_end_position_bp' => (
     builder  => '_retrieve_introgression_end_position_bp',
 );
 
+has 'purdyPedigree' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+    lazy => 1,
+    builder => '_retrieve_purdyPedigree'
+);
+
+has 'filialGeneration' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+    lazy => 1,
+    builder => '_retrieve_filialGeneration'
+);
+
 has 'other_editable_stock_props' => (
     isa => 'Maybe[HashRef]',
     is => 'rw'
@@ -395,6 +409,16 @@ sub _retrieve_introgression_end_position_bp {
     $self->introgression_end_position_bp($self->_retrieve_stockprop('introgression_end_position_bp'));
 }
 
+sub _retrieve_purdyPedigree {
+    my $self = shift;
+    $self->purdyPedigree($self->_retrieve_stockprop('purdy pedigree'));
+}
+
+sub _retrieve_filialGeneration {
+    my $self = shift;
+    $self->filialGeneration($self->_retrieve_stockprop('filial generation'));
+}
+
 sub _retrieve_number_of_insertions {
     my $self = shift;
     $self->number_of_insertions($self->_retrieve_stockprop('number_of_insertions'));
@@ -522,6 +546,12 @@ sub store {
     }
     if ($self->introgression_end_position_bp){
         $self->_update_stockprop('introgression_end_position_bp', $self->introgression_end_position_bp);
+    }
+    if ($self->purdyPedigree){
+        $self->_store_stockprop('purdy pedigree', $self->purdyPedigree);
+    }
+    if ($self->filialGeneration){
+        $self->_store_stockprop('filial generation', $self->filialGeneration);
     }
     if ($self->number_of_insertions){
         $self->_update_stockprop('number_of_insertions', $self->number_of_insertions);

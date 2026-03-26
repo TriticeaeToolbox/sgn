@@ -288,11 +288,11 @@ sub trial_details_POST  {
 
     my $dbh = $trial->bcs_schema->storage->dbh;
 
-    my $logged_in_user_q = "select * from logged_in_user";
-    my $logged_in_user_h = $dbh -> prepare($logged_in_user_q);
-    $logged_in_user_h->execute();
-    my $logged_in_user_arr = $logged_in_user_h->fetchall_arrayref();
-    print STDERR "logged in user TrialMetadata.pm BEFORE EVAL: ".Dumper($logged_in_user_arr)."\n";
+    # my $logged_in_user_q = "select * from logged_in_user";
+    # my $logged_in_user_h = $dbh -> prepare($logged_in_user_q);
+    # $logged_in_user_h->execute();
+    # my $logged_in_user_arr = $logged_in_user_h->fetchall_arrayref();
+    # print STDERR "logged in user TrialMetadata.pm BEFORE EVAL: ".Dumper($logged_in_user_arr)."\n";
 
 
     my $error = $trial->update_metadata($details);
@@ -6459,6 +6459,7 @@ sub stock_entry_summary_trial : Chained('trial') PathPart('stock_entry_summary')
     my $trial_id = $c->stash->{trial_id};
     my $trial = CXGN::Trial->new( { bcs_schema => $schema, trial_id => $trial_id});
     my $stock_entries = $trial->get_stock_entry_summary();
+    
 
     my @summary;
     foreach my $entry (@$stock_entries) {

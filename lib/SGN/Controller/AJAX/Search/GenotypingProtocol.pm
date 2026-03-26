@@ -70,13 +70,10 @@ sub genotyping_protocol_search_GET : Args(0) {
         push @result,
           [
             "<a href=\"/breeders_toolbox/protocol/$_->{protocol_id}\">$_->{protocol_name}</a>",
-            $_->{marker_type},
-            $description,
             $num_markers,
             $_->{protocol_description},
             $_->{reference_genome_name},
             $_->{species_name},
-            $_->{sample_observation_unit_type_name},
             $_->{create_date}
           ];
     }
@@ -204,6 +201,26 @@ sub genotyping_protocol_pcr_markers_GET : Args(0) {
 }
 
 
+sub genotyping_protocol_marker_count : Path('/ajax/genotyping_protocol/marker_count') : ActionClass('REST') { }
+
+sub genotyping_protocol_marker_count_GET : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $protocol_id = $c->req->param('genotyping_protocol_id');
+    my $schema = $c->dbic_schema('Bio::Chado::Schema');
+
+    my $q = "SELECT SUM(jsonb_array_length(value)) AS count
+            FROM nd_protocolprop
+            WHERE type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'vcf_map_details_markers_array')
+            AND nd_protocol_id = ?;";
+    my $h = $schema->storage->dbh()->prepare($q);
+    $h->execute($protocol_id);
+    my ($marker_count) = $h->fetchrow_array();
+
+    $c->stash->{rest} = {marker_count => $marker_count};
+}
+
+
 sub genotyping_protocol_accession_search : Path('/ajax/genotyping_protocol/search/accession_list') : ActionClass('REST') { }
 
 sub genotyping_protocol_accession_search_POST : Args(0) {
@@ -270,7 +287,7 @@ sub genotyping_protocol_accession_search_POST : Args(0) {
         while (my ($acc_id, $gen_ids) = $h->fetchrow_array()) {
             $gen_by_acc{$acc_id} = $gen_ids;
             foreach my $gen_id ( @$gen_ids ) {
-                push @{$acc_by_gen{$gen_id}}, $acc_id;
+                push @{$acc_by_gen{$gen_id}}, $acc_id if $gen_id && $gen_id != '';
             }
         }
         foreach my $acc_id (keys %gen_by_acc) {

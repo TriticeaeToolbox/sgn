@@ -51,19 +51,6 @@ A hashref containing the variants and the markers related to one or more of the 
     my $title = $species . " Markers";
     my $subtitle = "Chromosome " . $chrom . " @ " . $pos;
 
-    # Set parameters for flanking sequence
-    my $flanking_sequence_blast_db = undef;
-    my $conf_blast_db = $c->config->{flanking_sequence_blast_db};
-    if ( defined $conf_blast_db && $conf_blast_db ne '' ) {
-        my @blast_dbs = split(',', $conf_blast_db);
-        foreach my $blast_db (@blast_dbs) {
-            my @blast_db_parts = split('\|', $blast_db);
-            if ( $blast_db_parts[0] eq $species && $blast_db_parts[1] eq $ref ) {
-                $flanking_sequence_blast_db = $blast_db_parts[2];
-            }
-        }
-    }
-
     # Set parameters for jbrowse
     my $jbrowse_location = $chrom . ':' . $pos;
 
@@ -95,11 +82,9 @@ A hashref containing the variants and the markers related to one or more of the 
 
 
 <!-- FLANKING SEQUENCE -->
-% if (defined $flanking_sequence_blast_db) {
 <&| /page/info_section.mas, title=>'Flanking Sequence', collapsible=>1, collapsed=>0 &>
-    <& /markers/genotyped/flanking_sequence.mas, blast_db => $flanking_sequence_blast_db, chrom => $chrom, pos => $pos &>
+    <& /markers/genotyped/flanking_sequence.mas, markers => $markers &>
 </&>
-% }
 
 
 

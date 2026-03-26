@@ -24,6 +24,8 @@ sub _validate_with_plugin {
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
   my $trial_stock_type = $self->get_trial_stock_type();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my $trial_name = $self->get_trial_name();
   my %errors;
   my @error_messages;
@@ -47,6 +49,8 @@ sub _validate_with_plugin {
   my %seen_plot_names;
   my %seen_seedlot_names;
   my %seen_entry_names;
+  my $treatment_col_start = 12;
+  my $plots_missing_layout = 0;
   my %seen_plot_keys;
 
 
@@ -124,6 +128,7 @@ sub _validate_with_plugin {
     my $row_number;
     my $col_number;
     my $entry_number;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,$columns{plot_name}->{index})) {
       $plot_name = $worksheet->get_cell($row,$columns{plot_name}->{index})->value();
@@ -164,6 +169,10 @@ sub _validate_with_plugin {
     if ($worksheet->get_cell($row,$columns{entry_number}->{index})) {
       $entry_number = $worksheet->get_cell($row,$columns{entry_number}->{index})->value();
     }
+    if ($worksheet->get_cell($row,$columns{is_private}->{index})) {
+      my $v = $worksheet->get_cell($row,$columns{is_private}->{index})->value();
+      $is_private = defined($v) && ($v == "1" || $v == "true" || $v == "yes");
+    }
 
     #skip blank lines
     if (!$stock_name && !$plot_number && !$block_number) {
@@ -198,6 +207,9 @@ sub _validate_with_plugin {
       push @error_messages, "Row $row_name: entry name missing";
     } else {
       $stock_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+      if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
+        $stock_name = $accession_replacements->{$stock_name};
+      }
       $seen_entry_names{$stock_name}++;
     }
 
@@ -244,6 +256,9 @@ sub _validate_with_plugin {
     if ($col_number && !($col_number =~ /^\d+?$/)){
       push @error_messages, "Row $row_name: col_number must be a positive integer: $col_number";
     }
+    if ( !$row_number || !$col_number ) {
+      $plots_missing_layout = $plots_missing_layout + 1;
+    }
     if ($row_number && $col_number) {
       my $k = "$row_number-$col_number";
       if ( !exists $seen_plot_keys{$k} ) {
@@ -265,6 +280,12 @@ sub _validate_with_plugin {
     if (defined($weight_gram_seed_per_plot) && $weight_gram_seed_per_plot ne '' && !($weight_gram_seed_per_plot =~ /^\d+?$/)){
       push @error_messages, "Row $row_name: weight_gram_seed_per_plot must be a positive integer: $weight_gram_seed_per_plot";
     }
+
+    ## IS PRIVATE CHECK
+    # DISABLED: Warnings are not displayed before saving the trial with the single-trial upload
+    # if ($is_private) {
+    #   push @warning_messages, "Row $row_name: plot $plot_name (accession $stock_name) is marked as private and will be skipped.";
+    # }
 
     ## ENTRY NUMBER CHECK
     if ($entry_number) {
@@ -298,15 +319,17 @@ sub _validate_with_plugin {
 
   }
 
-  my @entry_names = keys %seen_entry_names;
-  my $entry_name_validator = CXGN::List::Validate->new();
-  my @entry_names_missing = @{$entry_name_validator->validate($schema,'accessions_or_crosses_or_familynames',\@entry_names)->{'missing'}};
 
-  if (scalar(@entry_names_missing) > 0) {
-    $errors{'missing_stocks'} = \@entry_names_missing;
-    push @error_messages, "The following entry names are not in the database as uniquenames or synonyms: ".join(',',@entry_names_missing);
+  if ( !$skip_accession_checks ) {
+    my @entry_names = keys %seen_entry_names;
+    my $entry_name_validator = CXGN::List::Validate->new();
+    my @entry_names_missing = @{$entry_name_validator->validate($schema,'accessions_or_crosses_or_familynames',\@entry_names)->{'missing'}};
+
+    if (scalar(@entry_names_missing) > 0) {
+        $errors{'missing_stocks'} = \@entry_names_missing;
+        push @error_messages, "The following entry names are not in the database as uniquenames or synonyms: ".join(',',@entry_names_missing);
+    }
   }
-
 
   my @seedlot_names = keys %seen_seedlot_names;
   if (scalar(@seedlot_names)>0){
@@ -345,6 +368,22 @@ sub _validate_with_plugin {
     }
   }
 
+  # check for plots with missing row/col positions
+  if ( $plots_missing_layout > 0 ) {
+    push @warning_messages, "There are " . $plots_missing_layout . " plots with missing layout information.  Please add row and column positions to the plots.";
+  }
+
+  # check for multiple plots at the same position
+  foreach my $key (keys %seen_plot_keys) {
+    my $plots = $seen_plot_keys{$key};
+    my $count = scalar(@{$plots});
+    if ( $count > 1 ) {
+      my @pos = split('-', $key);
+      push @warning_messages, "More than 1 plot is assigned to the position row=" . $pos[0] . " col=" . $pos[1] . " plots=" . join(',', @$plots);
+    }
+  }
+
+  # store any warnings found in the parsed file
   if (scalar(@warning_messages) >= 1) {
     $warnings{'warning_messages'} = \@warning_messages;
     $self->_set_parse_warnings(\%warnings);
@@ -369,6 +408,8 @@ sub _parse_with_plugin {
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
   my $trial_stock_type = $self->get_trial_stock_type();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my $trial_name = $self->get_trial_name();
 
   # Match a dot, extension .xls / .xlsx
@@ -385,6 +426,7 @@ sub _parse_with_plugin {
   my $excel_obj;
   my $worksheet;
   my %design;
+  my $treatment_col_start = 12;
 
   $excel_obj = $parser->parse($filename);
   if ( !$excel_obj ) {
@@ -415,6 +457,9 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,$columns{$stock_column_name}->{index})) {
       $stock_name = $worksheet->get_cell($row,$columns{$stock_column_name}->{index})->value();
       $stock_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+      if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
+        $stock_name = $accession_replacements->{$stock_name};
+      }
       $seen_stock_names{$stock_name}++;
     }
   }
@@ -449,6 +494,7 @@ sub _parse_with_plugin {
     my $num_seed_per_plot = 0;
     my $weight_gram_seed_per_plot = 0;
     my $entry_number;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,$columns{plot_number}->{index})) {
       $plot_number =  $worksheet->get_cell($row,$columns{plot_number}->{index})->value();
@@ -464,6 +510,12 @@ sub _parse_with_plugin {
       $stock_name = $worksheet->get_cell($row,$columns{$stock_column_name}->{index})->value();
     }
     $stock_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+    if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
+      $stock_name = $accession_replacements->{$stock_name};
+    }
+    if ($worksheet->get_cell($row,$columns{plot_number}->{index})) {
+      $plot_number =  $worksheet->get_cell($row,$columns{plot_number}->{index})->value();
+    }
     if ($worksheet->get_cell($row,$columns{block_number}->{index})) {
       $block_number =  $worksheet->get_cell($row,$columns{block_number}->{index})->value();
     }
@@ -497,9 +549,18 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,$columns{entry_number}->{index})) {
       $entry_number = $worksheet->get_cell($row, $columns{entry_number}->{index})->value();
     }
+    if ($worksheet->get_cell($row,$columns{is_private}->{index})) {
+      my $v = $worksheet->get_cell($row,$columns{is_private}->{index})->value();
+      $is_private = defined($v) && ($v == "1" || $v == "true" || $v == "yes");
+    }
 
     #skip blank lines
     if (!$stock_name && !$plot_number && !$block_number) {
+      next;
+    }
+
+    # Skip plots marked as private
+    if ( $is_private ) {
       next;
     }
 
@@ -512,12 +573,14 @@ sub _parse_with_plugin {
       }
     }
 
-    if ($stock_synonyms_lookup{$stock_name}){
-      my @stock_names = keys %{$stock_synonyms_lookup{$stock_name}};
-      if (scalar(@stock_names)>1){
-        print STDERR "There is more than one uniquename for this synonym $stock_name. this should not happen!\n";
+    if ( !$skip_accession_checks ) {
+      if ($stock_synonyms_lookup{$stock_name}){
+        my @stock_names = keys %{$stock_synonyms_lookup{$stock_name}};
+        if (scalar(@stock_names)>1){
+          print STDERR "There is more than one uniquename for this synonym $stock_name. this should not happen!\n";
+        }
+        $stock_name = $stock_names[0];
       }
-      $stock_name = $stock_names[0];
     }
 
     if ($entry_number) {

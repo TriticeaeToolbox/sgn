@@ -1,6 +1,7 @@
 
 <%args>
 $dataset_id => undef
+$preferred_species => undef
 </%args>
 
 <& /util/import_javascript.mas, entries => ["wizard"] &>
@@ -43,9 +44,10 @@ $dataset_id => undef
         <div class="wizard-panel panel panel-default">
 
           <div class="panel-heading">
-            <select class="wizard-type-select form-control input-sm form-inline">
+            <select class="wizard-type-select form-control input-sm form-inline" id="wizard-type-select-col1">
               <option value="" disabled selected>Select Column Type</option>
               <optgroup class="wizard-types-group" label="--------------------"></optgroup>
+              <optgroup class="wizard-experiments-group" label="Load Trials from Experiment:"></optgroup>
               <optgroup class="wizard-lists-group" label="Load Selection from List:"></optgroup>
             </select>
           </div>
@@ -187,7 +189,7 @@ $dataset_id => undef
     <&| /util/user.mas:logged_in &>
       <div class="panel panel-default">
         <div class="panel-heading" role="button" data-toggle="collapse" data-parent="#wiz-down-group" href="#wiz-down-1-c" aria-controls="wiz-down-1-c">
-          <span class="btnn btn-link">Related Genotype Data</span>
+        <span class="btnn btn-link">Related Genotype Data</span>
         </div>
         <div id="wiz-down-1-c" class="panel-collapse collapse" role="tabpanel">
           <p style="margin: 15px; text-color: #999; font-size: 90%">Download matching genotype records from the database.  Select a <strong>single genotyping protocol</strong> and <strong>one or more accessions</strong> to download the matching genotype data.</p>
@@ -320,13 +322,6 @@ $dataset_id => undef
                         <option value="no">No</option>
                         <option value="yes">Yes</option>
                     </select>
-                    <br/>
-                        <span class="glyphicon glyphicon-info-sign" title="Select accessions, traits, and optionally a genotyping protocol. If no genotyping protocol is selected, the default genotyping protocol is used in your system. When many traits are selected and these traits are not treated as repeated measurements, the traits are treated separately and distinct results are returned e.g. several Manhattan plots are returned. If the selected traits are in fact repeated measurements, then select 'yes'; a single GWAS will be run against all of the phenotypes e.g. a single Manhattan plot is returned. Specify minor allele frequency (MAF), marker filter, and individuals filter. Can compute genotypes from parents if the parents of the accessions you selected have genotypes by checking the checkbox. GWAS uses a fixed effect for different field trials and a fixed effect for replicate. GWAS uses Kinship matrix calculated from the genotype data. MAF and missing data used to filter prior to GWAS and Kinship matrix calculation. Can select whether to return results in Manhattan and QQ Plot (.pdf) form or as the tabular results (.tsv)."></span>
-                        <span>Run GWAS</span><br/>
-                      <button class="wizard-download-gwas btn btn-sm btn-primary">
-                          <span class="glyphicon glyphicon-download" aria-hidden="true"></span>
-                          Download GWAS
-                      </button>
                   </td>
               </tr>
             </table>
@@ -335,12 +330,33 @@ $dataset_id => undef
         </div>
       </div>
 
+      <div class="panel panel-default panel2">
+        <div class="panel-heading" role="button" data-toggle="collapse" data-parent="#wiz-down-group" href="#wiz-down-4-c" aria-controls="wiz-down-4-c">
+          <span class="btnn btn-link" type="text" disabled>Imputed Genotype Data</span>
+          <input class="btnn btn-link" type="text" id="panel3" disabled>
+        </div>
+        <div id="wiz-down-4-c" class="panel-collapse collapse" role="tabpanel">
+          <table class="table"><tr><td>
+          <span>The genotype projects have been imputed using the Practical Haplotype Graph (PHG). The imputed marker density is
+                2.9M markers for assembly RefSeq v2.1. For quick access
+                the imputed genotypes can be downloaded from a prepared file. A description of the
+                imputation process can be found in <a href="/static_content/files/imputation.html">About PHG imputation</a>.</span><br/></br>
+               <input class="wizard-download-genotypes-imput form-control input-sm" type="text" disabled></input>
+               <input type="hidden" id="species" value=<% $preferred_species %>></input>
+               <span class="glyphicon glyphicon-info-sign" title="Retieve Imputed Genotypes"></span>
+               <span>Retrieve Genotypes</span><br>
+               <button class="wizard-download-imputed-file btn btn-sm btn-primary">Download file</button> all accessions in project
+               <input class="wizard-download-genotypes-info5 form-control btn-warning" type="text"></input>  <!-- show default protocol -->
+        </table>
+        </div>
+      </div>
+
       <div class="panel panel-default">
         <div class="panel-heading" role="button" data-toggle="collapse" data-parent="#wiz-down-group" href="#wiz-down-1-c-a" aria-controls="wiz-down-1-c-a">
           <span class="btnn btn-link">Archived Genotype Data</span>
         </div>
         <div id="wiz-down-1-c-a" class="panel-collapse collapse" role="tabpanel">
-          <p style="margin: 15px; text-color: #999; font-size: 90%">Download the original archived VCF files of entire genotyping projects.  Select <strong>one or more genotyping projects and/or genotyping protocols</strong> to download a VCF file of any matching project(s).</p>
+          <p style="margin: 15px; text-color: #999; font-size: 90%">Download archived VCF files of entire genotyping projects.  Select <strong>one or more genotyping projects and/or genotyping protocols</strong> to download a VCF file of any matching project(s).</p>
           <div id="wiz-down-1-c-a-body" style="min-height: 50px"></div>
         </div>
       </div>
@@ -420,7 +436,7 @@ $dataset_id => undef
               <td colspan="2">
                 <div class="checkbox">
                   <label>
-                    <input class="wizard-download-phenotypes-entry-numbers" type="checkbox" />
+                    <input class="wizard-download-phenotypes-entry-numbers" type="checkbox" checked />
                     Include accession entry numbers
                   </label>
                 </div>
@@ -435,33 +451,40 @@ $dataset_id => undef
                   </label>
                 </div>
               </td>
-	      <td style="border-top: none; padding-top: 0">
-		Repetitive measurements: <br />
-
-		<select class="wizard-download-repetitive-measurements-type" >
+              <td colspan="2" style="border-top: none; padding-top: 0">
+                <div class="checkbox">
+                  <label>
+                    <input class="wizard-download-phenotypes-intercrop" type="checkbox" checked />
+                    Include intercrop accessions
+                  </label>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                Repetitive measurements: <br />
+                <select class="wizard-download-repetitive-measurements-type form-control" >
                   <option value="first">First value</option>
                   <option value="last">Last value</option>
                   <option value="average" selected>Averaged value</option>
                   <option value="sum">Sum values</option>
                   <option value="all_values_single_line">All Values Single Line</option>
                   <option value="all_values_multiple_line">All Values Multiple Line</option>
-		</select>
-	      </td>
-	      <td style="border-top: none; padding-top: 0">
-		&nbsp;
-	      </td>
+                </select>
+              </td>
             </tr>
-	    <tr>
-		<td>
-		    From:  <input type="text" class="wizard-download-start-date" id="phenotype_start_date" title="phenotype_start_date"  />
-		</td>
-		<td>
-		    To: <input type="text" class="wizard-download-end-date" id="phenotype_end_date" title="phenotype_end_date" />	
-		</td>
-		<td>
-		    <input type="checkbox" id="include_dateless_items" checked="1" > include items without a date</input>
-		</td>
-		</tr>	
+            <tr>
+              <td style="border-top: none; padding-top: 0">
+                From:<br /><input type="text" class="wizard-download-start-date form-control" id="phenotype_start_date" title="phenotype_start_date"  />
+              </td>
+              <td style="border-top: none; padding-top: 0">
+                To:<br /><input type="text" class="wizard-download-end-date form-control" id="phenotype_end_date" title="phenotype_end_date" />	
+              </td>
+              <td style="border-top: none; padding-top: 0">
+                <input type="checkbox" id="include_dateless_items" checked="1" />
+                Include items without a date
+              </td>
+            </tr>
             <tr>
               <td>
                 <span>Trait Name Contains</span>
@@ -540,6 +563,7 @@ document.addEventListener("DOMContentLoaded", function() {
    $(".wizard-download-genotypes-info2").hide();
    $(".wizard-download-genotypes-info3").hide();
    $(".wizard-download-genotypes-info4").hide();
+   $(".wizard-download-genotypes-info5").hide();
   });
 
   d3.select('#update_wizard_show').on('click', function () {
@@ -566,6 +590,50 @@ document.addEventListener("DOMContentLoaded", function() {
   d3.select("#update_wizard_lists").on('click',function(){
     window.sWizard.reload_lists();
   });
+
+
+  // On Page Ready: load a pre-defined list or experiment into the first column
+  jQuery(window).on('pageshow', function() {
+    let urlParams = new URLSearchParams(window.location.search);
+    if ( urlParams.has('list') ) {
+      setTimeout(() => loadList(urlParams.get('list')), 500);
+    }
+    else if ( urlParams.has('experiment') ) {
+      setTimeout(() => loadExperiment(urlParams.get('experiment')), 500);
+    }
+  });
+
+
+  /**
+   * Preload the Wizard with the contents of the specified List
+   * @param {String,Number} listId The ID of the List to load
+   */
+  function loadList(listId) {
+    let listValue = "__LIST__" + listId;
+    jQuery('#wizard-type-select-col1 option').each(function() {
+      let opt = jQuery(this);
+      if ( opt.val() === listValue ) {
+        jQuery("#wizard-type-select-col1").val(opt.val());
+        window.sWizard.wizard.initial_list(listId);
+      }
+    });
+  }
+
+
+  /**
+   * Preload the Wizard with the Trials from the specified Experiement (project/folder)
+   * @param {String,Number} experimenId The ID of the experiment/project/folder to load
+   */
+  function loadExperiment(experimentId) {
+    let experimentValue = "__EXPERIMENT__" + experimentId;
+    jQuery('#wizard-type-select-col1 option').each(function() {
+      let opt = jQuery(this);
+      if ( opt.val() === experimentValue ) {
+        jQuery("#wizard-type-select-col1").val(opt.val());
+        window.sWizard.wizard.initial_experiment(experimentId);
+      }
+    });
+  }
 
 
   // Wizard Callback: get archived vcf files available for selected genotyping protocol / project
@@ -650,7 +718,7 @@ document.addEventListener("DOMContentLoaded", function() {
     if ( selected_genotyping_protocols.length >= 1 ) {
       $(".wizard-download-genotypes-info3").hide();
       var selected_genotyping_protocol = selected_genotyping_protocols.length === 1 ? selected_genotyping_protocols[0].id : "";
-      if ( selected_genotyping_protocol != SELECTED_GENOTYPING_PROTOCOL ) {
+      if ( selected_genotyping_protocol !== SELECTED_GENOTYPING_PROTOCOL ) {
         SELECTED_GENOTYPING_PROTOCOL = selected_genotyping_protocol;
         jQuery.ajax({
           url: '/ajax/breeder/search/genotyping_protocol_chromosomes',
@@ -696,7 +764,7 @@ document.addEventListener("DOMContentLoaded", function() {
         $(".wizard-download-genotypes-info2").hide();
       }
     } else if ( selected_genotyping_projects.length >= 1 ) {
-      var selected_genotyping_project = selected_genotyping_projects[0].id;
+      var selected_genotyping_project = selected_genotyping_projects.length === 1 ? selected_genotyping_projects[0].id : "";
       if ( selected_genotyping_project !== SELECTED_GENOTYPING_PROJECT ) {
         SELECTED_GENOTYPING_PROJECT = selected_genotyping_project;
         jQuery.ajax({
@@ -720,6 +788,8 @@ document.addEventListener("DOMContentLoaded", function() {
               if ( selected_genotyping_protocols.length < 1 ) {
                 $(".wizard-download-genotypes-info3").show();
                 $(".wizard-download-genotypes-info3").val("genotype protocol \"" + genotyping_protocol[0]["protocol_name"] + "\""); 
+                $(".wizard-download-genotypes-info5").show();
+                $(".wizard-download-genotypes-info5").val("genotype protocol \"" + genotyping_protocol[0]["protocol_name"] + "\"");
               }
             }
             jQuery.ajax({
@@ -760,12 +830,14 @@ document.addEventListener("DOMContentLoaded", function() {
              }
             });
           }
-        });
+        })
       }
     } else {
       var protocol_name = '<% $c->config->{default_genotyping_protocol} %>';
       $(".wizard-download-genotypes-info3").show();
       $(".wizard-download-genotypes-info3").val("genotype protocol \"" + protocol_name + "\""); 
+      $(".wizard-download-genotypes-info5").show();
+      $(".wizard-download-genotypes-info5").val("genotype protocol \"" + protocol_name + "\""); 
       jQuery.ajax({
           url: '/get/genotyping/protocols/',
           method: "POST",
@@ -813,8 +885,53 @@ document.addEventListener("DOMContentLoaded", function() {
             $(".wizard-download-genotypes-info4").val(download_units.toString());
       }
     }
+    if ( selected_genotyping_projects.length == 1 ) {
+      var selected_genotyping_project = selected_genotyping_projects.length === 1 ? selected_genotyping_projects[0].id : "";
+      if ( selected_genotyping_project !== SELECTED_GENOTYPING_PROJECT ) {
+        SELECTED_GENOTYPING_PROJECT = selected_genotyping_project;
+        PROJECT_NAME = selected_genotyping_projects[0].name;
+        jQuery.ajax({
+          url: '/ajax/breeder/search/genotyping_project_imputed',
+          method: "GET",
+          data: { 'genotyping_project': SELECTED_GENOTYPING_PROJECT,
+                  'name': PROJECT_NAME },
+          error: function(response) {
+            console.log("ERROR: Could not get chromosome names for genotyping project #" + SELECTED_GENOTYPING_PROJECT);
+            console.log("error " + response);
+            updateImputed();
+          },
+          success: function(response) {
+            if (response.error) {
+              console.log("ERROR: Server returned an error trying to get the chromosome names for genotyping protocol #" + SELECTED_GENOTYPING_PROTOCOL);
+              console.log("error " + repsonse.error);
+              updateImputed();
+            } else {
+              if (response.imputed == 1) {
+                  updateImputed("found");
+              } else {
+                  updateImputed("not found");
+              }
+              if (!SELECTED_GENOTYPING_PROTOCOL) {
+                  SELECTED_GENOTYPING_PROTOCOL = response.protocol_id;
+              }
+              if (response.imputed == 0) {
+                console.log("setting disable");
+                d3.selectAll("#wiz-down-4-c")
+                  .style("display", null)
+                  .style("display", "none");
+              } else {
+                d3.selectAll("#wiz-down-4-c")
+                  .style("display", null)
+              }
+            }
+          }
+        });
+      }
+    } else {
+      SELECTED_GENOTYPING_PROJECT = "";
+    }
   });
-  // updateChromosomeNames();
+  updateChromosomeNames();
 
   // Set the chromosome names for the select dropdown menu
   function updateChromosomeNames(names) {
@@ -826,6 +943,11 @@ document.addEventListener("DOMContentLoaded", function() {
       }
     }
     $(".wizard-download-genotypes-chromosome-number").html(html);
+  }
+
+  // Set the message if imputed project found
+  function updateImputed(msg) {
+    document.getElementById("panel3").value = " " + msg;
   }
 
   jQuery('input[title="phenotype_start_date"]').daterangepicker(

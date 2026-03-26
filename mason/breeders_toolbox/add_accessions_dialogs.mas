@@ -24,13 +24,13 @@ $editable_stock_props_definitions
         <div class="container-fluid">
 
             <ul class="nav nav-pills nav-justified" id="add_new_accessions_tab_select">
-                <li class="active" id="add_new_accessions_list_tab"><a data-toggle="tab" href="#with_list_tab">Using Lists</a></li>
-                <li id="add_new_accessions_file_tab"><a data-toggle="tab" href="#with_file_tab">Uploading a File</a></li>
+                <li id="add_new_accessions_list_tab"><a data-toggle="tab" href="#with_list_tab">Using Lists</a></li>
+                <li class="active" id="add_new_accessions_file_tab"><a data-toggle="tab" href="#with_file_tab">Uploading a File</a></li>
             </ul>
 
             <div class="tab-content">
 
-                <div id="with_list_tab" class="tab-pane fade in active">
+                <div id="with_list_tab" class="tab-pane fade">
                     <hr>
                     <form class="form-horizontal" role="form" name="new_accessions_form" id="new_accessions_form">
                         <div class="form-group">
@@ -44,22 +44,45 @@ $editable_stock_props_definitions
                                 <button name="lists_link" class="btn btn-info btn-sm" style="margin:6px 0px 0px 0px" type="button" >Manage Lists</button>
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="display: none">
                             <label class="col-sm-4 control-label">Use Fuzzy Search: </label>
                             <div class="col-sm-8">
 % if ( $user_role eq 'curator' ) {
-                                <input type="checkbox" id="fuzzy_check" name="fuzzy_check"></input>
-% } else {
-                                <input type="checkbox" id="fuzzy_check" name="fuzzy_check" checked disabled></input>
+                                <input type="checkbox" id="fuzzy_check" name="fuzzy_check" />
+% } else { 
+                                <input type="checkbox" id="fuzzy_check" name="fuzzy_check" disabled />
 % }
                                 <br/>
                                 <small>Note: Use the fuzzy search to match similar names to prevent uploading of duplicate accessions. Fuzzy searching is much slower than regular search. </small>
                             </div>
                         </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                            <div class="col-sm-8">
+% if ( $user_role eq 'curator' ) {
+                                <input type="checkbox" id="synonym_search_check" name="synonym_search_check" checked>
+% } else { 
+                                <input type="checkbox" id="synonym_search_check" name="synonym_search_check" checked disabled>
+% }
+                                <br/>
+                                <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
+                                <strong>Host:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_host"></span></small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="synonym_search_update" name="synonym_search_update" checked>
+                                <br/>
+                                <small>Note: The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_last_updated"></span><br />
+                                <strong>Database:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_database"></span></small>
+                            </div>
+                        </div>
                     </form>
                 </div>
 
-                <div id="with_file_tab" class="tab-pane fade">
+                <div id="with_file_tab" class="tab-pane fade in active">
                     <hr>
                     <&| /page/explanation.mas, title=>'Template information' &>
                         <p>
@@ -84,16 +107,39 @@ $editable_stock_props_definitions
                                 <input id="email_address_upload" name="email_address_upload" type="email" value="<% $email_address %>" style="display: none;">
                             </div>
                         </div>
-                        <div class="form-group">
+                        <div class="form-group" style="display: none">
                             <label class="col-sm-4 control-label">Use Fuzzy Search: </label>
                             <div class="col-sm-8">
-%# if ( $user_role eq 'curator' ) {
-                                <input type="checkbox" id="fuzzy_check_upload_accessions" name="fuzzy_check_upload_accessions"></input>
-%# } else {
-%#                                <input type="checkbox" id="fuzzy_check_upload_accessions" name="fuzzy_check_upload_accessions" checked disabled></input>
-%# }
+% if ( $user_role eq 'curator' ) {
+                                <input type="checkbox" id="fuzzy_check_upload_accessions" name="fuzzy_check_upload_accessions">
+% } else {
+                                <input type="checkbox" id="fuzzy_check_upload_accessions" name="fuzzy_check_upload_accessions" disabled>
+% }
                                 <br/>
                                 <small>Note: Use the fuzzy search to match similar names to prevent uploading of duplicate accessions. Fuzzy searching is much slower than regular search. Only a curator can disable the fuzzy search.</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Use Synonym Search Tool: </label>
+                            <div class="col-sm-8">
+% if ( $user_role eq 'curator' ) {
+                                <input type="checkbox" id="synonym_search_check_upload_accessions" name="synonym_search_check_upload_accessions" checked>
+% } else { 
+                                <input type="checkbox" id="synonym_search_check_upload_accessions" name="synonym_search_check_upload_accessions" checked disabled>
+% }
+                                <br/>
+                                <small>Note: Use the synonym search tool to find similar existing Accession entries in the database. Only a curator can disable the synonym search.<br />
+                                <strong>Host:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_host"></span></small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Update Synonym Search Tool Cache: </label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="synonym_search_update_upload_accessions" name="synonym_search_update_upload_accessions" checked>
+                                <br/>
+                                <small>Note: The Synoynm Search Tool keeps a separate copy of the database Accession entries (to improve search speed).  Check this box to refresh the Search Tool's cache of Accessions from the database.<br />
+                                <strong>Last Updated:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_last_updated"></span><br />
+                                <strong>Database:</strong>&nbsp;&nbsp;<span class="synonym_search_tool_database"></span></small>
                             </div>
                         </div>
                         <div class="form-group">
@@ -102,6 +148,14 @@ $editable_stock_props_definitions
                                 <input type="checkbox" id="append_synonyms" name="append_synonyms" checked />
                                 <br />
                                 <small>When checked, add synonyms of existing accession entries to the synonyms already stored in the database.  When not checked, remove any existing synonyms of existing accession entries and store only the synonyms in the upload file.</small>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-sm-4 control-label">Overwrite Pedigrees: </label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" id="overwrite_pedigrees" name="overwrite_pedigrees">
+                                <br/>
+                                <small>When this option is checked, any pedigrees in the file (in the female_parent and male_parent columns) will replace any existing pedigrees already in the database.</small>
                             </div>
                         </div>
                     </form>
@@ -148,6 +202,9 @@ $editable_stock_props_definitions
 %  foreach my $editable_stockprop (sort keys %$editable_stock_props) {
 %                               print "<td>$editable_stockprop</td>";
 % }
+                                <td>female_parent</td>
+                                <td>male_parent</td>
+                                <td>cross_type</td>
                             </tr>
                         </tbody>
                     </table>
@@ -167,6 +224,7 @@ $editable_stock_props_definitions
                     <li>species_name (must exist in the database)</li>
                     </ul>
                     <b>Optional Fields:</b>
+                    <p><em>NOTE: the optional fields do not need to exist in the spreadsheet if they are not used and can be added in any order after the required fields</em></p>
                     <ul>
 		    <li>description - a free text description of the stock.</li>
                     <li>population_name (a population is a grouping of accessions. If the population already exists in the database, the accession will be added to it; otherwise, a new population will be created). Multiple populations can be specified, using the pipe symbol (|) as the separator (for example, pop1|pop2|pop3)</li>
@@ -178,6 +236,9 @@ $editable_stock_props_definitions
 %                   print "<li>$editable_stockprop (no definition available)</li>";
 %    }
 %  }
+                    <li>female_parent (the accession name of the female parent - if the accession does not exist, it will be created)</li>
+                    <li>male_parent (the accession name of the male parent - if the accession does not exist, it will be created)</li>
+                    <li>cross_type (the type of cross between the female and male parents - one of: biparental, self, open, backcross, sib, polycross, reselected)
                     </ul>
                 </div>
                 <& /help/file_upload_type.mas, type => "Accessions", optional_column => 1 &>
@@ -241,6 +302,93 @@ $editable_stock_props_definitions
       <div class="modal-footer">
         <button type="button" class="btn btn-default" name="review_fuzzy_matches_download" id="review_fuzzy_matches_download">Download Fuzzy Matches</button>
         <button type="button" class="btn btn-primary" name="review_fuzzy_matches_continue" id="review_fuzzy_matches_continue" data-dismiss="modal">Make Changes and Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="synonym_search_dialog" name="synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="synonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="synonymSearchDialog">Synonym Search</h4>
+      </div>
+      <div class="modal-body">
+  	    <div id="synonym_search_dialog_starting" style="width: 100%">
+          <p style="margin: 25px auto; text-align: center">Starting Synonym Search....</p>
+        </div>
+        <div id="synonym_search_dialog_working" style="display: none; width: 100%">
+          <p id="synonym_search_dialog_working_message" style="margin: 25px auto; text-align: center">Searching...</p>
+          <div class="progress">
+            <div id="synonym_search_dialog_working_progress" class="progress-bar progress-bar-success" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%"></div>
+          </div>
+        </div>
+        <div id="synonym_search_dialog_results" style="display: none; width: 100%">
+          <p><strong>Search Results:</strong></p>
+          <p>The table below lists your Accession names that have potential matches to existing Accession entries in the database.</p>
+          <p>
+            <strong>Any of your Accession names <em>that are not an EXACT match</em> with a Database entry will have a new Accession entry created.</strong>
+            For each of your Accession names with a potential match, you can select a Database entry to use as a replacement.  This will replace your 
+            Accession name with the selected Database name and optionally add your Accession name as a synonym of the selected Database entry.
+          </p>
+          <br />
+          <p>
+            <strong>Filter by Match Type:</strong>&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="all">All</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="exact">Exact</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="exact_potential">Exact &amp; Potential</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="potential">Potential</a>&nbsp;|&nbsp;
+            <a href="#" class="synonym_search_dialog_filter" data-match-type="none">None</a>
+          </p>
+          <div id="synonym_search_dialog_results_table"></div>
+          <div id="synonym_search_dialog_results_none" style="display: none">
+            <p><strong>No potential matches found</strong></p>
+            <p>There are no potential Database Accession entries matching your provided Accession names.  Click the <strong>Continue</strong> button below to update any existing Accessions and/or add any new Accessions to the Database.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="synonym_search_dialog_cancel" id="synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" name="synonym_search_dialog_continue" id="synonym_search_dialog_continue" data-dismiss="modal" disabled>Continue</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="review_synonym_search_dialog" name="review_synonym_search_dialog" tabindex="-1" role="dialog" aria-labelledby="reviewSynonymSearchDialog" data-backdrop="static" data-keyboard="false">
+  <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="reviewSynonymSearchDialog">Synonym Search Results</h4>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid">
+          <div class="well">
+            <p><strong>Selected Replacements:</strong></p>
+            <p>The following existing Database Accession entries will replace your provided Accession name(s) and your Accession name 
+            will be added to the existing Database Accession entry, if selected.</p>
+            <div id="review_synonym_search_dialog_replacements"></div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>New Accessions:</strong></p>
+            <p>The following Accession entries will be created in the Database.</p>
+            <div id="review_synonym_search_dialog_create"></div>
+          </div>
+          <br />
+          <div class="well">
+            <p><strong>Existing Accessions:</strong></p>
+            <p>The following Accession entries already exist in the Database.  They will be updated with any new information.</p>
+            <div id="review_synonym_search_dialog_existing"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" name="review_synonym_search_dialog_cancel" id="review_synonym_search_dialog_cancel" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-default" name="review_synonym_search_dialog_back" id="review_synonym_search_dialog_back" data-dismiss="modal">Back</button>
+        <button type="button" class="btn btn-primary" name="review_synonym_search_dialog_continue" id="review_synonym_search_dialog_continue" data-dismiss="modal">Store</button>
       </div>
     </div>
   </div>

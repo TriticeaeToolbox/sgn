@@ -158,7 +158,9 @@ sub name_like {
 
   # clean the name to see what WE would call it. 
   # We'll search for both the input name and the cleaned name.
-  my $clean_name = clean_marker_name($name);
+  #my $clean_name = clean_marker_name($name);
+  my $clean_name = $name;
+  $clean_name =~ s/\s+//g;
 
   # also allow to search on marker SGN-M type identifiers in the name 
   # field. exact/starts with etc won't be supported for SGN-M ids.
@@ -205,6 +207,25 @@ sub name_exactly {
 
   $self->_add_marker_query($subquery, $name);
 
+}
+
+
+=item name_in($names)
+
+Limits the search to markers that have one of the EXACT names specified.
+See also name_exactly() and name_like().
+
+  my @names = ('marker1', 'marker2');
+  $msearch->name_in(\@names);
+
+=cut
+
+sub name_in {
+  my ($self, $names) = @_;
+  return unless $names;
+
+  my $subquery = "SELECT marker_id FROM marker_alias WHERE alias IN (@{[join',', ('?') x @$names]})";
+  $self->_add_marker_query($subquery, @$names);
 }
 
 

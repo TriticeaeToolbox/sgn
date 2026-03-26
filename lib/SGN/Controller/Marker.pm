@@ -52,6 +52,13 @@ Show the HTML detail page for this marker.
 sub marker_details: Chained('get_marker') PathPart('details') :Args(0) {
   my ( $self, $c ) = @_;
 
+  if (!$c->user()) {
+      $c->stash(
+        template => '/markers/preview.mas',
+        dbh       => $c->dbc->dbh,
+      );
+      return;
+  }
   $c->stash(
       template  => '/markers/index.mas',
       dbh       => $c->dbc->dbh,

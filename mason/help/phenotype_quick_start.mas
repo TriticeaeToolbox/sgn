@@ -1,0 +1,126 @@
+<%args>
+  $breeding_programs => [],
+  $locations => []
+</%args>
+
+<& /util/import_javascript.mas, classes => [ 'jquery', 'jqueryui' ] &>
+
+
+<& /page/page_title.mas, title=>"Guided Phenotype Upload Workflow" &>
+
+<br /><br />
+
+<div style="min-height: 60vh" class="well">            
+  <&| /util/workflow.mas, id=> "phenotype_quick_start_workflow" &>
+    
+    <!-- Step 1: Intro -->
+    <&| /util/workflow.mas:step, title=> "Intro" &>
+      <& /page/page_title.mas, title=>"Introduction" &>
+      <& /help/phenotype_quick_start/intro.mas &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="Workflow.complete(this); return false;">Start</button>
+      </div>
+    </&>
+    <!-- End Intro -->
+
+    <!-- Step 2: Breeding Program -->
+    <&| /util/workflow.mas:step, title=> "Breeding Program" &>
+      <& /page/page_title.mas, title=>"Breeding Program(s)" &>
+      <& /help/phenotype_quick_start/breeding_programs.mas, breeding_programs => $breeding_programs &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="Workflow.complete(this); return false;">Continue</button>
+      </div>
+    </&>
+    <!-- End Breeding Program -->
+
+    <!-- Step 3: Locations -->
+    <&| /util/workflow.mas:step, title=> "Locations" &>
+      <& /page/page_title.mas, title=>"Locations" &>
+      <& /help/phenotype_quick_start/locations.mas, locations => $locations &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="Workflow.complete(this); return false;">Continue</button>
+      </div>
+    </&>
+    <!-- End Locations -->
+
+    <!-- Step 4: Accessions -->
+    <&| /util/workflow.mas:step, title=> "Accessions" &>
+      <& /page/page_title.mas, title=>"Accessions" &>
+      <& /help/phenotype_quick_start/accessions.mas &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="Workflow.complete(this); return false;">Continue</button>
+      </div>
+    </&>
+    <!-- End Accessions -->
+
+    <!-- Step 5: Trials -->
+    <&| /util/workflow.mas:step, title=> "Trials" &>
+      <& /page/page_title.mas, title=>"Trials" &>
+      <& /help/phenotype_quick_start/trials.mas &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="Workflow.complete(this); return false;">Continue</button>
+      </div>
+    </&>
+    <!-- End Trials -->
+
+    <!-- Step 5: Trait Observations -->
+    <&| /util/workflow.mas:step, title=> "Observations" &>
+      <& /page/page_title.mas, title=>"Trait Observations" &>
+      <& /help/phenotype_quick_start/observations.mas &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="Workflow.complete(this); return false;">Finish</button>
+      </div>
+    </&>
+    <!-- End Trait Observations -->
+
+    <!-- Step 6: Finish -->
+    <&| /util/workflow.mas:step, title=> "Finish" &>
+      <& /page/page_title.mas, title=>"Finish" &>
+      <& /help/phenotype_quick_start/finish.mas &>
+      <br /><br />
+      <div class="center">
+        <button class="btn btn-primary btn-continue" onclick="window.location='/breeders/trials'; return false;">Manage Field Trials</button>
+      </div>
+    </&>
+    <!-- End Finish -->
+
+  </&>
+</div>
+
+
+<style>
+  .btn-continue {
+    min-width: 200px
+  }
+  .detailed-instructions h2 {
+    margin-top: 0;
+  }
+  .detailed-instructions a.template {
+    float: right;
+    margin-top: -10px;
+    margin-left: 10px;
+    padding: 5px;
+  }
+  .detailed-instructions a.btn {
+    color: #fff;
+  }
+  .detailed-instructions a.btn:hover {
+    background-color: #286090 !important;
+    color: #fff !important;
+  }
+  .detailed-instructions li.manual:before {
+    content: "\e085";
+    font-family: 'Glyphicons Halflings';
+    font-size: 12px;
+    float: left;
+    margin-top: 0px;
+    margin-left: -17px;
+    color: #000;
+  }
+</style>

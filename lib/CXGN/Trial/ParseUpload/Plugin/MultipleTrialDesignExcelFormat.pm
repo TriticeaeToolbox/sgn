@@ -16,7 +16,7 @@ use CXGN::Trial;
 #
 
 my @REQUIRED_COLUMNS = qw|trial_name breeding_program location year design_type description accession_name plot_number block_number|;
-my @OPTIONAL_COLUMNS = qw|plot_name trial_type plot_width plot_length field_size planting_date transplanting_date harvest_date is_a_control rep_number range_number row_number col_number seedlot_name num_seed_per_plot weight_gram_seed_per_plot entry_number|;
+my @OPTIONAL_COLUMNS = qw|plot_name trial_type plot_width plot_length field_size planting_date transplanting_date harvest_date is_a_control rep_number range_number row_number col_number seedlot_name num_seed_per_plot weight_gram_seed_per_plot entry_number is_private|;
 # Any additional columns that are not required or optional will be used as a treatment
 
 sub _validate_with_plugin {
@@ -26,6 +26,8 @@ sub _validate_with_plugin {
   my $self = shift;
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
   my %errors;
   my @error_messages;
   my %warnings;
@@ -45,6 +47,7 @@ sub _validate_with_plugin {
 
   my $excel_obj;
   my $worksheet;
+  my $treatment_col_start = 25;
 
   #try to open the excel file and report any errors
   $excel_obj = $parser->parse($filename);
@@ -75,7 +78,7 @@ sub _validate_with_plugin {
   my %columns = %{$headers->{columns}};
   my @treatment_names = @{$headers->{treatments}};
   my @errors = @{$headers->{errors}};
-    if (scalar(@errors) >= 1) {
+  if (scalar(@errors) >= 1) {
     foreach my $error (@errors) {
       push @error_messages, $error;
     }
@@ -107,6 +110,9 @@ sub _validate_with_plugin {
   my $field_size;
   my $planting_date;
   my $harvest_date;
+  my %trial_locations;
+  my %trial_years;
+  my %plots_missing_layout;
   my %seen_plot_keys;
   my %seen_entry_numbers;
 
@@ -127,6 +133,7 @@ sub _validate_with_plugin {
     my $row_number;
     my $col_number;
     my $entry_number;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,$columns{trial_name}->{index})) {
       $current_trial_name = $worksheet->get_cell($row,$columns{trial_name}->{index})->value();
@@ -266,6 +273,10 @@ sub _validate_with_plugin {
     if ($worksheet->get_cell($row,$columns{entry_number}->{index})) {
       $entry_number = $worksheet->get_cell($row,$columns{entry_number}->{index})->value();
     }
+    if ($worksheet->get_cell($row,$columns{is_private}->{index})) {
+      my $v = $worksheet->get_cell($row,$columns{is_private}->{index})->value();
+      $is_private = defined($v) && ($v eq "1" || $v eq "true" || $v eq "yes");
+    }
 
     if ( $row_number && $col_number ) {
       my $tk = $current_trial_name;
@@ -324,11 +335,15 @@ sub _validate_with_plugin {
       else {
         $location =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
         $seen_locations{$location}=$row_name;
+        $trial_locations{$trial_name}=$location;
       }
 
       ## YEAR CHECK
       if (!($year =~ /^\d{4}$/)) {
         push @error_messages, "Row $row_name: <b>$year</b> is not a valid year, must be a 4 digit positive integer.";
+      }
+      else {
+        $trial_years{$trial_name}=$year;
       }
 
       ## TRANSPLANTING DATE CHECK
@@ -379,12 +394,18 @@ sub _validate_with_plugin {
           push @error_messages, "Row $row_name: planting_date <b>$planting_date</b> must be in the format YYYY-MM-DD.";
         }
       }
+      else {
+        push @warning_messages, "Trial $trial_name does not have a planting date set.  Please add a planting date (YYYY-MM-DD format) if your trial has already been planted.";
+      }
 
       ## HARVEST DATE CHECK
       if ($harvest_date) {
         unless ($calendar_funcs->check_value_format($harvest_date)) {
           push @error_messages, "Row $row_name: harvest_date <b>$harvest_date</b> must be in the format YYYY-MM-DD.";
         }
+      }
+      else {
+        push @warning_messages, "Trial $trial_name does not have a harvest date set.  Please add a harvest date (YYYY-MM-DD format) if your trial has already been harvested.";
       }
 
       $working_on_new_trial = 0;
@@ -413,6 +434,9 @@ sub _validate_with_plugin {
       push @error_messages, "Row $row_name: accession name missing";
     } else {
       $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+      if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+        $accession_name = $accession_replacements->{$accession_name};
+      }
       $seen_accession_names{$accession_name}++;
     }
 
@@ -453,6 +477,14 @@ sub _validate_with_plugin {
     if ($col_number && !($col_number =~ /^\d+?$/)){
       push @error_messages, "Row $row_name: col_number <b>$col_number</b> must be a positive integer.";
     }
+    if ( !$row_number || !$col_number ) {
+      if ( !defined($plots_missing_layout{$trial_name}) ) {
+        $plots_missing_layout{$trial_name} = 1;
+      }
+      else {
+        $plots_missing_layout{$trial_name} = $plots_missing_layout{$trial_name} + 1;
+      }
+    }
 
     ## SEEDLOT CHECKS
     if ($seedlot_name){
@@ -487,6 +519,11 @@ sub _validate_with_plugin {
       }
     }
 
+    ## IS PRIVATE CHECK
+    if ($is_private) {
+      push @warning_messages, "Row $row_name: plot $plot_name (accession $accession_name) is marked as private and will be skipped.";
+    }
+
     ## TREATMENT CHECKS
     foreach my $treatment_name (@treatment_names){
       my $treatment_col = $columns{$treatment_name}->{index};
@@ -495,8 +532,8 @@ sub _validate_with_plugin {
         if ( ($apply_treatment ne '') && defined($apply_treatment) && $apply_treatment ne '1'){
           push @error_messages, "Treatment value for treatment <b>$treatment_name</b> in row $row_name should be either 1 or empty";
         }
+      }
     }
-  }
 
   }
 
@@ -510,12 +547,49 @@ sub _validate_with_plugin {
   my %unused_trial_names = map { $missing_trial_names[$_] => $_ } 0..$#missing_trial_names;
 
   foreach my $name (@trial_names) {
-      push(@already_used_trial_names, $name) unless exists $unused_trial_names{$name};
+    push(@already_used_trial_names, $name) unless exists $unused_trial_names{$name};
   }
   if (scalar(@already_used_trial_names) > 0) {
     # $errors{'invalid_trial_names'} = \@already_used_trial_names;
     push @error_messages, "Trial name(s) <b>".join(',',@already_used_trial_names)."</b> are invalid because they are already used in the database.";
   }
+
+  ## Check trial name format
+  foreach my $trial_name (@trial_names) {
+    my $location = $trial_locations{$trial_name};
+    my $year = $trial_years{$trial_name};
+    my @loc1 = split(',', $location);
+    my $town = $loc1[0];
+    my @loc2 = split(/- ?/, $location);
+    my $field = $loc2[1];
+    my $year_short = substr($year, 2);
+
+    # check for town and/or field name in the trial name
+    if ( $trial_name !~ /$town/i ) {
+      if ( !$field || $trial_name !~ /$field/i ) {
+        my $msg = "Trial name $trial_name does not reference the location $location";
+        if ( $town ) {
+          $msg .= " (town=$town)";
+        }
+        if ( $field ) {
+          $msg .= " (field=$field)";
+        }
+        $msg .= ". It is recommended that the trial name include either the town or field name.";
+        push @warning_messages, $msg;
+      }
+    }
+
+    # check for year in the trial name
+    if ( $trial_name !~ /$year_short/ ) {
+      push @warning_messages, "Trial name $trial_name does not reference the trial year $year.  It is recommended that the trial name include the trial year.";
+    }
+
+    # check the length of the trial name
+    if ( length($trial_name) < 8 ) {
+      push @warning_messages, "Trial name $trial_name is less than 8 characters long.  It is recommended to have a longer trial name that contains an experiment code, the trial location, and year to create a unique trial name that will not conflict with other trials."
+    }
+  }
+
 
   ## BREEDING PROGRAMS OVERALL VALIDATION
   my @breeding_programs = keys %seen_breeding_programs;
@@ -593,37 +667,39 @@ sub _validate_with_plugin {
   }
 
   ## ACCESSIONS OVERALL VALIDATION
-  my @accessions = keys %seen_accession_names;
-  my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
+  if ( !$skip_accession_checks ) {
+    my @accessions = keys %seen_accession_names;
+    my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
 
-  #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
-  my @synonyms =  @{$accessions_hashref->{'synonyms'}};
-  foreach my $synonym (@synonyms) {
-    my $found_acc_name_from_synonym = $synonym->{'uniquename'};
-    my $matched_synonym = $synonym->{'synonym'};
+    #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
+    my @synonyms =  @{$accessions_hashref->{'synonyms'}};
+    foreach my $synonym (@synonyms) {
+      my $found_acc_name_from_synonym = $synonym->{'uniquename'};
+      my $matched_synonym = $synonym->{'synonym'};
 
-    push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
+      push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
 
-    @accessions = grep !/\Q$matched_synonym/, @accessions;
-    push @accessions, $found_acc_name_from_synonym;
-  }
-
-  #now validate again the accession names
-  $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
-
-  my @accessions_missing = @{$accessions_hashref->{'missing'}};
-  my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
-
-  if (scalar(@accessions_missing) > 0) {
-    # $errors{'missing_accessions'} = \@accessions_missing;
-    push @error_messages, "Accession(s) <b>".join(',',@accessions_missing)."</b> are not in the database as uniquenames or synonyms.";
-  }
-  if (scalar(@multiple_synonyms) > 0) {
-    my @msgs;
-    foreach my $m (@multiple_synonyms) {
-      push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+      @accessions = grep !/$matched_synonym/, @accessions;
+      push @accessions, $found_acc_name_from_synonym;
     }
-    push @error_messages, "Accession(s) <b>".join(',',@msgs)."</b> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+
+    #now validate again the accession names
+    $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
+
+    my @accessions_missing = @{$accessions_hashref->{'missing'}};
+    my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
+
+    if (scalar(@accessions_missing) > 0) {
+      # $errors{'missing_accessions'} = \@accessions_missing;
+      push @error_messages, "Accession(s) <b>".join(',',@accessions_missing)."</b> are not in the database as uniquenames or synonyms.";
+    }
+    if (scalar(@multiple_synonyms) > 0) {
+      my @msgs;
+      foreach my $m (@multiple_synonyms) {
+        push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+      }
+      push @error_messages, "Accession(s) <b>".join(',',@msgs)."</b> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+    }
   }
 
   ## SEEDLOTS OVERALL VALIDATION
@@ -652,6 +728,12 @@ sub _validate_with_plugin {
   });
   while (my $r=$rs->next){
     push @error_messages, "Plot name <b>".$r->uniquename."</b> already exists.";
+  }
+
+  ## PLOT LAYOUT OVERALL VALIDATION
+  foreach my $t (keys %plots_missing_layout) {
+    my $c = $plots_missing_layout{$t};
+    push @warning_messages, "Trial " . $t . " has " . $c . " plots with missing layout information.  Please add row and column positions to the plots."
   }
 
   ## PLOT POSITION OVERALL VALIDATION
@@ -688,6 +770,8 @@ sub _parse_with_plugin {
   my $self = shift;
   my $filename = $self->get_filename();
   my $schema = $self->get_chado_schema();
+  my $skip_accession_checks = $self->get_skip_accession_checks();
+  my $accession_replacements = $self->get_accession_replacements();
 
   # Match a dot, extension .xls / .xlsx
   my ($extension) = $filename =~ /(\.[^.]+)$/;
@@ -702,6 +786,7 @@ sub _parse_with_plugin {
 
   my $excel_obj;
   my $worksheet;
+  my $treatment_col_start = 25;
 
   $excel_obj = $parser->parse($filename);
   if ( !$excel_obj ) {
@@ -774,6 +859,7 @@ sub _parse_with_plugin {
     my $num_seed_per_plot = 0;
     my $weight_gram_seed_per_plot = 0;
     my $entry_number;
+    my $is_private = 0;
 
     if ($worksheet->get_cell($row,$columns{trial_name}->{index})) {
       $current_trial_name = $worksheet->get_cell($row,$columns{trial_name}->{index})->value();
@@ -871,6 +957,12 @@ sub _parse_with_plugin {
       $accession_name = $worksheet->get_cell($row,$columns{accession_name}->{index})->value();
     }
     $accession_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
+    if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
+      $accession_name = $accession_replacements->{$accession_name};
+    }
+    if ($worksheet->get_cell($row,$columns{plot_number}->{index})) {
+      $plot_number =  $worksheet->get_cell($row,$columns{plot_number}->{index})->value();
+    }
     if ($worksheet->get_cell($row,$columns{block_number}->{index})) {
       $block_number =  $worksheet->get_cell($row,$columns{block_number}->{index})->value();
     }
@@ -895,6 +987,10 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,$columns{entry_number}->{index})) {
       $entry_number = $worksheet->get_cell($row, $columns{entry_number}->{index})->value();
     }
+    if ($worksheet->get_cell($row,$columns{is_private}->{index})) {
+      my $v = $worksheet->get_cell($row , $columns{is_private}->{index})->value();
+      $is_private = defined($v) && ($v eq "1" || $v eq "true" || $v eq "yes");
+    }
 
     if ($seedlot_name){
       $seedlot_name =~ s/^\s+|\s+$//g; #trim whitespace from front and end...
@@ -905,9 +1001,13 @@ sub _parse_with_plugin {
     if ($worksheet->get_cell($row,$columns{weight_gram_seed_per_plot}->{index})) {
       $weight_gram_seed_per_plot = $worksheet->get_cell($row, $columns{weight_gram_seed_per_plot}->{index})->value();
     }
-
     if ($entry_number) {
       $seen_entry_numbers{$current_trial_name}->{$accession_name} = $entry_number;
+    }
+
+    # Skip plots marked as private
+    if ( $is_private ) {
+      next;
     }
 
     foreach my $treatment_name (@treatment_names){
@@ -919,12 +1019,14 @@ sub _parse_with_plugin {
       }
     }
 
-    if ($acc_synonyms_lookup{$accession_name}){
-      my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
-      if (scalar(@accession_names)>1){
-        print STDERR "There is more than one uniquename for this synonym $accession_name. this should not happen!\n";
+    if ( !$skip_accession_checks ) {
+      if ($acc_synonyms_lookup{$accession_name}){
+        my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
+        if (scalar(@accession_names)>1){
+          print STDERR "There is more than one uniquename for this synonym $accession_name. this should not happen!\n";
+        }
+        $accession_name = $accession_names[0];
       }
-      $accession_name = $accession_names[0];
     }
 
     my $key = $row;

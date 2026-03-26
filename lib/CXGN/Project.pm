@@ -537,20 +537,20 @@ sub get_location_country_name {
 sub get_breeding_programs {
     my $self = shift;
 
+    my $breeding_program_trial_relationship_cvterm_id = $self->get_breeding_program_trial_relationship_cvterm_id(),
     my $breeding_program_cvterm_id = $self->get_breeding_program_cvterm_id();
 
-    my $trial_rs= $self->bcs_schema->resultset('Project::ProjectRelationship')->search( { 'subject_project_id' => $self->get_trial_id() } );
-
+    my $trial_rs= $self->bcs_schema->resultset('Project::ProjectRelationship')->search( { 'subject_project_id' => $self->get_trial_id(), 'type_id' => $breeding_program_trial_relationship_cvterm_id } );
     my $trial_row = $trial_rs -> first();
+
     my $rs;
     my @projects;
 
     if ($trial_row) {
-	$rs = $self->bcs_schema->resultset('Project::Project')->search( { 'me.project_id' => $trial_row->object_project_id(), 'projectprops.type_id'=>$breeding_program_cvterm_id }, { join => 'projectprops' }  );
-
-	while (my $row = $rs->next()) {
-	    push @projects, [ $row->project_id, $row->name, $row->description ];
-	}
+        $rs = $self->bcs_schema->resultset('Project::Project')->search( { 'me.project_id' => $trial_row->object_project_id(), 'projectprops.type_id'=>$breeding_program_cvterm_id }, { join => 'projectprops' }  );
+        while (my $row = $rs->next()) {
+            push @projects, [ $row->project_id, $row->name, $row->description ];
+        }
     }
     return  \@projects;
 }
@@ -4963,28 +4963,32 @@ sub get_accessions {
     my $family_name_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, 'family_name', 'stock_type' )->cvterm_id();
 	my $field_trial_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "field_layout", "experiment_type")->cvterm_id();
 	my $plot_of_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "plot_of", "stock_relationship")->cvterm_id();
+    my $intercrop_plot_of_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "intercrop_plot_of", "stock_relationship")->cvterm_id();
 	my $plant_of_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "plant_of", "stock_relationship")->cvterm_id();
 	my $subplot_of_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "subplot_of", "stock_relationship")->cvterm_id();
 	my $tissue_sample_of_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->bcs_schema, "tissue_sample_of", "stock_relationship")->cvterm_id();
 
-	my $q = "SELECT DISTINCT(accession.stock_id), accession.uniquename, cvterm.name
+	my $q = "SELECT accession.stock_id, accession.uniquename, cvterm.name, STRING_AGG(DISTINCT(srt.name), ', '), organism.species
 		FROM stock as accession
         JOIN cvterm on (accession.type_id = cvterm.cvterm_id)
 		JOIN stock_relationship on (accession.stock_id = stock_relationship.object_id)
+		LEFT JOIN cvterm AS srt ON (stock_relationship.type_id = srt.cvterm_id)
 		JOIN stock as plot on (plot.stock_id = stock_relationship.subject_id)
 		JOIN nd_experiment_stock on (plot.stock_id=nd_experiment_stock.stock_id)
 		JOIN nd_experiment using(nd_experiment_id)
 		JOIN nd_experiment_project using(nd_experiment_id)
 		JOIN project using(project_id)
+		LEFT JOIN public.organism ON (accession.organism_id = organism.organism_id)
 		WHERE accession.type_id IN (?, ?, ?)
-		AND stock_relationship.type_id IN (?, ?, ?, ?)
+		AND stock_relationship.type_id IN (?, ?, ?, ?, ?)
 		AND project.project_id = ?
+		GROUP BY 1,2,3,5
 		ORDER BY accession.stock_id;";
 
 	my $h = $self->bcs_schema->storage->dbh()->prepare($q);
-	$h->execute($accession_cvterm_id, $cross_cvterm_id, $family_name_cvterm_id,$plot_of_cvterm_id, $tissue_sample_of_cvterm_id, $plant_of_cvterm_id, $subplot_of_cvterm_id,$self->get_trial_id());
-	while (my ($stock_id, $uniquename, $stock_type) = $h->fetchrow_array()) {
-		push @accessions, {accession_name=>$uniquename, stock_id=>$stock_id, stock_type=>$stock_type};
+	$h->execute($accession_cvterm_id, $cross_cvterm_id, $family_name_cvterm_id, $plot_of_cvterm_id, $intercrop_plot_of_cvterm_id, $tissue_sample_of_cvterm_id, $plant_of_cvterm_id, $subplot_of_cvterm_id,$self->get_trial_id());
+	while (my ($stock_id, $uniquename, $stock_type, $relationship_type, $organism) = $h->fetchrow_array()) {
+		push @accessions, {accession_name=>$uniquename, stock_id=>$stock_id, stock_type=>$stock_type, relationship_type=>$relationship_type, organism=>$organism};
 	}
 	return \@accessions;
 }
@@ -5946,6 +5950,8 @@ sub transformation_id_count {
 
  Usage:   my @trials = CXGN::Project::get_recently_added_trials()
  Params:  $interval - one of day, week, month, year
+          $interval_count - the number of $intervals (default: 1)
+          $limit - the max number of trials to return (default: 10)
  Returns: a list of trials, consisting of listrefs listing
           trial_name (with link), trial_type, breeding program
           (with link)
@@ -5957,7 +5963,8 @@ sub get_recently_added_trials {
     my $phenome_schema = shift;
     my $people_schema = shift;
     my $metadata_schema = shift;
-    my $interval = shift;
+    my $interval = shift || 'month';
+    my $interval_count = shift || 1;
     my $limit = shift || 10;
 
     if (! grep($interval, qw| day week month year | )) {
@@ -5965,7 +5972,18 @@ sub get_recently_added_trials {
 	return;
     }
 
-    my $q = "select project.project_id from project where create_date + interval '1 $interval' > current_date order by create_date desc limit ?";
+    # query to limit count of recent projects within breeding program instead of globally
+    my $q = "SELECT project_id FROM (
+        SELECT project.project_id, ROW_NUMBER() OVER (PARTITION BY bp.name ORDER BY project.create_date DESC) AS rank
+        FROM project 
+        LEFT JOIN project_relationship AS bpr ON (bpr.subject_project_id = project.project_id) 
+            AND bpr.type_id = (SELECT cvterm_id FROM cvterm WHERE name = 'breeding_program_trial_relationship')
+        LEFT JOIN project AS bp ON (bpr.object_project_id = bp.project_id)
+        WHERE project.create_date + interval '$interval_count $interval' > current_date 
+            AND project.project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview)
+    ) AS t
+    WHERE t.rank <= ?;";
+    # my $q = "select project.project_id from project where create_date + interval '$interval_count $interval' > current_date AND project_id IN (SELECT DISTINCT(trial_id) FROM materialized_phenoview) order by create_date desc limit ?";
 
     my $h = $bcs_schema->storage->dbh()->prepare($q);
 

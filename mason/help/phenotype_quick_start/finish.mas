@@ -1,0 +1,12 @@
+<p>At this point your Trial(s) and Phenotyping Data have been stored in the database!</p>
+
+<br />
+
+<p>The final step is to <strong>organize similar Trials together into Folders</strong>, which are used to group Trials into Experiments:</p>
+<ol>
+  <li>Go to the <a href="/breeders/trials" target="_blank">Manage &gt; Field Trials</a> page</li>
+  <li>Click the <em>Refresh</em> button above the Trial tree to load the new Trials</li>
+  <li>Click the <em>Create new folder</em> button to create a new folder within a Breeding Program</li>
+  <li>Click the <em>Move trial(s) to folder</em> to add one or more Trial(s) to a folder</li>
+  <li>Click the <em>Refresh</em> button again to display the changes</li>
+</ol>

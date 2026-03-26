@@ -1,0 +1,246 @@
+<%args>
+  $year => undef;
+  $breeding_program_id => undef;
+</%args>
+
+<& '/page/page_title.mas', title => "Summarize trials" &>
+
+<& /util/import_css.mas, paths => ['tools/trial_summary.css'] &>
+
+<& '/util/import_javascript.mas', classes => [ 'jquery', 'jqueryui', 'popup', 'CXGN.List', 'CXGN.Login','brapi.BrAPI'] &>
+
+<style>
+  .form-group p {
+    text-align: left;
+    padding: 5px 0 10px 0;
+  }
+</style>
+
+<div class="row">
+  <div class="col-md-offset-2 col-md-8">
+    <form class="ts-form">
+
+      <!-- Trial Selection -->
+      <div class="form-group">
+        <h3>Select Trials</h3>
+        <div role="tabpanel">
+          <ul id="trial_selection_tabs" class="nav nav-tabs" role="tablist">
+            <li class="active" data-source="bpyr"><a href="#breeding-program" aria-controls="breeding-program" role="tab" data-toggle="tab">By Breeding Program &amp; Year</a></li>
+            <li data-source="list"><a href="#list" aria-controls="list" role="tab" data-toggle="tab">By List</a></li>
+          </ul>
+
+          <div class="tab-content" style="padding: 20px 10px 10px 10px; border-left: 1px solid #ddd; border-bottom: 1px solid #ddd; border-right: 1px solid #ddd; border-bottom-left-radius: 5px; border-bottom-right-radius: 5px;">
+
+              <!-- Trial by Breeding Program -->
+              <div role="tabpanel" class="tab-pane active" id="breeding-program">
+                <label for="year_select_div">Choose a year:</label>
+                <div id="year_select_div"></div>
+
+                <br /><br />
+
+                <label for="breeding_program_select_div">Choose a breeding program or experiment:</label>
+                <div id="breeding_program_select_div"></div>
+
+                <br /><br />
+
+                <label for="trials_select_div">Choose trials:</label>
+                <div id="trials_select_div" class="trial-selection"></div>
+                <div style="display: flex; justify-content: space-around; gap: 15px; margin-bottom: 25px">
+                  <button type="button" id="trials-select-all" class="btn btn-primary">Select All</button>
+                  <button type="button" id="trials-clear-all" class="btn btn-info">Clear Selection</button>
+                </div>
+              </div>
+
+              <!-- Trial by List -->
+              <div role="tabpanel" class="tab-pane" id="list">
+                <label for="trials_list_select">Choose a list of trials:</label>
+                <div id="trials_list_select_container" class="trial-selection">
+                  <select disabled class="form-control input-sm trial-selection" id="trials_list_select">
+                    <option selected="selected">Loading...</option>
+                  </select>
+                </div>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Trait Selection -->
+      <div class="form-group">
+        <h3>Select Traits</h3>
+        <select disabled multiple class="form-control input-sm" id="trait_select" size="10">
+          <option selected="selected" value=""> </option>
+        </select>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<br />
+
+<div class="row">
+  <center class="col-md-offset-2 col-md-8">
+    <div class="btn btn-primary btn-large" id="summarize">Summarize</div>
+  </center>
+</div>
+
+
+<script>
+
+(function() {
+  'use strict';
+  var programsList;
+  var list;
+
+  $(document).ready(function(){
+    if (isLoggedIn()) {
+
+      // Set list of years
+      get_select_box("years", "year_select_div", { 'auto_generate': 1, default: <% $year || 'undefined' %>, after_load: updateTrials });
+      $("#year_select_div").change(updateTrials);
+
+      // Set list of breeding programs
+      get_select_box('breeding_programs', 'breeding_program_select_div', { empty: 1, include_folders: 1, default: <% $breeding_program_id || 'undefined' %>, after_load: updateTrials });
+      $("#breeding_program_select_div").change(updateTrials);
+
+      // Get lists of Trials and set select menu
+      list = new CXGN.List();
+      var select_html = list.listSelect('trials', ['trials'], ' ', undefined, undefined);
+      $('#trials_list_select_container').html(select_html);
+
+      // Set trial selection change listener to update traits
+      $(".trial-selection").change(updateTraits);
+
+      $("#trials-clear-all").on("click", () => {
+        $('#trials_select option').prop('selected', false);
+        updateTraits();
+      });
+      $("#trials-select-all").on("click", () => {
+        $('#trials_select option').prop('selected', true);
+        updateTraits();
+      });
+
+      // Set Summarize listener
+      $("#summarize").attr("disabled", true);
+      $("#summarize").on("click", summarize);
+
+    }
+    else {
+      $('#trials_list_select').html('<option selected="selected">You must be logged in to use lists.</option>');
+    }
+  })
+
+  /**
+   * Update the list of trials when the year or breeding program change
+   */
+  function updateTrials() {
+    setTimeout(() => {
+      var breeding_program_id = $("#breeding_program_select").val();
+      var year = $("#year_select").val();
+      if ( breeding_program_id !== previously_selected_breeding_program || year !== previously_selected_year ) {
+        get_select_box('trials', 'trials_select_div', { 'id': 'trials_select', 'multiple':1, breeding_program_id, year });
+        previously_selected_breeding_program = breeding_program_id;
+        previously_selected_year = year;
+      }
+    }, 1000);
+  }
+  var previously_selected_breeding_program = -1;
+  var previously_selected_year = -1;
+
+  /**
+   * Upate the list of traits when the trials change
+   */
+  function updateTraits() {
+    const source = $("#trial_selection_tabs").children(".active").data("source");
+
+    // Indicate loading and disable summarize button
+    $("#trait_select").attr("disabled", true);
+    $("#summarize").attr("disabled", true);
+
+    // Get traits for Trials in selected List
+    clearTimeout(updateTraitsTimeout);
+    updateTraitsTimeout = setTimeout(function(){ //use setTimeout to pull sync call list.getListData out of event listener thread.
+      var ids = [];
+
+      if ( source === 'list' ) {
+        var trial_list_id = $('#trials_list_select').val();
+        var item_data = list.getListData(trial_list_id);
+        ids = list.transform2Ids(trial_list_id, item_data);
+        $("#trials-clear-all").attr("disabled", false);
+        $("#trials-select-all").attr("disabled", false);
+      }
+      else {
+        ids = $("#trials_select").val();
+        $("#trials-clear-all").attr("disabled", ids.length === 0);
+        $("#trials-select-all").attr("disabled", ids.length === $("#trials_select option").length);
+      }
+
+      if ( ids.length > 0 ) {
+        BrAPI("/brapi/v2").search("variables", { studyDbIds: ids, pageSize: 10000 }).all(createSComp);
+      }
+      else {
+        createSComp();
+      }
+    }, 500);
+  }
+  var updateTraitsTimeout;
+
+  /**
+   * Display the select list of traits
+   * - include any trait that is observed in any of the selected trials
+   */
+  function createSComp(data = []){
+    const traits = data.map((e) => {
+      return { id: e.observationVariableDbId, name: e.observationVariableName }
+    });
+
+    $("#trait_select option").remove();
+    for ( let i = 0; i < traits.length; i++ ) {
+      $("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
+    }
+    $("#trait_select").attr("disabled",false);
+    $("#trait_select").change(function() {
+      if ( $("#trait_select").children("option:selected").length > 0 ) {
+        $("#summarize").attr("disabled", false);
+      }
+      else {
+        $("#summarize").attr("disabled", true);
+      }
+    });
+
+  }
+
+  /**
+   * Start the summary by sending the selected trial and trait ids to the results page
+   */
+  function summarize() {
+    let url = "/tools/trial/summary/results";
+    const params = {};
+    const source = $("#trial_selection_tabs").children(".active").data("source");
+
+    params.trial_ids = [];
+    if ( source === 'list' ) {
+      var trial_list_id = $('#trials_list_select').val();
+      var item_data = list.getListData(trial_list_id);
+      var ids = list.transform2Ids(trial_list_id, item_data);
+      params.trial_ids = ids;
+    }
+    else {
+      $("#trials_select").children("option:selected").each(function() {
+        params.trial_ids.push($(this).val());
+      });
+    }
+
+    params.trait_ids = [];
+    $("#trait_select").children("option:selected").each(function() {
+      params.trait_ids.push($(this).val());
+    });
+
+    url = `${url}?${new URLSearchParams(params).toString()}`;
+    window.location = url;
+  }
+
+}());
+
+</script>

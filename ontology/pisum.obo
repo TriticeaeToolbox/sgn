@@ -1,0 +1,610 @@
+format-version: 1.2
+date: 11:07:2025 11:34
+saved-by: DJW
+auto-generated-by: convert_obo.pl/1.1
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [./traits.obo]
+default-namespace: pea_trait
+ontology: CO_xxx
+
+[Typedef]
+id: method_of
+name: method_of
+is_transitive: true
+
+[Typedef]
+id: scale_of
+name: scale_of
+is_transitive: true
+
+[Typedef]
+id: variable_of
+name: variable_of
+
+[Term]
+id: CO_xxx:ROOT
+name: Pea Traits
+namespace: pea_trait
+
+[Term]
+id: CO_xxx:Quality
+name: Quality traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:Morphological
+name: Morphological traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:Agronomic
+name: Agronomic traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:Biotic
+name: Biotic stress traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:Physiological
+name: Physiological traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:Abiotic
+name: Abiotic stress traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:Phenological
+name: Phenological traits
+namespace: pea_trait
+is_a: CO_xxx:ROOT
+
+[Term]
+id: CO_xxx:0002001
+name: Plant Establishment
+namespace: pea_trait
+def: "Number of pea plants" []
+synonym: "EST" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002002
+name: Maturity
+namespace: pea_trait
+def: "Amount of pea plants that have reached maturity" []
+synonym: "MAT" EXACT []
+is_a: CO_xxx:Phenological
+
+[Term]
+id: CO_xxx:0002003
+name: Flowering
+namespace: pea_trait
+def: "Presence of pea flowers" []
+synonym: "FL" EXACT []
+is_a: CO_xxx:Phenological
+
+[Term]
+id: CO_xxx:0002004
+name: Fruiting
+namespace: pea_trait
+def: "Presence of pea fruit" []
+synonym: "FR" EXACT []
+is_a: CO_xxx:Phenological
+
+[Term]
+id: CO_xxx:0002005
+name: Plant Height
+namespace: pea_trait
+def: "Height of pea plants" []
+synonym: "HT" EXACT []
+is_a: CO_xxx:Morphological
+
+[Term]
+id: CO_xxx:0002006
+name: Grain Weight
+namespace: pea_trait
+def: "Weight of harvested pea grain" []
+synonym: "GW" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002007
+name: Aboveground Dry Biomass
+namespace: pea_trait
+def: "The dry weight of all aboveground biomass" []
+synonym: "AGBM" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002008
+name: Grain Yield
+namespace: pea_trait
+def: "Total weight of pea grain harvested per unit area" []
+synonym: "GY" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002009
+name: Winter Survival
+namespace: pea_trait
+def: "Percentage of pea plants in a plot sown in fall that are still growing in spring" []
+synonym: "WS" EXACT []
+is_a: CO_xxx:Abiotic
+
+[Term]
+id: CO_xxx:0002010
+name: Freeze Damage Severity
+namespace: pea_trait
+def: "Severity of the symptoms of freeze damage observed in the pea plants in a plot" []
+synonym: "FD" EXACT []
+is_a: CO_xxx:Abiotic
+
+[Term]
+id: CO_xxx:0002011
+name: Flowering Date
+namespace: pea_trait
+def: "The time when pea flowering occurs" []
+synonym: "FLD" EXACT []
+is_a: CO_xxx:Phenological
+
+[Term]
+id: CO_xxx:0002012
+name: Growth Stage
+namespace: pea_trait
+def: "Pea growth/developmental stages based on BBCH decimal code" []
+synonym: "BBCH" EXACT []
+is_a: CO_xxx:Phenological
+
+[Term]
+id: CO_xxx:0002013
+name: Test Weight
+namespace: pea_trait
+def: "Test weight of harvested pea grain" []
+synonym: "TW" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002014
+name: Thousand Grain Weight
+namespace: pea_trait
+def: "Weight of 1000 pea grain" []
+synonym: "TGW" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002015
+name: Grain Moisture Content
+namespace: pea_trait
+def: "Moisture content of pea grain" []
+synonym: "MST" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0002016
+name: Grain Protein Content
+namespace: pea_trait
+def: "Protein content of pea grain" []
+synonym: "PRT" EXACT []
+is_a: CO_xxx:Agronomic
+
+[Term]
+id: CO_xxx:0001001
+name: Plant Establishment Computation
+namespace: pea_trait_method
+def: "Count the number of individual pea plants in a plot and divide by plot area" []
+relationship: method_of CO_xxx:0002001
+
+[Term]
+id: CO_xxx:0001002
+name: Plant Maturity Estimation
+namespace: pea_trait_method
+def: "Visual estimation of the percentage of pea plants that have reached maturity." []
+relationship: method_of CO_xxx:0002002
+
+[Term]
+id: CO_xxx:0001003
+name: Plant Flowering Assessment
+namespace: pea_trait_method
+def: "Visual assessment of the presence of pea flowers." []
+relationship: method_of CO_xxx:0002003
+
+[Term]
+id: CO_xxx:0001004
+name: Plant Fruiting Assessment
+namespace: pea_trait_method
+def: "Visual assessment of the presence of pea fruit." []
+relationship: method_of CO_xxx:0002004
+
+[Term]
+id: CO_xxx:0001005
+name: Plant Height Measurement
+namespace: pea_trait_method
+def: "Measure the height of pea plants." []
+relationship: method_of CO_xxx:0002005
+
+[Term]
+id: CO_xxx:0001006
+name: Grain Weight Measurement
+namespace: pea_trait_method
+def: "Measure the weight of harvested pea grain." []
+relationship: method_of CO_xxx:0002006
+
+[Term]
+id: CO_xxx:0001007
+name: Aboveground Dry Biomass Measurement
+namespace: pea_trait_method
+def: "Measure the weight of all dried aboveground biomass." []
+relationship: method_of CO_xxx:0002007
+
+[Term]
+id: CO_xxx:0001008
+name: Grain Yield Computation
+namespace: pea_trait_method
+def: "Computation of the total weight of whole pea grain harvested per unit area." []
+relationship: method_of CO_xxx:0002008
+
+[Term]
+id: CO_xxx:0001009
+name: Winter Survival Estimation
+namespace: pea_trait_method
+def: "Visual assessement of the percentage of living pea plants in a plot." []
+relationship: method_of CO_xxx:0002009
+
+[Term]
+id: CO_xxx:0001010
+name: Freeze Damage Severity Estimation
+namespace: pea_trait_method
+def: "Estimation of the freeze damage severity of plants in a plot." []
+relationship: method_of CO_xxx:0002010
+
+[Term]
+id: CO_xxx:0001011
+name: Flowering Date Assessment - 50%
+namespace: pea_trait_method
+def: "Record the date on which 50% of the pea plants in the plot have flowered." []
+relationship: method_of CO_xxx:0002011
+
+[Term]
+id: CO_xxx:0001012
+name: Growth Stage Assessment
+namespace: pea_trait_method
+def: "Estimate the growth stage using keys and/or charts." []
+relationship: method_of CO_xxx:0002012
+
+[Term]
+id: CO_xxx:0001013
+name: Flowering Date Assessment - 10%
+namespace: pea_trait_method
+def: "Record the date on which 10% of the pea plants in the plot have flowered." []
+relationship: method_of CO_xxx:0002011
+
+[Term]
+id: CO_xxx:0001014
+name: Maturity Date Assessment
+namespace: pea_trait_method
+def: "Record the date on which 90% of the pea pods have turned brown" []
+relationship: method_of CO_xxx:0002002
+
+[Term]
+id: CO_xxx:0001015
+name: Test Weight Computation
+namespace: pea_trait_method
+def: "Standard procedure for test weight computation, adjusted to 13.5% moisture." []
+relationship: method_of CO_xxx:0002013
+
+[Term]
+id: CO_xxx:0001016
+name: Thousand Grain Weight Measurement
+namespace: pea_trait_method
+def: "Weight of 1000 whole dry pea grain." []
+relationship: method_of CO_xxx:0002014
+
+[Term]
+id: CO_xxx:0001017
+name: Grain Moisture Content Computation
+namespace: pea_trait_method
+def: "Pea grain moisture computed from dried pea grain." []
+relationship: method_of CO_xxx:0002015
+
+[Term]
+id: CO_xxx:0001018
+name: Grain Protein Content Computation
+namespace: pea_trait_method
+def: "Pea grain protein content measured from NIR." []
+relationship: method_of CO_xxx:0002016
+
+[Term]
+id: CO_xxx:0000101
+name: g
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001006
+relationship: scale_of CO_xxx:0001007
+relationship: scale_of CO_xxx:0001016
+
+[Term]
+id: CO_xxx:0000102
+name: g/m2
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001008
+
+[Term]
+id: CO_xxx:0000103
+name: cm
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001005
+
+[Term]
+id: CO_xxx:0000104
+name: %
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001002
+relationship: scale_of CO_xxx:0001009
+relationship: scale_of CO_xxx:0001017
+relationship: scale_of CO_xxx:0001018
+
+[Term]
+id: CO_xxx:0000105
+name: plants/m2
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001001
+
+[Term]
+id: CO_xxx:0000106
+name: plants/ft2
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001001
+
+[Term]
+id: CO_xxx:0000107
+name: y/n
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001003
+relationship: scale_of CO_xxx:0001004
+
+[Term]
+id: CO_xxx:0000108
+name: Julian Day
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001011
+relationship: scale_of CO_xxx:0001013
+relationship: scale_of CO_xxx:0001014
+
+[Term]
+id: CO_xxx:0000109
+name: 0-5 Freeze Damage Rating
+namespace: pea_trait_scale
+def: "0= no freeze damage, 1=, 2=, 3=, 4=, 5= severe freeze damage" []
+relationship: scale_of CO_xxx:0001010
+
+[Term]
+id: CO_xxx:0000109/0
+name: no freeze damage
+namespace: pea_trait_scale
+synonym: "0" EXACT []
+is_a: CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0000109/1
+name: 1
+namespace: pea_trait_scale
+synonym: "1" EXACT []
+is_a: CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0000109/2
+name: 2
+namespace: pea_trait_scale
+synonym: "2" EXACT []
+is_a: CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0000109/3
+name: 3
+namespace: pea_trait_scale
+synonym: "3" EXACT []
+is_a: CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0000109/4
+name: 4
+namespace: pea_trait_scale
+synonym: "4" EXACT []
+is_a: CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0000109/5
+name: severe freeze damage
+namespace: pea_trait_scale
+synonym: "5" EXACT []
+is_a: CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0000110
+name: BBCH
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001012
+
+[Term]
+id: CO_xxx:0000111
+name: g/L
+namespace: pea_trait_scale
+relationship: scale_of CO_xxx:0001015
+
+[Term]
+id: CO_xxx:0003001
+name: Pea Plant Establishment - plants/m2
+namespace: pea_trait
+def: "TRAIT: Number of pea plants METHOD: Count the number of individual pea plants in a plot and divide by plot area SCALE: plants/m2" []
+relationship: variable_of CO_xxx:0002001
+relationship: variable_of CO_xxx:0001001
+relationship: variable_of CO_xxx:0000105
+
+[Term]
+id: CO_xxx:0003002
+name: Pea Maturity - %
+namespace: pea_trait
+def: "TRAIT: Amount of pea plants that have reached maturity METHOD: Visual estimation of the percentage of pea plants that have reached maturity. SCALE: %" []
+relationship: variable_of CO_xxx:0002002
+relationship: variable_of CO_xxx:0001002
+relationship: variable_of CO_xxx:0000104
+
+[Term]
+id: CO_xxx:0003003
+name: Pea Flowering - y/n
+namespace: pea_trait
+def: "TRAIT: Presence of pea flowers METHOD: Visual assessment of the presence of pea flowers. SCALE: y/n" []
+relationship: variable_of CO_xxx:0002003
+relationship: variable_of CO_xxx:0001003
+relationship: variable_of CO_xxx:0000107
+
+[Term]
+id: CO_xxx:0003004
+name: Pea Fruiting - y/n
+namespace: pea_trait
+def: "TRAIT: Presence of pea fruit METHOD: Visual assessment of the presence of pea fruit. SCALE: y/n" []
+relationship: variable_of CO_xxx:0002004
+relationship: variable_of CO_xxx:0001004
+relationship: variable_of CO_xxx:0000107
+
+[Term]
+id: CO_xxx:0003005
+name: Pea Plant Height - cm
+namespace: pea_trait
+def: "TRAIT: Height of pea plants METHOD: Measure the height of pea plants. SCALE: cm" []
+relationship: variable_of CO_xxx:0002005
+relationship: variable_of CO_xxx:0001005
+relationship: variable_of CO_xxx:0000103
+
+[Term]
+id: CO_xxx:0003006
+name: Pea Grain Weight - g
+namespace: pea_trait
+def: "TRAIT: Weight of harvested pea grain METHOD: Measure the weight of harvested pea grain. SCALE: g" []
+relationship: variable_of CO_xxx:0002006
+relationship: variable_of CO_xxx:0001006
+relationship: variable_of CO_xxx:0000101
+
+[Term]
+id: CO_xxx:0003007
+name: Pea Aboveground Dry Biomass - g
+namespace: pea_trait
+def: "TRAIT: The dry weight of all aboveground biomass METHOD: Measure the weight of all dried aboveground biomass. SCALE: g" []
+relationship: variable_of CO_xxx:0002007
+relationship: variable_of CO_xxx:0001007
+relationship: variable_of CO_xxx:0000101
+
+[Term]
+id: CO_xxx:0003008
+name: Pea Grain Yield - g/m2
+namespace: pea_trait
+def: "TRAIT: Total weight of pea grain harvested per unit area METHOD: Computation of the total weight of whole pea grain harvested per unit area. SCALE: g/m2" []
+relationship: variable_of CO_xxx:0002008
+relationship: variable_of CO_xxx:0001008
+relationship: variable_of CO_xxx:0000102
+
+[Term]
+id: CO_xxx:0003009
+name: Pea Winter Survival - %
+namespace: pea_trait
+def: "TRAIT: Percentage of pea plants in a plot sown in fall that are still growing in spring METHOD: Visual assessement of the percentage of living pea plants in a plot. SCALE: %" []
+relationship: variable_of CO_xxx:0002009
+relationship: variable_of CO_xxx:0001009
+relationship: variable_of CO_xxx:0000104
+
+[Term]
+id: CO_xxx:0003010
+name: Pea Freeze Damage Severity - 0-5 rating
+namespace: pea_trait
+def: "TRAIT: Severity of the symptoms of freeze damage observed in the pea plants in a plot METHOD: Estimation of the freeze damage severity of plants in a plot. SCALE: 0-5 Freeze Damage Rating (0= no freeze damage, 1=, 2=, 3=, 4=, 5= severe freeze damage)" []
+relationship: variable_of CO_xxx:0002010
+relationship: variable_of CO_xxx:0001010
+relationship: variable_of CO_xxx:0000109
+
+[Term]
+id: CO_xxx:0003011
+name: Pea Plant Establishment - plants/ft2
+namespace: pea_trait
+def: "TRAIT: Number of pea plants METHOD: Count the number of individual pea plants in a plot and divide by plot area SCALE: plants/ft2" []
+relationship: variable_of CO_xxx:0002001
+relationship: variable_of CO_xxx:0001001
+relationship: variable_of CO_xxx:0000106
+
+[Term]
+id: CO_xxx:0003012
+name: Pea Flowering Date - 50% - Julian Day
+namespace: pea_trait
+def: "TRAIT: The time when pea flowering occurs METHOD: Record the date on which 50% of the pea plants in the plot have flowered. SCALE: Julian Day" []
+relationship: variable_of CO_xxx:0002011
+relationship: variable_of CO_xxx:0001011
+relationship: variable_of CO_xxx:0000108
+
+[Term]
+id: CO_xxx:0003013
+name: Pea Growth Stage - BBCH
+namespace: pea_trait
+def: "TRAIT: Pea growth/developmental stages based on BBCH decimal code METHOD: Estimate the growth stage using keys and/or charts. SCALE: BBCH" []
+relationship: variable_of CO_xxx:0002012
+relationship: variable_of CO_xxx:0001012
+relationship: variable_of CO_xxx:0000110
+
+[Term]
+id: CO_xxx:0003014
+name: Pea Flowering Date - 10% - Julian Day
+namespace: pea_trait
+def: "TRAIT: The time when pea flowering occurs METHOD: Record the date on which 10% of the pea plants in the plot have flowered. SCALE: Julian Day" []
+relationship: variable_of CO_xxx:0002011
+relationship: variable_of CO_xxx:0001013
+relationship: variable_of CO_xxx:0000108
+
+[Term]
+id: CO_xxx:0003015
+name: Pea Maturity Date - Julian Day
+namespace: pea_trait
+def: "TRAIT: Amount of pea plants that have reached maturity METHOD: Record the date on which 90% of the pea pods have turned brown SCALE: Julian Day" []
+relationship: variable_of CO_xxx:0002002
+relationship: variable_of CO_xxx:0001014
+relationship: variable_of CO_xxx:0000108
+
+[Term]
+id: CO_xxx:0003016
+name: Pea Test Weight - g/L
+namespace: pea_trait
+def: "TRAIT: Test weight of harvested pea grain METHOD: Standard procedure for test weight computation, adjusted to 13.5% moisture. SCALE: g/L" []
+relationship: variable_of CO_xxx:0002013
+relationship: variable_of CO_xxx:0001015
+relationship: variable_of CO_xxx:0000111
+
+[Term]
+id: CO_xxx:0003017
+name: Pea Thousand Grain Weight - g
+namespace: pea_trait
+def: "TRAIT: Weight of 1000 pea grain METHOD: Weight of 1000 whole dry pea grain. SCALE: g" []
+relationship: variable_of CO_xxx:0002014
+relationship: variable_of CO_xxx:0001016
+relationship: variable_of CO_xxx:0000101
+
+[Term]
+id: CO_xxx:0003018
+name: Pea Grain Moisture Content - %
+namespace: pea_trait
+def: "TRAIT: Moisture content of pea grain METHOD: Pea grain moisture computed from dried pea grain. SCALE: %" []
+relationship: variable_of CO_xxx:0002015
+relationship: variable_of CO_xxx:0001017
+relationship: variable_of CO_xxx:0000104
+
+[Term]
+id: CO_xxx:0003019
+name: Pea Grain Protein Content - %
+namespace: pea_trait
+def: "TRAIT: Protein content of pea grain METHOD: Pea grain protein content measured from NIR. SCALE: %" []
+relationship: variable_of CO_xxx:0002016
+relationship: variable_of CO_xxx:0001018
+relationship: variable_of CO_xxx:0000104

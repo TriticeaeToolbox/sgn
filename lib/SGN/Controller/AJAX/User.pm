@@ -7,6 +7,7 @@ use URI::FromHash 'uri';
 use IO::File;
 use Data::Dumper;
 use HTML::Entities;
+use JSON;
 use CXGN::People::Roles;
 use CXGN::BreedingProgram;
 
@@ -87,8 +88,8 @@ sub new_account :Path('/ajax/user/new') Args(0) {
     }
 
 
-    my ($first_name, $last_name, $username, $password, $confirm_password, $email_address, $organization, $breeding_program_ids)
-	= map { $c->req->params->{$_} } (qw|first_name last_name username password confirm_password email_address organization breeding_programs|);
+    my ($first_name, $last_name, $username, $password, $confirm_password, $email_address, $organization, $breeding_program_ids, $listmonk_signup)
+	= map { $c->req->params->{$_} } (qw|first_name last_name username password confirm_password email_address organization breeding_programs listmonk_registration_signup|);
 
     # Set organization from breeding programs, if provided
     if ($breeding_program_ids && ref($breeding_program_ids) ne 'ARRAY') {
@@ -219,7 +220,7 @@ $user_details
 Please click (or cut and paste into your browser) the following link to
 confirm your account and email address:
 
-$host/user/confirm?username=$username&confirm_code=$confirm_code
+$host/solpeople/confirm?username=$username&confirm=$confirm_code
 
 Thank you,
 $project_name Team
@@ -246,6 +247,13 @@ END_HEREDOC
     $c->stash->{rest} = {
         message => "Account was created with username \"$username\".\n\n$message\n\nYou will be able to login once your account has been confirmed."
     };
+
+    # Registrer the User with Listmonk
+    if ( defined($listmonk_signup) ) {
+        $c->req->param('email', $email_address);
+        $c->req->param('name', "$first_name $last_name");
+        $c->forward('/ajax/listmonk/register');
+    }
 }
 
 
@@ -609,25 +617,27 @@ HTML
     my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
     my $username = $c->user->get_username();
     $html = <<HTML;
-      <div class="btn-group" role="group" aria-label="..." style="height:34px; margin: 1px 3px 0px 0px">
-	<button id="navbar_profile" class="btn btn-primary" type="button" onclick='location.href="/solpeople/profile/$sp_person_id"' style="margin: 7px 0px 0px 0px" title="My Profile">$username</button>
-	<button id="navbar_lists" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Lists" onClick="show_lists();">
-        Lists <span class="glyphicon glyphicon-list-alt" ></span></button>
-	<button id="navbar_datasets" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Datasets" onClick="window.location='/search/datasets';">
-              <span class="glyphicon glyphicon-list-alt" ></span>&nbsp;<span class="hidden-sm">Datasets</span></button>
-	<button id="navbar_personal_calendar" name="personal_calendar_link" class="btn btn-primary" style="margin:7px 0px 0px 0px" type="button" title="Your Calendar">Calendar&nbsp;<span class="glyphicon glyphicon-calendar" ></span></button>
-	<button id="navbar_logout" class="btn btn-default glyphicon glyphicon-log-out" style="margin:6px 0px 0px 0px" type="button" onclick="logout();" title="Logout"></button>
+      <div class="btn-group" role="group" aria-label="..." style="margin: 1px 3px 0px 0px">
+	    <button id="navbar_profile" class="btn btn-primary" type="button" onclick='location.href="/solpeople/profile/$sp_person_id"' style="margin: 7px 0px 0px 0px" title="My Profile"><span class="glyphicon glyphicon-user" ></span>&nbsp;<span class="hidden-sm">$username</span></button>
+	    <button id="navbar_lists" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Lists" onClick="show_lists();"><span class="glyphicon glyphicon-list-alt" ></span>&nbsp;<span class="hidden-sm">Lists</span></button>
+	    <button id="navbar_datasets" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Datasets" onClick="window.location='/search/datasets';"><span class="glyphicon glyphicon-list-alt" ></span>&nbsp;<span class="hidden-sm">Datasets</span></button>
+	    <button id="navbar_logout" class="btn btn-default glyphicon glyphicon-log-out" style="margin:6px 0px 0px 0px" type="button" onclick="logout();" title="Logout"></button>
       </div>
 HTML
 
   } else {
       print STDERR "generating regular login button..\n";
       $html = qq |
-      <li class="dropdown">
-        <div class="btn-group" role="group" aria-label="..." style="height:34px; margin: 1px 0px 0px 0px" >
-            <button id="site_login_button" name="site_login_button" class="btn btn-primary" type="button" style="margin: 7px 7px 0px 0px; position-absolute: 10,10,100,10">Login</button>
+        <div class="btn-group" role="group" aria-label="..." style="" >
+            <button id="site_register_button" name="site_register_button" class="btn btn-info" type="button" style="margin: 8px 0px 0px 0px; height: 35px">
+                <span class="glyphicon glyphicon-plus"></span>
+                <span class="hidden-sm">&nbsp;Register</span>
+            </button>
+            <button id="site_login_button" name="site_login_button" class="btn btn-primary" type="button" style="margin: 8px 7px 0px 0px; height: 35px;">
+                <span class="glyphicon glyphicon-user"></span>
+                <span class="hidden-sm">&nbsp;Login</span>
+            </button>
         </div>
-      </li>
  |;
 
 };
@@ -726,5 +736,55 @@ ername.";}
     }
 }
 
+sub user_prefs : Path('/ajax/user/preferences') : ActionClass('REST') { }
+
+sub user_prefs_GET : Args(1) {
+    my $self = shift;
+    my $c = shift;
+    my $key = shift;
+
+    if ( !$c->user() ) {
+        $c->stash->{rest} = { error => "Need to be logged in to use feature." };
+        return;
+    }
+
+    my $sp_person_id = $c->user()->get_sp_person_id();
+    my $people_schema = $c->dbic_schema("CXGN::People::Schema", undef, $sp_person_id);
+    my $p = $people_schema->resultset("SpPerson")->find({sp_person_id => $sp_person_id });
+    my $prefs = $p->user_prefs() || '{}';
+    my $prefs_json = decode_json($prefs);
+
+    if ( defined $key && $key ne '' ) {
+        $c->stash->{rest}->{$key} = $prefs_json->{$key} || '';
+    }
+    else {
+        $c->stash->{rest} = $prefs_json || {};
+    }
+}
+
+sub user_prefs_POST : Args(0) {
+    my $self = shift;
+    my $c = shift;
+    my $body = $c->req->body_data();
+
+    if ( !$c->user() ) {
+        $c->stash->{rest} = { error => "Need to be logged in to use feature." };
+        return;
+    }
+
+    my $sp_person_id = $c->user()->get_sp_person_id();
+    my $people_schema = $c->dbic_schema("CXGN::People::Schema", undef, $sp_person_id);
+    my $p = $people_schema->resultset("SpPerson")->find({sp_person_id => $sp_person_id });
+    my $prefs = $p->user_prefs() || '{}';
+    my $prefs_json = decode_json($prefs);
+
+    foreach my $key (keys %$body) {
+        my $value = $body->{$key};
+        $prefs_json->{$key} = $value;
+    }
+    $p->update({ user_prefs => encode_json($prefs_json) });
+
+    $c->stash->{rest} = $prefs_json;
+}
 
 1;

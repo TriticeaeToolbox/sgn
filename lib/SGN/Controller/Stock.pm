@@ -56,17 +56,17 @@ has 'default_page_size' => (
 sub stock_search :Path('/search/stocks') Args(0) {
     my ($self, $c ) = @_;
     my @editable_stock_props = split ',',$c->get_conf('editable_stock_props');
-    $c->stash(
-	template => '/search/stocks.mas',
 
+    $c->stash(
+        template => '/search/stocks.mas',
         stock_types => stock_types($self->schema),
-	organisms   => stock_organisms($self->schema) ,
-	sp_person_autocomplete_uri => '/ajax/people/autocomplete',
+        organisms   => stock_organisms($self->schema) ,
+        sp_person_autocomplete_uri => '/ajax/people/autocomplete',
         trait_autocomplete_uri     => '/ajax/stock/trait_autocomplete',
         onto_autocomplete_uri      => '/ajax/cvterm/autocomplete',
-	trait_db_name              => $c->get_conf('trait_ontology_db_name'),
-	breeding_programs          => breeding_programs($self->schema),
-    editable_stock_props => \@editable_stock_props
+	    trait_db_name              => $c->get_conf('trait_ontology_db_name'),
+	    breeding_programs          => breeding_programs($self->schema),
+        editable_stock_props => \@editable_stock_props,
 	);
 
 }
@@ -150,13 +150,6 @@ our $time;
 
 sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
     my ( $self, $c, $action) = @_;
-
-     if (!$c->user()) {
-
-	my $url = '/' . $c->req->path;
-	$c->res->redirect("/user/login?goto_url=$url");
-
-    } else {
 	$time = time();
 
 	if( $c->stash->{stock_row} ) {
@@ -231,18 +224,19 @@ sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
 
 	# print message if the stock is obsolete
 	my $obsolete = $stock->get_is_obsolete();
-	if ( $obsolete  && !$curator ) {
-	    #$c->throw(is_client_error => 0,
-	    #          title             => 'Obsolete stock',
-	    #          message           => "Stock $stock_id is obsolete!",
-	    #          developer_message => 'only curators can see obsolete stock',
-	    #          notify            => 0,   #< does not send an error email
-	    #    );
+    # T3 CHANGE: Allow user to display stock detail page for obsolete stocks
+	# if ( $obsolete  && !$curator ) {
+	#     #$c->throw(is_client_error => 0,
+	#     #          title             => 'Obsolete stock',
+	#     #          message           => "Stock $stock_id is obsolete!",
+	#     #          developer_message => 'only curators can see obsolete stock',
+	#     #          notify            => 0,   #< does not send an error email
+	#     #    );
 
-	    $c->stash->{template} = "generic_message.mas";
-	    $c->stash->{message}  = "The stock with database id $stock_id has been deleted. It can no longer be viewed.";
-	    return;
-	}
+	#     $c->stash->{template} = "generic_message.mas";
+	#     $c->stash->{message}  = "The stock with database id $stock_id has been deleted. It can no longer be viewed.";
+	#     return;
+	# }
 	# print message if stock_id does not exist
 	if ( !$stock && $action ne 'new' && $action ne 'store' ) {
 	    $c->throw_404('No stock exists for this identifier');
@@ -356,6 +350,20 @@ sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
 
 	print STDERR "Checkpoint 4: Elapsed ".(time() - $time)."\n";
 	################
+
+    # User not logged in: return basic info to preview template
+    if (!$c->user()) {
+        $c->stash(
+            template => '/stock/preview.mas',
+            stock_id => $stock_id,
+            type => $stock_type,
+            name => $stock->get_uniquename(),
+            species => $stock->get_species(),
+            props => $props
+        );
+        return;
+    }
+
 	$c->stash(
 	    template => '/stock/index.mas',
 
@@ -406,8 +414,7 @@ sub view_stock : Chained('get_stock') PathPart('view') Args(0) {
 	    barcode_tempdir  => $barcode_tempdir,
 	    barcode_tempuri   => $barcode_tempuri,
 	    identifier_prefix => $c->config->{identifier_prefix},
-	    );
-    }
+	);
 }
 
 
@@ -424,8 +431,9 @@ If 1 match is found, display the stock detail page.  Display an error for
 
 =cut
 
-sub view_by_organism_name : Path('/stock/view_by_organism') Args(2) {
-    my ($self, $c, $organism_query, $stock_query) = @_;
+sub view_by_organism_name : Path('/stock/view_by_organism') Args() {
+    my ($self, $c, $organism_query, @query_elements) = @_;
+    my $stock_query = join('/', @query_elements);
     $self->search_stock($c, $organism_query, $stock_query);
 }
 
@@ -442,8 +450,9 @@ If 1 match is found, display the stock detail page.  Display an error for
 
 =cut
 
-sub view_by_name : Path('/stock/view_by_name') Args(1) {
-    my ($self, $c, $stock_query) = @_;
+sub view_by_name : Path('/stock/view_by_name') Args() {
+    my ($self, $c, @query_elements) = @_;
+    my $stock_query = join('/', @query_elements);
     $self->search_stock($c, undef, $stock_query);
 }
 
@@ -617,23 +626,43 @@ sub get_stock : Chained('/')  PathPart('stock')  CaptureArgs(1) {
 sub search_stock : Private {
     my ( $self, $c, $organism_query, $stock_query ) = @_;
     my $rs = $self->schema->resultset('Stock::Stock');
+    my $synonym_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'stock_synonym', 'stock_property')->cvterm_id();
+    my $accession_number_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'accession number', 'stock_property')->cvterm_id();
 
     my $matches;
     my $count = 0;
 
+    # Convert to uppercase (for case-insensitive search)
+    # and remove spaces in stock query
+    $organism_query = uc($organism_query);
+    $stock_query = uc($stock_query);
+    $stock_query =~ s/ +//;
+
     # Search by name and organism
     if ( defined($organism_query) && defined($stock_query) ) {
         $matches = $rs->search({
-                'UPPER(uniquename)' => uc($stock_query),
-                -or => [
-                    'UPPER(organism.abbreviation)' => uc($organism_query),
-                    'UPPER(organism.genus)' => uc($organism_query),
-                    'UPPER(organism.species)' => uc($organism_query),
-                    'UPPER(organism.common_name)' => {'like', '%' . uc($organism_query) .'%'}
-                ],
-                is_obsolete => 'false'
+                -and => [
+                    -or => [
+                        "REPLACE(UPPER(uniquename), ' ', '')" => $stock_query,
+                        -and => [
+                            "REPLACE(UPPER(stockprops.value), ' ', '')" => $stock_query,
+                            'stockprops.type_id' => { -in => [$synonym_cvterm_id, $accession_number_cvterm_id] }
+                        ]
+                    ],
+                    -or => [
+                        'UPPER(organism.abbreviation)' => $organism_query,
+                        'UPPER(organism.genus)' => $organism_query,
+                        'UPPER(organism.species)' => $organism_query,
+                        'UPPER(organism.common_name)' => {'like', '%' . $organism_query .'%'}
+                    ],
+                    is_obsolete => 'false'
+                ]
             },
-            {join => 'organism'}
+            {
+                select => ['me.stock_id', 'uniquename', 'organism.species'],
+                join => ['organism', 'stockprops'],
+                group_by => ['me.stock_id', 'uniquename', 'organism.species']
+            }
         );
         $count = $matches->count;
     }
@@ -641,10 +670,20 @@ sub search_stock : Private {
     # Search by name
     elsif ( defined($stock_query) ) {
         $matches = $rs->search({
-                'UPPER(uniquename)' => uc($stock_query),
+                -or => [
+                    "REPLACE(UPPER(uniquename), ' ', '')" => $stock_query,
+                    -and => [
+                        "REPLACE(UPPER(stockprops.value), ' ', '')" => $stock_query,
+                        'stockprops.type_id' => { -in => [$synonym_cvterm_id, $accession_number_cvterm_id] }
+                    ]
+                ],
                 is_obsolete => 'false'
             },
-            {join => 'organism'}
+            {
+                select => ['me.stock_id', 'uniquename', 'organism.species'],
+                join => ['organism', 'stockprops'],
+                group_by => ['me.stock_id', 'uniquename', 'organism.species']
+            }
         );
         $count = $matches->count;
     }
@@ -652,6 +691,7 @@ sub search_stock : Private {
 
     # NO MATCH FOUND
     if ( $count == 0 ) {
+        $c->response->status(404);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>No Matching Stock Found</strong> ($stock_query $organism_query)<br />You can view and search for stocks from the <a href='/search/stocks'>Stock Search Page</a>";
     }
@@ -667,6 +707,7 @@ sub search_stock : Private {
             $list.="<li><a href='$url'>$stock_name ($species_name)</li>";
         }
         $list.="</ul>";
+        $c->response->status(409);
         $c->stash->{template} = "generic_message.mas";
         $c->stash->{message} = "<strong>Multiple Stocks Found</strong><br />" . $list;
     }
@@ -1118,7 +1159,7 @@ sub _related_stock_images {
 sub _stock_allele_ids {
     my ($self, $stock) = @_;
     my $ids = $stock->get_schema->storage->dbh->selectcol_arrayref
-	( "SELECT allele_id FROM phenome.stock_allele WHERE stock_id=? ",
+	( "SELECT stock_allele.allele_id FROM phenome.stock_allele JOIN phenome.allele AS a ON stock_allele.allele_id = a.allele_id WHERE stock_id=? ORDER BY a.allele_symbol ",
 	  undef,
 	  $stock->get_stock_id
         );

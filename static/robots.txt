@@ -9,5 +9,9 @@ Disallow: /phenome/qtl.pl
 Disallow: /phenome/population.pl
 Disallow: /qtl/download/
 Disallow: /solgs/
+Disallow: /stock/*/datatables/
+Disallow: /stock/*/genotypes
 Disallow: /*genotypes
+Disallow: /search/markers/
+Disallow: /forum/
 Crawl-delay: 30

@@ -1,7 +1,9 @@
 
 <%args>
 $organism_ref => undef
-$lg_names_ref       => undef
+$lg_names_ref => undef
+$filter_onto_accession => undef
+$filter_onto_name => undef
 </%args>
 
 <& /util/import_javascript.mas, classes => [ 'jquery', 'jquery.dataTables' ] &>
@@ -42,7 +44,7 @@ my $advanced_search=  info_table_html(
 	
       'Phenotype'  => qq|<input class="form-control" type="text" id="phenotype" size="30" /><a href="/search/phenotypes"> [Advanced SGN phenotype search]</a>|,
       'Ontology term' => qq|<input class="form-control" type="text" id="ontology_term" placeholder="Term name or ID: e.g. 'carotenoid' or 'PO:0007010'"/>
-             <!--<br /><span class="ghosted">(Term name or ID: e.g. 'carotenoid' or 'PO:0007010')</span>-->|,
+             <input type="checkbox" id="ontology_term_include_children" />&nbsp;Include children of this ontology term|,
       'Genbank ID' =>qq|<input class="form-control" type="text" id="genbank_accession" placeholder="Accession or GI: e.g. 'EF091820' or '118185006'"/>
              <!--<br /><span class="ghosted">(Accession or GI: e.g. 'EF091820' or '118185006')</span>-->|,   
       __border   =>1,
@@ -64,11 +66,18 @@ my $advanced_search=  info_table_html(
         <% $any_name_select %>
       </div>
     </div>
+% if ( $filter_onto_accession ) {
+    <div class="form-group">
+      <label class="col-sm-3 control-label">Filter by category:</label>
+      <div id="filter-ontology" class="col-sm-9">
+      </div>
+    </div>
+% }
     <div class="container-fluid" align="center">
       <br/>
       <ul class="list-inline" >
         <li style="padding-bottom:5px"><button class="btn btn-primary" id="submit_locus_search" />Search</button></li>
-	<li style="padding-bottom:5px"><a class="btn btn-info" href="/locus/0/new/" style="color:#fff" >Submit New Locus</a></li>
+	<!-- <li style="padding-bottom:5px"><a class="btn btn-info" href="/locus/0/new/" style="color:#fff" >Submit New Locus</a></li> -->
 	<li style="padding-bottom:5px"><input class="btn btn-default" type="button" value="Advanced Search Options" id="show_advanced_search" /></li>
       </ul>
     </div>
@@ -131,6 +140,10 @@ jQuery(document).ready(function () {
      'ordering'  : false,
      'processing': true,
      'serverSide': true,
+     'drawCallback': function() {
+        jQuery("#submit_locus_search").html("Search");
+        jQuery("#submit_locus_search").prop("disabled", false);
+     },
      'ajax': { 'url':  '/ajax/search/loci',
                'data': function(d) { 
                   d.any_name  = jQuery('#any_name').val();
@@ -139,6 +152,7 @@ jQuery(document).ready(function () {
                   d.phenotype  = jQuery('#phenotype').val(); 
                   d.linkage_group  = jQuery('#locus_linkage_group').val(); 
                   d.ontology_term  = jQuery('#ontology_term').val(); 
+                  d.ontology_term_include_children = jQuery('#ontology_term_include_children').is(':checked');
                   d.locus_editor  = jQuery('#locus_editor').val(); 
                   d.genbank_accession  = jQuery('#genbank_accession').val();
                   d.has_sequence  = jQuery('#has_sequence').is(':checked');
@@ -150,22 +164,25 @@ jQuery(document).ready(function () {
 
 
    jQuery('#submit_locus_search').click( function() { 
-         var common_name  = jQuery('#common_name').val(); 
-         var phenotype    = jQuery('#phenotype').val(); 
-         var linkage      = jQuery('#locus_linkage_group').val(); 
-         var ontology     = jQuery('#ontology_term').val(); 
-         var editor       = jQuery('#locus_editor').val(); 
-         var genbank      = jQuery('#genbank_accession').val();
-         var has_sequence     = jQuery('#has_sequence').is(':checked');
-         var has_marker       = jQuery('#has_marker').is(':checked'); 
-         var has_annotation   = jQuery('#has_annotation').is(':checked'); 
+        jQuery("#submit_locus_search").html("Searching...");
+        jQuery("#submit_locus_search").prop("disabled", true);
+
+        // var common_name  = jQuery('#common_name').val(); 
+        // var phenotype    = jQuery('#phenotype').val(); 
+        // var linkage      = jQuery('#locus_linkage_group').val(); 
+        // var ontology     = jQuery('#ontology_term').val(); 
+        // var editor       = jQuery('#locus_editor').val(); 
+        // var genbank      = jQuery('#genbank_accession').val();
+        // var has_sequence     = jQuery('#has_sequence').is(':checked');
+        // var has_marker       = jQuery('#has_marker').is(':checked'); 
+        // var has_annotation   = jQuery('#has_annotation').is(':checked'); 
        
-         if (  phenotype.trim().length  || common_name.length || ontology.trim().length || editor.trim().length || genbank.trim().length || has_sequence || has_marker || has_annotation ) {
-             jQuery('#advanced_search_div').show();
-         } else {
-             jQuery('#advanced_search_div').hide()
-         }
-         table.search("locus_search_results").draw();
+        //  if (  phenotype.trim().length  || common_name.length || ontology.trim().length || editor.trim().length || genbank.trim().length || has_sequence || has_marker || has_annotation ) {
+        //      jQuery('#advanced_search_div').show();
+        //  } else {
+        //      jQuery('#advanced_search_div').hide()
+        //  }
+        table.search("locus_search_results").draw();
    });
   
    jQuery('#locus_search_form').keypress( function( e ) {
@@ -184,9 +201,191 @@ jQuery(document).ready(function () {
              jQuery('#advanced_search_div').hide();
        }
    } );
- 
-  
+
+% if ( $filter_onto_accession ) {
+    loadFilterOntology(function() {
+      const filter = new URLSearchParams(window.location.search).get('filter');
+      if ( filter ) {
+        selectFilterCategory(filter);
+      }
+    });
+% }
     
 });
+
+
+/**
+ * Select a pre-defined category in the filter ontology
+ * and start the search
+ * @param {string} filter The name of the filter category
+ */
+function selectFilterCategory(filter) {
+  jQuery('#filter-ontology-select option[value="' + filter + '"]').prop("selected", true);
+  onFilterSelectChange();
+}
+
+
+
+/**
+ * Filter Select change listener
+ * Update the ontology term with the selected category accession
+ */
+function onFilterSelectChange() {
+  let accession = jQuery("#filter-ontology option:selected").val();
+  jQuery("#ontology_term").val(accession);
+  jQuery("#ontology_term_include_children").prop("checked", ( accession && accession !== "" ));
+  jQuery('#submit_locus_search').click();
+}
+
+
+
+/**
+ * Load the Genes/Loci filter ontology and build the select box
+ * @param {Function} callback Callback function()
+ */
+function loadFilterOntology(callback) {
+  getOntologyChildren(
+    {
+      accession: "<% $filter_onto_accession %>",
+      name: "<% $filter_onto_name %>"
+    }, 
+    function(onto) {
+      buildFilterSelect(onto, callback);
+    }
+  );
+}
+
+
+/**
+ * Build the filter select box with the processed ontology
+ * @param  {Object} onto Processed filter ontology
+ * @param {Function} callback Callback function()
+ */
+function buildFilterSelect(onto, callback) {
+  let options = _buildFilterSelectTerm(onto, 0, []);
+  let html = "<select id='filter-ontology-select' class='form-control'>";
+  for ( let i = 0; i < options.length; i++ ) {
+    html += "<option value='" + options[i].value + "'";
+    if ( options[i].disabled ) html += " disabled";
+    html += ">" + options[i].title + "</option>";
+  }
+  html += "</select>";
+
+  jQuery("#filter-ontology").html(html);
+  jQuery("#filter-ontology").change(onFilterSelectChange)
+  return callback();
+}
+
+
+
+/**
+ * Build the select options for the specified term
+ * @param  {Object}  term    Ontology term
+ * @param  {int}     level   Level of the term in the term heirarchy
+ * @param  {Obect[]} options Already processed options
+ * @return {[type]}          Processed options with the current term added
+ */
+function _buildFilterSelectTerm(term, level, options) {
+  let value, title;
+
+  if ( level === 0 ) {
+    value = "";
+    title = "--SELECT FILTER CATEGORY--";
+  }
+  else {
+    value = term.accession;
+    title = "";
+    for ( let i = 0; i < level; i++ ) {
+      title += "&nbsp;&nbsp;";
+    }
+    title += term.name;
+  }
+  
+  let has_children = term.children && term.children.length > 0;
+
+  let option = {
+    value: value,
+    title: title,
+    disabled: false
+  };
+
+  options.push(option);
+
+  if ( has_children ) {
+    for ( let i = 0; i < term.children.length; i++ ) {
+      _buildFilterSelectTerm(term.children[i], level+1, options);
+    }
+  }
+
+  return options;
+}
+
+
+/**
+ * Recursively get all of the children ontology terms of the 
+ * specified parent term and add the children as the 'children' 
+ * property to the parent term
+ * @param  {Object}   term     Parent Ontology Term
+ * @param  {Function} callback Callback function(term)
+ */
+function getOntologyChildren(term, callback) {
+  jQuery.ajax({
+    url: "/ajax/onto/children?node=" + term.accession,
+    success: function(results) {
+      if ( results && Array.isArray(results) && results.length > 0 ) {
+        let children = [];
+        _processChild(results, 0, term, children, callback);
+      }
+      else {
+        callback(term);
+      }
+    }
+  });
+}
+
+/**
+ * Start processing an ontology child term
+ * @param  {Object[]} results  List of children terms
+ * @param  {int}      count    Index of current child to process
+ * @param  {Object}   parent   Parent term
+ * @param  {Object[]} children Array of processed children
+ * @param  {Function} callback Final callback function(term)
+ */
+function _processChild(results, count, parent, children, callback) {
+  
+  // Set the child properties
+  let child = {
+    accession: results[count].accession,
+    name: results[count].cvterm_name
+  };
+
+  // Get the children of the child, if it has children
+  if ( results[count].has_children ) {
+    getOntologyChildren(child, function(term) {
+      children.push(term);
+      _finish();
+    });
+  }
+
+  // Finish processing the child
+  else {
+    children.push(child);
+    _finish();
+  }
+
+  /**
+   * Finish processing the child: process the next child
+   * or return to the callback with the parent term
+   */
+  function _finish(term) {
+    if ( count < results.length-1 ) {
+      _processChild(results, count+1, parent, children, callback);
+    }
+    else {
+      parent.children = children;
+      return callback(parent);
+    }
+  }
+}
   
 </script>

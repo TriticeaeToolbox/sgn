@@ -209,7 +209,6 @@ sub _search {
 	    # print STDERR "LEVEL NAME: ".Dumper(\%numbers);
 
         my $level_order = _order($level_name) + 0;
-
         my $level_code = $numbers{$level_name}; ###### eval "\$$level_name" || "";
 
         if ( $level_order_arrayref &&  ! grep { $_ eq $level_order } @{$level_order_arrayref}  ) { next; }
@@ -282,6 +281,15 @@ sub _search {
         if ($obs_unit->{family_stock_id}) {
             $additional_info->{familyDbId} = qq|$obs_unit->{family_stock_id}|;
             $additional_info->{familyName} = $obs_unit->{family_uniquename};
+        }
+
+        ## Get intercropping accessions
+        if ($obs_unit->{intercrop_stocks}) {
+            my @intercrop;
+            foreach my $i (@{$obs_unit->{intercrop_stocks}}) {
+                push(@intercrop, { germplasmDbId => $i->{id}, germplasmName => $i->{name} });
+            }
+            $additional_info->{intercropGermplasm} = \@intercrop if scalar(@intercrop) > 0;
         }
 
         push @data_window, {

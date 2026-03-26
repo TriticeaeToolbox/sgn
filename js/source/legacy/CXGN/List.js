@@ -1306,7 +1306,6 @@ function setUpLists() {
     );
 }
 
-
 function show_lists() {
    jQuery('#list_dialog').modal("show");
 

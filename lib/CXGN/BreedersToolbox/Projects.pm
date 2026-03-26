@@ -261,29 +261,29 @@ sub get_trials_by_breeding_program {
 
     foreach my $id_key (@sorted_by_year_keys) {
         if (!$projects_that_are_crosses{$id_key} && !$projects_that_are_genotyping_trials{$id_key} && !$projects_that_are_genotyping_trials{$id_key} && !$projects_that_are_treatment_trials{$id_key} && !$projects_that_are_genotyping_data_projects{$id_key} && !$projects_that_are_drone_run_projects{$id_key} && !$projects_that_are_drone_run_band_projects{$id_key} && !$projects_that_are_analyses{$id_key} && !$projects_that_are_sampling_trials{$id_key} && !$projects_that_are_tracking_projects{$id_key} && !$projects_that_are_transformation_projects{$id_key} && !$projects_that_are_propagation_projects{$id_key}) {
-            push @$field_trials, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$field_trials, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_crosses{$id_key}) {
-            push @$cross_trials, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$cross_trials, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_genotyping_trials{$id_key}) {
-            push @$genotyping_trials, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$genotyping_trials, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_genotyping_data_projects{$id_key}) {
-            push @$genotyping_data_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$genotyping_data_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_treatment_trials{$id_key}) {
-            push @$field_management_factor_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$field_management_factor_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_drone_run_projects{$id_key}) {
-            push @$drone_run_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$drone_run_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_drone_run_band_projects{$id_key}) {
-            push @$drone_run_band_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$drone_run_band_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_analyses{$id_key}) {
-            push @$analyses_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$analyses_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_sampling_trials{$id_key}) {
-            push @$sampling_trial_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$sampling_trial_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_tracking_projects{$id_key}) {
-            push @$tracking_activity_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$tracking_activity_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_transformation_projects{$id_key}) {
-            push @$transformation_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$transformation_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         } elsif ($projects_that_are_propagation_projects{$id_key}) {
-            push @$propagation_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}];
+            push @$propagation_projects, [ $id_key, $project_name{$id_key}, $project_description{$id_key}, $project_year{$id_key}];
         }
     }
 
