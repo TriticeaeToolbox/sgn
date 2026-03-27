@@ -51,6 +51,7 @@ use CXGN::Stock::StockLookup;
 use CXGN::Trial;
 use CXGN::Trial::TrialLayout;
 use CXGN::Calendar;
+use CXGN::Trait;
 
 has 'bcs_schema' => ( isa => 'Bio::Chado::Schema',
     is => 'rw',
@@ -79,7 +80,7 @@ has 'folder_list' => (
 );
 
 has 'trait_list' => (
-    isa => 'ArrayRef[Int]|Undef',
+    isa => 'ArrayRef[Int|Str]|Undef',
     is => 'rw',
 );
 
@@ -233,6 +234,7 @@ sub search {
 
     my $stock_lookup = CXGN::Stock::StockLookup->new({ schema => $schema} );
     my %synonym_hash_lookup = %{$stock_lookup->get_synonym_hash_lookup()};
+    my %trait_conversion_lookup;
 
     my $design_layout_sql = '';
     my $design_layout_select = '';
@@ -530,8 +532,22 @@ sub search {
 
     # print STDERR "Trait list is ".Dumper($self->trait_list)."\n";
     if ($self->trait_list && scalar(@{$self->trait_list})>0) {
-        my $trait_sql = _sql_from_arrayref($self->trait_list);
+        my $trait_sql = _sql_from_arrayref($self->trait_list, 1);
         push @where_clause, "(cvterm.cvterm_id in ($trait_sql) OR cvterm.cvterm_id IS NULL)";
+        foreach (@{$self->trait_list}) {
+            my @comps = split(':', $_);
+            if ( scalar(@comps) eq 2 ) {
+                my $id = $comps[0];
+                my $scale = $comps[1];
+                my $trait = CXGN::Trait->new({ bcs_schema => $schema, cvterm_id => $id, conversion_target_scale => $scale });
+                $trait_conversion_lookup{$id}->{$scale} = {
+                    name => $trait->name(),
+                    display_name => $trait->display_name(),
+                    accession => $trait->accession(),
+                    conversion_factor => $trait->conversion_factor()
+                };
+            }
+        }
     }
     if ($self->location_list && scalar(@{$self->location_list})>0) {
         my $arrayref = $self->location_list;
@@ -705,7 +721,7 @@ sub search {
             push @intercrop_stocks, { id => $id, name => $name };
         }
 
-        push @result, {
+        my %data = (
             obsunit_stock_id => $observationunit_stock_id,
             obsunit_uniquename => $observationunit_uniquename,
             obsunit_type_name => $observationunit_type_name,
@@ -751,8 +767,44 @@ sub search {
             plant_number => $plant_number,
             phenotype_additional_info => $phenotype_additional_info,
             phenotype_external_references => $phenotype_external_references
-        };
+        );
 
+        # Check for requested converted traits, if a trait list is given
+        if ( $trait_id && $self->trait_list ) {
+
+            # Find all requested traits that match this row's trait
+            my @trait_list_items = @{$self->trait_list};
+            if ( scalar(@trait_list_items) > 0 ) {
+                my @matches = grep(/^$trait_id(:.*)?$/, @trait_list_items);
+                foreach my $m (@matches) {
+                    my @comps = split(':', $m);
+                    my $id = $comps[0];
+                    my $scale = $comps[1];
+                    my $copy = { %data };
+
+                    # Convert value and name, if a target scale is requested
+                    if ( $scale ) {
+                        $copy->{trait_name} = $trait_conversion_lookup{$trait_id}->{$scale}->{display_name} || $trait_name;
+                        $copy->{phenotype_value} = defined $phenotype_value ? 
+                            ($trait_conversion_lookup{$trait_id}->{$scale}->{conversion_factor} || 1)*$phenotype_value :
+                            undef;
+                    }
+
+                    push @result, $copy;
+                }
+            }
+
+            # return the row if there are no trait list items...
+            else {
+                push @result, \%data;
+            }
+
+        }
+
+        # return the row if the trait list was not included in the filter...
+        else {
+            push @result, \%data;
+        }
     }
 
     print STDERR "Search End:".localtime."\n";
@@ -761,10 +813,16 @@ sub search {
 
 sub _sql_from_arrayref {
     my $arrayref = shift;
+    my $process_trait_conversion_components = shift;
     my @params;
     foreach (@$arrayref) {
-        my @comps = split(":", $_);
-        push(@params, $comps[0]);
+        if ( $process_trait_conversion_components ) {
+            my @comps = split(":", $_);
+            push(@params, $comps[0]);
+        }
+        else {
+            push(@params, $_);
+        }
     }
     my $sql = join("," , @params);
     return $sql;

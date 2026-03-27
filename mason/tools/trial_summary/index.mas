@@ -234,7 +234,9 @@
 
     params.trait_ids = [];
     $("#trait_select").children("option:selected").each(function() {
-      params.trait_ids.push($(this).val());
+      var trait_id = $(this).val();
+      var trait_target_scale = $(this).data("target-scale");
+      params.trait_ids.push(trait_target_scale && trait_target_scale !== "" ? `${trait_id}:${trait_target_scale}` : trait_id);
     });
 
     url = `${url}?${new URLSearchParams(params).toString()}`;

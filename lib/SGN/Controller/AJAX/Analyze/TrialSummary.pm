@@ -52,17 +52,8 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
   my @data = $phenotypes_search->search();
   my $results = $data[0];
 
-  # Get Trait Display Names
-  my %trait_info;
-  foreach my $trait_id (@trait_ids) {
-    my $cvterm = $schema->resultset('Cv::Cvterm')->find({
-      'me.cvterm_id' => $trait_id
-    });
-    $trait_info{$trait_id} = $cvterm->name;
-  }
-
   # Parse the phenotype results into a 2D array of rows
-  my $rows = plot_data_to_rows($results, \%trait_info);
+  my $rows = plot_data_to_rows($results);
 
   # Write the rows to a CSV tempfile
   my ($src_file, $out_dir) = $self->write_rows_to_tempfile($c, $rows);
@@ -102,13 +93,11 @@ sub summarize_trials_by_traits : Path('/ajax/analyze/trial_trait_summary') Args(
 #
 # Params:
 #   $results = results from phenotype search
-#   $trait_info = hashref to hash of trait ids to trait names
 #
 # Returns: a 2D array of plot data from the phenotype search
 #
 sub plot_data_to_rows {
   my $results = shift;
-  my $trait_info = shift;
 
   # Set up csv data with headers
   my @rows = ();
