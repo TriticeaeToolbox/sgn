@@ -1307,6 +1307,7 @@ sub get_traits_select : Path('/ajax/html/select/traits') Args(0) {
     }
 
     my @traits;
+    my %trait_data;
     if (($trial_ids eq 'all') && ($stock_id eq 'all')) {
       my $bs = CXGN::BreederSearch->new( { dbh=> $c->dbc->dbh() } );
       my $status = $bs->test_matviews($c->config->{dbhost}, $c->config->{dbname}, $c->config->{dbuser}, $c->config->{dbpass});
@@ -1337,12 +1338,13 @@ sub get_traits_select : Path('/ajax/html/select/traits') Args(0) {
             my $trial = CXGN::Trial->new({bcs_schema=>$schema, people_schema=>$people_schema, metadata_schema=>$metadata_schema,phenome_schema=>$phenome_schema,trial_id=>$_});
             my $traits_assayed = $trial->get_traits_assayed($data_level, $trait_format, $contains_composable_cv_type);
             foreach (@$traits_assayed) {
-                $unique_traits_ids{$_->[0]} = $_;
+                my $uid = $_->[6] ? $_->[0] . ":" . $_->[6] : $_->[0];
+                $unique_traits_ids{$uid} = $_;
                 if ($_->[5]) {
-                    push @{$unique_traits_ids_drone_project{$_->[0]}}, $_->[5];
+                    push @{$unique_traits_ids_drone_project{$uid}}, $_->[5];
                 }
                 if ($_->[3]) {
-                    $unique_traits_ids_count{$_->[0]} += $_->[3];
+                    $unique_traits_ids_count{$uid} += $_->[3];
                 }
             }
         }
@@ -1438,7 +1440,12 @@ sub get_traits_select : Path('/ajax/html/select/traits') Args(0) {
                 } else {
                     $text .= " (".$phenotype_count." Phenotypes)";
                 }
+                my %data;
+                if ( exists $_->[6] ) {
+                    $data{'target-scale'} = $_->[6];
+                }
                 push @traits, [$_->[0], $text];
+                $trait_data{$text} = \%data;
             }
         }
     }
@@ -1451,6 +1458,7 @@ sub get_traits_select : Path('/ajax/html/select/traits') Args(0) {
       name => $name,
       id => $id,
       choices => \@traits,
+      data => \%trait_data,
       size => $size
     );
     $c->stash->{rest} = { select => $html };

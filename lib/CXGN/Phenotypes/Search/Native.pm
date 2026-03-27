@@ -761,7 +761,12 @@ sub search {
 
 sub _sql_from_arrayref {
     my $arrayref = shift;
-    my $sql = join ("," , @$arrayref);
+    my @params;
+    foreach (@$arrayref) {
+        my @comps = split(":", $_);
+        push(@params, $comps[0]);
+    }
+    my $sql = join("," , @params);
     return $sql;
 }
 

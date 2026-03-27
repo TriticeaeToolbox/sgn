@@ -47,6 +47,7 @@ use CXGN::Genotype::Protocol;
 use CXGN::Phenotypes::StorePhenotypes;
 use CXGN::Phenotypes::SearchFactory;
 use CXGN::People::Person;
+use CXGN::Trait;
 
 =head2 accessor bcs_schema()
 
@@ -3120,6 +3121,13 @@ sub get_traits_assayed {
         }
         else {
             push @traits_assayed, [$trait_id, $trait_name, $component_terms, $count, $imaging_project_id, $imaging_project_name];
+        }
+
+        # Check for trait conversions and add the converted traits, including the target scale code
+        my $trait = CXGN::Trait->new({ bcs_schema => $schema, cvterm_id => $trait_id });
+        my $converted_traits = $trait->get_converted_traits();
+        foreach my $ct (@$converted_traits ) {
+            push @traits_assayed, [$ct->cvterm_id(), $ct->display_name(), $component_terms, $count, $imaging_project_id, $imaging_project_name, $ct->conversion_target_scale()];
         }
     }
     return \@traits_assayed;

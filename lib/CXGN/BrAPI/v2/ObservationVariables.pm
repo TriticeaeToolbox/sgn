@@ -299,6 +299,19 @@ sub get_query {
         });
 
         push @variables, $self->_construct_variable_response($c, $trait);
+
+        # Add Converted Traits
+        my $conversions = $trait->conversions();
+        if ( $conversions ) {
+            foreach my $conversion (@$conversions) {
+                my $ct = CXGN::Trait->new({
+                    bcs_schema              => $self->bcs_schema(),
+                    cvterm_id               => $cvterm_id,
+                    conversion_target_scale => $conversion->{target_scale}
+                });
+                push @variables, $self->_construct_variable_response($c, $ct);
+            }
+        }
     }
 
     my $pagination;
@@ -541,9 +554,11 @@ sub _construct_variable_response {
             "type" => "OBO"
         };
     }
+    my $add_info = $variable->additional_info || {};
+    $add_info->{conversion} = { target_scale => $variable->conversion_target_scale(), factor => $variable->conversion_factor() } if $variable->conversion_target_scale();
 
     return {
-        additionalInfo => $variable->additional_info || {},
+        additionalInfo => $add_info,
         commonCropName => $c->config->{'supportedCrop'},
         contextOfUse => undef,
         defaultValue => $variable->default_value,

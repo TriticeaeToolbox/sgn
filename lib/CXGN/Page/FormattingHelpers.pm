@@ -521,28 +521,34 @@ sub simple_selectbox_html {
             $retstring .= qq{<optgroup label="$_">};
         }
         else {
-	    my @selected = ();
-	    my $selected = '';
+            my @selected = ();
+            my $selected = '';
 
             my ( $name, $text ) = ref $_ ? @$_ : ( $_, $_ );
+            my $data = $params{data}->{$text};
 
-	    if (defined($params{selected}) && !ref($params{selected})) {
-		@selected = ( $params{selected} );
-	    }
-	    elsif (ref($params{selected})) {
-		@selected = @{$params{selected}};
+            if (defined($params{selected}) && !ref($params{selected})) {
+                @selected = ( $params{selected} );
+            }
+            elsif (ref($params{selected})) {
+                @selected = @{$params{selected}};
+           }
 
+            foreach my $s (@selected) {
+                if (defined($s) && ($s eq $name)) {
+                    $selected = ' selected="selected" ';
+                    last();
+                }
+            }
 
-	    }
+            my $data_props="";
+            foreach my $key (keys %$data) {
+                my $value = $data->{$key};
+                $data_props .= " data-$key='$value'";
+            }
 
-	    foreach my $s (@selected) {
-		if (defined($s) && ($s eq $name)) {
-		    $selected = ' selected="selected" ';
-		    last();
-		}
-	    }
-	    $retstring .= qq{<option title="$text" value="$name"$selected $params{selected_params}>$text</option>};
-	}
+            $retstring .= qq{<option title="$text" value="$name" $data_props $selected $params{selected_params}>$text</option>};
+        }
     }
     $retstring .= qq{</optgroup>} if $in_group;
     $retstring .= "</select>\n";

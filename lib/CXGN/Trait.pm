@@ -31,47 +31,50 @@ has 'cvterm' => ( isa => 'Bio::Chado::Schema::Result::Cv::Cvterm',
 
 
 has 'name' => ( isa => 'Str',
-		is => 'rw',
-		lazy => 1,
-		default => sub {
-		    my $self = shift;
-		    return $self->cvterm->name();
-		},
+	is => 'rw',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		return $self->conversion_target_scale() ? 
+			$self->cvterm->name() . "->" . $self->conversion_target_scale() :
+			$self->cvterm->name();
+	},
 
-    );
+);
 
 has 'display_name' => (isa => 'Str',
-		       is => 'ro',
-		       lazy => 1,
-		       default => sub {
-			   my $self = shift;
-			   my $db = $self->db();
-			   my $name = $self->name();
-			   my $accession = $self->accession();
-			   #print STDERR $db." ".$name." ".$accession."\n";
-			   if ($db && $name && $accession ) {
-			       return $name ."|".$db.":".$accession;
-			   }
-			   return "";
-		       }
-    );
+	is => 'ro',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		my $db = $self->db();
+		my $name = $self->name();
+		my $accession = $self->accession();
+		#print STDERR $db." ".$name." ".$accession."\n";
+		if ($db && $name && $accession ) {
+			return $name ."|".$db.":".$accession;
+		}
+		return "";
+	}
+);
 
 has 'accession' => (isa => 'Str',
-		    is => 'rw',
-		    lazy => 1,
-		    default => sub {
-			my $self = shift;
-			my $rs = $self->bcs_schema()->resultset("Cv::Cvterm")
-			    -> search( { cvterm_id => $self->cvterm_id() })
-			    -> search_related("dbxref");
-			if ($rs->count() ==1) {
-			    my $accession = $rs->first()->get_column("accession");
-			    return $accession;
-			}
-			return "";
-		    }
-
-    );
+	is => 'rw',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		my $rs = $self->bcs_schema()->resultset("Cv::Cvterm")
+			-> search( { cvterm_id => $self->cvterm_id() })
+			-> search_related("dbxref");
+		if ($rs->count() ==1) {
+			my $accession = $rs->first()->get_column("accession");
+			return $self->conversion_target_scale() ?
+				$accession . ":" . $self->conversion_target_scale() :
+				$accession;
+		}
+		return "";
+	}
+);
 
 has 'term' => (isa => 'Str',
 	       is => 'ro',
@@ -139,14 +142,15 @@ has 'dbxref_id' => (
 );
 
 has 'definition' => (isa => 'Maybe[Str]',
-		     is => 'rw',
-		     lazy => 1,
-		     default => sub {
-			 my $self = shift;
-			 return $self->cvterm->definition();
-		     },
-
-    );
+	is => 'rw',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		return $self->conversion_target_scale() ?
+			$self->cvterm->definition() . " (converted to " . $self->conversion_target_scale() . ")" :
+			$self->cvterm->definition();
+	},
+);
 
 has 'entity' => (
 	isa => 'Maybe[Str]',
@@ -328,6 +332,24 @@ has 'conversions' => (
 			push @convs, $value if $value;
 		}
 		return \@convs;
+	}
+);
+
+has 'conversion_target_scale' => (
+	isa => 'Maybe[Str]',
+	is => 'rw'
+);
+
+has 'conversion_factor' => (
+	isa => 'Maybe[Num]',
+	is => 'rw',
+	lazy => 1,
+	default => sub {
+		my $self = shift;
+		foreach my $c (@{$self->conversions()}) {
+			return (0+$c->{conversion}) if $c->{target_scale} eq $self->conversion_target_scale();
+		}
+		return undef;
 	}
 );
 
@@ -1108,5 +1130,24 @@ sub get_active_string {
 	return $self->{active} ? 'active' : 'archived';
 }
 
+sub get_converted_traits {
+	my $self = shift;
+	my $conversions = $self->conversions();
+
+	my @traits;
+	foreach my $conv (@$conversions) {
+		my $target_scale = $conv->{target_scale};
+		if ( $target_scale ) {
+			my $trait = CXGN::Trait->new({
+				bcs_schema => $self->bcs_schema(),
+				cvterm_id => $self->cvterm_id(),
+				conversion_target_scale => $target_scale
+			});
+			push(@traits, $trait);
+		}
+	}
+
+	return \@traits;
+}
 
 1;

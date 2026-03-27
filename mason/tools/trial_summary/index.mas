@@ -192,12 +192,12 @@
    */
   function createSComp(data = []){
     const traits = data.map((e) => {
-      return { id: e.observationVariableDbId, name: e.observationVariableName }
+      return { id: e.observationVariableDbId, name: e.observationVariableName, target_scale: e.additionalInfo?.conversion?.target_scale }
     });
 
     $("#trait_select option").remove();
     for ( let i = 0; i < traits.length; i++ ) {
-      $("#trait_select").append("<option value='" + traits[i].id + "'>" + traits[i].name + "</option>");
+      $("#trait_select").append("<option value='" + traits[i].id + "' data-target-scale='" + (traits[i].target_scale||'') + "'>" + traits[i].name + "</option>");
     }
     $("#trait_select").attr("disabled",false);
     $("#trait_select").change(function() {

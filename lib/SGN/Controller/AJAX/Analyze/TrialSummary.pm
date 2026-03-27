@@ -10,6 +10,7 @@ use Data::Dumper;
 use SGN::Controller::AJAX::List;
 use CXGN::List::Transform;
 use CXGN::Phenotypes::SearchFactory;
+use CXGN::Trait;
 
 BEGIN { extends 'Catalyst::Controller::REST'; };
 
