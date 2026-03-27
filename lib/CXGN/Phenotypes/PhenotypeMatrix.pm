@@ -88,7 +88,7 @@ has 'folder_list' => (
 );
 
 has 'trait_list' => (
-    isa => 'ArrayRef[Int]|Undef',
+    isa => 'ArrayRef[Int|Str]|Undef',
     is => 'rw',
 );
 

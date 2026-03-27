@@ -189,12 +189,19 @@ jQuery(document).ready(function() {
     var entry_numbers = jQuery("#download_trial_phenotypes_entry_numbers_option").val();
     var trait_contains = jQuery("#download_trial_phenotype_trait_contains").val();
     var trait_contains_array = trait_contains.split(",");
-    var traits = jQuery("#download_trial_phenotypes_traits_select").val();
+    // var traits = jQuery("#download_trial_phenotypes_traits_select").val();
     var trait_components = jQuery("#download_trial_phenotypes_trait_components_select").val();
     var data_level = jQuery("#download_trial_phenotypes_level_option").val();
     var phenotype_min_value = jQuery("#download_trial_phenotype_phenotype_min").val();
     var phenotype_max_value = jQuery("#download_trial_phenotype_phenotype_max").val();
     var exclude_phenotype_outlier = jQuery("#download_trial_phenotypes_exclude_outliers").val();
+
+    var traits = [];
+    jQuery("#download_trial_phenotypes_traits_select").children("option:selected").each(function() {
+        var trait_id = jQuery(this).val();
+        var trait_target_scale = jQuery(this).data("target-scale");
+        traits.push(trait_target_scale && trait_target_scale !== "" ? `${trait_id}:${trait_target_scale}` : trait_id);
+    });
 
     window.open("/breeders/trials/phenotype/download?trial_list="+JSON.stringify(trial_id_array)+"&speed="+speed+"&format="+format+"&timestamp="+timestamp+"&intercrop="+intercrop+"&entry_numbers="+entry_numbers+"&trait_contains="+JSON.stringify(trait_contains_array)+"&trait_component_list="+JSON.stringify(trait_components)+"&trait_list="+JSON.stringify(traits)+"&dataLevel="+data_level+"&phenotype_min_value="+phenotype_min_value+"&phenotype_max_value="+phenotype_max_value+"&exclude_phenotype_outlier="+exclude_phenotype_outlier+"&repetitive_measurements="+repetitive_measurements);
 

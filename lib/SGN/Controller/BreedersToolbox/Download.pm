@@ -317,7 +317,8 @@ sub download_phenotypes_action : Path('/breeders/trials/phenotype/download') Arg
         if ($_ =~ m/^\d+$/) {
             push @trait_list_int, $_;
         } else {
-            my $cvterm_id = SGN::Model::Cvterm->get_cvterm_row_from_trait_name($schema, $_)->cvterm_id();
+            my $t = SGN::Model::Cvterm->get_cvterm_row_from_trait_name($schema, $_);
+            my $cvterm_id = defined $t ? $t->cvterm_id() : $_;
             push @trait_list_int, $cvterm_id;
         }
     }
@@ -595,7 +596,7 @@ sub download_action : Path('/breeders/download_action') Args(0) {
 
     # if we work with dataset then @trait_ids we have directly from http request but we need reference/pointer to it
     # if we work with lists than we need to use result of transform method from class Transform - reference type to list
-    my $trait_list_ref = defined $dataset_id ? \@trait_ids : $trait_id_data->{transform},
+    my $trait_list_ref = defined $dataset_id ? \@trait_ids : $trait_id_data->{transform};
 
     my @data;
     if ($datalevel eq 'metadata'){
