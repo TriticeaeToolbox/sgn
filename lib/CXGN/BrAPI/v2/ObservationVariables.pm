@@ -87,6 +87,7 @@ sub search {
     my @study_ids = $inputs->{studyDbIds} ? @{$inputs->{studyDbIds}} : ();
     my @trait_dbids = $inputs->{traitDbIds} ? @{$inputs->{traitDbIds}} : ();
     my @trait_ids = $inputs->{observationVariableDbIds} ? @{$inputs->{observationVariableDbIds}} : ();
+    my $include_converted_traits = 0;
 
     if (scalar(@classes)>0 || scalar(@method_ids)>0 || scalar(@scale_ids)>0){
         push @$status, { 'error' => 'The following search parameters are not implemented yet: scaleDbId, traitClasses, methodDbId' };
@@ -188,6 +189,7 @@ sub search {
             if ($study_check) {
                 my $t = CXGN::Trial->new({ bcs_schema => $self->bcs_schema, trial_id => $study_id });
                 my $traits_assayed = $t->get_traits_assayed();
+                $include_converted_traits = 1;
 
                 foreach (@$traits_assayed){
                     $trait_ids_sql .= ',' . $_->[0] ;
@@ -210,7 +212,7 @@ sub search {
 
     my $and_where_clause = join ' AND ', @and_wheres;
 
-    $self->get_query($c, $and_where_clause, $join, 1);
+    $self->get_query($c, $and_where_clause, $join, 1, $include_converted_traits);
 
 }
 
@@ -226,7 +228,7 @@ sub detail {
         $and_where = $and_where." cvterm.cvterm_id IN ($trait_id)";
     }
 
-    $self->get_query($c, $and_where, $join, 0);
+    $self->get_query($c, $and_where, $join, 0, 0);
 
 }
 
@@ -236,6 +238,7 @@ sub get_query {
     my $and_where = shift;
     my $join = shift;
     my $array = shift;
+    my $include_converted_traits = shift;
     my $page_size = $self->page_size;
     my $page = $self->page;
     my $status = $self->status;
@@ -301,15 +304,17 @@ sub get_query {
         push @variables, $self->_construct_variable_response($c, $trait);
 
         # Add Converted Traits
-        my $conversions = $trait->conversions();
-        if ( $conversions ) {
-            foreach my $conversion (@$conversions) {
-                my $ct = CXGN::Trait->new({
-                    bcs_schema              => $self->bcs_schema(),
-                    cvterm_id               => $cvterm_id,
-                    conversion_target_scale => $conversion->{target_scale}
-                });
-                push @variables, $self->_construct_variable_response($c, $ct);
+        if ( $include_converted_traits ) {
+            my $conversions = $trait->conversions();
+            if ( $conversions ) {
+                foreach my $conversion (@$conversions) {
+                    my $ct = CXGN::Trait->new({
+                        bcs_schema              => $self->bcs_schema(),
+                        cvterm_id               => $cvterm_id,
+                        conversion_target_scale => $conversion->{target_scale}
+                    });
+                    push @variables, $self->_construct_variable_response($c, $ct);
+                }
             }
         }
     }
