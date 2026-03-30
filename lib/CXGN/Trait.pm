@@ -36,7 +36,7 @@ has 'name' => ( isa => 'Str',
 	default => sub {
 		my $self = shift;
 		return $self->conversion_target_scale() ? 
-			$self->cvterm->name() . "->" . $self->conversion_target_scale() :
+			$self->cvterm->name() . " -> " . $self->conversion_target_scale() :
 			$self->cvterm->name();
 	},
 
