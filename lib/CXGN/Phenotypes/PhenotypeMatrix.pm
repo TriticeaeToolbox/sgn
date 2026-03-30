@@ -238,6 +238,11 @@ sub get_phenotype_matrix {
     my $include_entry_numbers = $self->include_entry_numbers;
     my %trial_entry_numbers;
 
+    ##
+    ## T3 CHANGE -- force all search requests to use the Native type
+    ##
+    $self->search_type('Native');
+
     $self->trait_repeat_types( $self->retrieve_trait_repeat_types() );
     print STDERR "GET PHENOMATRIX ".$self->search_type."\n";
    
