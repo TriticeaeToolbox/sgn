@@ -68,7 +68,8 @@ sub view_cvterm : Chained('get_cvterm') PathPart('view') Args(0) {
             person_id => $person_id,
 	    props     => $props,
 	    editable_cvterm_props => $editable_cvterm_props,
-	}
+	},
+    schema => $self->schema
 	);
     
 }

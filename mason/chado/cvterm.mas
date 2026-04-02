@@ -31,6 +31,7 @@ Naama Menda <nm249@cornell.edu>
   $cvtermref
   $allow_trait_edits => 0
   $allow_treatment_edits => 0
+  $schema
 </%args>
 
 <%once>
@@ -40,6 +41,7 @@ use CXGN::Page::FormattingHelpers qw/
  columnar_table_html
 /;
 use CXGN::Phenome::Qtl::Tools;
+use CXGN::Trait;
 </%once>
 
 <%perl>
@@ -70,6 +72,15 @@ my $curator   = $cvtermref->{curator};
 my $submitter = $cvtermref->{submitter};
 my $sequencer = $cvtermref->{sequencer};
 my $cvtermprops = $cvtermref->{props};
+
+my $conversions;
+if ( $is_variable ) {
+  my $trait = CXGN::Trait->new({
+    bcs_schema => $schema,
+    cvterm_id => $cvterm_id
+  });
+  $conversions = $trait->conversions();
+}
 
 
 my @def_accessions;
@@ -216,6 +227,15 @@ my $edit_privs = $curator ;
 
 % if ($is_obsolete) {
 <b>Obsolete:</b> TRUE <br />
+% }
+
+% if ( defined $conversions && scalar @$conversions > 0 ) {
+<br /><b>Conversions:</b><br />
+<ul>
+% foreach my $conv (@$conversions) {
+  <li><% $conv->{source_scale} %> to <% $conv->{target_scale} %> = value × <% $conv->{conversion} %></li>
+% }
+</ul>
 % }
 
 <br /><b>Synonyms</b><br />
