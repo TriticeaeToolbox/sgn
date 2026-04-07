@@ -152,6 +152,13 @@ sub _validate_with_plugin {
         }
         $seen_accession_names{$accession_name} = 1;
 
+        if ( $intercrop_accession_name ) {
+            if ( $accession_replacements && exists $accession_replacements->{$intercrop_accession_name} ) {
+                $intercrop_accession_name = $accession_replacements->{$intercrop_accession_name};
+            }
+            $seen_accession_names{$intercrop_accession_name} = 1;
+        }
+
         # Parse Treatments
         foreach my $treatment (@{$treatments}) {
             my $lt = CXGN::List::Transform->new();
@@ -406,10 +413,8 @@ sub _validate_with_plugin {
 
     # Accession Names: must exist in the database
     if ( !$skip_accession_checks ) {
-        my @accessions = @{$parsed_values->{'accession_name'}};
-        my @intercrop_accessions = $parsed_values->{'intercrop_accession_name'} ? @{$parsed_values->{'intercrop_accession_name'}} : ();
-        my @merged_accessions = uniq(@accessions, @intercrop_accessions);
-        my $accessions_hashref = $validator->validate($schema,'accessions',\@merged_accessions);
+        my @accessions = keys %seen_accession_names;
+        my $accessions_hashref = $validator->validate($schema,'accessions',\@accessions);
         my @multiple_synonyms = @{$accessions_hashref->{'multiple_synonyms'}};
 
         #find unique synonyms. Sometimes trial uploads use synonym names instead of the unique accession name. We allow this if the synonym is unique and matches one accession in the database
@@ -420,12 +425,12 @@ sub _validate_with_plugin {
 
             push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
 
-            @merged_accessions = grep !/\Q$matched_synonym/, @merged_accessions;
-            push @merged_accessions, $found_acc_name_from_synonym;
+            @accessions = grep !/\Q$matched_synonym/, @accessions;
+            push @accessions, $found_acc_name_from_synonym;
         }
 
         #now validate again the accession names
-        $accessions_hashref = $validator->validate($schema,'accessions_or_crosses_or_familynames',\@merged_accessions);
+        $accessions_hashref = $validator->validate($schema,'accessions_or_crosses_or_familynames',\@accessions);
         my @accessions_missing = @{$accessions_hashref->{'missing'}};
 
         if (scalar(@accessions_missing) > 0) {
@@ -436,7 +441,7 @@ sub _validate_with_plugin {
             foreach my $m (@multiple_synonyms) {
                 push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
             }
-            push @error_messages, "Accession(s) <strong>".join(',',@msgs)."</strong> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
+            push @error_messages, "Accession(s) <strong>".join('<br />',@msgs)."</strong> appear in the database as synonyms of more than one unique accession. Please change to the unique accession name or delete the multiple synonyms";
         }
     }
 
