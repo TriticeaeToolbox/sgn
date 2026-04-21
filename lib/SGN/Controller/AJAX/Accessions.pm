@@ -90,7 +90,7 @@ sub verify_accession_list_POST : Args(0) {
 
     my $do_fuzzy_search = $c->req->param('do_fuzzy_search');
 
-    if ($do_fuzzy_search) {
+    if ($do_fuzzy_search eq 'true') {
         $self->do_fuzzy_search($c, \@accession_list, \@organism_list);
     }
     else {
@@ -237,6 +237,8 @@ sub verify_accessions_file_POST : Args(0) {
     my $upload = $c->req->upload('new_accessions_upload_file');
     my $do_fuzzy_search = $c->req->param('fuzzy_check_upload_accessions');
     my $append_synonyms = !$c->req->param('append_synonyms') ? 0 : 1;
+    my $create_accession_list = !$c->req->param('create_accession_list') ? 0 : 1;
+    my $create_accession_list_name = $c->req->param('create_accession_list_name');
 
     # These roles are required by CXGN::UploadFile
     if ($user_role ne 'curator' && $user_role ne 'submitter' && $user_role ne 'sequencer' ) {
@@ -301,11 +303,23 @@ sub verify_accessions_file_POST : Args(0) {
             $val;
     }
 
-    my $new_list_id = CXGN::List::create_list($c->dbc->dbh, "AccessionsIn".$upload_original_name.$timestamp, 'Autocreated when upload accessions from file '.$upload_original_name.$timestamp, $user_id);
-    my $list = CXGN::List->new( { dbh => $c->dbc->dbh, list_id => $new_list_id } );
+    my $new_list_id = undef;
+    if ( $create_accession_list ) {
+        my $new_list_name = defined $create_accession_list_name && $create_accession_list_name ne '' ? 
+            $create_accession_list_name : 
+            "AccessionsIn".$upload_original_name.$timestamp;
 
-    $list->add_bulk(\@accession_names);
-    $list->type('accessions');
+        my $check_list_id = CXGN::List::exists_list($c->dbc->dbh, $new_list_name, $user_id);
+        if ($check_list_id->{list_id}){
+            $new_list_name = $new_list_name . '-' . $timestamp;
+        }
+
+        $new_list_id = CXGN::List::create_list($c->dbc->dbh, $new_list_name, 'Accessions created from the upload file '.$upload_original_name.$timestamp, $user_id);
+        my $list = CXGN::List->new( { dbh => $c->dbc->dbh, list_id => $new_list_id } );
+
+        $list->add_bulk(\@accession_names);
+        $list->type('accessions');
+    }
 
     my %return = (
         success => "1",
