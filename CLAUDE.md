@@ -219,6 +219,8 @@ All CXGN modules are Moose-based and contain the core application logic.
 
 ### Frontend Structure
 
+The front-end is built using Bootstrap v3 and jQuery (along with additional jQuery plugins).  Some analysis visualizations are generated with D3.
+
 - **mason/**: HTML::Mason templates (`.mas` files) organized by feature
   - `mason/breeders_toolbox/`: Breeding tools UI
   - `mason/stock/`: Stock pages
@@ -232,11 +234,17 @@ All CXGN modules are Moose-based and contain the core application logic.
 ### Database
 
 Uses PostgreSQL with Chado schema (biological database schema) plus custom extensions. Key Chado modules:
-- `stock`: Germplasm, accessions, plots
-- `project`: Trials, experiments
+- `stock`: Germplasm/accessions, plots, subplots, plants, seedlots, crosses, etc
+- `project`: Breeding programs, trials, etc
 - `phenotype`: Phenotypic observations
 - `genotype`: Genotypic data
-- `cvterm`: Controlled vocabulary terms
+- `cvterm`: Controlled vocabulary terms, such as trait terms
+
+Most main data tables have a "prop" table, such as `stockprop` and `cvtermprop` that hold additional properties about individual entries.  The type of additional information is specified by the prop `type_id`.
+
+There are also "relationship" tables, such as `stock_relationship` and `project_relationship` that make connections between entries of the same type.  For example, linking a stock of type accession with a stock of type plot.
+
+It is preferred to make database queries using the Perl DBIx class.  However, more complex queries are made using raw SQL statements.
 
 ### R Analytics
 
@@ -299,6 +307,7 @@ Method description
 
 Main config files:
 - `sgn.conf`: Production/development configuration
+- `sgn_local.conf`: A per-instance config file that overrides values in the `sgn.conf` file
 - `sgn_test.conf`: Test-specific configuration
 - `sgn_fixture_template.conf`: Template for fixture tests
 
