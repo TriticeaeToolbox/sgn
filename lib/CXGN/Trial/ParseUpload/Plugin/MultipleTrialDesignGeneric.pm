@@ -151,12 +151,13 @@ sub _validate_with_plugin {
             $accession_name = $accession_replacements->{$accession_name};
         }
         $seen_accession_names{$accession_name} = 1;
-
         if ( $intercrop_accession_name ) {
-            if ( $accession_replacements && exists $accession_replacements->{$intercrop_accession_name} ) {
-                $intercrop_accession_name = $accession_replacements->{$intercrop_accession_name};
+            foreach my $ican (@$intercrop_accession_name) {
+                if ( $accession_replacements && exists $accession_replacements->{$ican} ) {
+                    $ican = $accession_replacements->{$ican};
+                }
+                $seen_accession_names{$ican} = 1;
             }
-            $seen_accession_names{$intercrop_accession_name} = 1;
         }
 
         # Parse Treatments
@@ -618,8 +619,14 @@ sub _parse_with_plugin {
         if ( $accession_replacements && exists $accession_replacements->{$accession_name} ) {
             $accession_name = $accession_replacements->{$accession_name};
         }
-        if ( $accession_replacements && exists $accession_replacements->{$intercrop_accession_name} ) {
-            $intercrop_accession_name = $accession_replacements->{$intercrop_accession_name};
+        my @icans;
+        if ( $intercrop_accession_name ) {
+            foreach my $ican (@$intercrop_accession_name) {
+                if ( $accession_replacements && exists $accession_replacements->{$ican} ) {
+                    $ican = $accession_replacements->{$ican};
+                }
+                push @icans, $ican;
+            }
         }
 
         if ($current_trial_name && $current_trial_name ne $trial_name) {
@@ -693,7 +700,7 @@ sub _parse_with_plugin {
         }
 
         my @checked_intercrop_accession_names;
-        foreach my $accession_name (@$intercrop_accession_name) {
+        foreach my $accession_name (@icans) {
             if ($acc_synonyms_lookup{$accession_name}) {
                 my @accession_names = keys %{$acc_synonyms_lookup{$accession_name}};
                 if (scalar(@accession_names)>1) {
