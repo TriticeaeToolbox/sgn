@@ -493,7 +493,7 @@ jQuery(document).ready(function ($) {
             if (!accessionsToAdd || accessionsToAdd.length == 0) {
                 alert("No accessions to add");
                 return;
-	        }
+	    }
 
 	        verify_species_name().then(
 		    function(r) {
@@ -518,10 +518,10 @@ jQuery(document).ready(function ($) {
 		        alert('ERROR! Try again later.');
 		    }
 	        );
+	    } else {
+	        add_accessions(infoToAdd, speciesNames, emailAddress, email_option_enabled);
+	        $('#review_absent_dialog').modal("hide");
 	    }
-
-	    add_accessions(infoToAdd, speciesNames, emailAddress, email_option_enabled);
-	    $('#review_absent_dialog').modal("hide");
 
         //window.location.href='/breeders/accessions';
     });
@@ -770,7 +770,7 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
     const absent = [ ...verifyResponse.absent || [], ...verifyResponse.absent_parents || [] ];
     const fuzzy = [ ...verifyResponse.fuzzy || [], ...verifyResponse.fuzzy_parents || [] ];
 
-    if (found) {
+    if (found.length > 0) {
         jQuery('#count_of_found_accessions').html("Total number already in the database("+found.length+")");
         var found_html = '<table class="table table-bordered" id="found_accessions_table"><thead><tr><th>Search Name</th><th>Found in Database</th></tr></thead><tbody>';
         for( i=0; i < found.length; i++){
@@ -791,6 +791,16 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
 
         accessionList = absent;
 
+    }
+
+    if (found.length === 0 && fuzzy.length === 0 && !doSynonymSearch) {
+        accessionList = absent;
+        if (absent.length > 0 || infoToAdd.length > 0) {
+	    console.log('Add new accessions');
+            populate_review_absent_dialog(absent, infoToAdd);
+        } else {
+            alert('All accessions in your list already exist in the database. (3)');
+        }
     }
 
     if (fuzzy.length > 0 && doFuzzySearch && !doSynonymSearch) {
@@ -834,7 +844,6 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
         } else {
             jQuery('#review_fuzzy_matches_dialog').modal('hide');
 	    //alert(JSON.stringify(verifyResponse.absent));
-	    //alert(JSON.stringify(infoToAdd));
             if (absent.length > 0 || infoToAdd.length>0){
                 populate_review_absent_dialog(absent, infoToAdd);
             } else {
@@ -1332,7 +1341,7 @@ function complete_synonym_search() {
         jQuery("#synonym_search_dialog").modal('show');
     });
     jQuery('#review_synonym_search_dialog_continue').off('click').on('click', function() {
-        store_synonym_search(replacements)
+        store_synonym_search(replacements, create)
     });
 }
 
@@ -1343,7 +1352,7 @@ function complete_synonym_search() {
  * - Store the accessions, using the existing add_accessions() function
  * @param {Object[]} replacements User's selected accession replacements
  */
-function store_synonym_search(replacements) {
+function store_synonym_search(replacements, newAccessions) {
 
     // Make replacements
     for ( let i = 0; i < infoToAdd.length; i++ ) {
@@ -1371,8 +1380,23 @@ function store_synonym_search(replacements) {
         }
     }
 
-    // Add the accessions
-    add_accessions(infoToAdd, speciesNames);
+    // File-upload path: infoToAdd was populated from full_data, store directly
+    if ( infoToAdd.length > 0 ) {
+        add_accessions(infoToAdd, speciesNames);
+        return;
+    }
+
+    // List path: infoToAdd is empty because the list verify endpoint does not return
+    // full_data. Route new accessions through the absent dialog so the user can supply
+    // species info, then add_accessions is called from #review_absent_accessions_submit.
+    newAccessions = newAccessions || [];
+    if ( newAccessions.length > 0 ) {
+        accessionList = newAccessions;
+        jQuery('#review_synonym_search_dialog').modal('hide');
+        populate_review_absent_dialog(newAccessions, []);
+    } else {
+        alert('All accessions in your list already exist in the database.');
+    }
 
 }
 
