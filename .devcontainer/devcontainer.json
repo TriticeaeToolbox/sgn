@@ -1,0 +1,18 @@
+{
+  "name": "Breedbase Development",
+  "dockerComposeFile": "./docker-compose.yml",
+  "workspaceFolder": "/home/production/cxgn/sgn",
+  "service": "breedbase",
+  "overrideCommand": false,
+  "forwardPorts": [8080, "database:5432"],
+  "portsAttributes": {
+    "8080": {
+      "label": "Breedbase Website",
+      "onAutoForward": "openBrowser"
+    },
+    "database:5432": {
+      "label": "Postgres DB",
+      "onAutoForward": "notify"
+    }
+  }
+}

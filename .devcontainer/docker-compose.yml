@@ -1,0 +1,39 @@
+services:
+  breedbase:
+    depends_on:
+      - database
+    image: breedbase/breedbase:latest
+    container_name: breedbase
+    volumes:
+      - ../:/home/production/cxgn/sgn/
+      - ./conf/sgn_local.conf:/home/production/cxgn/sgn/sgn_local.conf
+      - ./entrypoint.sh:/entrypoint-devcontainer.sh
+    expose:
+      - 8080
+    entrypoint: /entrypoint-devcontainer.sh
+    environment:
+      PGHOST: database
+      PGUSER: postgres
+      PGPASSWORD: postgres
+      PGDATABASE: breedbase
+      MODE: development
+    healthcheck:
+      test: "curl --silent --fail http://localhost:8080/ > /dev/null || exit 1"
+
+  database:
+    image: postgres:12.7
+    container_name: database
+    volumes:
+      - ./initdb/0-create-web_usr.sh:/docker-entrypoint-initdb.d/0-create-web_usr.sh
+      - ../t/data/fixture/cxgn_fixture.sql:/docker-entrypoint-initdb.d/1-init-database.sql
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: breedbase
+      WEB_USR_USER: web_usr
+      WEB_USR_PASSWORD: web_usr
+    healthcheck:
+      test: "pg_isready -U postgres -d $${POSTGRES_DB} || exit 1"
+      interval: 10s
