@@ -62,7 +62,7 @@ RUN curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x95C0FAF3
 RUN apt-get install -y r-base r-base-dev
 
 # Install some additional system dependencies for some R packages
-RUN apt-get install gdal-bin gsfonts libgit2-dev libglpk-dev pandoc texlive
+RUN apt-get install -y gdal-bin gsfonts libgit2-dev libglpk-dev pandoc texlive default-jdk
 
 # Update repos
 #
