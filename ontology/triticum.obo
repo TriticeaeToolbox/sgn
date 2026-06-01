@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 19:05:2026 14:46
+date: 01:06:2026 09:15
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1633,7 +1633,7 @@ is_a: CO_321:Agronomical
 
 [Term]
 id: CO_321:0500801
-name: Hessian fly rating
+name: Hessian fly resistance rating
 namespace: wheat_trait
 def: "A rating of the susceptibility to hessian fly, Mayetiola destructor" []
 synonym: "HesFlyRate" EXACT []
@@ -10140,7 +10140,7 @@ relationship: variable_of CO_321:0500514
 
 [Term]
 id: CO_321:0501245
-name: Hessian fly rating - R
+name: Hessian fly resistance rating - R
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A count of the individuals that are rated as resistant to hessian fly damage SCALE: plant/plot" []
 synonym: "HF R" EXACT []
@@ -10150,7 +10150,7 @@ relationship: variable_of CO_321:0000816
 
 [Term]
 id: CO_321:0501246
-name: Hessian fly rating - S
+name: Hessian fly resistance rating - S
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A count of the individuals that are rated as susceptible to hessian fly damage SCALE: plant/plot" []
 synonym: "HF S" EXACT []
@@ -10160,7 +10160,7 @@ relationship: variable_of CO_321:0000816
 
 [Term]
 id: CO_321:0501247
-name: Hessian fly rating - %
+name: Hessian fly resistance rating - %R
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A calculation of the percentage of individuals that are rated as resistant to hessian fly damage SCALE: %" []
 synonym: "HF %" EXACT []
@@ -10170,7 +10170,7 @@ relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501248
-name: Hessian fly rating - GP - R
+name: Hessian fly resistance rating - GP - R
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A count of the individuals that are rated as resistant to hessian fly damage (GP biotype) SCALE: plant/plot" []
 synonym: "HF GP R" EXACT []
@@ -10180,7 +10180,7 @@ relationship: variable_of CO_321:0000816
 
 [Term]
 id: CO_321:0501249
-name: Hessian fly rating - GP - S
+name: Hessian fly resistance rating - GP - S
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A count of the individuals that are rated as susceptible to hessian fly damage (GP biotype) SCALE: plant/plot" []
 synonym: "HF GP S" EXACT []
@@ -10190,7 +10190,7 @@ relationship: variable_of CO_321:0000816
 
 [Term]
 id: CO_321:0501250
-name: Hessian fly rating - GP - %
+name: Hessian fly resistance rating - GP - %R
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A calculation of the percentage of individuals that are rated as resistant to hessian fly damage (GP biotype) SCALE: %" []
 synonym: "HF GP %" EXACT []
@@ -10200,7 +10200,7 @@ relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501251
-name: Hessian fly rating - TX - R
+name: Hessian fly resistance rating - TX - R
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A count of the individuals that are rated as resistant to hessian fly damage (TX biotype) SCALE: plant/plot" []
 synonym: "HF TX R" EXACT []
@@ -10210,7 +10210,7 @@ relationship: variable_of CO_321:0000816
 
 [Term]
 id: CO_321:0501252
-name: Hessian fly rating - TX - S
+name: Hessian fly resistance rating - TX - S
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A count of the individuals that are rated as susceptible to hessian fly damage (TX biotype) SCALE: plant/plot" []
 synonym: "HF TX S" EXACT []
@@ -10220,7 +10220,7 @@ relationship: variable_of CO_321:0000816
 
 [Term]
 id: CO_321:0501253
-name: Hessian fly rating - TX - %
+name: Hessian fly resistance rating - TX - %R
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: A calculation of the percentage of individuals that are rated as resistant to hessian fly damage (TX biotype) SCALE: %" []
 synonym: "HF TX %" EXACT []
@@ -10230,7 +10230,7 @@ relationship: variable_of CO_321:0000410
 
 [Term]
 id: CO_321:0501254
-name: Hessian fly rating - 1-4 Rating Scale
+name: Hessian fly resistance rating - 1-4 Rating Scale
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: An estimation of the overall hessian fly resistance rating on a 1 to 4 (R/MR/MS/S) rating SCALE: 1-4 HF resistance scale (1= R/Resistant (85.1-100% of resistant plants), 2= MR/Moderately Resistant (50-85% of resistant plants), 3= MS/Moderately Susceptible (25-49.9% of resistant plants), 4= S/Susceptible (0-24.9% of resistant plants))" []
 synonym: "HF" EXACT []
@@ -10240,7 +10240,7 @@ relationship: variable_of CO_321:0500555
 
 [Term]
 id: CO_321:0501255
-name: Hessian fly rating - GP - 1-4 Rating Scale
+name: Hessian fly resistance rating - GP - 1-4 Rating Scale
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: An estimation of the overall hessian fly resistance rating on a 1 to 4 (R/MR/MS/S) rating (GP biotype) SCALE: 1-4 HF resistance scale (1= R/Resistant (85.1-100% of resistant plants), 2= MR/Moderately Resistant (50-85% of resistant plants), 3= MS/Moderately Susceptible (25-49.9% of resistant plants), 4= S/Susceptible (0-24.9% of resistant plants))" []
 synonym: "HF GP" EXACT []
@@ -10250,7 +10250,7 @@ relationship: variable_of CO_321:0500555
 
 [Term]
 id: CO_321:0501256
-name: Hessian fly rating - TX - 1-4 Rating Scale
+name: Hessian fly resistance rating - TX - 1-4 Rating Scale
 namespace: wheat_trait
 def: "TRAIT: A rating of the susceptibility to hessian fly, Mayetiola destructor METHOD: An estimation of the overall hessian fly resistance rating on a 1 to 4 (R/MR/MS/S) rating (TX biotype) SCALE: 1-4 HF resistance scale (1= R/Resistant (85.1-100% of resistant plants), 2= MR/Moderately Resistant (50-85% of resistant plants), 3= MS/Moderately Susceptible (25-49.9% of resistant plants), 4= S/Susceptible (0-24.9% of resistant plants))" []
 synonym: "HF TX" EXACT []
