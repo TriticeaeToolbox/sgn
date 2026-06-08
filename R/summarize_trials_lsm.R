@@ -310,7 +310,13 @@ fitLMbyTrait <- function(trait, data){
   } else{
     # Different trials have different SE so use that as a weighting factor
     data$SE[is.na(data$SE)] <- mean(data$SE, na.rm=T)
-    fitLM <- lm(value ~ trial + lineName, weights = 1/SE^2, data=data)
+    # Check for infinite or zero SE values that would cause infinite weights
+    if (any(data$SE <= 0 | is.infinite(data$SE))){
+      # Fall back to unweighted model if weights would be problematic
+      fitLM <- lm(value ~ trial + lineName, data=data)
+    } else{
+      fitLM <- lm(value ~ trial + lineName, weights = 1/SE^2, data=data)
+    }
   }
   return(fitLM)
 }
