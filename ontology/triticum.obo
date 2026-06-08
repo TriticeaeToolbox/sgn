@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 01:06:2026 09:15
+date: 08:06:2026 16:36
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1638,6 +1638,14 @@ namespace: wheat_trait
 def: "A rating of the susceptibility to hessian fly, Mayetiola destructor" []
 synonym: "HesFlyRate" EXACT []
 is_a: CO_321:Biotic_stress
+
+[Term]
+id: CO_321:0500802
+name: Green leaf area
+namespace: wheat_trait
+def: "The area of the plant canopy that is green" []
+synonym: "GLA" EXACT []
+is_a: CO_321:Physiological
 
 [Term]
 id: CO_321:0000229
@@ -3415,6 +3423,13 @@ def: "An estimation of the overall hessian fly resistance rating on a 1 to 4 (R/
 relationship: method_of CO_321:0500801
 
 [Term]
+id: CO_321:0500315
+name: Green Leaf Area Estimation
+namespace: wheat_trait_method
+def: "A visual estimation of the area of the leaf canopy that is green" []
+relationship: method_of CO_321:0500802
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -3606,6 +3621,7 @@ relationship: scale_of CO_321:0500297
 relationship: scale_of CO_321:0500305
 relationship: scale_of CO_321:0500308
 relationship: scale_of CO_321:0500311
+relationship: scale_of CO_321:0500315
 relationship: scale_of CO_321:0000309
 relationship: scale_of CO_321:0000316
 relationship: scale_of CO_321:0000319
@@ -10257,3 +10273,13 @@ synonym: "HF TX" EXACT []
 relationship: variable_of CO_321:0500801
 relationship: variable_of CO_321:0500314
 relationship: variable_of CO_321:0500555
+
+[Term]
+id: CO_321:0501257
+name: Green leaf area - %
+namespace: wheat_trait
+def: "TRAIT: The area of the plant canopy that is green METHOD: A visual estimation of the area of the leaf canopy that is green SCALE: %" []
+synonym: "GLA" EXACT []
+relationship: variable_of CO_321:0500802
+relationship: variable_of CO_321:0500315
+relationship: variable_of CO_321:0000410
