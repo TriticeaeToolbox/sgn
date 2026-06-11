@@ -29,6 +29,7 @@ var doSynonymSearch;
 var updateSynonymSearchCache;
 var SYNONYM_SEARCH_HOST;
 var SYNONYM_SEARCH_DATABASE;
+var upload_in_progress = false;
 
 function disable_ui() {
     jQuery('#working_modal').modal("show");
@@ -403,6 +404,8 @@ jQuery(document).ready(function ($) {
             disable_ui();
         }
 
+        upload_in_progress = true;
+
         $.ajax({
             type: 'POST',
             url: '/ajax/accession_list/add',
@@ -419,10 +422,6 @@ jQuery(document).ready(function ($) {
             // },
             success: function (response) {
                 console.log("email_option_enabled on success:", email_option_enabled);
-                if (!email_option_enabled) {
-                    enable_ui();
-                }
-		        //alert("ADD ACCESSIONS: "+JSON.stringify(response));
                 if (response.error) {
                     alert(response.error);
                 } else {
@@ -436,13 +435,22 @@ jQuery(document).ready(function ($) {
             },
             error: function (response) {
                 console.log("email_option_enabled on error:", email_option_enabled);
-                if (!email_option_enabled) {
-                    enable_ui();
-                }
                 alert('An error occurred in processing. sorry'+response.responseText);
-            }
+            },
+            complete: function () {
+                upload_in_progress = false;
+                if (!email_option_enabled) enable_ui();
+            },
         });
     }
+
+    jQuery(window).on('beforeunload', function (e) {
+        if (upload_in_progress) {
+            e.preventDefault();
+            e.returnValue = ''; // required for Chrome
+            return '';          // required for some older browsers
+        }
+    });
 
     function verify_species_name() {
         var speciesName = $("#species_name_input").val();
@@ -572,9 +580,9 @@ jQuery(document).ready(function ($) {
             }
             else if (response.success) {
                 fullParsedData = response.full_data;
-                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').is(':checked');
-                doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').is(':checked');
-                updateSynonymSearchCache = jQuery('#synonym_search_update_upload_accessions').is(':checked');
+                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').prop('checked');
+                doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').prop('checked');
+                updateSynonymSearchCache = jQuery('#synonym_search_update_upload_accessions').prop('checked');
                 review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, response.list_id);
             }
             else {
@@ -586,15 +594,15 @@ jQuery(document).ready(function ($) {
 
     $('[name="add_accessions_link"]').click(function () {
         var list = new CXGN.List();
-        accessionList;
-        accession_list_id;
-        validSpecies;
-        fuzzyResponse;
-        fullParsedData;
-        infoToAdd;
-        accessionListFound;
-        speciesNames;
-        doFuzzySearch;
+        accessionList	= [];
+        accession_list_id = undefined;
+        validSpecies	= undefined;
+        fuzzyResponse	= undefined;
+        fullParsedData	= undefined;
+        infoToAdd	= [];
+        accessionListFound	= {};
+        speciesNames	= [];
+        doFuzzySearch	= undefined;
         $('#add_accessions_dialog').modal("show");
         $('#review_found_matches_dialog').modal("hide");
         $('#review_fuzzy_matches_dialog').modal("hide");
@@ -723,9 +731,9 @@ function openWindowWithPost(fuzzyResponse) {
 
 function verify_accession_list(accession_list_id) {
     accession_list = JSON.stringify(list.getList(accession_list_id));
-    doFuzzySearch = jQuery('#fuzzy_check').is(':checked');
-    doSynonymSearch = jQuery('#synonym_search_check').is(':checked');
-    updateSynonymSearchCache = jQuery('#synonym_search_update').is(':checked');
+    doFuzzySearch = jQuery('#fuzzy_check').prop('checked');
+    doSynonymSearch = jQuery('#synonym_search_check').prop('checked');
+    updateSynonymSearchCache = jQuery('#synonym_search_update').prop('checked');
 
     jQuery.ajax({
         type: 'POST',
@@ -734,7 +742,7 @@ function verify_accession_list(accession_list_id) {
         //async: false,
         dataType: "json",
         data: {
-            'accession_list': accession_list,
+            'accession_list': accessionList,
             'do_fuzzy_search': doFuzzySearch,
         },
         beforeSend: function(){
@@ -852,7 +860,7 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
         }
     });
 
-    jQuery(document).on('click', '#review_fuzzy_matches_continue', function(){
+    jQuery(document).off('click', '#review_fuzzy_matches_continue').on('click', '#review_fuzzy_matches_continue', function(){
         process_fuzzy_options(accession_list_id);
     });
 
