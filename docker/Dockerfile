@@ -99,7 +99,6 @@ RUN apt-get install libpq-dev -y
 RUN apt-get install libmoosex-runnable-perl -y
 
 RUN apt-get install libgdbm6 libgdm-dev -y
-RUN apt-get install nodejs -y
 
 # Install extra Perl modules
 RUN curl -L https://cpanmin.us | perl - --sudo App::cpanminus
@@ -166,6 +165,16 @@ RUN git clone --depth 1 -b hordeum                  https://github.com/Triticeae
 RUN git clone --depth 1 -b hordeum-sandbox          https://github.com/TriticeaeToolbox/mason.git           ./hordeum_sandbox
 RUN git clone --depth 1                             https://github.com/TriticeaeToolbox/kelp.git            ./kelp
 USER root
+
+# add npm
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt install nodejs -y
+RUN cd /home/production/cxgn/sgn/js; npm install
+
+# then a few steps to clean up permissions
+RUN rm -rf /home/production/.npm
+RUN chown -R production /home/production/cxgn/sgn/js/node_modules
+RUN chown production /home/production/cxgn/sgn/js/package-lock.json
 
 # move this here so it is not clobbered by the cxgn move
 #
