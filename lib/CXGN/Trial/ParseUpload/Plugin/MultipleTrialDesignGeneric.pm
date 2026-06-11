@@ -434,34 +434,34 @@ sub _validate_with_plugin {
 
             push @warning_messages, "File Accession $matched_synonym is a synonym of database accession $found_acc_name_from_synonym ";
 
-        @merged_stock_names = grep !/\Q$matched_synonym/, @merged_stock_names;
-        push @merged_stock_names, $found_acc_name_from_synonym;
-    }
-
-    #now validate again the accession names
-
-    my @entry_names_missing = ();
-    if ($trial_stock_type eq 'cross') {
-        @entry_names_missing = @{$validator->validate($schema,'accessions_or_synonyms_or_crosses',\@merged_stock_names)->{'missing'}};
-        if (scalar(@entry_names_missing) > 0) {
-            push @error_messages, "Stocks(s) <strong>".join(',',@entry_names_missing)."</strong> are not in the database or are not accession or cross stock type.";
+            @merged_stock_names = grep !/\Q$matched_synonym/, @merged_stock_names;
+            push @merged_stock_names, $found_acc_name_from_synonym;
         }
-    } elsif ($trial_stock_type eq 'family_name') {
-        @entry_names_missing = @{$validator->validate($schema,'accessions_or_family_names',\@merged_stock_names)->{'missing'}};
-        if (scalar(@entry_names_missing) > 0) {
-            push @error_messages, "Stocks(s) <strong>".join(',',@entry_names_missing)."</strong> are not in the database or are not accession or family name stock type.";
-        }
-    } else {
-        @entry_names_missing = @{$validator->validate($schema,'accessions',\@merged_stock_names)->{'missing'}};
-        if (scalar(@entry_names_missing) > 0) {
-            push @error_messages, "Stocks(s) <strong>".join(',',@entry_names_missing)."</strong> are not in the database as uniquenames or synonyms of accession stock type.";
-        }
-    }
 
-    if (scalar(@multiple_synonyms) > 0) {
-        my @msgs;
-        foreach my $m (@multiple_synonyms) {
-            push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+        #now validate again the accession names
+        my @entry_names_missing = ();
+        if ($trial_stock_type eq 'cross') {
+            @entry_names_missing = @{$validator->validate($schema,'accessions_or_synonyms_or_crosses',\@merged_stock_names)->{'missing'}};
+            if (scalar(@entry_names_missing) > 0) {
+                push @error_messages, "Stocks(s) <strong>".join(',',@entry_names_missing)."</strong> are not in the database or are not accession or cross stock type.";
+            }
+        } elsif ($trial_stock_type eq 'family_name') {
+            @entry_names_missing = @{$validator->validate($schema,'accessions_or_family_names',\@merged_stock_names)->{'missing'}};
+            if (scalar(@entry_names_missing) > 0) {
+                push @error_messages, "Stocks(s) <strong>".join(',',@entry_names_missing)."</strong> are not in the database or are not accession or family name stock type.";
+            }
+        } else {
+            @entry_names_missing = @{$validator->validate($schema,'accessions',\@merged_stock_names)->{'missing'}};
+            if (scalar(@entry_names_missing) > 0) {
+                push @error_messages, "Stocks(s) <strong>".join(',',@entry_names_missing)."</strong> are not in the database as uniquenames or synonyms of accession stock type.";
+            }
+        }
+
+        if (scalar(@multiple_synonyms) > 0) {
+            my @msgs;
+            foreach my $m (@multiple_synonyms) {
+                push(@msgs, 'Name: ' . @$m[0] . ' = Synonym: ' . @$m[1]);
+            }
         }
     }
 
