@@ -617,7 +617,7 @@ HTML
     my $sp_person_id = $c->user() ? $c->user->get_object()->get_sp_person_id() : undef;
     my $username = $c->user->get_username();
     $html = <<HTML;
-    <div class="btn-group" role="group" aria-label="..." style="height:34px; margin: 1px 3px 0px 0px">
+    <div class="btn-group" role="group" aria-label="...">
         <button id="navbar_profile" class="btn btn-primary" type="button" onclick='location.href="/solpeople/profile/$sp_person_id"' style="margin: 7px 0px 0px 0px" title="My Profile">$username</button>
         <button id="navbar_lists" name="lists_link" class="btn btn-info" style="margin:7px 0px 0px 0px" type="button" title="Lists" onClick="show_lists();">
             <span class="glyphicon glyphicon-align-justify" ></span>&nbsp;<span class="hidden-sm">Lists</span>
