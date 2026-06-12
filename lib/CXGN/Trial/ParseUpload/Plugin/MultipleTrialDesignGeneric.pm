@@ -421,6 +421,7 @@ sub _validate_with_plugin {
     }
 
     # Accession Names: must exist in the database
+    my @entry_names_missing = ();
     if ( !$skip_accession_checks ) {
         my @merged_stock_names = keys %seen_accession_names;
         my $accessions_hashref = $validator->validate($schema,'accessions',\@merged_stock_names);
@@ -439,7 +440,6 @@ sub _validate_with_plugin {
         }
 
         #now validate again the accession names
-        my @entry_names_missing = ();
         if ($trial_stock_type eq 'cross') {
             @entry_names_missing = @{$validator->validate($schema,'accessions_or_synonyms_or_crosses',\@merged_stock_names)->{'missing'}};
             if (scalar(@entry_names_missing) > 0) {
