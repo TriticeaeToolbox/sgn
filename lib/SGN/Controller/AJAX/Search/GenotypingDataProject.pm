@@ -138,7 +138,7 @@ sub genotyping_data_public_search_GET : Args(0) {
 	$q = "SELECT projectprop.value FROM projectprop WHERE projectprop.type_id = ? AND projectprop.project_id = ?";
 	$h = $bcs_schema->storage->dbh()->prepare($q);
         $h->execute($copied_to_t3_cvterm_id, $_->{trial_id});
-        my @info = $h->fetchrow_array();
+        @info = $h->fetchrow_array();
         $transferred = $info[0];
 
         if ($_->{folder_name}){
