@@ -1,8 +1,8 @@
 format-version: 1.2
-date: 15:07:2025 15:55
-saved-by: DJW
+date: 25:06:2026 14:49
+saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
-remark: This file was converted to an SGN-compatible obo file from a standard obo file [./oat.obo]
+remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
 default-namespace: oat_trait
 ontology: CO_350
 
@@ -794,6 +794,22 @@ namespace: oat_trait
 def: "Normalized difference vegetation index is used to measure vegetative greenness and canopy photosynthetic size." []
 synonym: "NDVI" EXACT []
 is_a: CO_350:Physiological
+
+[Term]
+id: CO_350:0005440
+name: Quantum yield of photosystem II
+namespace: oat_trait
+def: "The quantum yield (QY) is a measure of the Photosystem II (PSII) efficiency. QY is equivalent to Fv/Fm in dark-adapted plants." []
+synonym: "FVFM" EXACT []
+is_a: CO_350:Physiological
+
+[Term]
+id: CO_350:0005441
+name: Planting date
+namespace: oat_trait
+def: "The date when this specific plant / plot was planted" []
+synonym: "PD" EXACT []
+is_a: CO_350:Phenological
 
 [Term]
 id: CO_350:0000082
@@ -1813,6 +1829,20 @@ def: "Computation of variation in plot-level indices derived from drone imagery"
 relationship: method_of CO_350:0005439
 
 [Term]
+id: CO_350:0005722
+name: Quantum yield measurement
+namespace: oat_trait_method
+def: "Measure and record using standard method for fluorescence measurement." []
+relationship: method_of CO_350:0005440
+
+[Term]
+id: CO_350:0005733
+name: Planting date measurement
+namespace: oat_trait_method
+def: "A recording of the planting date for this specific observation unit" []
+relationship: method_of CO_350:0005441
+
+[Term]
 id: CO_350:0000011
 name: percent
 namespace: oat_trait_scale
@@ -2032,6 +2062,7 @@ name: Julian day
 namespace: oat_trait_scale
 relationship: scale_of CO_350:0000013
 relationship: scale_of CO_350:0000019
+relationship: scale_of CO_350:0005733
 
 [Term]
 id: CO_350:0000150
@@ -2399,6 +2430,7 @@ id: CO_350:0005918
 name: index
 namespace: oat_trait_scale
 relationship: scale_of CO_350:0005720
+relationship: scale_of CO_350:0005722
 
 [Term]
 id: CO_350:0005919
@@ -3818,3 +3850,23 @@ def: "TRAIT: Normalized difference vegetation index is used to measure vegetativ
 relationship: variable_of CO_350:0005439
 relationship: variable_of CO_350:0005721
 relationship: variable_of CO_350:0005919
+
+[Term]
+id: CO_350:0005130
+name: Quantum yield - Fv/Fm
+namespace: oat_trait
+def: "TRAIT: The quantum yield (QY) is a measure of the Photosystem II (PSII) efficiency. QY is equivalent to Fv/Fm in dark-adapted plants. METHOD: Measure and record using standard method for fluorescence measurement. SCALE: index" []
+synonym: "QY" EXACT []
+relationship: variable_of CO_350:0005440
+relationship: variable_of CO_350:0005722
+relationship: variable_of CO_350:0005918
+
+[Term]
+id: CO_350:0005131
+name: Planting date - Julian day
+namespace: oat_trait
+def: "TRAIT: The date when this specific plant / plot was planted METHOD: A recording of the planting date for this specific observation unit SCALE: Julian day" []
+synonym: "PD" EXACT []
+relationship: variable_of CO_350:0005441
+relationship: variable_of CO_350:0005733
+relationship: variable_of CO_350:0000014
