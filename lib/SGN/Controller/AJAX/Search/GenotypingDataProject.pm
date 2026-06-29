@@ -364,8 +364,8 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute($project_id, $requested_basename);
     my ($dirname, $basename) = $h->fetchrow_array();
+    chomp($basename);
 
-    # Return the file, if it exists
     if ( defined $dirname && defined $basename && -s "$dirname/$basename" ) {
         my $filepath = "$dirname/$basename";
 
@@ -374,12 +374,16 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
         # If it is found there, use it directly. Otherwise, fall back to un-transposing
         # the (transposed) file in genotype_vcf_upload.
         (my $archive_dirname = $dirname) =~ s/genotype_vcf_upload$/genotype_vcf_archive/;
-        if ( $archive_dirname ne $dirname && -s "$archive_dirname/$basename" ) {
+        if ( $archive_dirname ne $dirname && -s "$archive_dirname/$basename.gz" ) {
+	    print STDERR "found $archive_dirname/$basename.gz\n";
+            $filepath = "$archive_dirname/$basename.gz";
+            $basename = "$basename.gz";
+        } elsif ( $archive_dirname ne $dirname && -s "$archive_dirname/$basename" ) {
             $filepath = "$archive_dirname/$basename";
         } else {
-
+            print STDERR "not found $archive_dirname/$basename\n";
             # Check if the file is a vcf (.vcf extension of ##filformat=VCF header on first line)
-            open my $FH, '<', $filepath;
+            open my $FH, '<', $filepath or die "Can't open $filepath: $!";
             my $firstline = <$FH>;
             close $FH;
             my $is_a_vcf = rindex($firstline, "##fileformat=VCF", 0) == 0 || $filepath =~ m/\.vcf$/;
@@ -426,7 +430,8 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
 	}
 
         my $contents = read_file($filepath);
-        $c->res->content_type('text/plain');
+	my $content_type = ($basename =~ /\.gz$/) ? 'application/gzip' : 'text/plain';
+        $c->res->content_type($content_type);
         $c->res->header('Content-Disposition', qq[attachment; filename="$basename"]);
         $c->res->body($contents);
     }
