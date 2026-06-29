@@ -19,6 +19,7 @@ use CXGN::Trial::TrialLayoutDownload;
 use CXGN::Cross;
 use SGN::Model::Cvterm;
 use Sort::Naturally;
+use CXGN::BreederSearch;
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -99,6 +100,9 @@ my %ADDITIONAL_LIST_DATA = (
                 if ( $parents->{'mother'} && $parents->{'father'} ) {
                     $pedigree = $parents->{'mother'} . '/' . $parents->{'father'};
                 }
+		elsif ( $parents->{'mother'}) {
+		    $pedigree = $parents->{'mother'} .'/NA';
+		}
 
                 # Add pedigree to return hash
                 for my $index (0 .. $#$list_item_db_ids ) {
@@ -452,13 +456,38 @@ __PACKAGE__->config(
             if ( $data_type eq 'Field Trials' ) {
                 push(@trial_ids, $source_id);
             }
-            elsif ( $data_type eq 'Lists' ) {
+            elsif ( $data_type eq 'Lists' || $data_type eq 'Public Lists' ) {
                 my $list = CXGN::List->new({ dbh => $schema->storage->dbh(), list_id => $source_id });
+                my $list_type = $list->type();
                 my $list_elements = $list->retrieve_elements_with_ids($source_id);
-                my @trial_names = map { $_->[1] } @$list_elements;
-                my $lt = CXGN::List::Transform->new();
-                my $tr = $lt->transform($schema, "projects_2_project_ids", \@trial_names);
-                @trial_ids = @{$tr->{transform}};
+
+                if ( $list_type eq 'trials' ) {
+                    my @trial_names = map { $_->[1] } @$list_elements;
+                    my $lt = CXGN::List::Transform->new();
+                    my $tr = $lt->transform($schema, "projects_2_project_ids", \@trial_names);
+                    @trial_ids = @{$tr->{transform}};
+                }
+                elsif ( $list_type eq 'plots' ) {
+                    my @plot_names = map { $_->[1] } @$list_elements;
+                    my $lt = CXGN::List::Transform->new();
+                    my $tr = $lt->transform($schema, "stocks_2_stock_ids", \@plot_names);
+                    my @plot_ids = @{$tr->{transform}};
+
+                    my $bs = CXGN::BreederSearch->new({ dbh => $schema->storage->dbh() });
+                    my $criteria_list = [ 'plots', 'trials' ];
+                    my $dataref = {
+                        'trials' => {
+                            'plots' => join(', ', map { qq\'$_'\ } @plot_ids)
+                        }
+                    };
+                    my $queryref = {
+                        'trials' => {
+                            'plots' => 0
+                        }
+                    };
+                    my $results_ref = $bs->metadata_query($criteria_list, $dataref, $queryref);
+                    @trial_ids = map { $_->[0] } @{$results_ref->{results}};
+                }
             }
 
             # Get the sorted plots, individually by trial
@@ -791,14 +820,11 @@ sub get_trial_design {
 
         my $trial_management_regime = $trial->get_management_regime();
 
-        # my $treatments = $trial->get_treatments();
-        # my @treatment_ids = map { $_->{trait_id} } @{$treatments};
-        # print STDERR "treatment ids are @treatment_ids\n";
         my $trial_layout_download = CXGN::Trial::TrialLayoutDownload->new({
             schema => $schema,
             trial_id => $trial_id,
             data_level => $type,
-            # treatment_ids => \@treatment_ids,
+            include_treatments => 'true',
             selected_columns => $selected_columns{$type},
             selected_trait_ids => [],
             use_synonyms => 'false',

@@ -88,7 +88,6 @@ $is_obsolete => undef
 $derived_accession_relationship => undef
 $related_stock_link => undef
 $original_stock_link => undef
-$is_in_trial => undef
 $vector_related_genes => undef
 $vector_analyzed_tissue_types => undef
 $number_of_insertions => undef
@@ -190,6 +189,12 @@ $propagation_type => undef
 $date => undef
 $logged_in_name => undef
 
+#Specific to dataset detail page
+$dataset_id => undef
+$dataset_name => undef
+$is_dataset_owner => 0
+$is_dataset_public => 0
+
 
 </%args>
 
@@ -245,9 +250,9 @@ $logged_in_name => undef
 % }
 
 % if ($info_section_id eq 'trial_analysis_tools') {
-    <& /breeders_toolbox/analysis_tools_section.mas, 
-        trial_id => $trial_id, 
-        trial_name => $trial_name 
+    <& /breeders_toolbox/analysis_tools_section.mas,
+        trial_id => $trial_id,
+        trial_name => $trial_name
     &>
 
 % if ($hidap_enabled) {
@@ -417,7 +422,7 @@ $logged_in_name => undef
                                 <& /page/comments.mas, object_type=>'stock', object_id=>$stock_id, referer=>$referer &>
 % } #End stock_comments_section
 % if ($info_section_id eq 'stock_delete_section'){
-                                <& /stock/delete.mas, stock_id=>$stock_id, stock_uniquename=>$stock_uniquename, is_obsolete=>$is_obsolete, is_in_trial=>$is_in_trial, is_a_parent=>$is_a_parent &>
+                                <& /stock/delete.mas, stock_id=>$stock_id, stock_uniquename=>$stock_uniquename, is_obsolete=>$is_obsolete, is_a_parent=>$is_a_parent &>
 % } #End stock_delete_section
 % if ($info_section_id eq 'population_delete_section'){
                                 <& /stock/population_delete.mas, stock_id=>$stock_id, stock_uniquename=>$stock_uniquename &>
@@ -692,6 +697,19 @@ $logged_in_name => undef
 % if ($info_section_id eq 'propagation_group_ids_in_project_section'){
                                 <& /propagation/propagation_groups_in_project.mas, trial_id=>$trial_id &>
 % } #End propagation_group_ids_in_project_section
+
+% if ($info_section_id eq 'dataset_outlier_detection') {
+    <& /dataset/outliers.mas, dataset_id => $dataset_id, dataset_name => $dataset_name &>
+% }
+% if ( $info_section_id eq 'dataset_analysis_tools') {
+    <& /solgs/tools/dataset_trials_analysis.mas, dataset_id => $dataset_id, dataset_name => $dataset_name, data_structure => 'dataset' &>
+% }
+% if ( $info_section_id eq 'dataset_tool_compatibility') {
+    <& /dataset/tool_compatibility.mas, dataset_id => $dataset_id, dataset_name => $dataset_name &>
+% }
+% if ( $info_section_id eq 'dataset_publish') {
+    <& /dataset/publish.mas, dataset_id => $dataset_id, dataset_name => $dataset_name, is_dataset_owner => $is_dataset_owner, is_dataset_public => $is_dataset_public &>
+% }
 
 % if (!$info_section_id){
                                 <p>No section specified! Main content goes here!</p>
