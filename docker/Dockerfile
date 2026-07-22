@@ -180,7 +180,8 @@ RUN chown production /home/production/cxgn/sgn/js/package-lock.json
 #
 COPY etc/slurm.conf /etc/slurm/slurm.conf
 COPY etc/starmachine.conf /etc/starmachine/
-COPY etc/nginx.conf /etc/nginx/sites-available/default
+COPY etc/nginx-base.conf /etc/nginx/nginx.conf
+COPY etc/nginx-site.conf /etc/nginx/sites-available/default
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
