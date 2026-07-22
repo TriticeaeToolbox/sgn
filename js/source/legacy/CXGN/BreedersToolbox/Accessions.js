@@ -390,6 +390,7 @@ jQuery(document).ready(function ($) {
     function add_accessions(full_info, species_names) {
         var email_address = jQuery('#email_address_upload').val();
         var email_option_enabled = jQuery('#email_option_to_recieve_accession_upload_status').prop('checked') ? 1 : 0;
+        var overwrite_pedigrees = jQuery('#overwrite_pedigrees').prop('checked');
         console.log("check email address:", email_address);
         console.log(full_info);
 
@@ -416,6 +417,7 @@ jQuery(document).ready(function ($) {
                 'allowed_organisms': JSON.stringify(species_names),
                 'email_address_upload': email_address,
                 'email_option_enabled': email_option_enabled,
+                'overwrite_pedigrres': overwrite_pedigrees
             },
             // beforeSend: function(){
             //     disable_ui();
@@ -655,6 +657,7 @@ function toggleEmailField() {
 function add_accessions(full_info, species_names) {
     var email_address = jQuery('#email_address_upload').val();
     var email_option_enabled = jQuery('#email_option_to_recieve_accession_upload_status').prop('checked') ? 1 : 0;
+    var overwrite_pedigrees = jQuery('#overwrite_pedigrees').prop('checked');
     console.log("check email address:", email_address);
     console.log(full_info);
 
@@ -675,6 +678,7 @@ function add_accessions(full_info, species_names) {
             'allowed_organisms': JSON.stringify(species_names),
             'email_address_upload': email_address,
             'email_option_enabled': email_option_enabled,
+            'overwrite_pedigrees': overwrite_pedigrees
         },
         beforeSend: function(){
             if ( !email_option_enabled ) {

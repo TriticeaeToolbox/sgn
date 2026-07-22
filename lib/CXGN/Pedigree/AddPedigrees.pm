@@ -123,12 +123,21 @@ sub add_pedigrees {
                         $r->delete();
                     }
                 }
-                $self->get_schema->resultset('Stock::StockRelationship')->create({
+                my $existing_female_parent_count = $self->get_schema->resultset('Stock::StockRelationship')->search({
                     type_id => $female_parent_cvterm->cvterm_id(),
                     object_id => $progeny_accession->[0],
-                    subject_id => $female_parent->[0],
-                    value => $cross_type,
-                });
+                })->count();
+                if ( $existing_female_parent_count eq 0 ) {
+                    $self->get_schema->resultset('Stock::StockRelationship')->create({
+                        type_id => $female_parent_cvterm->cvterm_id(),
+                        object_id => $progeny_accession->[0],
+                        subject_id => $female_parent->[0],
+                        value => $cross_type,
+                    });
+                }
+                else {
+                    print STDERR "Skipping adding of female parent $female_parent_name for progeny " . $pedigree->get_name() . " - keeping existing female parent.\n"
+                }
             }
 
             #create relationship to male parent
@@ -143,11 +152,20 @@ sub add_pedigrees {
                         $r->delete();
                     }
                 }
-                $self->get_schema->resultset('Stock::StockRelationship')->create({
+                my $existing_male_parent_count = $self->get_schema->resultset('Stock::StockRelationship')->search({
                     type_id => $male_parent_cvterm->cvterm_id(),
                     object_id => $progeny_accession->[0],
-                    subject_id => $male_parent->[0],
-                });
+                })->count();
+                if ( $existing_male_parent_count eq 0 ) {
+                    $self->get_schema->resultset('Stock::StockRelationship')->create({
+                        type_id => $male_parent_cvterm->cvterm_id(),
+                        object_id => $progeny_accession->[0],
+                        subject_id => $male_parent->[0],
+                    });
+                }
+                else {
+                    print STDERR "Skipping adding of male parent $male_parent_name for progeny " . $pedigree->get_name() . " - keeping existing male parent.\n"
+                }
             }
 
             print STDERR "Successfully added pedigree ".$pedigree->get_name()."\n";
@@ -193,7 +211,7 @@ sub validate_pedigrees {
     my @pedigrees = @{$self->get_pedigrees()};
 
     my @progeny_stock_ids;
-    my %progeny_stock_ids_hash;
+    my %pedigree_hash;
     foreach my $pedigree (@pedigrees) {
         my $progeny_name = $pedigree->get_name();
         my $cross_type = $pedigree->get_cross_type();
@@ -202,7 +220,6 @@ sub validate_pedigrees {
             push @{$return{error}}, "Progeny name $progeny_name missing or not found as an accession in database.";
         } else {
             push @progeny_stock_ids, $progeny->[0];
-            $progeny_stock_ids_hash{$progeny->[0]} = $progeny_name;
         }
 
         if (!$pedigree->get_female_parent()){
@@ -221,17 +238,20 @@ sub validate_pedigrees {
         if ( ($cross_type ne 'biparental') && ($cross_type ne 'self') && ($cross_type ne 'open') && ($cross_type ne 'sib') && ($cross_type ne 'polycross') && ($cross_type ne 'backcross') && ($cross_type ne 'reselected') && ($cross_type ne 'doubled_haploid') && ($cross_type ne 'dihaploid_induction') ){
             push @{$return{error}}, "cross_type must be either biparental, self, open, backcross, sib, reselected, dihaploid_induction, doubled_haploid or polycross for progeny $progeny_name.";
         }
+
+        my $male_parent_name;
+        my $male_parent;
         if ($cross_type eq 'biparental' || $cross_type eq 'self' || $cross_type eq 'sib' || $cross_type eq 'polycross' || $cross_type eq 'backcross' || $cross_type eq 'reselected' || $cross_type eq 'dihaploid_induction' || $cross_type eq 'doubled_haploid' ) {
             if (!$pedigree->get_male_parent){
                 push @{$return{error}}, "Male parent not provided for $progeny_name and cross type is $cross_type.";
             }
             else {
-                my $male_parent_name = $pedigree->get_male_parent()->get_name();
+                $male_parent_name = $pedigree->get_male_parent()->get_name();
                 if (!$male_parent_name) {
                     push @{$return{error}}, "Male parent not provided for $progeny_name and cross type is $cross_type.";
                 }
                 else {
-                    my $male_parent = $accessions_crosses_populations_hash{$male_parent_name};
+                    $male_parent = $accessions_crosses_populations_hash{$male_parent_name};
                     if (!$male_parent) {
                         push @{$return{error}}, "Male parent not found for $progeny_name.";
                     }
@@ -241,21 +261,30 @@ sub validate_pedigrees {
         if ($cross_type eq 'open'){
             if ($pedigree->get_male_parent){
                 if ($pedigree->get_male_parent()->get_name()){
-                    my $male_parent_name = $pedigree->get_male_parent()->get_name();
-                    my $male_parent = $accessions_crosses_populations_hash{$male_parent_name};
+                    $male_parent_name = $pedigree->get_male_parent()->get_name();
+                    $male_parent = $accessions_crosses_populations_hash{$male_parent_name};
                     if (!$male_parent) {
                         push @{$return{error}}, "Male parent not found for $progeny_name.";
                     }
                 }
             }
         }
+
+        $pedigree_hash{$progeny->[0]} = {
+            progeny_name => $progeny_name,
+            female_parent => $female_parent->[0],
+            female_parent_name => $female_parent_name,
+            male_parent => $male_parent->[0],
+            male_parent_name => $male_parent_name,
+            cross_type => $cross_type
+        };
     }
 
     # skip the check for existing parents if we are overwriting the pedigrees
     if ( !$overwrite_pedigrees ) {
         my $progeny_female_parent_search = $schema->resultset('Stock::StockRelationship')->search({
             type_id => $female_parent_cvterm_id,
-            object_id => { '-in'=>\@progeny_stock_ids },
+            object_id => { '-in'=>\@progeny_stock_ids }
         });
         my %progeny_with_female_parent_already;
         while (my $r=$progeny_female_parent_search->next){
@@ -269,12 +298,22 @@ sub validate_pedigrees {
         while (my $r=$progeny_male_parent_search->next){
             $progeny_with_male_parent_already{$r->object_id} = $r->subject_id;
         }
+
         foreach (@progeny_stock_ids){
             if (exists($progeny_with_female_parent_already{$_})){
-                push @{$return{error}}, $progeny_stock_ids_hash{$_}." already has female parent stockID ".$progeny_with_female_parent_already{$_}->[0]." saved with cross type ".$progeny_with_female_parent_already{$_}->[1];
+                if ( $progeny_with_female_parent_already{$_}->[0] ne $pedigree_hash{$_}->{female_parent} ) {
+                    my $existing_female_parent_name = $schema->resultset("Stock::Stock")->find({stock_id => $progeny_with_female_parent_already{$_}->[0]})->uniquename();
+                    push @{$return{error}}, $pedigree_hash{$_}->{progeny_name}." already has female parent ".$existing_female_parent_name." stored in the database.  Choose the overwrite pedigrees option to replace the female parent with ".$pedigree_hash{$_}->{female_parent_name};
+                }
+                if ( $progeny_with_female_parent_already{$_}->[1] ne $pedigree_hash{$_}->{cross_type} ) {
+                    push @{$return{error}}, $pedigree_hash{$_}->{progeny_name}." already has cross type ".$progeny_with_female_parent_already{$_}->[1]." stored in the database.  Choose the overwrite pedigrees option to replace the cross type with ".$pedigree_hash{$_}->{cross_type};
+                }
             }
             if (exists($progeny_with_male_parent_already{$_})){
-                push @{$return{error}}, $progeny_stock_ids_hash{$_}." already has male parent stockID ".$progeny_with_male_parent_already{$_};
+                if ( $progeny_with_male_parent_already{$_} ne $pedigree_hash{$_}->{male_parent} ) {
+                    my $existing_male_parent_name = $schema->resultset("Stock::Stock")->find({stock_id => $progeny_with_male_parent_already{$_}})->uniquename();
+                    push @{$return{error}}, $pedigree_hash{$_}->{progeny_name}." already has male parent ".$existing_male_parent_name." stored in the database.  Choose the overwrite pedigrees option to replace the male parent with ".$pedigree_hash{$_}->{male_parent_name};
+                }
             }
         }
     }

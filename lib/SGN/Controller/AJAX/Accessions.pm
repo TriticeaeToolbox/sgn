@@ -530,7 +530,7 @@ sub add_accession_list_POST : Args(0) {
                 die "The pedigrees were not stored";
             }
             if ($return->{error}){
-                die "An error occurred while trying to store the pedigrees";
+                die "An error occurred while trying to store the pedigrees [" . $return->{error} . "]";
             }
         }
     };
