@@ -59,6 +59,7 @@ use SGN::Model::Cvterm;
 use CXGN::Trial;
 use JSON;
 use CXGN::Stock::Accession;
+use CXGN::Stock::StockLookup;
 use CXGN::Genotype::Protocol;
 use CXGN::Genotype::ComputeHybridGenotype;
 use Cache::File;
@@ -299,6 +300,12 @@ has '_selected_protocol_top_key_info' => (
     is => 'rw'
 );
 
+has '_bulk_synonym_data' => (
+    isa => 'HashRef',
+    is => 'rw',
+    default => sub {{}}
+);
+
 has '_genotypeprop_infos' => (
     isa => 'ArrayRef',
     is => 'rw'
@@ -531,6 +538,8 @@ sub get_genotype_info {
     my %genotype_hash;
     my %genotypeprop_hash;
     my %protocolprop_hash;
+    my %unique_stock_obj_ids;
+    my %stock_obj_uniquename_by_genotype_id;
     while (my ($stock_id, $igd_number_json, $protocol_id, $protocol_name, $stock_name, $stock_type_id, $stock_type_name, $genotype_id, $genotype_uniquename, $genotype_description, $project_id, $project_name, $project_description, $accession_id, $accession_uniquename, $full_count) = $h->fetchrow_array()) {
         my $igd_number_hash = $igd_number_json ? decode_json $igd_number_json : undef;
         my $igd_number = $igd_number_hash ? $igd_number_hash->{'igd number'} : undef;
@@ -562,7 +571,16 @@ sub get_genotype_info {
             }
         }
 
-        my $stock_object = CXGN::Stock::Accession->new({schema=>$self->bcs_schema, stock_id=>$stock_obj_id});
+        # Defer the synonym lookup to a single bulk query issued after this loop (below),
+        # instead of instantiating CXGN::Stock::Accession per row (N+1). The uniquename
+        # needed to key into that bulk result is already present in this same SQL row
+        # (stock.uniquename for accessions, accession_of_tissue_sample.uniquename for
+        # tissue samples), so recording it here costs no extra query.
+        my $stock_obj_uniquename = $stock_type_name eq 'accession' ? $stock_name : $accession_uniquename;
+        $stock_obj_uniquename_by_genotype_id{$genotype_id} = $stock_obj_uniquename;
+        if ($stock_obj_id) {
+            $unique_stock_obj_ids{$stock_obj_id} = 1;
+        }
 
         push @genotype_id_array, $genotype_id;
 
@@ -570,7 +588,6 @@ sub get_genotype_info {
             markerProfileDbId => $genotype_id,
             germplasmDbId => $germplasmDbId,
             germplasmName => $germplasmName,
-            synonyms => $stock_object->synonyms,
             stock_id => $stock_id,
             stock_name => $stock_name,
             stock_type_id => $stock_type_id,
@@ -587,6 +604,20 @@ sub get_genotype_info {
         };
         $protocolprop_hash{$protocol_id}++;
         $total_count = $full_count;
+    }
+
+    # Bulk-fetch synonyms for every distinct accession seen above in one query,
+    # replacing the previous per-row CXGN::Stock::Accession->new(...)->synonyms N+1 pattern.
+    my $synonym_hash = {};
+    if (%unique_stock_obj_ids) {
+        my $stocklookup = CXGN::Stock::StockLookup->new({schema => $schema});
+        $synonym_hash = $stocklookup->get_stock_synonyms('stock_id', 'accession', [keys %unique_stock_obj_ids]);
+    }
+    $self->_bulk_synonym_data($synonym_hash);
+
+    foreach my $genotype_id (keys %genotype_hash) {
+        my $stock_obj_uniquename = $stock_obj_uniquename_by_genotype_id{$genotype_id};
+        $genotype_hash{$genotype_id}->{synonyms} = [ map { split /,/, $_ } @{ $synonym_hash->{$stock_obj_uniquename} || [] } ];
     }
 
     my @found_protocolprop_ids = keys %protocolprop_hash;
@@ -975,6 +1006,8 @@ sub init_genotype_iterator {
     $h->execute();
     my @genotypeprop_infos;
     my %seen_protocol_ids;
+    my %unique_stock_obj_ids;
+    my @stock_obj_uniquenames_by_row;
     while (my ($stock_id, $igd_number_json, $protocol_id, $protocol_name, $stock_name, $stock_type_id, $stock_type_name, $genotype_id, $genotype_uniquename, $genotype_description, $project_id, $project_name, $project_description, $accession_id, $accession_uniquename, $full_count) = $h->fetchrow_array()) {
 
         my $germplasmName = '';
@@ -1006,13 +1039,18 @@ sub init_genotype_iterator {
             }
         }
 
-        my $stock_object = CXGN::Stock::Accession->new({schema=>$self->bcs_schema, stock_id=>$stock_obj_id});
+        # Defer the synonym lookup to a single bulk query issued after this loop (below);
+        # see the matching comment in get_genotype_info() for why this is free (no extra query).
+        my $stock_obj_uniquename = $stock_type_name eq 'accession' ? $stock_name : $accession_uniquename;
+        push @stock_obj_uniquenames_by_row, $stock_obj_uniquename;
+        if ($stock_obj_id) {
+            $unique_stock_obj_ids{$stock_obj_id} = 1;
+        }
 
         my %genotypeprop_info = (
             markerProfileDbId => $genotype_id,
             germplasmDbId => $germplasmDbId,
             germplasmName => $germplasmName,
-            synonyms => $stock_object->synonyms,
             stock_id => $stock_id,
             stock_name => $stock_name,
             stock_type_id => $stock_type_id,
@@ -1030,6 +1068,20 @@ sub init_genotype_iterator {
         );
         $seen_protocol_ids{$protocol_id}++;
         push @genotypeprop_infos, \%genotypeprop_info;
+    }
+
+    # Bulk-fetch synonyms for every distinct accession seen above in one query,
+    # replacing the previous per-row CXGN::Stock::Accession->new(...)->synonyms N+1 pattern.
+    my $synonym_hash = {};
+    if (%unique_stock_obj_ids) {
+        my $stocklookup = CXGN::Stock::StockLookup->new({schema => $schema});
+        $synonym_hash = $stocklookup->get_stock_synonyms('stock_id', 'accession', [keys %unique_stock_obj_ids]);
+    }
+    $self->_bulk_synonym_data($synonym_hash);
+
+    for my $i (0..$#genotypeprop_infos) {
+        my $stock_obj_uniquename = $stock_obj_uniquenames_by_row[$i];
+        $genotypeprop_infos[$i]->{synonyms} = [ map { split /,/, $_ } @{ $synonym_hash->{$stock_obj_uniquename} || [] } ];
     }
 
     $self->_genotypeprop_infos(\@genotypeprop_infos);
@@ -1683,7 +1735,6 @@ sub get_cached_file_VCF {
 
         #Get all marker information for the protocol(s) requested. this is important if they are requesting subsets of markers or if they are querying more than one protocol at once. Also important for ordering VCF output. Old genotypes did not have protocolprop marker info so markers are taken from first genotypeprop return below.
         my @all_marker_objects;
-        my %unique_germplasm;
         my @protocol_names;
 
         foreach (@$protocol_ids) {
@@ -1727,8 +1778,6 @@ sub get_cached_file_VCF {
                 }
                 @all_marker_objects = $self->_check_filtered_markers(\@all_marker_objects);
             }
-
-            $unique_germplasm{$geno->{germplasmDbId}}++;
 
             my $genotype_string = "";
             if ($counter == 0) {
@@ -1907,10 +1956,8 @@ sub get_cached_file_VCF {
         open my $in,  '<',  $transpose_tempfile or die "Can't read input file: $!";
         open my $out, '>', $transpose_tempfile_hdr or die "Can't write output file: $!";
 
-        #Get synonyms of the accessions
-        my $stocklookup = CXGN::Stock::StockLookup->new({schema => $self->bcs_schema});
-        my @accession_ids = keys %unique_germplasm;
-        my $synonym_hash = $stocklookup->get_stock_synonyms('stock_id', 'accession', \@accession_ids);
+        #Get synonyms of the accessions, bulk-fetched once already by init_genotype_iterator() above
+        my $synonym_hash = $self->_bulk_synonym_data;
         my $synonym_string = "##SynonymsOfAccessions=\"";
         while( my( $uniquename, $synonym_list ) = each %{$synonym_hash}){
             if(scalar(@{$synonym_list})>0){
