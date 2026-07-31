@@ -194,11 +194,6 @@ has '_iterator_query_handle' => (
     is => 'rw'
 );
 
-has '_iterator_genotypeprop_query_handle' => (
-    isa => 'Ref',
-    is => 'rw'
-);
-
 has '_filtered_markers' => (
     isa => 'HashRef',
     is => 'rw',
@@ -275,11 +270,6 @@ has '_protocolprop_top_key_markers_array_h' => (
     is => 'rw'
 );
 
-has '_genotypeprop_h' => (
-    isa => 'Ref',
-    is => 'rw'
-);
-
 has '_protocolprop_marker_hash_select_arr' => (
     isa => 'ArrayRef',
     is => 'rw'
@@ -306,6 +296,18 @@ has '_bulk_synonym_data' => (
     default => sub {{}}
 );
 
+has '_bulk_genotypeprop_data' => (
+    isa => 'HashRef',
+    is => 'rw',
+    default => sub {{}}
+);
+
+has '_bulk_fetch_batch_size' => (
+    isa => 'Int',
+    is => 'rw',
+    default => 200
+);
+
 has '_genotypeprop_infos' => (
     isa => 'ArrayRef',
     is => 'rw'
@@ -313,11 +315,6 @@ has '_genotypeprop_infos' => (
 
 has '_genotypeprop_infos_counter' => (
     isa => 'Int',
-    is => 'rw'
-);
-
-has '_genotypeprop_hash_select_arr' => (
-    isa => 'ArrayRef',
     is => 'rw'
 );
 
@@ -637,7 +634,6 @@ sub get_genotype_info {
     my %selected_protocol_marker_info;
     my %selected_protocol_top_key_info;
     my %filtered_markers;
-    my $genotypeprop_chromosome_rank_string = '';
     if (scalar(@found_protocolprop_ids)>0){
         my $protocolprop_id_sql = join ("," , @found_protocolprop_ids);
         my $protocolprop_where_sql = "nd_protocol_id in ($protocolprop_id_sql) and type_id = $vcf_map_details_cvterm_id";
@@ -649,7 +645,6 @@ sub get_genotype_info {
         if ($chromosome_list && scalar(@$chromosome_list)>0) {
             my $chromosome_list_sql = '\'' . join('\', \'', @$chromosome_list) . '\'';
             $chromosome_where = " AND (s.value->>'chrom')::text IN ($chromosome_list_sql)";
-            #$genotypeprop_chromosome_rank_string = " AND value->>'CHROM' IN ($chromosome_list_sql) ";
         }
         my $start_position_where = '';
         if (defined($start_position)) {
@@ -711,7 +706,6 @@ sub get_genotype_info {
         push @genotypeprop_hash_select_arr, "s.value->>'$_'";
     }
     if (scalar(@genotype_id_array)>0) {
-        my $genotypeprop_id_sql = join ("," , @genotype_id_array);
         my $genotypeprop_hash_select_sql = scalar(@genotypeprop_hash_select_arr) > 0 ? ', '.join ',', @genotypeprop_hash_select_arr : '';
 
         my $filtered_markers_sql = '';
@@ -719,24 +713,10 @@ sub get_genotype_info {
             $filtered_markers_sql = " AND s.key IN ('". join ("','", keys %filtered_markers) ."')";
         }
 
-        my $q2 = "SELECT genotypeprop_id
-            FROM genotypeprop WHERE genotype_id = ? AND type_id=$vcf_genotyping_cvterm_id $genotypeprop_chromosome_rank_string;";
-        my $h2 = $schema->storage->dbh()->prepare($q2);
-
-        my $genotypeprop_q = "SELECT s.key $genotypeprop_hash_select_sql
-            FROM genotypeprop, jsonb_each(genotypeprop.value) as s
-            WHERE genotypeprop_id = ? AND s.key != 'CHROM' AND type_id = $vcf_genotyping_cvterm_id $filtered_markers_sql;";
-        my $genotypeprop_h = $schema->storage->dbh()->prepare($genotypeprop_q);
-
+        my $bulk_genotypeprop_data = $self->_bulk_fetch_genotypeprop_data(\@genotype_id_array, $vcf_genotyping_cvterm_id, $genotypeprop_hash_select_sql, $genotypeprop_hash_select, $filtered_markers_sql);
         foreach my $genotype_id (@genotype_id_array){
-            $h2->execute($genotype_id);
-            while (my ($genotypeprop_id) = $h2->fetchrow_array()) {
-                $genotypeprop_h->execute($genotypeprop_id);
-                while (my ($marker_name, @genotypeprop_info_return) = $genotypeprop_h->fetchrow_array()) {
-                    for my $s (0 .. scalar(@genotypeprop_hash_select_arr)-1){
-                        $genotype_hash{$genotype_id}->{selected_genotype_hash}->{$marker_name}->{$genotypeprop_hash_select->[$s]} = $genotypeprop_info_return[$s];
-                    }
-                }
+            if ($bulk_genotypeprop_data->{$genotype_id}) {
+                $genotype_hash{$genotype_id}->{selected_genotype_hash} = $bulk_genotypeprop_data->{$genotype_id};
             }
         }
     }
@@ -754,6 +734,46 @@ sub get_genotype_info {
     }
 
     return ($total_count, \@data);
+}
+
+# Bulk-fetch marker data for a list of genotype_ids in one (or a few batched) queries,
+# replacing the previous per-genotype -> per-genotypeprop_id N+1 query pattern. genotypeprop
+# already has a genotype_id column, so there is no need to look up genotypeprop_id first.
+# Returns a HashRef: { genotype_id => { marker_name => { field => value } } }.
+sub _bulk_fetch_genotypeprop_data {
+    my $self = shift;
+    my $genotype_ids = shift; # ArrayRef of genotype_ids
+    my $vcf_genotyping_cvterm_id = shift;
+    my $genotypeprop_hash_select_sql = shift; # e.g. ", s.value->>'GT', s.value->>'DS'"
+    my $genotypeprop_hash_select = shift; # ArrayRef of field names, e.g. ['GT', 'DS']
+    my $filtered_markers_sql = shift; # e.g. " AND s.key IN ('m1','m2')" or ''
+
+    my %result;
+    return \%result unless $genotype_ids && scalar(@$genotype_ids) > 0;
+
+    my $dbh = $self->bcs_schema->storage->dbh();
+    my $batch_size = $self->_bulk_fetch_batch_size;
+    my %seen_genotype_ids = map { $_ => 1 } @$genotype_ids;
+    my @unique_genotype_ids = keys %seen_genotype_ids;
+
+    for (my $i = 0; $i < scalar(@unique_genotype_ids); $i += $batch_size) {
+        my $end = $i + $batch_size - 1;
+        $end = $#unique_genotype_ids if $end > $#unique_genotype_ids;
+        my $genotype_id_sql = join(",", @unique_genotype_ids[$i..$end]);
+
+        my $genotypeprop_q = "SELECT genotypeprop.genotype_id, s.key $genotypeprop_hash_select_sql
+            FROM genotypeprop, jsonb_each(genotypeprop.value) as s
+            WHERE genotypeprop.genotype_id IN ($genotype_id_sql) AND s.key != 'CHROM' AND type_id = $vcf_genotyping_cvterm_id $filtered_markers_sql;";
+        my $genotypeprop_h = $dbh->prepare($genotypeprop_q);
+        $genotypeprop_h->execute();
+        while (my ($genotype_id, $marker_name, @genotypeprop_info_return) = $genotypeprop_h->fetchrow_array()) {
+            for my $s (0 .. scalar(@$genotypeprop_hash_select)-1){
+                $result{$genotype_id}->{$marker_name}->{$genotypeprop_hash_select->[$s]} = $genotypeprop_info_return[$s];
+            }
+        }
+    }
+
+    return \%result;
 }
 
 =head2 init_genotype_iterator()
@@ -941,11 +961,9 @@ sub init_genotype_iterator {
     my $protocolprop_hash_select_sql = scalar(@protocolprop_marker_hash_select_arr) > 0 ? ', '.join ',', @protocolprop_marker_hash_select_arr : '';
 
     my $chromosome_where = '';
-    my $genotypeprop_chromosome_rank_string = '';
     if ($chromosome_list && scalar(@$chromosome_list)>0) {
         my $chromosome_list_sql = '\'' . join('\', \'', @$chromosome_list) . '\'';
         $chromosome_where = " AND (s.value->>'chrom')::text IN ($chromosome_list_sql)";
-        #$genotypeprop_chromosome_rank_string = " AND value->>'CHROM' IN ($chromosome_list_sql) ";
     }
     my $start_position_where = '';
     if (defined($start_position)) {
@@ -1131,12 +1149,12 @@ sub init_genotype_iterator {
     $self->_selected_protocol_top_key_info(\%selected_protocol_top_key_info);
     $self->_filtered_markers(\%filtered_markers);
 
-    # Setup genotypeprop query handle
+    # Bulk-fetch marker data for every genotype collected above in one (batched) query,
+    # replacing the previous per-genotype -> per-genotypeprop_id N+1 query pattern.
     my @genotypeprop_hash_select_arr;
     foreach (@$genotypeprop_hash_select){
         push @genotypeprop_hash_select_arr, "s.value->>'$_'";
     }
-    $self->_genotypeprop_hash_select_arr(\@genotypeprop_hash_select_arr);
     my $genotypeprop_hash_select_sql = scalar(@genotypeprop_hash_select_arr) > 0 ? ', '.join ',', @genotypeprop_hash_select_arr : '';
 
     my $filtered_markers_sql = '';
@@ -1145,16 +1163,9 @@ sub init_genotype_iterator {
         $filtered_markers_sql = " AND s.key IN ('". join ("','", keys %filtered_markers) ."')";
     }
 
-    my $genotypeprop_q = "SELECT s.key $genotypeprop_hash_select_sql
-        FROM genotypeprop, jsonb_each(genotypeprop.value) as s
-        WHERE genotypeprop_id = ? AND s.key != 'CHROM' AND type_id =$vcf_genotyping_cvterm_id $filtered_markers_sql;";
-    my $genotypeprop_h = $schema->storage->dbh()->prepare($genotypeprop_q);
-    $self->_genotypeprop_h($genotypeprop_h);
-
-    my $q2 = "SELECT genotypeprop_id
-        FROM genotypeprop WHERE genotype_id = ? AND type_id=$vcf_genotyping_cvterm_id $genotypeprop_chromosome_rank_string;";
-    my $h2 = $schema->storage->dbh()->prepare($q2);
-    $self->_iterator_genotypeprop_query_handle($h2);
+    my @genotype_ids = map { $_->{markerProfileDbId} } @genotypeprop_infos;
+    my $bulk_genotypeprop_data = $self->_bulk_fetch_genotypeprop_data(\@genotype_ids, $vcf_genotyping_cvterm_id, $genotypeprop_hash_select_sql, $genotypeprop_hash_select, $filtered_markers_sql);
+    $self->_bulk_genotypeprop_data($bulk_genotypeprop_data);
 
     return;
 }
@@ -1199,15 +1210,12 @@ sub get_next_genotype_info {
     my $marker_score_search_hash_list = $self->marker_score_search_hash_list;
     my $return_only_first_genotypeprop_for_stock = $self->return_only_first_genotypeprop_for_stock;
     my $h = $self->_iterator_query_handle();
-    my $h_genotypeprop = $self->_iterator_genotypeprop_query_handle();
     my $protocolprop_markers_h = $self->_protocolprop_markers_h();
     my $protocolprop_top_key_h = $self->_protocolprop_top_key_h();
     my $protocolprop_top_key_markers_h = $self->_protocolprop_top_key_markers_h();
-    my $genotypeprop_h = $self->_genotypeprop_h();
     my $protocolprop_top_key_markers_array_h = $self->_protocolprop_top_key_markers_array_h();
     my $protocolprop_marker_hash_select_arr = $self->_protocolprop_marker_hash_select_arr();
     my $protocolprop_top_key_select_arr = $self->_protocolprop_top_key_select_arr();
-    my $genotypeprop_hash_select_arr = $self->_genotypeprop_hash_select_arr();
     my $vcf_genotyping_cvterm_id = $self->_vcf_genotyping_cvterm_id();
     my $vcf_map_details_cvterm_id = $self->_vcf_map_details_cvterm_id();
     my $vcf_map_details_markers_cvterm_id = $self->_vcf_map_details_markers_cvterm_id();
@@ -1233,16 +1241,8 @@ sub get_next_genotype_info {
         my $protocol_id = $genotypeprop_info{analysisMethodDbId};
         my $full_count = $genotypeprop_info{full_count};
 
-        $h_genotypeprop->execute($genotype_id);
-        while (my ($genotypeprop_id) = $h_genotypeprop->fetchrow_array) {
-            $genotypeprop_h->execute($genotypeprop_id);
-            while (my ($marker_name, @genotypeprop_info_return) = $genotypeprop_h->fetchrow_array()) {
-                for my $s (0 .. scalar(@$genotypeprop_hash_select_arr)-1){
-		    $genotypeprop_info{selected_genotype_hash}->{$marker_name}->{$genotypeprop_hash_select->[$s]} = $genotypeprop_info_return[$s];
-                }
-            }
+        $genotypeprop_info{selected_genotype_hash} = $self->_bulk_genotypeprop_data->{$genotype_id} || {};
 
-        }
         my $selected_marker_info = $selected_protocol_marker_info{$protocol_id} ? $selected_protocol_marker_info{$protocol_id} : {};
         my $selected_protocol_info = $selected_protocol_top_key_info{$protocol_id} ? $selected_protocol_top_key_info{$protocol_id} : {};
         my @all_protocol_marker_names = keys %$selected_marker_info;
