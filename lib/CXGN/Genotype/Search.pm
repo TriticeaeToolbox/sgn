@@ -308,6 +308,17 @@ has '_bulk_fetch_batch_size' => (
     default => 200
 );
 
+# Upper bound on (genotypes-in-window x markers-per-genotype) result rows held in memory at
+# once. A genotype's jsonb blob can unpack to tens of thousands of jsonb_each rows, so a fixed
+# genotype-count batch size alone doesn't bound memory when marker counts are large -- the
+# number of genotypes actually fetched per window is shrunk below _bulk_fetch_batch_size to
+# keep total rows under this target (see _bulk_fetch_window_size()).
+has '_bulk_fetch_max_result_rows' => (
+    isa => 'Int',
+    is => 'rw',
+    default => 1_000_000
+);
+
 has '_genotypeprop_infos' => (
     isa => 'ArrayRef',
     is => 'rw'
@@ -776,6 +787,25 @@ sub _bulk_fetch_genotypeprop_data {
     return \%result;
 }
 
+# How many genotypes' marker data get_next_genotype_info() should fetch per window.
+# Bounded by both _bulk_fetch_batch_size (a hard cap on genotype count) and
+# _bulk_fetch_max_result_rows / markers-per-genotype (so a window's total row count -- the
+# real driver of Perl-side memory use -- stays bounded even when a protocol has tens of
+# thousands of markers). $markers_count should be the marker count for the protocol(s) in
+# play (typically scalar keys %{$self->_filtered_markers}). If it's 0/undef (old genotyping
+# protocols with no protocolprop marker metadata to count), assume a conservative worst-case
+# estimate rather than 1 -- a genotype's jsonb blob can still unpack to tens of thousands of
+# rows even when we have no marker count for it ahead of time.
+sub _bulk_fetch_window_size {
+    my $self = shift;
+    my $markers_count = shift;
+    $markers_count = 50_000 unless $markers_count && $markers_count > 0;
+
+    my $rows_bound = int($self->_bulk_fetch_max_result_rows / $markers_count) || 1;
+    my $batch_size = $self->_bulk_fetch_batch_size;
+    return $rows_bound < $batch_size ? $rows_bound : $batch_size;
+}
+
 =head2 init_genotype_iterator()
 
 Function for initiating genotype search query and then used to get genotype data iteratively. Iterative search retrieval minimizes memory usage.
@@ -1149,23 +1179,11 @@ sub init_genotype_iterator {
     $self->_selected_protocol_top_key_info(\%selected_protocol_top_key_info);
     $self->_filtered_markers(\%filtered_markers);
 
-    # Bulk-fetch marker data for every genotype collected above in one (batched) query,
-    # replacing the previous per-genotype -> per-genotypeprop_id N+1 query pattern.
-    my @genotypeprop_hash_select_arr;
-    foreach (@$genotypeprop_hash_select){
-        push @genotypeprop_hash_select_arr, "s.value->>'$_'";
-    }
-    my $genotypeprop_hash_select_sql = scalar(@genotypeprop_hash_select_arr) > 0 ? ', '.join ',', @genotypeprop_hash_select_arr : '';
-
-    my $filtered_markers_sql = '';
-    # If filtered markers by providing a location range or chromosome these markers will be in %filered_markers, but we dont want to use this SQL if there are too many markers (>10000) )
-    if (scalar(keys %filtered_markers) >0 && scalar(keys %filtered_markers) < 10000) {
-        $filtered_markers_sql = " AND s.key IN ('". join ("','", keys %filtered_markers) ."')";
-    }
-
-    my @genotype_ids = map { $_->{markerProfileDbId} } @genotypeprop_infos;
-    my $bulk_genotypeprop_data = $self->_bulk_fetch_genotypeprop_data(\@genotype_ids, $vcf_genotyping_cvterm_id, $genotypeprop_hash_select_sql, $genotypeprop_hash_select, $filtered_markers_sql);
-    $self->_bulk_genotypeprop_data($bulk_genotypeprop_data);
+    # Marker data is fetched lazily in windows of _bulk_fetch_batch_size genotypes at a time
+    # from get_next_genotype_info(), not eagerly for the whole dataset here -- fetching it all
+    # upfront held the entire genotype x marker matrix in memory for the life of the iterator
+    # (defeating the memory-bounding point of the iterator) and caused OOM kills on large downloads.
+    $self->_bulk_genotypeprop_data({});
 
     return;
 }
@@ -1240,6 +1258,33 @@ sub get_next_genotype_info {
         my $genotype_id = $genotypeprop_info{markerProfileDbId};
         my $protocol_id = $genotypeprop_info{analysisMethodDbId};
         my $full_count = $genotypeprop_info{full_count};
+
+        # Fetch the next window of genotypes' marker data only when we cross into it, so peak
+        # memory stays bounded instead of holding the whole search result (see the matching
+        # comment in init_genotype_iterator() for why this is lazy). The window size is
+        # adapted to the marker count, not just _bulk_fetch_batch_size, since a genotype's
+        # jsonb blob can unpack to tens of thousands of rows -- see _bulk_fetch_window_size().
+        my $window_size = $self->_bulk_fetch_window_size(scalar keys %filtered_markers);
+        if ($genotypeprop_infos_counter % $window_size == 0) {
+            my $window_end = $genotypeprop_infos_counter + $window_size - 1;
+            $window_end = $#$genotypeprop_infos if $window_end > $#$genotypeprop_infos;
+            my @window_genotype_ids = map { $_->{markerProfileDbId} } @{$genotypeprop_infos}[$genotypeprop_infos_counter..$window_end];
+
+            my @genotypeprop_hash_select_arr;
+            foreach (@$genotypeprop_hash_select){
+                push @genotypeprop_hash_select_arr, "s.value->>'$_'";
+            }
+            my $genotypeprop_hash_select_sql = scalar(@genotypeprop_hash_select_arr) > 0 ? ', '.join ',', @genotypeprop_hash_select_arr : '';
+
+            my $filtered_markers_sql = '';
+            if (scalar(keys %filtered_markers) >0 && scalar(keys %filtered_markers) < 10000) {
+                $filtered_markers_sql = " AND s.key IN ('". join ("','", keys %filtered_markers) ."')";
+            }
+
+            $self->_bulk_genotypeprop_data(
+                $self->_bulk_fetch_genotypeprop_data(\@window_genotype_ids, $vcf_genotyping_cvterm_id, $genotypeprop_hash_select_sql, $genotypeprop_hash_select, $filtered_markers_sql)
+            );
+        }
 
         $genotypeprop_info{selected_genotype_hash} = $self->_bulk_genotypeprop_data->{$genotype_id} || {};
 
