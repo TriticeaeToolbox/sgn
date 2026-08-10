@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 11:06:2026 13:56
+date: 10:08:2026 09:13
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1646,6 +1646,14 @@ namespace: wheat_trait
 def: "The area of the plant canopy that is green" []
 synonym: "GLA" EXACT []
 is_a: CO_321:Physiological
+
+[Term]
+id: CO_321:0500803
+name: Grain purple proportion
+namespace: wheat_trait
+def: "The proportion of purple grain coloration" []
+synonym: "GPP" EXACT []
+is_a: CO_321:Morphological
 
 [Term]
 id: CO_321:0000229
@@ -3428,6 +3436,13 @@ name: Green Leaf Area Estimation
 namespace: wheat_trait_method
 def: "A visual estimation of the area of the leaf canopy that is green" []
 relationship: method_of CO_321:0500802
+
+[Term]
+id: CO_321:0500316
+name: Grain Purple Proportion Estimation
+namespace: wheat_trait_method
+def: "A visual assessment of the proportion of purple grain coloration" []
+relationship: method_of CO_321:0500803
 
 [Term]
 id: CO_321:0000804
@@ -7617,6 +7632,27 @@ synonym: "4" EXACT []
 is_a: CO_321:0500555
 
 [Term]
+id: CO_321:0500556
+name: Grain purple proportion
+namespace: wheat_trait_scale
+def: "0= no visual purple pigmentation, 100= completely purple grain" []
+relationship: scale_of CO_321:0500316
+
+[Term]
+id: CO_321:0500556/0
+name: no visual purple pigmentation
+namespace: wheat_trait_scale
+synonym: "0" EXACT []
+is_a: CO_321:0500556
+
+[Term]
+id: CO_321:0500556/1
+name: completely purple grain
+namespace: wheat_trait_scale
+synonym: "100" EXACT []
+is_a: CO_321:0500556
+
+[Term]
 id: CO_321:0001043
 name: Agronomic score - 1-5 scoring scale
 namespace: wheat_trait
@@ -10283,3 +10319,13 @@ synonym: "GLA" EXACT []
 relationship: variable_of CO_321:0500802
 relationship: variable_of CO_321:0500315
 relationship: variable_of CO_321:0000410
+
+[Term]
+id: CO_321:0501258
+name: Grain purple proportion - %
+namespace: wheat_trait
+def: "TRAIT: The proportion of purple grain coloration METHOD: A visual assessment of the proportion of purple grain coloration SCALE: Grain purple proportion (0= no visual purple pigmentation, 100= completely purple grain)" []
+synonym: "GPP" EXACT []
+relationship: variable_of CO_321:0500803
+relationship: variable_of CO_321:0500316
+relationship: variable_of CO_321:0500556
