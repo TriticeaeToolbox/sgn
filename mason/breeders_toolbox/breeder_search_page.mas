@@ -992,13 +992,9 @@ $preferred_species => undef
     } else {
       var protocol_name = '<% $c->config->{default_genotyping_protocol} %>';
       $(".wizard-download-genotypes-info3").show();
-<<<<<<< HEAD
       $(".wizard-download-genotypes-info3").val("genotype protocol \"" + protocol_name + "\""); 
       $(".wizard-download-genotypes-info5").show();
       $(".wizard-download-genotypes-info5").val("genotype protocol \"" + protocol_name + "\""); 
-=======
-      $(".wizard-download-genotypes-info3").val("genotype protocol \"" + protocol_name + "\"");
->>>>>>> topic/major_loci_improvements
       jQuery.ajax({
           url: '/get/genotyping/protocols/',
           method: "POST",
