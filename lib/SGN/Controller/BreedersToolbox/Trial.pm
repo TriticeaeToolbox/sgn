@@ -83,6 +83,11 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     my $c = shift;
     my $format = $c->req->param("format");
     #print STDERR $format;
+    my $user = $c->user();
+    if (!$user) {
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
+    }
 
     if ($user->check_roles("curator")) {
         $c->stash->{curator} = 1;
