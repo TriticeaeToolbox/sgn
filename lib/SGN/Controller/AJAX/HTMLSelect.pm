@@ -1579,6 +1579,7 @@ sub get_genotyping_protocol_select : Path('/ajax/html/select/genotyping_protocol
     my $id = $c->req->param("id") || "gtp_select";
     my $name = $c->req->param("name") || "genotyping_protocol_select";
     my $empty = $c->req->param("empty") || "";
+    my $default = $c->req->param("default");
     my $default_gtp;
     my %gtps;
 
@@ -1598,7 +1599,7 @@ sub get_genotyping_protocol_select : Path('/ajax/html/select/genotyping_protocol
         name => $name,
         id => $id,
         choices => $gt_protocols,
-        selected => $gtps{$default_gtp}
+        selected => $default || $gtps{$default_gtp}
     );
     $c->stash->{rest} = { select => $html };
 }
@@ -1773,18 +1774,30 @@ sub get_datasets_select :Path('/ajax/html/select/datasets') Args(0) {
 
                 my $tool_compatibility;
                 if ($show_compatibility) {
-                    $tool_compatibility = $ds->tool_compatibility();
-                    if (!$tool_compatibility) {
-                        $tool_compatibility = '(not calculated)'
+                    my $stored_tool_compatibility = $ds->tool_compatibility();
+                    my $analysis_compatibility = $stored_tool_compatibility ? $stored_tool_compatibility->{$analysis_type} : undef;
+
+                    if (!$analysis_compatibility && $analysis_type eq "Environment Stratification" && $stored_tool_compatibility) {
+                        $analysis_compatibility = $stored_tool_compatibility->{"Dataset Analysis"};
+                    }
+
+                    if (!$analysis_compatibility && $analysis_type eq 'Environment Stratification') {
+                        my $trial_count = scalar(@{$info->{categories}->{trials} || []});
+                        my $trait_count = scalar(@{$info->{categories}->{traits} || []});
+                        $analysis_compatibility = {
+                            compatible => ($trial_count > 1 && $trait_count > 0) ? 1 : 0
+                        };
+                    }
+
+                    if (!$stored_tool_compatibility && !$analysis_compatibility) {
+                        $tool_compatibility = '(not calculated)';
+                    } elsif (!$analysis_compatibility || $analysis_compatibility->{'compatible'} == 0) {
+                        $tool_compatibility = '<b><span class="glyphicon glyphicon-remove" style="color:red"></span></b>';
                     } else {
-                        if ($tool_compatibility->{$analysis_type}->{'compatible'} == 0){
-                            $tool_compatibility = '<b><span class="glyphicon glyphicon-remove" style="color:red"></span></b>';
+                        if ($analysis_compatibility->{"warn"}) {
+                            $tool_compatibility = '<b><span class="glyphicon glyphicon-warning-sign" style="color:orange;font-size:14px" title="'.$analysis_compatibility->{'warn'}.'"></span></b>';
                         } else {
-                            if ($tool_compatibility->{$analysis_type}->{"warn"}) {
-                                $tool_compatibility = '<b><span class="glyphicon glyphicon-warning-sign" style="color:orange;font-size:14px" title="'.$tool_compatibility->{$analysis_type}->{'warn'}.'"></span></b>';
-                            } else {
-                                $tool_compatibility = '<b><span class="glyphicon glyphicon-ok" style="color:green"></span></b>';
-                            }
+                            $tool_compatibility = '<b><span class="glyphicon glyphicon-ok" style="color:green"></span></b>';
                         }
                     }
                 }

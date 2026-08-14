@@ -375,7 +375,7 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
         # the (transposed) file in genotype_vcf_upload.
         (my $archive_dirname = $dirname) =~ s/genotype_vcf_upload$/genotype_vcf_archive/;
         if ( $archive_dirname ne $dirname && -s "$archive_dirname/$basename.gz" ) {
-	    print STDERR "found $archive_dirname/$basename.gz\n";
+            print STDERR "found $archive_dirname/$basename.gz\n";
             $filepath = "$archive_dirname/$basename.gz";
             $basename = "$basename.gz";
         } elsif ( $archive_dirname ne $dirname && -s "$archive_dirname/$basename" ) {
@@ -427,10 +427,10 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
                     $basename = "$basename.vcf";
                 }
             }
-	}
+        }
 
         my $contents = read_file($filepath);
-	my $content_type = ($basename =~ /\.gz$/) ? 'application/gzip' : 'text/plain';
+        my $content_type = ($basename =~ /\.gz$/) ? 'application/gzip' : 'text/plain';
         $c->res->content_type($content_type);
         $c->res->header('Content-Disposition', qq[attachment; filename="$basename"]);
         $c->res->body($contents);

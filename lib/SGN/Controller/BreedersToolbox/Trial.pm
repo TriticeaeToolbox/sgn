@@ -84,6 +84,10 @@ sub trial_info : Chained('trial_init') PathPart('') Args(0) {
     my $format = $c->req->param("format");
     #print STDERR $format;
 
+    if ($user->check_roles("curator")) {
+        $c->stash->{curator} = 1;
+    }
+
     my $schema = $c->dbic_schema('Bio::Chado::Schema', 'sgn_chado');
     my $trial = $c->stash->{trial};
     my $program_object = CXGN::BreedersToolbox::Projects->new( { schema => $schema });
