@@ -986,6 +986,27 @@ sub get_stocks_with_images {
         push @query_values, $stock_type_name;
     }
 
+    $q .= "
+        UNION
+
+        SELECT DISTINCT acc.uniquename
+        FROM project AS p
+        JOIN nd_experiment_project AS nep ON nep.project_id = p.project_id
+        JOIN nd_experiment AS ne ON ne.nd_experiment_id = nep.nd_experiment_id
+        JOIN nd_experiment_stock AS nes ON nes.nd_experiment_id = ne.nd_experiment_id
+        JOIN stock AS plot ON plot.stock_id = nes.stock_id
+        JOIN stock_relationship AS sr ON sr.subject_id = plot.stock_id
+        JOIN cvterm AS srt ON srt.cvterm_id = sr.type_id AND srt.name = 'plot_of'
+        JOIN stock AS acc ON acc.stock_id = sr.object_id
+        JOIN cvterm AS acct ON acct.cvterm_id = acc.type_id AND acct.name = 'accession'
+        JOIN phenome.stock_image AS si2 ON si2.stock_id = acc.stock_id
+        JOIN metadata.md_image AS mi2 ON mi2.image_id = si2.image_id
+        JOIN phenome.project_md_image AS pmi ON pmi.image_id = mi2.image_id
+        JOIN cvterm AS pmit ON pmit.cvterm_id = pmi.type_id AND pmit.name = 'trial_associated_image'
+        WHERE p.project_id = ? AND mi2.obsolete = 'f' AND pmi.project_id = ?
+    ";
+    push @query_values, ($trial_id, $trial_id);
+
     my $h = $schema->storage->dbh()->prepare($q);
     $h->execute(@query_values);
     while (my ($stock_name) = $h->fetchrow_array()) {
@@ -1329,6 +1350,7 @@ sub get_trials {
     my $plot_type_id =  SGN::Model::Cvterm->get_cvterm_row($schema, 'plot', 'stock_type')->cvterm_id();
     my $tissue_sample_type_id =  SGN::Model::Cvterm->get_cvterm_row($schema, 'tissue_sample', 'stock_type')->cvterm_id();
     my $plot_of_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'plot_of', 'stock_relationship')->cvterm_id();
+    my $intercrop_plot_of_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'intercrop_plot_of', 'stock_relationship')->cvterm_id();
     my $subplot_of_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'subplot_of', 'stock_relationship')->cvterm_id();
     my $plant_of_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'plant_of', 'stock_relationship')->cvterm_id();
     my $tissue_sample_of_type_id = SGN::Model::Cvterm->get_cvterm_row($schema, 'tissue_sample_of', 'stock_relationship')->cvterm_id();
@@ -1359,12 +1381,12 @@ sub get_trials {
     JOIN nd_experiment_project ON (nd_experiment_stock.nd_experiment_id = nd_experiment_project.nd_experiment_id)
     JOIN project ON (nd_experiment_project.project_id = project.project_id)
     JOIN projectprop ON (project.project_id=projectprop.project_id) AND projectprop.type_id = ?
-    LEFT JOIN stock_relationship AS stock_relationship_1 ON (stock.stock_id=stock_relationship_1.subject_id) AND stock_relationship_1.type_id IN (?,?,?)
+    LEFT JOIN stock_relationship AS stock_relationship_1 ON (stock.stock_id=stock_relationship_1.subject_id) AND stock_relationship_1.type_id IN (?,?,?,?)
     LEFT JOIN stock_relationship AS stock_relationship_2 ON (stock.stock_id=stock_relationship_2.object_id) AND stock_relationship_2.type_id = ?
     $where_clause;";
 
     my $h = $dbh->prepare($q);
-    $h->execute($geolocation_type_id, $plot_of_type_id, $subplot_of_type_id, $plant_of_type_id, $tissue_sample_of_type_id);
+    $h->execute($geolocation_type_id, $plot_of_type_id, $intercrop_plot_of_type_id, $subplot_of_type_id, $plant_of_type_id, $tissue_sample_of_type_id);
     my @trials;
     while (my ($project_id, $project_name, $nd_geolocation_id) = $h->fetchrow_array()) {
         push @trials, [ $project_id, $project_name, $nd_geolocation_id, $geolocations{$nd_geolocation_id} ];

@@ -2,6 +2,7 @@ package CXGN::Trial::ParseUpload::Plugin::TrialGeneric;
 
 use Moose::Role;
 use List::MoreUtils qw(uniq);
+use JSON;
 use CXGN::File::Parse;
 use SGN::Model::Cvterm;
 use CXGN::List::Validate;
@@ -23,6 +24,8 @@ sub _validate_with_plugin {
     my $skip_accession_checks = $self->get_skip_accession_checks();
     my $accession_replacements = $self->get_accession_replacements();
     my $trial_stock_type = $self->get_trial_stock_type();
+    my $plot_name_template = $self->get_plot_name_template();
+    my $breeding_program_name = $self->get_breeding_program_name();
 
     # Encountered Error and Warning Messages
     my %errors;
@@ -93,7 +96,6 @@ sub _validate_with_plugin {
         my $intercrop_stock_name = $data->{'intercrop_stock_name'};
         my $plot_number = $data->{'plot_number'};
         my $block_number = $data->{'block_number'};
-        my $plot_name = $data->{'plot_name'} || _create_plot_name($trial_name, $plot_number);
         my $trial_type = $data->{'trial_type'};
         my $plot_width = $data->{'plot_width'};
         my $plot_length = $data->{'plot_length'};
@@ -107,6 +109,17 @@ sub _validate_with_plugin {
         my $num_seed_per_plot = $data->{'num_seed_per_plot'};
         my $weight_gram_seed_per_plot = $data->{'weight_gram_seed_per_plot'};
         my $entry_number = $data->{'entry_number'};
+        my $plot_name = $data->{'plot_name'} || _generate_plot_name($plot_name_template, {
+            breedingProgram => $breeding_program_name,
+            trialName       => $trial_name,
+            accessionName   => $stock_name,
+            plotNumber      => $plot_number,
+            blockNumber     => $block_number,
+            rangeNumber     => $range_number,
+            repNumber       => $rep_number,
+            rowNumber       => $row_number,
+            colNumber       => $col_number,
+        }) || _create_plot_name($trial_name, $plot_number);
 
         # Replace stock name, if replacement made
         if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
@@ -405,6 +418,8 @@ sub _parse_with_plugin {
     my $self = shift;
     my $schema = $self->get_chado_schema();
     my $trial_name = $self->get_trial_name();
+    my $plot_name_template = $self->get_plot_name_template();
+    my $breeding_program_name = $self->get_breeding_program_name();
     my $skip_accession_checks = $self->get_skip_accession_checks();
     my $accession_replacements = $self->get_accession_replacements();
     my $parsed = $self->_get_validated_data();
@@ -435,6 +450,7 @@ sub _parse_with_plugin {
     my %design;
     my %seen_entry_numbers;
     my $treatment_design;
+    my $plot_name_template_used = 0;
     foreach (@$data) {
         my $r = $_;
         my $row = $r->{'_row'};
@@ -442,7 +458,6 @@ sub _parse_with_plugin {
         my $intercrop_stock_name = $r->{'intercrop_stock_name'};
         my $plot_number = $r->{'plot_number'};
         my $block_number = $r->{'block_number'};
-        my $plot_name = $r->{'plot_name'} || _create_plot_name($trial_name, $plot_number);
         my $trial_type = $r->{'trial_type'};
         my $plot_width = $r->{'plot_width'};
         my $plot_length = $r->{'plot_length'};
@@ -456,6 +471,20 @@ sub _parse_with_plugin {
         my $num_seed_per_plot = $r->{'num_seed_per_plot'} || 0;
         my $weight_gram_seed_per_plot = $r->{'weight_gram_seed_per_plot'} || 0;
         my $entry_number = $r->{'entry_number'};
+        if (!$r->{'plot_name'} && $plot_name_template) {
+            $plot_name_template_used = 1;
+        }
+        my $plot_name = $r->{'plot_name'} || _generate_plot_name($plot_name_template, {
+            breedingProgram => $breeding_program_name,
+            trialName       => $trial_name,
+            accessionName   => $stock_name,
+            plotNumber      => $plot_number,
+            blockNumber     => $block_number,
+            rangeNumber     => $range_number,
+            repNumber       => $rep_number,
+            rowNumber       => $row_number,
+            colNumber       => $col_number,
+        }) || _create_plot_name($trial_name, $plot_number);
 
         if ( $accession_replacements && exists $accession_replacements->{$stock_name} ) {
             $stock_name = $accession_replacements->{$stock_name};
@@ -529,7 +558,8 @@ sub _parse_with_plugin {
     my %parsed_data = (
         design => \%design,
         entry_numbers => \%seen_entry_numbers,
-        treatment_design => $treatment_design
+        treatment_design => $treatment_design,
+        plot_name_template_used => $plot_name_template_used
     );
 
     $self->_set_parsed_data(\%parsed_data);
@@ -541,6 +571,30 @@ sub _create_plot_name {
   my $trial_name = shift;
   my $plot_number = shift;
   return $trial_name . "-PLOT_" . $plot_number;
+}
+
+# Generates a plot name from a plot_name_template (a JSON-encoded
+# { format_name => { name_attributes => [...] } } hash, as returned by
+# CXGN::BreedersToolbox::Projects->get_autogenerated_name_metadata_by_breeding_program).
+# Mirrors the algorithm in CXGN::Trial::TrialDesign::_build_plot_names and
+# CXGN::Trial::ParseUpload::Plugin::MultipleTrialDesignGeneric::_generate_plot_name
+# so that generated names are identical between the different upload paths.
+sub _generate_plot_name {
+    my $template_json_str = shift;
+    my $attrs = shift;
+    return unless $template_json_str;
+
+    my $template_json = decode_json($template_json_str);
+    my ($format_name) = keys %$template_json;
+    my $name_attributes = $template_json->{$format_name}->{'name_attributes'} || [];
+    my %valid_attrs = map { $_ => 1 } qw(breedingProgram trialName accessionName plotNumber blockNumber rangeNumber repNumber rowNumber colNumber);
+
+    my @components = map {
+        ref $_ eq 'HASH' ? ($_->{'text'} // '') :
+        $valid_attrs{$_} ? ($attrs->{$_} // '') : ''
+    } @$name_attributes;
+
+    return join('_', @components);
 }
 
 1;
