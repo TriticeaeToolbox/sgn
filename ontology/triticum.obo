@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 10:08:2026 09:13
+date: 19:08:2026 15:04
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1654,6 +1654,14 @@ namespace: wheat_trait
 def: "The proportion of purple grain coloration" []
 synonym: "GPP" EXACT []
 is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500804
+name: Sawfly infestation
+namespace: wheat_trait
+def: "The amount of infestation of wheat stem sawfly, Cephus cinctus." []
+synonym: "SawflyInf" EXACT []
+is_a: CO_321:Biotic_stress
 
 [Term]
 id: CO_321:0000229
@@ -3445,6 +3453,13 @@ def: "A visual assessment of the proportion of purple grain coloration" []
 relationship: method_of CO_321:0500803
 
 [Term]
+id: CO_321:0500317
+name: Sawfly Infestation Estimation
+namespace: wheat_trait_method
+def: "A visual estimation of the amount of wheat stem sawfly infestation.  Ten randomly selected stems per plot are harvested at maturity and dissected.  Stems contaning sawfly frass were classified as infested.  Infestation percentage was calculated as the percentage of the 10 stems showing sawfly frass." []
+relationship: method_of CO_321:0500804
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -3637,6 +3652,7 @@ relationship: scale_of CO_321:0500305
 relationship: scale_of CO_321:0500308
 relationship: scale_of CO_321:0500311
 relationship: scale_of CO_321:0500315
+relationship: scale_of CO_321:0500317
 relationship: scale_of CO_321:0000309
 relationship: scale_of CO_321:0000316
 relationship: scale_of CO_321:0000319
@@ -10329,3 +10345,12 @@ synonym: "GPP" EXACT []
 relationship: variable_of CO_321:0500803
 relationship: variable_of CO_321:0500316
 relationship: variable_of CO_321:0500556
+
+[Term]
+id: CO_321:0501259
+name: Sawfly infestation - %
+namespace: wheat_trait
+def: "TRAIT: The amount of infestation of wheat stem sawfly, Cephus cinctus. METHOD: A visual estimation of the amount of wheat stem sawfly infestation.  Ten randomly selected stems per plot are harvested at maturity and dissected.  Stems contaning sawfly frass were classified as infested.  Infestation percentage was calculated as the percentage of the 10 stems showing sawfly frass. SCALE: %" []
+relationship: variable_of CO_321:0500804
+relationship: variable_of CO_321:0500317
+relationship: variable_of CO_321:0000410
