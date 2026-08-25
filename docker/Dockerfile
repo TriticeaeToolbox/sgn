@@ -167,7 +167,7 @@ RUN git clone --depth 1                             https://github.com/Triticeae
 USER root
 
 # add npm
-RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN curl -sL https://deb.nodesource.com/setup_24.x | bash -
 RUN apt install nodejs -y
 RUN cd /home/production/cxgn/sgn/js; npm install
 
