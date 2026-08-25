@@ -13,6 +13,7 @@ use Cache::File;
 use File::Spec;
 use HTML::Entities;
 use URI::Escape;
+use URI::FromHash 'uri';
 
 use CXGN::Cview::MapFactory;
 use CXGN::Cview::Map::Tools;
@@ -57,7 +58,12 @@ sub alt_index :Path("/cview/index.pl") :Args(0) {
 
 sub index :Path("/cview") :Args(0) { 
     my ($self, $c) = @_;
-    
+   
+    if (!$c->user()) {
+        # redirect to login page
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
+    } 
     $c->stash->{template} = '/cview/index.mas';
 
     my $map_factory = CXGN::Cview::MapFactory->new($c->dbc->dbh, $c->config);
@@ -85,6 +91,12 @@ sub index :Path("/cview") :Args(0) {
 
 sub map :Path("/cview/map.pl") :Args(0) { 
     my ($self, $c) = @_;
+
+    if (!$c->user()) {
+        # redirect to login page
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
+    }
     
     my @params = qw | map_id map_version_id size hilite physical force map_items |;
 
@@ -295,6 +307,12 @@ return undef; }
 
 sub chromosome :Path("/cview/view_chromosome.pl") :Args(0) { 
     my ($self, $c) = @_;
+
+    if (!$c->user()) {
+        # redirect to login page
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
+    }
 
     my @params = qw | map_id map_version_id chr_nr cM zoom show_physical show_ruler show_IL comp_map_id comp_map_version_id comp_chr color_model map_chr_select size hilite cM_start cM_end confidence show_zoomed marker_type show_offsets force clicked |;
     
