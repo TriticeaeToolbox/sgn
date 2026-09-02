@@ -28,6 +28,7 @@ Naama Menda <nm249@cornell.edu>
   $cvterm
   $cvtermref
   $allow_edits => 0
+  $schema
 </%args>
 
 <%once>

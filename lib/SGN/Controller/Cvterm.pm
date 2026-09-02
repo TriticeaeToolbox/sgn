@@ -71,6 +71,7 @@ sub view_cvterm : Chained('get_cvterm') PathPart('view') Args(0) {
     
     $c->stash(
         template => '/chado/cvterm.mas',
+        schema => $schema,
         cvterm   => $cvterm, #deprecate this maybe? 
         allow_edits => $allow_edits,
         cvtermref => {
