@@ -99,14 +99,22 @@
                 data: Object.values(response),
                 columns: [
                     { title: "Marker", render: (data, type, row) => {
-                        var html = `<a href='/locus/${row.locus_id}/view'>`;
+                        var url = !!row.variant_name ? `/variant/${row.variant_name}/details` : `/locus/${row.locus_id}/view`;
+                        var html = `<a href='${url}'>`;
                         html += row.marker_name;
                         if ( row.locus_name !== row.marker_name ) html += ` = ${row.locus_name}`;
                         html += '</a>';
                         return html;
                     }},
                     { title: "Description", data: "locus_description" },
-                    { title: "Alleles", render: (data, type, row) => { return row.alleles.map((x) => x.allele_name).join(type === 'export' ? ', ' : '<br />') } },
+                    { title: "Alleles", render: (data, type, row) => {
+                        var html = "<ul style='padding-left: 15px;'>";
+                        row.alleles.forEach((a) => {
+                            html += `<li><a href='/phenome/allele.pl?allele_id=${a.allele_id}'>${a.allele_name}</a></li>`;
+                        })
+                        html += "</ul>";
+                        return html;
+                    }},
                     { title: "References", render: (data, type, row) => {
                         var html = "<ul style='padding-left: 15px;'>";
                         row.references.forEach((r) => {
