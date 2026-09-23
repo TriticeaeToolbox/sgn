@@ -76,47 +76,36 @@ A hashref containing the variants and the markers related to one or more of the 
 
 
 <!-- VARIANT DETAILS TABLE -->
-<&| /page/info_section.mas, title=>'Genotype Locations', collapsible=>1, collapsed=>0 &>
-    <& /markers/genotyped/genotype_locations.mas, markers => $markers &>
-</&>
+<& /markers/genotyped/genotype_locations.mas, markers => $markers &>
 
-
+<br />
 
 <!-- MARKER METADATA -->
-<&| /page/info_section.mas, title=>'Marker Metadata', collapsible=>1, collapsed=>0 &>
-    <& /markers/genotyped/marker_metadata.mas, markers => $markers, schema => $schema &>
-</&>
+<& /markers/genotyped/marker_metadata.mas, markers => $markers, schema => $schema &>
 
-
+<br />
 
 <!-- FLANKING SEQUENCE -->
-<&| /page/info_section.mas, title=>'Flanking Sequence', collapsible=>1, collapsed=>0 &>
-    <& /markers/genotyped/flanking_sequence.mas, markers => $markers &>
-</&>
+<& /markers/genotyped/flanking_sequence.mas, markers => $markers &>
 
-
+<br />
 
 <!-- RELATED VARIANTS LINKS -->
-<&| /page/info_section.mas, title=>'Related Markers', collapsible=>1, collapsed=>0 &>
-    <& /markers/genotyped/related_markers.mas, variant_name => $variant_name &>
-</&>
+<& /markers/genotyped/related_markers.mas, variant_name => $variant_name, schema => $schema &>
 
-
+<br />
 
 <!-- EXTERNAL LINKS -->
-<&| /page/info_section.mas, title=>'External Links', collapsible=>1, collapsed=>0 &>
-    <& /markers/genotyped/external_links.mas, markers => $markers, schema => $schema &>
-</&>
+<& /markers/genotyped/external_links.mas, markers => $markers, schema => $schema &>
 
-
+<br />
 
 <!-- JBROWSE LINKS -->
 <&| /page/info_section.mas, title=>'Genome Browser', collapsible=>1 &>
     <& /feature/jbrowse_exact_match.mas, feature=> $jbrowse_location, src_feature=> $ref &>
 </&>
 
-
-
+<br />
 
 <!-- SEQUENCE METADATA RESULTS -->
 <&| /page/info_section.mas, title=>'Sequence Metadata', collapsible=>1, collapsed=>0 &>

@@ -13,7 +13,7 @@
 <%init>
     if ( !$markers ) {
         print "<p><strong>ERROR: Markers are not defined!</strong></p>";
-    }
+    }    
 
     # Get flanking sequence(s) from markers
     my %fs = ();
@@ -25,7 +25,14 @@
         }
         push(@{$fs{$f}}, $m);
     }
+
+    my $fs_count = 0;
+    while (my ($fs) = each (%fs)) {
+        $fs_count++ if $fs && $fs ne '';
+    }
 </%init>
+
+<&| /page/info_section.mas, title=>'Flanking Sequence', collapsible=>1, collapsed=>$fs_count < 1 &>
 
 % if (%fs) {
 
@@ -66,3 +73,5 @@
         color: #A2AD00;
     }
 </style>
+
+</&>
