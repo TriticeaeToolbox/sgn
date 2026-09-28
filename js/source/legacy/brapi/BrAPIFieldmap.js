@@ -2296,7 +2296,7 @@
           try {
             const projects = await this.opts.d2s_api.getBBConnections(studyDbId) || [];
             for ( const project of projects ) {
-              const project_coords = await this.opts.d2s_api.getCoords(project.id) || {};
+              const project_coords = await this.opts.d2s_api.getCoords(project.id) || [];
               for ( const p of project_coords ) {
                 const plot = p.properties?._parsed_plot;
                 const row = p.properties?._parsed_row;
@@ -2635,109 +2635,110 @@
 	  shape(data) {
 		data.shape = {};
 	  
-		// Determine available geometry info
-		data.plots.forEach((ou) => {
-		  const oup = get_oup(ou);
-		  ou._X = ou.X || oup.positionCoordinateX;
-		  ou._Y = ou.Y || oup.positionCoordinateY;
-		  ou._originalType = (oup.geoCoordinates && oup.geoCoordinates.geometry && oup.geoCoordinates.geometry.type) ? oup.geoCoordinates.geometry.type : "missing";
-	      ou._type = "";
+    // Determine available geometry info
+    data.plots.forEach((ou) => {
+      const oup = get_oup(ou);
+      ou._X = ou.X || oup.positionCoordinateX;
+      ou._Y = ou.Y || oup.positionCoordinateY;
+      ou._originalType = (oup.geoCoordinates && oup.geoCoordinates.geometry && oup.geoCoordinates.geometry.type) ? oup.geoCoordinates.geometry.type : "missing";
+      ou._type = "";
 
-          // Set observation unit row and col numbers, if available
-		  if (!isNaN(ou._X) && !isNaN(ou._Y)) {
-			if (oup.positionCoordinateXType && oup.positionCoordinateYType) {
-			  if ((oup.positionCoordinateXType === "GRID_ROW" && oup.positionCoordinateYType === "GRID_COL") ||
-				  (oup.positionCoordinateXType === "GRID_COL" && oup.positionCoordinateYType === "GRID_ROW")) {
-				ou._row = oup.positionCoordinateYType === "GRID_ROW" ? parseInt(ou._Y) : parseInt(ou._X);
-				ou._col = oup.positionCoordinateXType === "GRID_COL" ? parseInt(ou._X) : parseInt(ou._Y);
-			  }
-			  if (oup.positionCoordinateXType === "LONGITUDE" && oup.positionCoordinateYType === "LATITUDE") {
-				if (!ou._geoJSON) ou._geoJSON = turf.point([ou._X, ou._Y]);
-			  }
-			}
-            else {
-			  if (ou._X == Math.floor(ou._X) && ou._Y == Math.floor(ou._Y)) {
-				ou._row = parseInt(ou._Y);
-				ou._col = parseInt(ou._X);
-			  }
-              else {
-				try {
-				  if (!ou._geoJSON) ou._geoJSON = turf.point([ou._X, ou._Y]);
-				} catch (e) {}
-			  }
-			}
-		  }
-
-          // Set observation unit plot number, if available
-          const levels = ou?.observationUnitPosition?.observationLevelRelationships || [];
-          for ( let i = 0; i < levels.length; i++ ) {
-            if ( levels[i].levelName === 'plot' ) {
-              ou._plot = parseInt(levels[i].levelCode);
-            }
+      // Set observation unit row and col numbers, if available
+      if (!isNaN(ou._X) && !isNaN(ou._Y)) {
+        if (oup.positionCoordinateXType && oup.positionCoordinateYType) {
+          if ((oup.positionCoordinateXType === "GRID_ROW" && oup.positionCoordinateYType === "GRID_COL") ||
+            (oup.positionCoordinateXType === "GRID_COL" && oup.positionCoordinateYType === "GRID_ROW")) {
+            ou._row = oup.positionCoordinateYType === "GRID_ROW" ? parseInt(ou._Y) : parseInt(ou._X);
+            ou._col = oup.positionCoordinateXType === "GRID_COL" ? parseInt(ou._X) : parseInt(ou._Y);
           }
-
-          // Set external geoJSON from _coords, if available
-          // Prefer matching by plot number, fallback to row and col position
-          let external_geojson;
-          if ( ou._plot && this._coords.by_plot[`plot-${ou._plot}`] ) {
-            external_geojson = this._coords.by_plot[`plot-${ou._plot}`];
+          if (oup.positionCoordinateXType === "LONGITUDE" && oup.positionCoordinateYType === "LATITUDE") {
+            if (!ou._geoJSON) ou._geoJSON = turf.point([ou._X, ou._Y]);
           }
-          else if ( ou._row && ou._col && this._coords.by_row_col[`row-${ou._row}`] && this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`] ) {
-            external_geojson = this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`];
+        }
+        else {
+          if (ou._X == Math.floor(ou._X) && ou._Y == Math.floor(ou._Y)) {
+            ou._row = parseInt(ou._Y);
+            ou._col = parseInt(ou._X);
           }
-	  
-	      // Use the internal geo coordinates by default or the external coordinates if available
-          try {
-            ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || (this.opts.useGeoJson && external_geojson) || null;
-	      } catch (e) {}
+          else {
+            try {
+              if (!ou._geoJSON) ou._geoJSON = turf.point([ou._X, ou._Y]);
+            } catch (e) {}
+          }
+        }
+      }
 
-	      if (ou._geoJSON) {
-	        try {
-	          ou._type = turf.getType(ou._geoJSON);
-	        }
-	        catch (err) {
-	          ou._type = "invalid";
-	        }
-	      }
-	      else {
-	        ou._type = "missing";
-	      }
-		});
+      // Set observation unit plot number, if available
+      const levels = ou?.observationUnitPosition?.observationLevelRelationships || [];
+      for ( let i = 0; i < levels.length; i++ ) {
+        if ( levels[i].levelName === 'plot' ) {
+          ou._plot = parseInt(levels[i].levelCode);
+        }
+      }
 
-		// Separate types
-		const plots_missing = data.plots.filter(p => p._type === "missing" || p._type === "invalid");
-		const plots_points = data.plots.filter(p => p._type === "Point");
-		const plots_polygons = data.plots.filter(p => p._type === "Polygon");
-	  
-		// Notify on missing
-	    if ( this.opts.viewOnly ) {
-	      const plots_invalid = data.plots.filter((e) => e._type === 'invalid' || e._type === 'missing');
-	      const plots_valid = data.plots.filter((e) => e._type !== 'invalid' && e._type !== 'missing');
-	      if ( plots_valid.length === 0 ) {
-	        let html = "This trial does not have any plots with geo coordinates assigned."
-	        this.missing_plots.style("display", "block");
-	        this.missing_plots.html(html);
-	        throw NO_POLYGON_ERROR;
-	      }
-	      else if ( plots_invalid.length > 0 ) {
-	        let html = "Plots with no geo coordinates:";
-	        html += "<ul style='padding-left: 25px; margin-bottom: 0; list-style-type: disc;'>";
-	        plots_invalid.forEach((p) => {
-	          html += `<li>${p.observationUnitName}</li>`
-	          let labels = [];
-	          if ( p._plot ) labels.push({ key: 'plot', value: p._plot })
-	          if ( p._row ) labels.push({ key: 'row', value: p._row })
-	          if ( p._col ) labels.push({ key: 'col', value: p._col })
-	          if ( labels.length > 0 ) {
-	            html += ` (${labels.map((e) => `${e.key}: ${e.value}`).join(', ')})`;
-	          }
-          });
-	        html += "</ul>";
-	        this.missing_plots.style("display", "block");
-	        this.missing_plots.html(html);
-	      }
-	      data.plots = plots_valid;
-	    }
+      // Set external geoJSON from _coords, if available
+      // Prefer matching by plot number, fallback to row and col position
+      let external_geojson;
+      if ( ou._plot && this._coords.by_plot[`plot-${ou._plot}`] ) {
+        external_geojson = this._coords.by_plot[`plot-${ou._plot}`];
+      }
+      else if ( ou._row && ou._col && this._coords.by_row_col[`row-${ou._row}`] && this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`] ) {
+        external_geojson = this._coords.by_row_col[`row-${ou._row}`][`col-${ou._col}`];
+      }
+
+      // Use the internal geo coordinates by default or the external coordinates if available
+      try {
+        ou._geoJSON = (this.opts.useGeoJson && oup.geoCoordinates) || (this.opts.useGeoJson && external_geojson) || null;
+      } catch (e) {}
+
+      if (ou._geoJSON) {
+        try {
+          ou._type = turf.getType(ou._geoJSON);
+        }
+        catch (err) {
+          ou._type = "invalid";
+        }
+      }
+      else {
+        ou._type = "missing";
+      }
+    });
+
+    // Separate types
+    const plots_missing = data.plots.filter(p => p._type === "missing" || p._type === "invalid");
+    const plots_points = data.plots.filter(p => p._type === "Point");
+    const plots_polygons = data.plots.filter(p => p._type === "Polygon" || p._type === "MultiPolygon");
+
+    // Notify on missing
+    if ( this.opts.viewOnly ) {
+      const plots_invalid = data.plots.filter((e) => e._type === 'invalid' || e._type === 'missing');
+      const plots_valid = data.plots.filter((e) => e._type !== 'invalid' && e._type !== 'missing');
+
+      if ( plots_valid.length === 0 ) {
+        let html = "This trial does not have any plots with geo coordinates assigned."
+        this.missing_plots.style("display", "block");
+        this.missing_plots.html(html);
+        throw NO_POLYGON_ERROR;
+      }
+      else if ( plots_invalid.length > 0 ) {
+        let html = "Plots with no geo coordinates:";
+        html += "<ul style='padding-left: 25px; margin-bottom: 0; list-style-type: disc;'>";
+        plots_invalid.forEach((p) => {
+          html += `<li>${p.observationUnitName}</li>`
+          let labels = [];
+          if ( p._plot ) labels.push({ key: 'plot', value: p._plot })
+          if ( p._row ) labels.push({ key: 'row', value: p._row })
+          if ( p._col ) labels.push({ key: 'col', value: p._col })
+          if ( labels.length > 0 ) {
+            html += ` (${labels.map((e) => `${e.key}: ${e.value}`).join(', ')})`;
+          }
+        });
+        html += "</ul>";
+        this.missing_plots.style("display", "block");
+        this.missing_plots.html(html);
+      }
+      data.plots = plots_valid;
+    }
 	  
 		//Generate row/col layout if needed
 		if (data.plots.some(plot => isNaN(plot._row) || isNaN(plot._col))) {
