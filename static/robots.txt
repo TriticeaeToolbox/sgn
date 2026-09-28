@@ -4,6 +4,7 @@ Disallow: /gbrowse/
 Disallow: /jbrowse/
 Disallow: /documents/tempfiles/
 Disallow: /cview/
+Disallow: /locus/
 Disallow: /phenome/qtl_analysis.pl
 Disallow: /phenome/qtl.pl
 Disallow: /phenome/population.pl
