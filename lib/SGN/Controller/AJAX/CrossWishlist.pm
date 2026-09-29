@@ -23,7 +23,7 @@ use Data::Dumper;
 use File::Basename qw | basename dirname|;
 use File::Copy;
 use File::Slurp;
-use File::Spec::Functions;
+use File::Spec;
 use Digest::MD5;
 use List::MoreUtils qw /any /;
 use Bio::GeneticRelationships::Pedigree;
@@ -39,7 +39,6 @@ use CXGN::Trial::Folder;
 use CXGN::Trial::TrialLayout;
 use Carp;
 use File::Path qw(make_path);
-use File::Spec::Functions qw / catfile catdir/;
 use CXGN::Cross;
 use CXGN::List;
 use JSON;
@@ -306,7 +305,7 @@ sub create_cross_wishlist_submit_POST : Args(0) {
                     if ($female_location_name eq $wishlist_file_name_loc) {
                         getstore($t->{media_url}, $cross_wishlist_temp_file_path);
                         $cross_wihlist_ona_id = $t->{id};
-                    } elsif ($wishlist_file_name_loc eq 'BTracTSendusuMultiParental') {
+                    } elsif ($wishlist_file_name_loc =~ m/MultiParental/) {
                         getstore($t->{media_url}, $cross_wishlist_temp_file_path);
                         $cross_wihlist_ona_id = $t->{id};
                     }
@@ -327,7 +326,7 @@ sub create_cross_wishlist_submit_POST : Args(0) {
                     if ($female_location_name eq $germplasm_info_file_name_loc) {
                         getstore($t->{media_url}, $germplasm_info_temp_file_path);
                         $germplasm_info_ona_id = $t->{id};
-                    } elsif ($germplasm_info_file_name_loc eq 'BTracTSendusuMultiParental') {
+                    } elsif ($germplasm_info_file_name_loc =~ m/MultiParental/) {
                         getstore($t->{media_url}, $germplasm_info_temp_file_path);
                         $germplasm_info_ona_id = $t->{id};
                     }
@@ -726,7 +725,7 @@ sub create_cross_wishlist_submit_POST : Args(0) {
     if ($is_test_form){
         $archive_name = 'cross_wishlist_test.csv';
     } elsif ($separate_crosswishlist_by_location){
-        if ($ona_form_name eq 'BTracTSendusuMultiParental') {
+        if ($ona_form_name =~ m/MultiParental/) {
             $archive_name = 'cross_wishlist_'.$ona_form_name.'.csv';
         } else {
             $archive_name = 'cross_wishlist_'.$female_location_name.'.csv';
@@ -739,7 +738,7 @@ sub create_cross_wishlist_submit_POST : Args(0) {
     if ($is_test_form) {
         $file_type = 'cross_wishlist_test_'.$ona_form_id;
     } elsif ($separate_crosswishlist_by_location) {
-        if ($ona_form_name eq 'BTracTSendusuMultiParental') {
+        if ($ona_form_name =~ m/MultiParental/) {
             $file_type = 'cross_wishlist_'.$ona_form_name.'_'.$ona_form_id;
         } else {
             $file_type = 'cross_wishlist_'.$female_location_name.'_'.$ona_form_id;
@@ -795,7 +794,7 @@ sub create_cross_wishlist_submit_POST : Args(0) {
     if ($is_test_form){
         $germplasm_info_archive_name = 'germplasm_info_test.csv';
     } elsif ($separate_crosswishlist_by_location){
-        if ($ona_form_name eq 'BTracTSendusuMultiParental') {
+        if ($ona_form_name =~ m/MultiParental/) {
             $germplasm_info_archive_name = 'germplasm_info_'.$ona_form_name.'.csv';
         } else {
             $germplasm_info_archive_name = 'germplasm_info_'.$female_location_name.'.csv';
