@@ -4,17 +4,18 @@ ARG SGN_REPO
 ARG SGN_BRANCH
 ARG SGN_COMMIT
 
+# create production user
+RUN useradd -m -u 1250 -s /bin/bash production
+
 # create directory layout
 #
 # npm install needs a non-root user (new in latest version)
 #
-RUN adduser --disabled-password --gecos "" -u 1250 production
+RUN mkdir /etc/starmachine
+RUN mkdir /var/log/sgn
 RUN mkdir -p /home/production/public/sgn_static_content
 RUN mkdir -p /home/production/cxgn
 RUN mkdir -p /home/production/cxgn/local-lib
-RUN mkdir /etc/starmachine
-RUN mkdir /var/log/sgn
-
 RUN chown -R production /home/production
 
 WORKDIR /home/production/cxgn
@@ -118,6 +119,12 @@ COPY tools/fix_file_permissions /usr/local/bin/
 COPY tools/set_git_info /usr/local/bin/
 COPY tools/DiGGer_1.0.5_R_x86_64-redhat-linux-gnu.tar.gz /home/production/DiGGer.tar.gz
 
+# Install R packages
+ENV R_LIBS_USER=/home/production/cxgn/R4.5_libs
+RUN echo "R_LIBS_USER=/home/production/cxgn/R4.5_libs" >> /etc/R/Renviron
+COPY tools/R_deps.R /home/production/R_deps.R
+RUN Rscript --vanilla /home/production/R_deps.R
+
 # Install DiGGer from the source code
 # 
 RUN R CMD INSTALL /home/production/DiGGer.tar.gz
@@ -171,8 +178,8 @@ RUN cd /home/production/cxgn/sgn/js; npm install
 
 # then a few steps to clean up permissions
 RUN rm -rf /home/production/.npm
-RUN chown -R production /home/production/cxgn/sgn/js/node_modules
-RUN chown production /home/production/cxgn/sgn/js/package-lock.json
+RUN chown -R production /home/production/
+RUN chmod +x /home/production
 
 # move this here so it is not clobbered by the cxgn move
 #
@@ -189,12 +196,6 @@ RUN ln -s /home/production/cxgn/sgn/bin/clear_old_temp_files.sh /etc/cron.daily/
 
 # Add /home/production/volume directory, which is expected by some caches and the CXGN::Jobs log
 RUN mkdir -p /home/production/volume && chown www-data:www-data /home/production/volume
-
-# Install R packages
-ENV R_LIBS_USER=/home/production/cxgn/R4.5_libs
-RUN echo "R_LIBS_USER=/home/production/cxgn/R4.5_libs" >> /etc/R/Renviron
-COPY R_deps.R /home/production/R_deps.R
-RUN Rscript --vanilla /home/production/R_deps.R
 
 ENV CPANMIRROR=http://cpan.cpantesters.org
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8

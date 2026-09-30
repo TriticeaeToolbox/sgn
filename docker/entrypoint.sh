@@ -3,8 +3,8 @@ sed -i s/localhost/$HOSTNAME/g /etc/slurm/slurm.conf
 /etc/init.d/nginx start
 /etc/init.d/postfix start
 /etc/init.d/cron start
-/etc/init.d/munge start
 chown munge /etc/munge/munge.key
+/etc/init.d/munge start
 /etc/init.d/slurmctld start
 /etc/init.d/slurmd start
 
