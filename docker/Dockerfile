@@ -1,7 +1,7 @@
 FROM debian:trixie
 
-ARG SGN_REPO
-ARG SGN_BRANCH
+ARG SGN_REPO=triticeaetoolbox/sgn
+ARG SGN_BRANCH=t3/master
 ARG SGN_COMMIT
 
 # create production user
