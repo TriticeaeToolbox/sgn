@@ -35,7 +35,7 @@ RUN apt-get update -y --allow-unauthenticated && \
         locales-all locate lsof lynx mailutils make mrbayes munge muscle nano \
         ncbi-blast+ nfs-common nginx npm perl-doc pkg-config plink postfix \
         postgresql-client primer3 rsyslog screen slurm-wlm slurmctld slurmd \
-        starman sudo vim wget xutils-dev xvfb
+        starman sudo task-spooler vim wget xutils-dev xvfb
 
 # Slurm setup
 #
