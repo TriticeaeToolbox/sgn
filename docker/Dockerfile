@@ -143,7 +143,7 @@ RUN rm -rf /htslib
 WORKDIR /home/production/cxgn
 USER production
 RUN git clone --depth 20 -b $SGN_BRANCH             https://github.com/$SGN_REPO.git                        ./sgn
-RUN git clone --depth 1                             https://github.com/solgenomics/cxgn-corelibs.git        ./cxgn-corelibs
+RUN git clone --depth 1 -b topic/tsp                https://github.com/solgenomics/cxgn-corelibs.git        ./cxgn-corelibs
 RUN git clone --depth 1                             https://github.com/solgenomics/Phenome.git              ./Phenome
 RUN git clone --depth 1                             https://github.com/solgenomics/rPackages.git            ./rPackages
 RUN git clone --depth 1                             https://github.com/solgenomics/biosource.git            ./biosource
