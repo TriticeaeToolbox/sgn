@@ -527,10 +527,9 @@ jQuery(document).ready(function ($) {
 		    	        });
 		    	        speciesNames.push(speciesName);
 		    	    }
+		    	    add_accessions(infoToAdd, speciesNames);
+		    	    $('#review_absent_dialog').modal("hide");
 		        }
-		        add_accessions(infoToAdd, speciesNames);
-		        $('#review_absent_dialog').modal("hide");
-
 		    },
 		    function(r) {
 		        alert('ERROR! Try again later.');
@@ -563,44 +562,36 @@ jQuery(document).ready(function ($) {
         $('#add_accessions_dialog').modal("hide");
     });
 
-    jQuery('#upload_new_accessions_form').iframePostForm({
-        json: false,
-        post: function () {
-            var uploadedSeedlotFile = jQuery("#new_accessions_upload_file").val();
-            jQuery('#working_modal').modal("show");
-            if (uploadedSeedlotFile === '') {
+    function upload_accessions_file() {
+        jQuery('#working_modal').modal("show");
+        jQuery.ajax({
+            url: '/ajax/accessions/verify_accessions_file',
+            type: 'POST',
+            data: new FormData(jQuery('#upload_new_accessions_form')[0]),
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (response) {
                 jQuery('#working_modal').modal("hide");
-            }
-        },
-        complete: function (r) {
-            //alert("DONE WITH UPLOAD "+r);
-            var clean_r = r.replace(/^<pre[^>]*>/, '');
-            clean_r = clean_r.replace('</pre>', '');
-            clean_r = clean_r.trim(); // Removes any leading or trailing whitespace
-            // Remove all remaining HTML tags (if any)
-            clean_r = clean_r.replace(/<[^>]*>/g, '');
-            response = JSON.parse(clean_r); //decodeURIComponent(clean_r));
-            // console.log(response);
-            console.log(JSON.stringify(response, null, 2));
-            jQuery('#working_modal').modal("hide");
 
-            if (response.error || response.error_string) {
-                fullParsedData = undefined;
-                alert(response.error || response.error_string);
+                if (response.error || response.error_string) {
+                    fullParsedData = undefined;
+                    alert(response.error || response.error_string);
+                }
+                else if (response.success) {
+                    fullParsedData = response.full_data;
+                    doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').prop('checked');
+                    doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').prop('checked');
+                    updateSynonymSearchCache = jQuery('#synonym_search_update_upload_accessions').prop('checked');
+                    review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, response.list_id);
+                }
+                else {
+                    fullParsedData = undefined;
+                    alert("An unknown error occurred.  Please try again later or contact us for help.");
+                }
             }
-            else if (response.success) {
-                fullParsedData = response.full_data;
-                doFuzzySearch = jQuery('#fuzzy_check_upload_accessions').prop('checked');
-                doSynonymSearch = jQuery('#synonym_search_check_upload_accessions').prop('checked');
-                updateSynonymSearchCache = jQuery('#synonym_search_update_upload_accessions').prop('checked');
-                review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, response.list_id);
-            }
-            else {
-                fullParsedData = undefined;
-                alert("An unknown error occurred.  Please try again later or contact us for help.");
-            }
-        }
-    });
+        });
+    }
 
     $('[name="add_accessions_link"]').click(function () {
         var list = new CXGN.List();
@@ -764,6 +755,7 @@ function verify_accession_list(accession_list_id) {
             enable_ui();
             if (response.error) {
                 alert(response.error);
+                return;
             }
             review_verification_results(doFuzzySearch, doSynonymSearch, updateSynonymSearchCache, response, accession_list_id);
         },
@@ -783,7 +775,9 @@ function review_verification_results(doFuzzySearch, doSynonymSearch, updateSynon
     accessionList = [];
     infoToAdd = [];
     speciesNames = [];
-
+    verifyResponse.fuzzy = verifyResponse.fuzzy || [];
+    verifyResponse.absent = verifyResponse.absent || [];
+    //console.log(verifyResponse);
     //console.log(accession_list_id);
 
     const found = [ ...verifyResponse.found || [], ...verifyResponse.found_parents || [] ];
