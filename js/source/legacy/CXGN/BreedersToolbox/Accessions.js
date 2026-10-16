@@ -551,13 +551,11 @@ jQuery(document).ready(function ($) {
             verify_accession_list(accession_list_id);
         } else if (selected_tab == 'Uploading a File'){
             var uploadFile = jQuery("#new_accessions_upload_file").val();
-            jQuery('#upload_new_accessions_form').attr("action", "/ajax/accessions/verify_accessions_file");
             if (uploadFile === '') {
                 alert("Please select a file");
                 return;
             }
-
-            jQuery("#upload_new_accessions_form").submit();
+            upload_accessions_file();
         }
         $('#add_accessions_dialog').modal("hide");
     });
