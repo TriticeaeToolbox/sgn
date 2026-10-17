@@ -53,6 +53,7 @@ ln -s /home/production/cxgn/Bio-Chado-Schema/lib/Bio/Chado /home/production/cxgn
 if [ "$MODE" == "DEVELOPMENT" ]; then
     perl /home/production/cxgn/sgn/bin/sgn_server.pl --fork -r -p 8080
 else
+    /etc/init.d/nginx start
     /etc/init.d/sgn start
     touch /var/log/sgn/error.log
     chmod 777 /var/log/sgn/error.log
