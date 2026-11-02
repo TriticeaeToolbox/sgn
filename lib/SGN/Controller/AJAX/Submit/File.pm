@@ -28,9 +28,9 @@ sub submit_trial_file_POST : Args(0) {
 
     my $name = $c->req->param("name");
     my $email = $c->req->param("email");
-    my $data_type = $c->req->param("data-type");
+    my $breeding_program = $c->req->param("breeding-program") eq 'other' ? $c->req->param("breeding-program-other") : $c->req->param("breeding-program");
     my $comments = $c->req->param("comments");
-    my $uploads = undef;
+    my $uploads = $c->req->uploads->{"files"};
 
     my $user = $c->user();
     my $allow_file_submissions = $c->config->{allow_file_submissions};
@@ -48,40 +48,13 @@ sub submit_trial_file_POST : Args(0) {
         $self->submit_error($c, "Name is required");
     }
     if ( !$email ) {
-        $self->submit_error($c, "Comments are required");
+        $self->submit_error($c, "Email is required");
     }
-    if ( !$data_type ) {
-        $self->submit_error($c, "Data type not specified");
+    if ( !$breeding_program ) {
+        $self->submit_error($c, "Breeding Program is required");
     }
-    if ( $data_type eq "Locations" ) {
-        $uploads = $c->req->uploads->{'locations-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Locations file not specified");
-        }
-    }
-    if ( $data_type eq "Accessions" ) {
-        $uploads = $c->req->uploads->{'accessions-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Accessions file not specified");
-        }
-    }
-    if ( $data_type eq "Trials" ) {
-        $uploads = $c->req->uploads->{'trials-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Trials file(s) not specified");
-        }
-    }
-    if ( $data_type eq "Phenotype Observations" ) {
-        $uploads = $c->req->uploads->{'phenotype-observations-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Phenotype Observations file(s) not specified");
-        }
-    }
-    if ( $data_type eq "Multiple Files" ) {
-        $uploads = $c->req->uploads->{"multiple-files-file"};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Upload file(s) not specified");
-        }
+    if ( !$uploads ) {
+        $self->submit_error($c, "One or more files are required");
     }
     $uploads = [ $uploads ]   if ref($uploads) ne 'ARRAY';
 
@@ -98,24 +71,27 @@ sub submit_trial_file_POST : Args(0) {
     }
 
     # Write Files
-    $self->write_submission_file($c, $dir, $name, $email, $comments);
+    $self->write_submission_file($c, $dir, $name, $email, $breeding_program, $comments);
     $self->copy_upload_files($c, $dir, $uploads);
 
     # Send email notification
     if ( $submission_email ) {
-        my $subject = "[File Submission] $data_type Submitted";
+        my $subject = "[File Submission] Phenotype Data Submitted";
+        my $url = $main_production_site_url . "/submit/view/" . $user_id . "/" . $file_dir;
+        $url =~ s{(?<!:)/{2,}}{/}g;
 
         my $body = "FILE SUBMISSION\n";
         $body .= "===============\n\n";
-        $body .= "$data_type have been submitted for curation.\n\n";
+        $body .= "Phenotype data have been submitted for curation.\n\n";
         if ( $comments ) {
             $body .= $comments . "\n\n";
         }
         $body .= "User: $name\n";
         $body .= "Email: $email\n";
         $body .= "Site: " . $main_production_site_url . "\n";
+        $body .= "Breeding Program: " . $breeding_program . "\n";
         $body .= "Directory: " . $dir . "\n";
-        $body .= "View Files: " . $main_production_site_url . "/submit/view/" . $user_id . "/" . $file_dir;
+        $body .= "View Files: " . $url;
 
         CXGN::Contact::send_email($subject, $body, $submission_email, $email);
     }
@@ -141,11 +117,13 @@ sub write_submission_file :Private {
     my $dir = shift;
     my $name = shift;
     my $email = shift;
+    my $breeding_program = shift;
     my $comments = shift;
 
     my $sub_file = $dir . "/submission.txt";
     my $sub_contents = "Name: $name\n";
     $sub_contents .= "Email: $email\n";
+    $sub_contents .= "Breeding Program: $breeding_program\n";
     $sub_contents .= "Comments: $comments\n";
 
     open(FH, '>', $sub_file) or die $!;

@@ -86,6 +86,7 @@ sub submit_multiple_trials : Path('/submit/trials') Args(0) {
 sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     my $self = shift;
     my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
     my $allow_file_submissions = $c->config->{allow_file_submissions};
     if ( !$allow_file_submissions ) {
@@ -98,6 +99,7 @@ sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     if ( $user ) {
         $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
         $c->stash->{email} = $user->get_private_email();
+        $c->stash->{breeding_programs} = SGN::View::Stock::breeding_programs($schema);
     }
 
     $c->stash->{template} = '/submit/pheno.mas';
