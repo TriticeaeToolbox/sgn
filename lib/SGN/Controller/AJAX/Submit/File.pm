@@ -7,6 +7,7 @@ use JSON;
 use POSIX qw(strftime);
 use File::Path qw(mkpath);
 use File::Copy qw(copy);
+use Digest::SHA qw(sha256_hex);
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -100,9 +101,18 @@ sub submit_trial_file_POST : Args(0) {
     # Send email notification
     if ( $submission_email ) {
         my $subject = "[File Submission] Phenotype Data Submitted";
-        my $url = $main_production_site_url . "/submit/view/" . $user_id . "/" . $file_dir;
+
+        # Generate the URL to view the files
+        my $path = $user_id . "/" . $file_dir;
+        my $url = $main_production_site_url . "/submit/view/" . $path;
         $url =~ s{(?<!:)/{2,}}{/}g;
 
+        # Generate and add a token to the URL
+        my $secret = $c->config->{file_submission_token_key};
+        my $token = sha256_hex($path . $secret);
+        $url .= "?token=$token";
+
+        # Build the body of the email
         my $body = "FILE SUBMISSION\n";
         $body .= "===============\n\n";
         $body .= "Phenotype data have been submitted for curation.\n\n";
@@ -121,6 +131,7 @@ sub submit_trial_file_POST : Args(0) {
         $body .= "Directory: " . $dir . "\n";
         $body .= "View Files: " . $url;
 
+        # Send the Email
         CXGN::Contact::send_email($subject, $body, $submission_email, $email);
     }
 

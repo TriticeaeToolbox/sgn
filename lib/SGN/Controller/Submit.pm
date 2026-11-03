@@ -4,6 +4,7 @@ use Moose;
 use CXGN::BreedersToolbox::Projects;
 use CXGN::Genotype::Protocol qw/list_simple/;
 use URI::FromHash 'uri';
+use Digest::SHA qw(sha256_hex);
 
 BEGIN { extends "Catalyst::Controller"; }
 
@@ -120,12 +121,17 @@ sub view_submission_files : Path('/submit/view') Args(2) {
     my $c = shift;
     my $user_id = shift;
     my $sub_dir = shift;
+    my $token = $c->req->param("token");
 
     my $submission_path = $c->config->{submission_path};
+    my $token_key = $c->config->{file_submission_token_key};
 
-    # redirect to login page if not logged in
-    if (! $c->user()) { 
-        $c->res->redirect('/user/login?goto_url=' . $c->req->uri->path_query);
+    # check the value of the token
+    my $path = $user_id . "/" . $sub_dir;
+    my $expected_token = sha256_hex($path . $token_key);
+    if ( $token ne $expected_token ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>Invalid Token</strong></p><p>Please check the link you used to view the submission files.</p>";
         return;
     }
 
@@ -150,6 +156,7 @@ sub view_submission_files : Path('/submit/view') Args(2) {
     $c->stash->{user_id} = $user_id;
     $c->stash->{sub_dir} = $sub_dir;
     $c->stash->{dir} = $dir;
+    $c->stash->{token} = $token;
     $c->stash->{files} = \@files;
     $c->stash->{template} = '/submit/view.mas';
 }
@@ -161,12 +168,17 @@ sub view_submission_file : Path('/submit/view') Args(3) {
     my $user_id = shift;
     my $sub_dir = shift;
     my $file = shift;
+    my $token = $c->req->param("token");
 
     my $submission_path = $c->config->{submission_path};
+    my $token_key = $c->config->{file_submission_token_key};
 
-    # redirect to login page if not logged in
-    if (! $c->user()) { 
-        $c->res->redirect('/user/login?goto_url=' . $c->req->uri->path_query);
+    # check the value of the token
+    my $path = $user_id . "/" . $sub_dir;
+    my $expected_token = sha256_hex($path . $token_key);
+    if ( $token ne $expected_token ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>Invalid Token</strong></p><p>Please check the link you used to view the submission file.</p>";
         return;
     }
 
