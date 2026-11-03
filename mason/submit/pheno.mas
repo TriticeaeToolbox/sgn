@@ -55,11 +55,12 @@
 
                     <select id="breeding-program" class="form-control" name="breeding-program">
 % foreach (@$breeding_programs ) {
-                        <option value="<% $_->[1] %>"><% $_->[1] %></option>
+                        <option value="<% $_->[0] %>" data-contact-name="<% $_->[4] %>" data-contact-email="<% $_->[5] %>" data-contact-alert="<% $_->[6] %>"><% $_->[1] %></option>
 % }
                         <option value="other">...other...</option>
                     </select>
                     <input class="form-control" style="display: none" id="breeding-program-other" name="breeding-program-other" type="text" placeholder="Breeding Program Name" />
+                    <p id="breeding-program-contact" style="display: none; margin-top: 10px;"><strong>Uploaded data files will also be sent to:</strong> <span id="breeding-program-contact-name"></span> &lt;<span id="breeding-program-contact-email"></span>&gt;</p>
                 </div>
             </div>
 
@@ -160,11 +161,21 @@
         fileList.textContent = "";
     });
 
+    function onBreedingProgramChange() {
+        const val = jQuery("#breeding-program").val();
+        jQuery("#breeding-program-other").css("display", val === 'other' ? 'block' : 'none');
+
+        const contactName = jQuery("#breeding-program option:selected").data("contact-name");
+        const contactEmail = jQuery("#breeding-program option:selected").data("contact-email");
+        const contactAlert = jQuery("#breeding-program option:selected").data("contact-alert") === 1;
+        jQuery("#breeding-program-contact-email").text(contactEmail);
+        jQuery("#breeding-program-contact-name").text(contactName);
+        jQuery("#breeding-program-contact").css("display", contactAlert ? 'block' : 'none');
+    }
+
     jQuery(document).ready(() => {
-        jQuery("#breeding-program").on("change", () => {
-            const val = jQuery("#breeding-program").val()
-            jQuery("#breeding-program-other").css("display", val === 'other' ? 'block' : 'none');
-        });
+        jQuery("#breeding-program").on("change", onBreedingProgramChange);
+        onBreedingProgramChange();
     });
 
     /**

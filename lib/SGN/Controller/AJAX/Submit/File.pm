@@ -28,7 +28,7 @@ sub submit_trial_file_POST : Args(0) {
 
     my $name = $c->req->param("name");
     my $email = $c->req->param("email");
-    my $breeding_program = $c->req->param("breeding-program") eq 'other' ? $c->req->param("breeding-program-other") : $c->req->param("breeding-program");
+    my $breeding_program = $c->req->param("breeding-program");
     my $comments = $c->req->param("comments");
     my $uploads = $c->req->uploads->{"files"};
 
@@ -43,6 +43,29 @@ sub submit_trial_file_POST : Args(0) {
         $self->submit_error($c, "File Submissions are not enabled");
     }
 
+    # Parse the breeding program
+    my $breeding_program_name;
+    my $breeding_program_contact_name;
+    my $breeding_program_contact_email;
+    if ( $breeding_program eq "other" ) {
+        $breeding_program_name = $c->req->param("breeding-program-other");
+    }
+    elsif ( $breeding_program =~ m/^\d+$/ ) {
+        my $projects = CXGN::BreedersToolbox::Projects->new({ schema=> $c->dbic_schema("Bio::Chado::Schema") });
+        my $breeding_programs = $projects->get_breeding_programs([$breeding_program]);
+        if ( scalar(@$breeding_programs) == 1 ) {
+            $breeding_program_name = $breeding_programs->[0]->[1];
+            my $breeding_program_contact_alert = $breeding_programs->[0]->[6];
+            if ( $breeding_program_contact_alert ) {
+                $breeding_program_contact_name = $breeding_programs->[0]->[4];
+                $breeding_program_contact_email = $breeding_programs->[0]->[5];
+                if ( $breeding_program_contact_email && $breeding_program_contact_email ne '' ) {
+                    $submission_email .= ", $breeding_program_contact_email";
+                }
+            }
+        }
+    }
+
     # Check the form data
     if ( !$name ) {
         $self->submit_error($c, "Name is required");
@@ -50,7 +73,7 @@ sub submit_trial_file_POST : Args(0) {
     if ( !$email ) {
         $self->submit_error($c, "Email is required");
     }
-    if ( !$breeding_program ) {
+    if ( !$breeding_program_name ) {
         $self->submit_error($c, "Breeding Program is required");
     }
     if ( !$uploads ) {
@@ -71,7 +94,7 @@ sub submit_trial_file_POST : Args(0) {
     }
 
     # Write Files
-    $self->write_submission_file($c, $dir, $name, $email, $breeding_program, $comments);
+    $self->write_submission_file($c, $dir, $name, $email, $breeding_program_name, $comments);
     $self->copy_upload_files($c, $dir, $uploads);
 
     # Send email notification
@@ -89,7 +112,12 @@ sub submit_trial_file_POST : Args(0) {
         $body .= "User: $name\n";
         $body .= "Email: $email\n";
         $body .= "Site: " . $main_production_site_url . "\n";
-        $body .= "Breeding Program: " . $breeding_program . "\n";
+        $body .= "Breeding Program: " . $breeding_program_name . "\n";
+        if ( $breeding_program_contact_email && $breeding_program_contact_email ne '' ) {
+            $body .= "Breeding Program Contact: ";
+            $body .= "$breeding_program_contact_name " if $breeding_program_contact_name && $breeding_program_contact_name ne '';
+            $body .= "<$breeding_program_contact_email>\n";
+        }
         $body .= "Directory: " . $dir . "\n";
         $body .= "View Files: " . $url;
 
