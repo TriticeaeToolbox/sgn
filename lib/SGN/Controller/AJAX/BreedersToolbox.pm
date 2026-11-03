@@ -47,6 +47,9 @@ sub store_breeding_program :Path('/breeders/program/store') Args(0) {
     my $id = $c->req->param("id") || undef;
     my $name = $c->req->param("name");
     my $desc = $c->req->param("desc");
+    my $contact_name = $c->req->param("contact_name");
+    my $contact_email = $c->req->param("contact_email");
+    my $contact_alert = $c->req->param("contact_alert");
 
     if (!($c->user() || $c->user()->check_roles('submitter'))) {
         $c->stash->{rest} = { error => 'You need to be logged in and have sufficient privileges to add or edit a breeding program.' };
@@ -58,6 +61,9 @@ sub store_breeding_program :Path('/breeders/program/store') Args(0) {
         id => $id,
         name => $name,
         description => $desc,
+        contact_name => $contact_name,
+        contact_email => $contact_email,
+        contact_alert => $contact_alert eq 'true' ? 1 : 0,
     });
 
     my $program = $p->store_breeding_program();

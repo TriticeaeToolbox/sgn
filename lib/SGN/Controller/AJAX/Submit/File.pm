@@ -7,6 +7,7 @@ use JSON;
 use POSIX qw(strftime);
 use File::Path qw(mkpath);
 use File::Copy qw(copy);
+use Digest::SHA qw(sha256_hex);
 
 BEGIN { extends 'Catalyst::Controller::REST' }
 
@@ -28,9 +29,9 @@ sub submit_trial_file_POST : Args(0) {
 
     my $name = $c->req->param("name");
     my $email = $c->req->param("email");
-    my $data_type = $c->req->param("data-type");
+    my $breeding_program = $c->req->param("breeding-program");
     my $comments = $c->req->param("comments");
-    my $uploads = undef;
+    my $uploads = $c->req->uploads->{"files"};
 
     my $user = $c->user();
     my $allow_file_submissions = $c->config->{allow_file_submissions};
@@ -43,45 +44,41 @@ sub submit_trial_file_POST : Args(0) {
         $self->submit_error($c, "File Submissions are not enabled");
     }
 
+    # Parse the breeding program
+    my $breeding_program_name;
+    my $breeding_program_contact_name;
+    my $breeding_program_contact_email;
+    if ( $breeding_program eq "other" ) {
+        $breeding_program_name = $c->req->param("breeding-program-other");
+    }
+    elsif ( $breeding_program =~ m/^\d+$/ ) {
+        my $projects = CXGN::BreedersToolbox::Projects->new({ schema=> $c->dbic_schema("Bio::Chado::Schema") });
+        my $breeding_programs = $projects->get_breeding_programs([$breeding_program]);
+        if ( scalar(@$breeding_programs) == 1 ) {
+            $breeding_program_name = $breeding_programs->[0]->[1];
+            my $breeding_program_contact_alert = $breeding_programs->[0]->[6];
+            if ( $breeding_program_contact_alert ) {
+                $breeding_program_contact_name = $breeding_programs->[0]->[4];
+                $breeding_program_contact_email = $breeding_programs->[0]->[5];
+                if ( $breeding_program_contact_email && $breeding_program_contact_email ne '' ) {
+                    $submission_email .= ", $breeding_program_contact_email";
+                }
+            }
+        }
+    }
+
     # Check the form data
     if ( !$name ) {
         $self->submit_error($c, "Name is required");
     }
     if ( !$email ) {
-        $self->submit_error($c, "Comments are required");
+        $self->submit_error($c, "Email is required");
     }
-    if ( !$data_type ) {
-        $self->submit_error($c, "Data type not specified");
+    if ( !$breeding_program_name ) {
+        $self->submit_error($c, "Breeding Program is required");
     }
-    if ( $data_type eq "Locations" ) {
-        $uploads = $c->req->uploads->{'locations-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Locations file not specified");
-        }
-    }
-    if ( $data_type eq "Accessions" ) {
-        $uploads = $c->req->uploads->{'accessions-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Accessions file not specified");
-        }
-    }
-    if ( $data_type eq "Trials" ) {
-        $uploads = $c->req->uploads->{'trials-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Trials file(s) not specified");
-        }
-    }
-    if ( $data_type eq "Phenotype Observations" ) {
-        $uploads = $c->req->uploads->{'phenotype-observations-file'};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Phenotype Observations file(s) not specified");
-        }
-    }
-    if ( $data_type eq "Multiple Files" ) {
-        $uploads = $c->req->uploads->{"multiple-files-file"};
-        if ( !$uploads ) {
-            $self->submit_error($c, "Upload file(s) not specified");
-        }
+    if ( !$uploads ) {
+        $self->submit_error($c, "One or more files are required");
     }
     $uploads = [ $uploads ]   if ref($uploads) ne 'ARRAY';
 
@@ -98,25 +95,43 @@ sub submit_trial_file_POST : Args(0) {
     }
 
     # Write Files
-    $self->write_submission_file($c, $dir, $name, $email, $comments);
+    $self->write_submission_file($c, $dir, $name, $email, $breeding_program_name, $comments);
     $self->copy_upload_files($c, $dir, $uploads);
 
     # Send email notification
     if ( $submission_email ) {
-        my $subject = "[File Submission] $data_type Submitted";
+        my $subject = "[File Submission] Phenotype Data Submitted";
 
+        # Generate the URL to view the files
+        my $path = $user_id . "/" . $file_dir;
+        my $url = $main_production_site_url . "/submit/view/" . $path;
+        $url =~ s{(?<!:)/{2,}}{/}g;
+
+        # Generate and add a token to the URL
+        my $secret = $c->config->{file_submission_token_key};
+        my $token = sha256_hex($path . $secret);
+        $url .= "?token=$token";
+
+        # Build the body of the email
         my $body = "FILE SUBMISSION\n";
         $body .= "===============\n\n";
-        $body .= "$data_type have been submitted for curation.\n\n";
+        $body .= "Phenotype data have been submitted for curation.\n\n";
         if ( $comments ) {
             $body .= $comments . "\n\n";
         }
         $body .= "User: $name\n";
         $body .= "Email: $email\n";
         $body .= "Site: " . $main_production_site_url . "\n";
+        $body .= "Breeding Program: " . $breeding_program_name . "\n";
+        if ( $breeding_program_contact_email && $breeding_program_contact_email ne '' ) {
+            $body .= "Breeding Program Contact: ";
+            $body .= "$breeding_program_contact_name " if $breeding_program_contact_name && $breeding_program_contact_name ne '';
+            $body .= "<$breeding_program_contact_email>\n";
+        }
         $body .= "Directory: " . $dir . "\n";
-        $body .= "View Files: " . $main_production_site_url . "/submit/view/" . $user_id . "/" . $file_dir;
+        $body .= "View Files: " . $url;
 
+        # Send the Email
         CXGN::Contact::send_email($subject, $body, $submission_email, $email);
     }
 
@@ -141,11 +156,13 @@ sub write_submission_file :Private {
     my $dir = shift;
     my $name = shift;
     my $email = shift;
+    my $breeding_program = shift;
     my $comments = shift;
 
     my $sub_file = $dir . "/submission.txt";
     my $sub_contents = "Name: $name\n";
     $sub_contents .= "Email: $email\n";
+    $sub_contents .= "Breeding Program: $breeding_program\n";
     $sub_contents .= "Comments: $comments\n";
 
     open(FH, '>', $sub_file) or die $!;
