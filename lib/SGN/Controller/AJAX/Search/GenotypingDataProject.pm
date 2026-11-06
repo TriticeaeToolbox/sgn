@@ -431,12 +431,7 @@ sub genotyping_project_download_archived_vcf_GET : Args(0) {
             }
         }
 
-<<<<<<< HEAD
-        my $contents = read_file($filepath);
-        my $content_type = ($basename =~ /\.gz$/) ? 'application/gzip' : 'text/plain';
-=======
         my $contents = read_file($filepath, binmode => ':raw');
->>>>>>> master
         $c->res->content_type($content_type);
         $c->res->header('Content-Disposition', qq[attachment; filename="$basename"]);
         $c->res->body($contents);
