@@ -1,21 +1,21 @@
-FROM debian:bullseye
+FROM debian:trixie
 
-ARG SGN_REPO
-ARG SGN_BRANCH
+ARG SGN_REPO=triticeaetoolbox/sgn
+ARG SGN_BRANCH=t3/master
 ARG SGN_COMMIT
+
+# create production user
+RUN useradd -m -u 1250 -s /bin/bash production
 
 # create directory layout
 #
 # npm install needs a non-root user (new in latest version)
 #
-RUN useradd -d /home/production -u 1250 production 
-
+RUN mkdir /etc/starmachine
+RUN mkdir /var/log/sgn
 RUN mkdir -p /home/production/public/sgn_static_content
 RUN mkdir -p /home/production/cxgn
 RUN mkdir -p /home/production/cxgn/local-lib
-RUN mkdir /etc/starmachine
-RUN mkdir /var/log/sgn
-
 RUN chown -R production /home/production
 
 WORKDIR /home/production/cxgn
@@ -26,53 +26,50 @@ WORKDIR /home/production/cxgn
 RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
 RUN apt-get update -y --allow-unauthenticated && \
     apt-get upgrade -y && \
-    apt-get install -y build-essential pkg-config apt-utils gnupg2 curl wget git \
-                       npm libimage-magick-perl libterm-readline-zoid-perl nginx starman emacs vim nano \
-                       less sudo htop dkms linux-headers-generic perl-doc ack make \
-                       xutils-dev nfs-common lynx xvfb ncbi-blast+ libmunge-dev libmunge2 \
-                       munge slurm-wlm slurmctld slurmd libslurm-perl libssl-dev graphviz \
-                       lsof imagemagick mrbayes muscle clustalw bowtie bowtie2 postfix mailutils \
-                       libcupsimage2 libglib2.0-dev libglib2.0-bin screen \
-                       apt-transport-https libgdal-dev libproj-dev libudunits2-dev locales \
-                       locales-all rsyslog cron anacron libnlopt0
+    apt-get install -y ack adduser anacron apt-transport-https apt-utils bowtie bowtie2 \
+        build-essential clustalw cron curl dkms emacs gedit git gnupg2 graphviz htop \
+        imagemagick less libcupsimage2 libgdal-dev libglib2.0-bin libglib2.0-dev \
+        libimage-exiftool-perl libimage-magick-perl libmunge-dev libmunge2 libnlopt0 \
+        libproj-dev libslurm-perl libssl-dev libstring-crc32-perl \
+        libterm-readline-zoid-perl libudunits2-dev linux-headers-generic locales \
+        locales-all locate lsof lynx mailutils make mrbayes munge muscle nano \
+        ncbi-blast+ nfs-common nginx npm perl-doc pkg-config plink postfix \
+        postgresql-client primer3 rsyslog screen slurm-wlm slurmctld slurmd \
+        starman sudo task-spooler vim wget xutils-dev xvfb
 
 # Slurm setup
 #
 RUN rm /etc/munge/munge.key
 RUN chmod 777 /var/spool/ \
     && mkdir /var/spool/slurmstate \
+    && mkdir /var/run/slurm-llnl/ \
+    && chown slurm:slurm /var/run/slurm-llnl/ \
     && chown slurm:slurm /var/spool/slurmstate/ \
+    && mkdir /var/spool/slurmd/ \
+    && chown slurm:slurm /var/spool/slurmd/ \
     && /usr/sbin/mungekey \
-    && chown munge:munge /etc/munge/munge.key \
     && ln -s /var/lib/slurm-llnl /var/lib/slurm \
     && mkdir -p /var/log/slurm
 RUN usermod -a -G postdrop www-data
 
-# Add cran repo
-#
-RUN echo "deb https://cloud.r-project.org/bin/linux/debian/ bullseye-cran40/" >> /etc/apt/sources.list
-RUN bash -c "apt-key adv --keyserver keyserver.ubuntu.com --recv-key '95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7' 1>/key.out 2> /key.err"
 
-# Add postgresql repo
+# Add CRAN signing key and apt source to install R
 #
-RUN echo "deb http://apt.postgresql.org/pub/repos/apt/ bullseye-pgdg main" | tee  /etc/apt/sources.list.d/pgdg.list
-RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc |  apt-key add -
+RUN curl -fsSL 'https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x95C0FAF38DB3CCAD0C080A7BDC78B2DDEABC47B7' | \
+    gpg --dearmor --yes -o /usr/share/keyrings/cran.gpg && \
+    . /etc/os-release && \
+    printf '%s\n' \
+    "Types: deb" \
+    "URIs: https://cloud.r-project.org/bin/linux/debian" \
+    "Suites: ${VERSION_CODENAME}-cran40/" \
+    "Signed-By: /usr/share/keyrings/cran.gpg" | \
+    tee /etc/apt/sources.list.d/cran.sources > /dev/null
+RUN apt-get install -y r-base r-base-dev
 
-# Update repos
-#
-RUN apt-get update --fix-missing -y
+# Install some additional system dependencies for some R packages
+RUN apt-get install -y gdal-bin gsfonts libgit2-dev libglpk-dev pandoc texlive default-jdk
 
-# install postgres client
-#
-RUN apt-get install -y postgresql-client-12
-
-# install R
-#
-RUN apt-get install r-base r-base-dev -y --allow-unauthenticated
-
-# required for R-package spdep, and other dependencies of agricolae
-#
-RUN apt-get install libudunits2-dev libproj-dev libgdal-dev -y
+RUN curl -L https://cpanmin.us | perl - --sudo App::cpanminus
 
 # XML::Simple dependency
 #
@@ -105,10 +102,13 @@ RUN curl -L https://cpanmin.us | perl - --sudo App::cpanminus
 RUN cpanm --force Selenium::Remote::Driver@1.49 Sort::Naturally Cache::FastMmap
 
 #INSTALL OPENCV IMAGING LIBRARY
-RUN apt-get install -y python3-dev  python3-pip python3-numpy libgtk2.0-dev libgtk-3-0 libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev libhdf5-serial-dev libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libxvidcore-dev libatlas-base-dev gfortran cmake libgdal-dev exiftool libzbar-dev zbar-tools libbarcode-zbar-perl libtext-multimarkdown-perl
-RUN pip3 install --upgrade pip
-RUN pip3 install grpcio==1.40.0 imutils numpy matplotlib pillow statistics PyExifTool pytz pysolar scikit-image packaging pyzbar pandas opencv-python==4.13.0.92\
-    && pip3 install -U keras-tuner
+RUN apt-get install -y python3-dev python3-pip python3-numpy python3-setuptools libgtk2.0-dev \
+    libgtk-3-0 libgtk-3-dev libavcodec-dev libavformat-dev libswscale-dev libhdf5-serial-dev \
+    libtbbmalloc2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev libxvidcore-dev libopenblas-dev \
+    gfortran cmake libgdal-dev exiftool libzbar-dev zbar-tools libbarcode-zbar-perl libtext-multimarkdown-perl
+RUN pip3 install --break-system-packages grpcio imutils matplotlib pillow statistics PyExifTool pytz \
+    pysolar scikit-image packaging pyzbar pandas opencv-python && \
+    pip3 install --break-system-packages -U keras-tuner
 
 # copy some tools that don't have a Debian package
 #
@@ -118,6 +118,12 @@ COPY tools/sreformat /usr/local/bin/
 COPY tools/fix_file_permissions /usr/local/bin/
 COPY tools/set_git_info /usr/local/bin/
 COPY tools/DiGGer_1.0.5_R_x86_64-redhat-linux-gnu.tar.gz /home/production/DiGGer.tar.gz
+
+# Install R packages
+ENV R_LIBS_USER=/home/production/cxgn/R4.5_libs
+RUN echo "R_LIBS_USER=/home/production/cxgn/R4.5_libs" >> /etc/R/Renviron
+COPY tools/R_deps.R /home/production/R_deps.R
+RUN Rscript --vanilla /home/production/R_deps.R
 
 # Install DiGGer from the source code
 # 
@@ -150,8 +156,7 @@ RUN git clone --depth 1                             https://github.com/solgenomi
 RUN git clone --depth 1                             https://github.com/GMOD/chado_tools.git                 ./chado_tools
 RUN git clone --depth 1                             https://github.com/solgenomics/bio-chado-schema.git     ./Bio-Chado-Schema
 RUN git clone --depth 1                             https://github.com/solgenomics/DroneImageScripts.git    ./DroneImageScripts
-RUN git clone --depth 1 -b topic/debian_bullseye    https://github.com/solgenomics/perl-local-lib.git       ./local-lib
-RUN git clone --depth 1 -b master                   https://github.com/solgenomics/R_libs.git               ./R_libs
+RUN git clone --depth 1 -b topic/debian_trixie      https://github.com/solgenomics/perl-local-lib.git       ./local-lib
 RUN git clone --depth 1                             https://github.com/solgenomics/QuantGenResources.git    ./QuantGenResources
 RUN git clone --depth 1 -b triticum                 https://github.com/TriticeaeToolbox/mason.git           ./triticum
 RUN git clone --depth 1 -b triticum-sandbox         https://github.com/TriticeaeToolbox/mason.git           ./triticum_sandbox
@@ -168,17 +173,18 @@ USER root
 
 # add npm
 RUN curl -sL https://deb.nodesource.com/setup_24.x | bash -
-RUN apt install nodejs -y
+RUN apt-get install nodejs -y
 RUN cd /home/production/cxgn/sgn/js; npm install
 
 # then a few steps to clean up permissions
 RUN rm -rf /home/production/.npm
-RUN chown -R production /home/production/cxgn/sgn/js/node_modules
-RUN chown production /home/production/cxgn/sgn/js/package-lock.json
+RUN chown -R production /home/production/
+RUN chmod +x /home/production
 
 # move this here so it is not clobbered by the cxgn move
 #
 COPY etc/slurm.conf /etc/slurm/slurm.conf
+COPY etc/cgroup.conf /etc/slurm/cgroup.conf
 COPY etc/starmachine.conf /etc/starmachine/
 COPY etc/nginx-base.conf /etc/nginx/nginx.conf
 COPY etc/nginx-site.conf /etc/nginx/sites-available/default
@@ -191,19 +197,21 @@ RUN ln -s /home/production/cxgn/sgn/bin/clear_old_temp_files.sh /etc/cron.daily/
 # Add /home/production/volume directory, which is expected by some caches and the CXGN::Jobs log
 RUN mkdir -p /home/production/volume && chown www-data:www-data /home/production/volume
 
-ARG DOCKER_TAG
-ARG DOCKER_CREATED
-
 ENV CPANMIRROR=http://cpan.cpantesters.org
 ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
 ENV PERL5LIB=/home/production/cxgn/Bio-Chado-Schema/lib:/home/production/cxgn/local-lib/:/home/production/cxgn/local-lib/lib/perl5:/home/production/cxgn/sgn/lib:/home/production/cxgn/cxgn-corelibs/lib:/home/production/cxgn/Phenome/lib:/home/production/cxgn/Cview/lib:/home/production/cxgn/ITAG/lib:/home/production/cxgn/biosource/lib:/home/production/cxgn/tomato_genome/lib:/home/production/cxgn/chado_tools/chado/lib:.
 ENV HOME=/home/production
 ENV PGPASSFILE=/home/production/.pgpass
-ENV R_LIBS_USER=/home/production/cxgn/R_libs
 
+# Set the locale correclty to UTF-8
 RUN locale-gen en_US.UTF-8
-RUN echo "R_LIBS_USER=/home/production/cxgn/R_libs" >> /etc/R/Renviron
+ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8
+
 RUN ln -s /home/production/cxgn/starmachine/bin/starmachine_init.d /etc/init.d/sgn
+
+
+ARG DOCKER_TAG
+ARG DOCKER_CREATED
 
 LABEL maintainer="djw64@cornell.edu"
 LABEL org.opencontainers.image.authors="Breedbase - https://github.com/solgenomics/sgn, The Triticeae Toolbox - https://github.com/TriticeaeToolbox/sgn"

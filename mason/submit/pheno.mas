@@ -1,7 +1,302 @@
 <%args>
     $name => "",
     $email => "",
-    @data_types => ("Locations", "Accessions", "Trials", "Phenotype Observations", "Multiple Files")
+    $breeding_programs => (),
 </%args>
 
-<p>Put instance-specific phenotype submission information here.</p>
+
+<& /page/page_title.mas, title=>"Submit Phenotype Data" &>
+
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+
+        <p>
+            You can use this form to submit your data files containing phenotype data / field trials.  Your data does not need to be in a specific format,
+            but it should contain at least the following information:
+            <ul>
+                <li>The names of the accessions in the trials</li>
+                <li>Pedigree information about the accessions, if you have it</li>
+                <li>The locations of the trials, such as the town names or GPS coordinates of the fields</li>
+                <li>The planting and harvest dates, if you have them</li>
+                <li>The traits measured in the trials, <strong>including the units used for each trait</strong></li>
+                <li>The trait values, ideally plot-level data but we can also accept trial means</li>
+            </ul>
+        </p>
+
+        <br />
+
+        <form id="submission-form" class="well">
+
+            <h3 style="margin-top: 0;">Submitter Information</h3>
+
+            <!-- Name -->
+            <div class="row form-group">
+                <label class="col-sm-2 control-label">Name*: </label>
+                <div class="col-sm-10">
+                    <input id="name" type="text" class="form-control" value="<% $name %>" name="name"></input>
+                </div>
+            </div>
+
+            <!-- Email -->
+            <div class="row form-group">
+                <label class="col-sm-2 control-label">Email*: </label>
+                <div class="col-sm-10">
+                    <input id="email" type="text" class="form-control" value="<% $email %>" name="email"></input>
+                </div>
+            </div>
+
+            <!-- Breeding Program -->
+            <div class="row form-group">
+                <div class="col-sm-12">
+                    <h3>Breeding Program</h3>
+                    <p>Select the breeding program that the data is associated with.</p>
+                    <p>If this data is associated with a <strong>cooperative nursery</strong>, please select the nursery as the breeding program.</p>
+
+                    <select id="breeding-program" class="form-control" name="breeding-program">
+% foreach (@$breeding_programs ) {
+                        <option value="<% $_->[0] %>" data-contact-name="<% $_->[4] %>" data-contact-email="<% $_->[5] %>" data-contact-alert="<% $_->[6] %>"><% $_->[1] %></option>
+% }
+                        <option value="other">...other...</option>
+                    </select>
+                    <input class="form-control" style="display: none" id="breeding-program-other" name="breeding-program-other" type="text" placeholder="Breeding Program Name" />
+                    <p id="breeding-program-contact" style="display: none; margin-top: 10px;"><strong>Uploaded data files will also be sent to:</strong> <span id="breeding-program-contact-name"></span> &lt;<span id="breeding-program-contact-email"></span>&gt;</p>
+                </div>
+            </div>
+
+
+            <!-- Upload Files -->
+            <div id="upload-files-group" class="data-type-group">
+                <h3>Upload Files</h3>
+                <label id="drop-zone">
+                    Drop files here or click to upload.
+                    <input type="file" id="file-input" name="files" multiple accept=".csv, .txt, plain/text, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, .xls, application/vnd.ms-excel, .pdf" />
+                    <ul id="file-list"></ul>
+                </label>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 15px;">
+                    <span>We accept these file types: <em>Excel, CSV, plain text, and PDF</em></span>
+                    <button class="btn btn-warning" type="button" id="clear-btn"><span class="glyphicon glyphicon-erase"></span>&nbsp;&nbsp;Clear Files</button>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <h3>Comments</h3>
+
+            <p><em>Optional</em> - Provide any additional comments about the data you are submitting.</p>
+
+            <textarea id="comments" class="form-control" name="comments" rows="4"></textarea>
+
+
+            <br /><br />
+
+            <button id="submit" type="button" class="btn btn-primary btn-large btn-block">Submit</button>
+
+        </form>
+
+    </div>
+</div>
+
+
+
+<script type="text/javascript">
+    var FILES = [];
+
+    // Handle files dropped into the drop zone
+    const dropZone = document.getElementById("drop-zone");
+    dropZone.addEventListener("drop", (ev) => {
+        ev.preventDefault();
+        const files = [...ev.dataTransfer.items]
+            .map((item) => item.getAsFile())
+            .filter((file) => file);
+        handleFiles(files);
+    });
+    dropZone.addEventListener("dragover", (e) => {
+        const fileItems = [...e.dataTransfer.items].filter((item) => item.kind === "file");
+        if (fileItems.length > 0) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "copy";
+        }
+    });
+
+    // Handle files dropped anywhere on the page (to prevent the browser from opening them)
+    window.addEventListener("drop", (e) => {
+        if ([...e.dataTransfer.items].some((item) => item.kind === "file")) {
+            e.preventDefault();
+        }
+    });
+    window.addEventListener("dragover", (e) => {
+        const fileItems = [...e.dataTransfer.items].filter((item) => item.kind === "file");
+        if (fileItems.length > 0) {
+            e.preventDefault();
+            if (!dropZone.contains(e.target)) {
+                e.dataTransfer.dropEffect = "none";
+            }
+        }
+    });
+
+    // Handle files selected via the file input
+    const fileInput = document.getElementById("file-input");
+    fileInput.addEventListener("change", (e) => {
+        handleFiles(e.target.files);
+    });
+
+    // Display the selected files in the file list
+    const fileList = document.getElementById("file-list");
+    function handleFiles(files) {
+        for (const file of files) {
+            if ( FILES.some((f) => f.name === file.name && f.size === file.size) ) {
+                continue;
+            }
+            FILES.push(file);
+            const li = document.createElement("li");
+            li.innerHTML = `<span class="glyphicon glyphicon-file"></span><span>${file.name}</span>`;
+            fileList.appendChild(li);
+        }
+    }
+
+    // Clear button to remove all files from the file list
+    const clearBtn = document.getElementById("clear-btn");
+    clearBtn.addEventListener("click", () => {
+        FILES = [];
+        fileList.textContent = "";
+    });
+
+    function onBreedingProgramChange() {
+        const val = jQuery("#breeding-program").val();
+        jQuery("#breeding-program-other").css("display", val === 'other' ? 'block' : 'none');
+
+        const contactName = jQuery("#breeding-program option:selected").data("contact-name");
+        const contactEmail = jQuery("#breeding-program option:selected").data("contact-email");
+        const contactAlert = jQuery("#breeding-program option:selected").data("contact-alert") === 1;
+        jQuery("#breeding-program-contact-email").text(contactEmail);
+        jQuery("#breeding-program-contact-name").text(contactName);
+        jQuery("#breeding-program-contact").css("display", contactAlert ? 'block' : 'none');
+    }
+
+    jQuery(document).ready(() => {
+        jQuery("#breeding-program").on("change", onBreedingProgramChange);
+        onBreedingProgramChange();
+    });
+
+    /**
+     * Submit the form to the AJAX controller
+     */
+    jQuery("#submit").click(function() {
+        jQuery("#submit").prop("disabled", true);
+
+        var form = document.getElementById('submission-form');
+        var formData = new FormData(form);
+
+        formData.delete("files");
+        for (const file of FILES) {
+            formData.append("files", file);
+        }
+
+        // Check the form
+        if ( !checkForm(formData) ) {
+            jQuery("#submit").removeAttr("disabled");
+            return;
+        }
+
+        // Submit the form
+        var xhr = new XMLHttpRequest();
+        xhr.onload = function () {
+            if (xhr.readyState === xhr.DONE) {
+                jQuery("#submit").removeAttr("disabled");
+                if (xhr.status === 200) {
+                    try {
+                        var resp = JSON.parse(xhr.response);
+                        if ( resp && resp.status && resp.status === "success" ) {
+                            alert("File(s) submitted. Thank you!");
+                            return;
+                        }
+                        else if ( resp && resp.status && resp.status === "error" ) {
+                            alert("File not submitted: " + resp.message);
+                            return;
+                        }
+                    } catch (exception) {}
+                }
+                alert("There was an error submitting the file.  Please try again later and contact us if the problem persists.");
+            }
+        };
+        xhr.open('POST', '/ajax/submit/file', true);
+        xhr.send(formData);
+    });
+
+
+    /**
+     * Check for required form entries
+     * @return {boolean} true if form passed validation
+     */
+    function checkForm(formData) {
+        if ( !formData.get("name") ) {
+            alert("Please enter your name first");
+            return false;
+        }
+        if ( !formData.get("email") ) {
+            alert("Please enter your email so we can reach you if we have any questions");
+            return false;
+        }
+        if ( !formData.get("breeding-program") ) {
+            alert("Please select a breeding program");
+            return false;
+        }
+        if ( formData.get("breeding-program") === "other" && !formData.get("breeding-program-other") ) {
+            alert("Please provide the name of the breeding program");
+            return false;
+        }
+        if ( !formData.get("files") || formData.get("files").size === 0 ) {
+            alert("Please provide the upload file(s)");
+            return false;
+        }
+        return true;
+    }
+</script>
+
+
+<style>
+    #drop-zone {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        max-width: 100%;
+        min-height: 200px;
+        padding: 1em;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        color: slategray;
+        background-color: #ffffff;
+        cursor: pointer;
+    }
+    #drop-zone:hover {
+        background-color: #fcfcfc;
+    }
+
+    #file-input {
+        display: none;
+    }
+
+    #file-list {
+        width: 100%;
+        display: flex;
+        gap: 1em;
+        list-style: none;
+        flex-wrap: wrap;
+        padding: 15px;
+        justify-content: center;
+    }
+
+    #file-list li {
+        display: flex;
+        align-items: baseline;
+        gap: 0.5em;
+        margin: 0;
+        background-color: #5cb85c;
+        color: white;
+        padding: 0.5em;
+        border-radius: 4px;
+        font-weight: bold;
+    }
+</style>

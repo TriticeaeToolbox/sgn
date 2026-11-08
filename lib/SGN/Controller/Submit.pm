@@ -1,9 +1,10 @@
 package SGN::Controller::Submit;
 
 use Moose;
-use SGN::View::Stock qw/breeding_programs/;
+use CXGN::BreedersToolbox::Projects;
 use CXGN::Genotype::Protocol qw/list_simple/;
 use URI::FromHash 'uri';
+use Digest::SHA qw(sha256_hex);
 
 BEGIN { extends "Catalyst::Controller"; }
 
@@ -57,9 +58,13 @@ sub submit_geno : Path('/submit/geno') Args(0) {
     # Get Gentoyping Facilities from the configuration file
     my @genotyping_facilities = split(',', $c->config->{genotyping_facilities});
 
+    # Get Breeding Programs
+    my $projects = CXGN::BreedersToolbox::Projects->new({ schema=> $schema });
+    my $breeding_programs = $projects->get_breeding_programs();
+
     # Add data for select boxes
     $c->stash(
-        breeding_programs => SGN::View::Stock::breeding_programs($schema),
+        breeding_programs => $breeding_programs,
         genotyping_protocols => \@protocols,
         reference_genomes => \@reference_genomes,
         genotyping_facilities => \@genotyping_facilities
@@ -86,6 +91,7 @@ sub submit_multiple_trials : Path('/submit/trials') Args(0) {
 sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     my $self = shift;
     my $c = shift;
+    my $schema = $c->dbic_schema("Bio::Chado::Schema");
 
     my $allow_file_submissions = $c->config->{allow_file_submissions};
     if ( !$allow_file_submissions ) {
@@ -94,11 +100,21 @@ sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
         return;
     }
 
+    # Add user name and email
     my $user = $c->user();
     if ( $user ) {
         $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
         $c->stash->{email} = $user->get_private_email();
     }
+    else {
+        $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
+        return;
+    }
+
+    # Add breeding programs
+    my $projects = CXGN::BreedersToolbox::Projects->new({ schema=> $schema });
+    my $breeding_programs = $projects->get_breeding_programs();
+    $c->stash->{breeding_programs} = $breeding_programs;
 
     $c->stash->{template} = '/submit/pheno.mas';
 }
@@ -109,12 +125,17 @@ sub view_submission_files : Path('/submit/view') Args(2) {
     my $c = shift;
     my $user_id = shift;
     my $sub_dir = shift;
+    my $token = $c->req->param("token");
 
     my $submission_path = $c->config->{submission_path};
+    my $token_key = $c->config->{file_submission_token_key};
 
-    # redirect to login page if not logged in
-    if (! $c->user()) { 
-        $c->res->redirect('/user/login?goto_url=' . $c->req->uri->path_query);
+    # check the value of the token
+    my $path = $user_id . "/" . $sub_dir;
+    my $expected_token = sha256_hex($path . $token_key);
+    if ( $token ne $expected_token ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>Invalid Token</strong></p><p>Please check the link you used to view the submission files.</p>";
         return;
     }
 
@@ -139,6 +160,7 @@ sub view_submission_files : Path('/submit/view') Args(2) {
     $c->stash->{user_id} = $user_id;
     $c->stash->{sub_dir} = $sub_dir;
     $c->stash->{dir} = $dir;
+    $c->stash->{token} = $token;
     $c->stash->{files} = \@files;
     $c->stash->{template} = '/submit/view.mas';
 }
@@ -150,12 +172,17 @@ sub view_submission_file : Path('/submit/view') Args(3) {
     my $user_id = shift;
     my $sub_dir = shift;
     my $file = shift;
+    my $token = $c->req->param("token");
 
     my $submission_path = $c->config->{submission_path};
+    my $token_key = $c->config->{file_submission_token_key};
 
-    # redirect to login page if not logged in
-    if (! $c->user()) { 
-        $c->res->redirect('/user/login?goto_url=' . $c->req->uri->path_query);
+    # check the value of the token
+    my $path = $user_id . "/" . $sub_dir;
+    my $expected_token = sha256_hex($path . $token_key);
+    if ( $token ne $expected_token ) {
+        $c->stash->{template} = 'generic_message.mas';
+        $c->stash->{message} = "<p><strong>Invalid Token</strong></p><p>Please check the link you used to view the submission file.</p>";
         return;
     }
 
