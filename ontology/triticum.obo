@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 19:08:2026 15:04
+date: 12:11:2026 11:43
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -1662,6 +1662,110 @@ namespace: wheat_trait
 def: "The amount of infestation of wheat stem sawfly, Cephus cinctus." []
 synonym: "SawflyInf" EXACT []
 is_a: CO_321:Biotic_stress
+
+[Term]
+id: CO_321:0500805
+name: Number of root tips
+namespace: wheat_trait
+def: "Number of root tips exhibited by 14 day old seedlings grown on germination paper" []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500806
+name: Number of root branching points
+namespace: wheat_trait
+def: "Number of root branch points exhibited by 14 day old seedlings grown on germination paper" []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500807
+name: Total root length
+namespace: wheat_trait
+def: "Total root length exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500808
+name: Root branching frequency
+namespace: wheat_trait
+def: "The number of root branch points per unit root length exhibited by 14 day old seedlings grown on germination paper" []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500809
+name: Root network area
+namespace: wheat_trait
+def: "The root network area exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500810
+name: Average root diameter
+namespace: wheat_trait
+def: "Average root diameter exhibited by 14 day old seedlings grown on germination paper" []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500811
+name: Root angle
+namespace: wheat_trait
+def: "The angle between outermost primart roots exhibited by 14 day old seedlings grown on germination paper" []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500812
+name: Number of primary roots
+namespace: wheat_trait
+def: "Number of primary roots exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500813
+name: Total secondary root length
+namespace: wheat_trait
+def: "Total Secondary Root Length exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500814
+name: Total secondary root area
+namespace: wheat_trait
+def: "Total Secondary Root Area exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500815
+name: Number of secondary roots
+namespace: wheat_trait
+def: "Number of Secondary Roots exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500816
+name: Average secondary root length
+namespace: wheat_trait
+def: "Average Secondary Root Length exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
+
+[Term]
+id: CO_321:0500817
+name: Average secondary root area
+namespace: wheat_trait
+def: "Average Secondary Root Area exhibited by 14 day old seedlings grown on germination paper." []
+synonym: "" EXACT []
+is_a: CO_321:Morphological
 
 [Term]
 id: CO_321:0000229
@@ -3460,6 +3564,25 @@ def: "A visual estimation of the amount of wheat stem sawfly infestation.  Ten r
 relationship: method_of CO_321:0500804
 
 [Term]
+id: CO_321:0500318
+name: RootPainer - Rhizovision Root Analysis
+namespace: wheat_trait_method
+def: "Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021). " []
+relationship: method_of CO_321:0500805
+relationship: method_of CO_321:0500814
+relationship: method_of CO_321:0500815
+relationship: method_of CO_321:0500816
+relationship: method_of CO_321:0500817
+relationship: method_of CO_321:0500806
+relationship: method_of CO_321:0500807
+relationship: method_of CO_321:0500808
+relationship: method_of CO_321:0500809
+relationship: method_of CO_321:0500810
+relationship: method_of CO_321:0500811
+relationship: method_of CO_321:0500812
+relationship: method_of CO_321:0500813
+
+[Term]
 id: CO_321:0000804
 name: kg/ha
 namespace: wheat_trait_scale
@@ -3719,6 +3842,7 @@ relationship: scale_of CO_321:0000277
 relationship: scale_of CO_321:0001580
 relationship: scale_of CO_321:0001581
 relationship: scale_of CO_321:0500120
+relationship: scale_of CO_321:0500318
 
 [Term]
 id: CO_321:0000727
@@ -4564,6 +4688,12 @@ id: CO_321:0000426
 name: min
 namespace: wheat_trait_scale
 relationship: scale_of CO_321:0000389
+
+[Term]
+id: CO_321:0000419
+name: cm2
+namespace: wheat_trait_scale
+relationship: scale_of CO_321:0500318
 
 [Term]
 id: CO_321:0000430
@@ -7669,6 +7799,24 @@ synonym: "100" EXACT []
 is_a: CO_321:0500556
 
 [Term]
+id: CO_321:0500557
+name: count
+namespace: wheat_trait_scale
+relationship: scale_of CO_321:0500318
+
+[Term]
+id: CO_321:0500558
+name: root branches/cm
+namespace: wheat_trait_scale
+relationship: scale_of CO_321:0500318
+
+[Term]
+id: CO_321:0500559
+name: degrees
+namespace: wheat_trait_scale
+relationship: scale_of CO_321:0500318
+
+[Term]
 id: CO_321:0001043
 name: Agronomic score - 1-5 scoring scale
 namespace: wheat_trait
@@ -10354,3 +10502,133 @@ def: "TRAIT: The amount of infestation of wheat stem sawfly, Cephus cinctus. MET
 relationship: variable_of CO_321:0500804
 relationship: variable_of CO_321:0500317
 relationship: variable_of CO_321:0000410
+
+[Term]
+id: CO_321:0501260
+name: Number of Root Tips - count
+namespace: wheat_trait
+def: "TRAIT: Number of root tips exhibited by 14 day old seedlings grown on germination paper METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: count" []
+synonym: "NRT" EXACT []
+relationship: variable_of CO_321:0500805
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0500557
+
+[Term]
+id: CO_321:0501261
+name: Number of Root Branching Points - count
+namespace: wheat_trait
+def: "TRAIT: Number of root branch points exhibited by 14 day old seedlings grown on germination paper METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: count" []
+synonym: "NBT" EXACT []
+relationship: variable_of CO_321:0500806
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0500557
+
+[Term]
+id: CO_321:0501262
+name: Total Root Length - cm
+namespace: wheat_trait
+def: "TRAIT: Total root length exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm" []
+synonym: "TRL" EXACT []
+relationship: variable_of CO_321:0500807
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000411
+
+[Term]
+id: CO_321:0501263
+name: Root Branching Frequency - root branches/cm
+namespace: wheat_trait
+def: "TRAIT: The number of root branch points per unit root length exhibited by 14 day old seedlings grown on germination paper METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: root branches/cm" []
+synonym: "Bf" EXACT []
+relationship: variable_of CO_321:0500808
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0500558
+
+[Term]
+id: CO_321:0501264
+name: Root Nework Area - cm2
+namespace: wheat_trait
+def: "TRAIT: The root network area exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm2" []
+synonym: "NetA" EXACT []
+relationship: variable_of CO_321:0500809
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000419
+
+[Term]
+id: CO_321:0501265
+name: Average Root Diameter - cm
+namespace: wheat_trait
+def: "TRAIT: Average root diameter exhibited by 14 day old seedlings grown on germination paper METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm" []
+synonym: "AveD" EXACT []
+relationship: variable_of CO_321:0500810
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000411
+
+[Term]
+id: CO_321:0501266
+name: Root Angle - degrees 
+namespace: wheat_trait
+def: "TRAIT: The angle between outermost primart roots exhibited by 14 day old seedlings grown on germination paper METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: degrees" []
+synonym: "Angle" EXACT []
+relationship: variable_of CO_321:0500811
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0500559
+
+[Term]
+id: CO_321:0501267
+name: Number of Primary Roots - count
+namespace: wheat_trait
+def: "TRAIT: Number of primary roots exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: count" []
+synonym: "NPR" EXACT []
+relationship: variable_of CO_321:0500812
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0500557
+
+[Term]
+id: CO_321:0501268
+name: Total Secondary Root Length - cm
+namespace: wheat_trait
+def: "TRAIT: Total Secondary Root Length exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm" []
+synonym: "TSRL" EXACT []
+relationship: variable_of CO_321:0500813
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000411
+
+[Term]
+id: CO_321:0501269
+name: Total Secondary Root Area - cm2
+namespace: wheat_trait
+def: "TRAIT: Total Secondary Root Area exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm2" []
+synonym: "TSNA" EXACT []
+relationship: variable_of CO_321:0500814
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000419
+
+[Term]
+id: CO_321:0501270
+name: Number of Secondary Roots - count
+namespace: wheat_trait
+def: "TRAIT: Number of Secondary Roots exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: count" []
+synonym: "NSR" EXACT []
+relationship: variable_of CO_321:0500815
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0500557
+
+[Term]
+id: CO_321:0501271
+name: Average Secondary Root Length - cm
+namespace: wheat_trait
+def: "TRAIT: Average Secondary Root Length exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm" []
+synonym: "ASRL" EXACT []
+relationship: variable_of CO_321:0500816
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000411
+
+[Term]
+id: CO_321:0501272
+name: Average Secondary Root Area - cm2
+namespace: wheat_trait
+def: "TRAIT: Average Secondary Root Area exhibited by 14 day old seedlings grown on germination paper. METHOD: Segmentations of 14 day old seedlings were produced using RootPainter (Smith et al., 2022) and analyzed using Rhizovision Explorer (Seethepalli et al., 2021).  SCALE: cm2" []
+synonym: "ASNA" EXACT []
+relationship: variable_of CO_321:0500817
+relationship: variable_of CO_321:0500318
+relationship: variable_of CO_321:0000419
