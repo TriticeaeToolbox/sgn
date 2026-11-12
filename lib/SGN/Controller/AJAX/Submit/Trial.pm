@@ -8,6 +8,7 @@ use CXGN::Stock::Accession;
 use CXGN::Trial::TrialLayoutDownload;
 use CXGN::Contact;
 use Spreadsheet::WriteExcel;
+use Digest::SHA qw(sha256_hex);
 
 use JSON;
 use POSIX qw(strftime);
@@ -281,7 +282,18 @@ sub submit_trial_data_POST : Args(0) {
         while ( my($k, $v) = each %info ) {
             $body .= " - " . $v->{'name'} . " (" . $k . ")\n";
             $body .= "   Directory: " . $v->{'dir'} . "\n";
-            $body .= "   View Files: " . $main_production_site_url . "/submit/view/" . $user_id . "/" . $v->{'trial_dir'} . "\n";
+
+            # Generate the URL to view the files
+            my $path = $user_id . "/" . $v->{'trial_dir'};
+            my $url = $main_production_site_url . "/submit/view/" . $path;
+            $url =~ s{(?<!:)/{2,}}{/}g;
+
+            # Generate and add a token to the URL
+            my $secret = $c->config->{file_submission_token_key};
+            my $token = sha256_hex($path . $secret);
+            $url .= "?token=$token";
+
+            $body .= "   View Files: $url\n";
         }
 
         CXGN::Contact::send_email($subject, $body, $submission_email, $user->get_private_email());
