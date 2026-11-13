@@ -3,6 +3,7 @@ package SGN::Controller::Submit;
 use Moose;
 use CXGN::BreedersToolbox::Projects;
 use CXGN::Genotype::Protocol qw/list_simple/;
+use CXGN::People::Roles;
 use URI::FromHash 'uri';
 use Digest::SHA qw(sha256_hex);
 
@@ -13,6 +14,7 @@ sub submit_geno : Path('/submit/geno') Args(0) {
     my $self = shift;
     my $c = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $people_schema = $c->dbic_schema("CXGN::People::Schema");
     my $vcf_upload_url = $c->config->{vcf_upload_url};
 
     # VCF Upload URL needs to be set in the config file
@@ -27,6 +29,16 @@ sub submit_geno : Path('/submit/geno') Args(0) {
     if ( $user ) {
         $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
         $c->stash->{email} = $user->get_private_email();
+
+        my @role_names;
+        my $r = CXGN::People::Roles->new( { people_schema => $people_schema });
+        my %roles = $r->role_hash();
+        my @rows = $r->list_roles( $user->get_object()->get_sp_person_id() );
+        foreach my $row (@rows) {
+            my $role_name = $roles{$row->get_column('sp_role_id')};
+            push @role_names, $role_name;
+        }
+        $c->stash->{user_role_names} = \@role_names;
     }
     else {
         $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );
@@ -92,6 +104,7 @@ sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
     my $self = shift;
     my $c = shift;
     my $schema = $c->dbic_schema("Bio::Chado::Schema");
+    my $people_schema = $c->dbic_schema("CXGN::People::Schema");
 
     my $allow_file_submissions = $c->config->{allow_file_submissions};
     if ( !$allow_file_submissions ) {
@@ -100,11 +113,21 @@ sub phenotype_upload_workflow : Path('/submit/pheno') Args(0) {
         return;
     }
 
-    # Add user name and email
+    # Add user name, email, and associated breeding programs
     my $user = $c->user();
     if ( $user ) {
         $c->stash->{name} = $user->get_first_name() . " " . $user->get_last_name();
         $c->stash->{email} = $user->get_private_email();
+
+        my @role_names;
+        my $r = CXGN::People::Roles->new( { people_schema => $people_schema });
+        my %roles = $r->role_hash();
+        my @rows = $r->list_roles( $user->get_object()->get_sp_person_id() );
+        foreach my $row (@rows) {
+            my $role_name = $roles{$row->get_column('sp_role_id')};
+            push @role_names, $role_name;
+        }
+        $c->stash->{user_role_names} = \@role_names;
     }
     else {
         $c->res->redirect( uri( path => '/user/login', query => { goto_url => $c->req->uri->path_query } ) );

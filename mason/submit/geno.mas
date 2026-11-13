@@ -4,8 +4,13 @@
     $breeding_programs => (),
     $genotyping_protocols => (),
     $reference_genomes => (),
-    $genotyping_facilities => ()
+    $genotyping_facilities => (),
+    $user_role_names => (),
 </%args>
+
+<%perl>
+    my %user_role_names_map = map { $_ => 1 } @$user_role_names;
+</%perl>
 
 <%init>
   my $year = 1900 + (localtime)[5];
@@ -46,7 +51,7 @@
       <label>Breeding Program:</label>
       <select class="form-control" id="breeding_program" name="breeding_program">
 % foreach (@$breeding_programs ) {
-        <option value="<% $_->[1] %>"><% $_->[1] %></option>
+        <option value="<% $_->[1] %>" <% exists $user_role_names_map{$_->[1]} ? 'selected' : '' %>><% $_->[1] %></option>
 % }
         <option value="other">...other...</option>
       </select>
