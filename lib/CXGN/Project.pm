@@ -2318,7 +2318,7 @@ sub get_phenotype_metadata {
 	my $trial_id = $self->get_trial_id();
 	my @file_array;
 	my %file_info;
-	my $q = "SELECT file_id, m.create_date, p.sp_person_id, p.username, basename, dirname, filetype FROM nd_experiment_project JOIN nd_experiment_phenotype USING(nd_experiment_id) JOIN phenome.nd_experiment_md_files ON (nd_experiment_phenotype.nd_experiment_id=nd_experiment_md_files.nd_experiment_id) LEFT JOIN metadata.md_files using(file_id) LEFT JOIN metadata.md_metadata as m using(metadata_id) LEFT JOIN sgn_people.sp_person as p ON (p.sp_person_id=m.create_person_id) WHERE project_id=? and m.obsolete = 0 and NOT (metadata.md_files.filetype='generated from plot from plant phenotypes') and NOT (metadata.md_files.filetype='direct phenotyping') ORDER BY file_id ASC";
+	my $q = "SELECT file_id, m.create_date, p.sp_person_id, p.username, basename, dirname, filetype FROM nd_experiment_project JOIN nd_experiment_phenotype USING(nd_experiment_id) JOIN phenome.nd_experiment_md_files ON (nd_experiment_phenotype.nd_experiment_id=nd_experiment_md_files.nd_experiment_id) LEFT JOIN metadata.md_files using(file_id) LEFT JOIN metadata.md_metadata as m using(metadata_id) LEFT JOIN sgn_people.sp_person as p ON (p.sp_person_id=m.create_person_id) WHERE project_id=? and m.obsolete = 0 and NOT (metadata.md_files.filetype='generated from plot from plant phenotypes') and NOT (metadata.md_files.filetype='direct phenotyping') and metadata.md_files.basename <> 'none' ORDER BY file_id ASC";
 	my $h = $self->bcs_schema->storage()->dbh()->prepare($q);
 	$h->execute($trial_id);
 
@@ -3103,12 +3103,14 @@ sub get_traits_assayed {
 
     my $traits_assayed_h = $dbh->prepare($q);
     my $component_h = $dbh->prepare($component_q);
+    # DBD::Pg returns SQL-generated JSON as characters, not UTF-8 octets.
+    my $component_json = JSON->new;
 
     $traits_assayed_h->execute($self->get_trial_id());
     while (my ($trait_name, $trait_id, $imaging_project_id, $imaging_project_name, $count) = $traits_assayed_h->fetchrow_array()) {
         $component_h->execute($contains_relationship_cvterm_id, $trait_id);
         my ($component_terms) = $component_h->fetchrow_array();
-        $component_terms = decode_json $component_terms;
+        $component_terms = $component_json->decode($component_terms);
         if ($contains_composable_cv_type) {
             my $has_composable_cv_type = 0;
             foreach (@$component_terms) {
