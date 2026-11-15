@@ -2,11 +2,14 @@
     $name => "",
     $email => "",
     $breeding_programs => (),
+    $user_role_names => (),
 </%args>
 
+<%perl>
+    my %user_role_names_map = map { $_ => 1 } @$user_role_names;
+</%perl>
 
 <& /page/page_title.mas, title=>"Submit Phenotype Data" &>
-
 
 <div class="row">
     <div class="col-md-8 col-md-offset-2">
@@ -55,7 +58,7 @@
 
                     <select id="breeding-program" class="form-control" name="breeding-program">
 % foreach (@$breeding_programs ) {
-                        <option value="<% $_->[0] %>" data-contact-name="<% $_->[4] %>" data-contact-email="<% $_->[5] %>" data-contact-alert="<% $_->[6] %>"><% $_->[1] %></option>
+                        <option value="<% $_->[0] %>" data-contact-name="<% $_->[4] %>" data-contact-email="<% $_->[5] %>" data-contact-alert="<% $_->[6] %>" <% exists $user_role_names_map{$_->[1]} ? 'selected' : '' %>><% $_->[1] %></option>
 % }
                         <option value="other">...other...</option>
                     </select>
