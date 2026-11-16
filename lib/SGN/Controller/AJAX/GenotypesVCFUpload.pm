@@ -623,6 +623,7 @@ sub upload_genotype_verify_POST : Args(0) {
                             my $chrom_changed = 0;
                             for my $key (qw(chrom pos name ref alt)) {
                                 my $value = $new_marker_details->{$key};
+				next if $key eq 'alt' && CXGN::Genotype::Protocol::alt_alleles_compatible($value, $stored_markers->{$marker_name}->{alt});
                                 if ($value ne ($stored_markers->{$marker_name}->{$key})) {
                                     push @field_diffs, "Marker $marker_name was matched to the stored protocol by name, but its $key differs: your file has \"$value\", the stored protocol has \"".$stored_markers->{$marker_name}->{$key}."\"";
                                     $chrom_changed = 1 if $key eq 'chrom';
@@ -795,6 +796,7 @@ sub upload_genotype_verify_POST : Args(0) {
                         my $chrom_changed = 0;
                         for my $key (qw(chrom pos name ref alt)) {
                             my $value = $new_marker_details->{$key};
+			    next if $key eq 'alt' && CXGN::Genotype::Protocol::alt_alleles_compatible($value, $stored_markers->{$marker_name}->{alt});
                             if ($value ne ($stored_markers->{$marker_name}->{$key})) {
                                 push @field_diffs, "Marker $marker_name was matched to the stored protocol by name, but its $key differs: your file has \"$value\", the stored protocol has \"".$stored_markers->{$marker_name}->{$key}."\"";
                                 $chrom_changed = 1 if $key eq 'chrom';

@@ -801,4 +801,27 @@ sub delete_marker_metadata {
     return { removed => \@remove_locus_ids }
 }
 
+#
+# Alt Alleles Compatible
+# Check if the alt alleles of an uploaded marker can be stored against the alt alleles
+# of a stored protocol marker without changing the meaning of any GT index.
+# This is true when the new alt alleles are a prefix of the stored alt alleles,
+# e.g. new "G" vs stored "G,-" is compatible, but new "G" vs stored "-,G" is not.
+# Called as a plain function: CXGN::Genotype::Protocol::alt_alleles_compatible($new_alt, $stored_alt)
+# @param new_alt = comma-separated alt alleles from the uploaded file
+# @param stored_alt = comma-separated alt alleles from the stored protocol
+# @return = 1 if compatible, 0 otherwise
+#
+sub alt_alleles_compatible {
+    my ($new_alt, $stored_alt) = @_;
+    return 0 if !defined $new_alt || !defined $stored_alt;
+    my @new = split /,/, $new_alt;
+    my @stored = split /,/, $stored_alt;
+    return 0 if !@new || @new > @stored;
+    foreach my $i (0..$#new) {
+        return 0 if $new[$i] ne $stored[$i];
+    }
+    return 1;
+}
+
 1;
