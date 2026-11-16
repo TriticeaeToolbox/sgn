@@ -49,6 +49,7 @@ use Data::Dumper;
 use SGN::Model::Cvterm;
 use CXGN::Stock::StockLookup;
 use CXGN::Trial;
+use CXGN::Project;
 use CXGN::Trial::TrialLayout;
 use CXGN::Calendar;
 use CXGN::Trait;
@@ -243,11 +244,21 @@ sub search {
     my $phenotypeprop_sql = '';
     my %design_layout_hash;
     my $using_layout_hash;
+    my $trial_observationunit_list;
     #For performance reasons the number of joins to stock can be reduced if a trial is given. If trial(s) given, use the cached layout from TrialLayout instead.
 
-    print STDERR "start date here: ".$self->start_date()." and the end date here: ".$self->end_date()."\n";
+    my $requested_start_date = $self->start_date // '';
+    my $requested_end_date = $self->end_date // '';
+    print STDERR "start date here: $requested_start_date and the end date here: $requested_end_date\n";
 
     if ($self->trial_list && scalar(@{$self->trial_list})>0) {
+
+        my $has_observationunit_filter =
+            (ref($self->plot_list) eq 'ARRAY' && @{$self->plot_list})
+            || (ref($self->plant_list) eq 'ARRAY' && @{$self->plant_list})
+            || (ref($self->subplot_list) eq 'ARRAY' && @{$self->subplot_list});
+        $trial_observationunit_list = []
+            if $self->data_level eq 'all' && !$has_observationunit_filter;
 
         $using_layout_hash = 1;
         foreach (@{$self->trial_list}){
@@ -279,7 +290,7 @@ sub search {
             }
 
 
-            #For performace reasons it is faster to include specific stock_ids in the query.
+            #For performance reasons it is faster to include specific stock_ids in the query.
             if ($self->data_level eq 'analysis_instance'){
                 if (!$self->plot_list){
                     $self->plot_list(\@plots_list);
@@ -287,6 +298,13 @@ sub search {
             }
 
             print STDERR "\n\n fetching layout for  ".$self->data_level. " time: ".  localtime ."\n";
+            if (defined $trial_observationunit_list) {
+                # Prefetch explicit IDs to keep PostgreSQL from joining the
+                # global phenotype table before filtering large trial searches.
+                my $units = CXGN::Project->new({ bcs_schema => $schema, trial_id => $_ })
+                    ->get_observation_units_direct([qw(plot plant analysis_instance subplot tissue_sample)]);
+                push @$trial_observationunit_list, map { $_->[0] } @$units;
+            }
             if ($self->data_level eq 'plot'){
                 if (!$self->plot_list){
                     $self->plot_list([]);
@@ -488,8 +506,20 @@ sub search {
                     external_references.value ".$design_layout_select;
 
     my @where_clause;
+    my @bind_values;
     my $accession_list = $self->accession_list;
     print STDERR "Native search Accession list is ".Dumper($accession_list)."\n";
+
+    if (defined($trial_observationunit_list)) {
+        if (scalar(@$trial_observationunit_list) > 0) {
+            my %seen;
+            my @unit_ids = grep { !$seen{$_}++ } @$trial_observationunit_list;
+            push @where_clause, "observationunit.stock_id = ANY(?::integer[])";
+            push @bind_values, \@unit_ids;
+        } else {
+            push @where_clause, "1 = 0";
+        }
+    }
 
     my $analysis_result_stock_list = $self->analysis_result_stock_list;
 
@@ -591,19 +621,19 @@ sub search {
     }
 
     my ($start_date, $end_date);
-    if ($self->start_date() =~ m/(\d{4}\-\d{2}\-\d{2})/) {
+    if ($requested_start_date =~ m/(\d{4}\-\d{2}\-\d{2})/) {
 	$start_date = $1;
     }
 
-    if ($self->end_date() =~ m/(\d{4}\-\d{2}\-\d{2})/) {
+    if ($requested_end_date =~ m/(\d{4}\-\d{2}\-\d{2})/) {
 	$end_date = $1;
     }
 
     #print STDERR "the start date here: $start_date. And the end date here: $end_date\n";
 
     if ($start_date && $end_date) {
-        #print STDERR "including the date query\n";
-	    push @where_clause, " ( $datelessq ( phenotype.collect_date >= '$start_date'::date and phenotype.collect_date <= '$end_date'::date ) ) ";
+        # Include the entire end date, including fractional seconds before midnight.
+        push @where_clause, " ( $datelessq ( phenotype.collect_date >= '$start_date'::date and phenotype.collect_date < ('$end_date'::date + 1) ) ) ";
         #push @where_clause, " ( $datelessq ( phenotype.collect_date >= $start_date and phenotype.collect_date <= $end_date ) ) ";
     }
 
@@ -663,7 +693,7 @@ sub search {
         $location_id_lookup{$r->nd_geolocation_id} = $r->description;
     }
     my $h = $schema->storage->dbh()->prepare($q);
-    $h->execute();
+    $h->execute(@bind_values);
     my @result;
 
     my $calendar_funcs = CXGN::Calendar->new({});

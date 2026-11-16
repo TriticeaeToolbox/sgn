@@ -1940,7 +1940,8 @@ sub generate_archive_file {
         $file_name = "breeding_programs.csv";
         my $results = $BTProjects->get_breeding_programs($ids);
         my @header = ("id", "name", "description");
-        my @rows = (\@header, @$results);
+        my @data = map { [ $_->[0], $_->[1], $_->[2] ] } @$results;
+        my @rows = (\@header, @data);
         csv(in => \@rows, out => "$dir/$file_name", sep_char => ",");
     }
 

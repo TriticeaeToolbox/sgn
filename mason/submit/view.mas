@@ -2,7 +2,8 @@
 $user_id => undef,
 $sub_dir => undef,
 $dir => undef,
-$files => undef
+$files => undef,
+$token => undef
 </%args>
 
 <style>
@@ -48,7 +49,7 @@ $files => undef
     <li class='file'>
         <p>
             <% $file %>&nbsp;&nbsp;
-            <a href='/submit/view/<% $user_id %>/<% $sub_dir %>/<% $file %>' class='btn btn-primary'>
+            <a href='/submit/view/<% $user_id %>/<% $sub_dir %>/<% $file %>?token=<% $token %>' class='btn btn-primary'>
                 <span class='glyphicon glyphicon-save'></span>
             </a>
         </p>

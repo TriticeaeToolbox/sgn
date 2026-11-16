@@ -21,8 +21,8 @@ if ($user && $user->check_roles("curator")) {
     <tr>
 
     <%perl>
-      if ($curator_flag) { print "<th>Name</th><th>Info</th><th>Edit</th><th>Delete</th>"; }
-        else { print "<th>Name</th><th>Info</th>"; }
+      if ($curator_flag) { print "<th>Name</th><th>Info</th><th>Contact</th><th>Edit</th><th>Delete</th>"; }
+      else { print "<th>Name</th><th>Info</th>"; }
     </%perl>
 
     </tr>
@@ -31,15 +31,17 @@ if ($user && $user->check_roles("curator")) {
 
     <%perl>
       foreach my $bp (@$breeding_programs) {
-
         print "<tr><td><b><a href=\"/breeders/program/$bp->[0]\" >$bp->[1]</a></b></td><td>$bp->[2]</td>";
-
-  	if ($curator_flag) {
-      print "<td><a title=\"edit this breeding program\" id=\"edit_breeding_program_link\_".$bp->[1]."\" href=\"javascript:edit_breeding_program($bp->[0],'$bp->[1]','$bp->[2]')\" ><span class=\"glyphicon glyphicon-pencil\"></span></a></td>";
-	  print "<td><a title=\"delete this breeding program\" id=\"delete_breeding_program_link\_".$bp->[1]."\" href=\"javascript:delete_breeding_program($bp->[0],'$bp->[1]')\" ><font color=\"red\">X</font></a></td></tr>";
-	} else {
-	  print "</tr>";
-	}
+        if ($curator_flag) {
+          print "<td>";
+          print "$bp->[4]" if defined $bp->[4] && $bp->[4] ne '';
+          print " &lt;<a href='mailto:" . $bp->[5] . "'>" . $bp->[5] . "</a>&gt;" if defined $bp->[5] && $bp->[5] ne '';
+          print " 🔔" if $bp->[6];
+          print "</td>";
+          print "<td><a title=\"edit this breeding program\" id=\"edit_breeding_program_link\_".$bp->[1]."\" href=\"javascript:edit_breeding_program($bp->[0], '$bp->[1]', '$bp->[2]', '$bp->[4]', '$bp->[5]', " . ($bp->[6] ? 'true' : 'false') . ")\" ><span class=\"glyphicon glyphicon-pencil\"></span></a></td>";
+          print "<td><a title=\"delete this breeding program\" id=\"delete_breeding_program_link\_".$bp->[1]."\" href=\"javascript:delete_breeding_program($bp->[0],'$bp->[1]')\" ><font color=\"red\">X</font></a></td>";
+        }
+        print "</tr>";
       }
     </%perl>
 
@@ -62,21 +64,40 @@ if ($user && $user->check_roles("curator")) {
       </div>
       <div class="modal-body">
         <div class="container-fluid">
-	  <form class="form-horizontal" role="form" name="store_breeding_program_form" id="store_breeding_program_form">
-        <div class="form-group" id="store_breeding_program_id" style="display: none"></div>
-	    <div class="form-group">
-      	      <label class="col-sm-2 control-label">Name: </label>
-      	      <div class="col-sm-10">
-		<input class="form-control" name="store_breeding_program_name" id="store_breeding_program_name" type="text" />
+          <form class="form-horizontal" role="form" name="store_breeding_program_form" id="store_breeding_program_form">
+            <div class="form-group" id="store_breeding_program_id" style="display: none"></div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Name: </label>
+              <div class="col-sm-9">
+                <input class="form-control" name="store_breeding_program_name" id="store_breeding_program_name" type="text" />
+                <small><em>Required</em></small>
               </div>
-	    </div>
-	    <div class="form-group">
-      	      <label class="col-sm-2 control-label">Description: </label>
-      	      <div class="col-sm-10">
-		<input class="form-control" name="store_breeding_program_desc" id="store_breeding_program_desc" type="text" />
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Description: </label>
+              <div class="col-sm-9">
+                <input class="form-control" name="store_breeding_program_desc" id="store_breeding_program_desc" type="text" />
               </div>
-	    </div>
-	  </form>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Contact Name: </label>
+              <div class="col-sm-9">
+                <input class="form-control" name="store_breeding_program_contact_name" id="store_breeding_program_contact_name" type="text" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Contact Email: </label>
+              <div class="col-sm-9">
+                <input class="form-control" name="store_breeding_program_contact_email" id="store_breeding_program_contact_email" type="text" />
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-sm-3 control-label">Alert Contact: </label>
+              <div class="col-sm-9" style="display: flex; align-items: center; gap: 15px">
+                <input name="store_breeding_program_contact_alert" id="store_breeding_program_contact_alert" type="checkbox" />
+                <em>Send an email alert to this contact when files are submitted to this breeding program</em>
+              </div>
+          </form>
         </div>
       </div>
       <div class="modal-footer">
@@ -92,26 +113,33 @@ if ($user && $user->check_roles("curator")) {
 
 jQuery(document).ready(function() {
 
-  $("button#new_breeding_program_link").click( function(event) {
+  jQuery("button#new_breeding_program_link").click( function(event) {
       event.preventDefault();
-      $("#store_breeding_program_dialog").modal("show");
+      edit_breeding_program('', '', '', '', '', false);
   });
 
-  $('#store_breeding_program_submit').click( function(event) {
+  jQuery('#store_breeding_program_submit').click( function(event) {
       event.preventDefault();
       var id= jQuery('#store_breeding_program_id').val();
-      var name = jQuery('#store_breeding_program_name').val();
+      var name = jQuery('#store_breeding_program_name').val().trim();
       var desc = jQuery('#store_breeding_program_desc').val();
-      name = name.trim();
-      if ( (name === '') || (desc === '')) {
-          alert("Please enter a name and a description.");
+      var contact_name = jQuery('#store_breeding_program_contact_name').val().trim();
+      var contact_email = jQuery('#store_breeding_program_contact_email').val().trim();
+      var contact_alert = jQuery('#store_breeding_program_contact_alert').is(':checked');
+
+      if (name === '') {
+          alert("Please enter a name for the breeding program.");
           return;
       }
-      // console.log("Name is "+name+" and desc is: "+desc);
-      $.ajax({
+      if (!!contact_alert && (!contact_email || contact_email === '')) {
+          alert("Please enter a contact email to send alerts to.");
+          return;
+      }
+
+      jQuery.ajax({
           type: 'POST',
           url: '/breeders/program/store',
-          data: { 'id': id, 'name': name, 'desc': desc },
+          data: { 'id': id, 'name': name, 'desc': desc, 'contact_name': contact_name, 'contact_email': contact_email, 'contact_alert': contact_alert },
           beforeSend: function()  { jQuery('#working').dialog("open") },
           success: function(response) {
               if (response.error) { alert(response.error); }
@@ -126,17 +154,21 @@ jQuery(document).ready(function() {
               jQuery('#working').dialog("close");
           }
       });
-      $("#store_breeding_program_dialog").modal("hide");
+      jQuery("#store_breeding_program_dialog").modal("hide");
   });
 
 
 });
 
-function edit_breeding_program(program_id, program_name, program_description) {
+function edit_breeding_program(program_id, program_name, program_description, contact_name, contact_email, contact_alert) {
+    console.log("Editing breeding program: ", program_id, program_name, program_description, contact_name, contact_email, contact_alert);
     jQuery('#store_breeding_program_id').val(program_id);
     jQuery('#store_breeding_program_name').val(program_name);
     jQuery('#store_breeding_program_desc').val(program_description);
-    $("#store_breeding_program_dialog").modal("show");
+    jQuery('#store_breeding_program_contact_name').val(contact_name);
+    jQuery('#store_breeding_program_contact_email').val(contact_email);
+    jQuery('#store_breeding_program_contact_alert').prop('checked', !!contact_alert);
+    jQuery("#store_breeding_program_dialog").modal("show");
 }
 
 

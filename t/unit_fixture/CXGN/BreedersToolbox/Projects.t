@@ -25,7 +25,11 @@ is_deeply($projects, [
           [
             134,
             'test',
-            'test'
+            'test',
+            [],
+            '',
+            '',
+            ''
           ]
         ], 'test get bps');
 
@@ -279,20 +283,32 @@ my $new_bp = CXGN::BreedersToolbox::Projects->new({
     schema=>$schema,
     name => 'test_new_bp_to_edit',
     description => 'test_new_bp_desc_to_edit',
+    contact_name => 'Test Contact',
+    contact_email => 'test.contact@example.com',
+    contact_alert => 1,
 });
 my $new_bp_result = $new_bp->store_breeding_program();
 #print STDERR Dumper $new_bp_result;
 ok($new_bp_result->{success});
+is_deeply($p->get_breeding_programs([$new_bp_result->{id}]), [
+    [ $new_bp_result->{id}, 'test_new_bp_to_edit', 'test_new_bp_desc_to_edit', [], 'Test Contact', 'test.contact@example.com', 1 ]
+], 'new bp stores contact info');
 
 my $edit_bp = CXGN::BreedersToolbox::Projects->new({
     schema=>$schema,
     id => $new_bp_result->{id},
     name => 'test_new_bp',
     description => 'test_new_bp_desc',
+    contact_name => 'Edited Contact',
+    contact_email => '',
+    contact_alert => 0,
 });
 my $edit_bp_result = $edit_bp->store_breeding_program();
 #print STDERR Dumper $edit_bp_result;
 ok($edit_bp_result->{success});
+is_deeply($p->get_breeding_programs([$new_bp_result->{id}]), [
+    [ $new_bp_result->{id}, 'test_new_bp', 'test_new_bp_desc', [], 'Edited Contact', '', '' ]
+], 'edit bp updates and clears contact info');
 
 my $bp_projects = $p->get_breeding_program_with_trial($trial_id);
 #print STDERR Dumper $bp_projects;

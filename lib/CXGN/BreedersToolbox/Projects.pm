@@ -32,6 +32,21 @@ has 'description' => (
     is => 'rw',
 );
 
+has 'contact_name' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+);
+
+has 'contact_email' => (
+    isa => 'Maybe[Str]',
+    is => 'rw',
+);
+
+has 'contact_alert' => (
+    isa => 'Maybe[Bool]',
+    is => 'rw',
+);
+
 has 'external_references' => (
     isa => 'ArrayRef[HashRef[Str]]',
     is  => 'ro',
@@ -55,6 +70,9 @@ sub get_breeding_programs {
     my $ids = shift;
 
     my $breeding_program_cvterm_id = $self->get_breeding_program_cvterm_id();
+    my $contact_name_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'breeding_program_contact_name', 'project_property')->cvterm_id();
+    my $contact_email_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'breeding_program_contact_email', 'project_property')->cvterm_id();
+    my $contact_alert_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'breeding_program_contact_alert', 'project_property')->cvterm_id();
 
     my $search = { 'projectprops.type_id'=>$breeding_program_cvterm_id };
     $search->{'me.project_id'} = { -in => $ids } if defined $ids;
@@ -71,12 +89,30 @@ sub get_breeding_programs {
             id => \@project_array
         });
         my $external_references = $references->search();
-        my @external_references_array;
-        foreach my $values (values %{$external_references}) {
-            push @external_references_array, $values;
-        }
+        my $external_references_array = $external_references->{$row->project_id} || [];
 
-	    push @projects, [ $row->project_id, $row->name, $row->description, @external_references_array ];
+        # get the contact name for this breeding program, if it exists
+        my $contact_name_row = $self->schema->resultset("Project::Projectprop")->search({
+            type_id => $contact_name_cvterm_id,
+            project_id => $row->project_id()
+        });
+        my $contact_name = $contact_name_row->first ? $contact_name_row->first->value : '';
+
+        # get the contact email for this breeding program, if it exists
+        my $contact_email_row = $self->schema->resultset("Project::Projectprop")->search({
+            type_id => $contact_email_cvterm_id,
+            project_id => $row->project_id()
+        });
+        my $contact_email = $contact_email_row->first ? $contact_email_row->first->value : '';
+
+        # get the contact alert for this breeding program, if it exists
+        my $contact_alert_row = $self->schema->resultset("Project::Projectprop")->search({
+            type_id => $contact_alert_cvterm_id,
+            project_id => $row->project_id()
+        });
+        my $contact_alert = $contact_alert_row->first && $contact_alert_row->first->value eq 1 ? 1 : 0;
+
+        push @projects, [ $row->project_id, $row->name, $row->description, $external_references_array,$contact_name, $contact_email, $contact_alert ];
     }
 
     return \@projects;
@@ -557,9 +593,15 @@ sub store_breeding_program {
     my $id = $self->id();
     my $name = $self->name();
     my $description = $self->description();
+    my $contact_name = $self->contact_name();
+    my $contact_email = $self->contact_email();
+    my $contact_alert = $self->contact_alert();
     my $external_references = $self->external_references();
 
     my $type_id = $self->get_breeding_program_cvterm_id();
+    my $contact_name_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'breeding_program_contact_name', 'project_property')->cvterm_id();
+    my $contact_email_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'breeding_program_contact_email', 'project_property')->cvterm_id();
+    my $contact_alert_cvterm_id = SGN::Model::Cvterm->get_cvterm_row($self->schema, 'breeding_program_contact_alert', 'project_property')->cvterm_id();
 
     if (!$name) {
         return { error => "Cannot save a breeding program with an undefined name. A name is required." };
@@ -584,22 +626,42 @@ sub store_breeding_program {
                 die $error;
             }
 
-            my $row = $schema->resultset("Project::Project")->create(
-                {
+            my $row = $schema->resultset("Project::Project")->create({
                 name => $name,
                 description => $description,
-                });
-
-            $row->insert();
+            });
             $id = $row->project_id();
 
-            my $prop_row = $schema->resultset("Project::Projectprop")->create(
-                {
+            # Add breeding program type
+            my $prop_row = $schema->resultset("Project::Projectprop")->create({
                 type_id => $type_id,
                 project_id => $id,
+            });
 
+            # Add contact name and email if specified
+            if ($contact_name && $contact_name ne '') {
+                my $contact_name_row = $schema->resultset("Project::Projectprop")->create({
+                    type_id => $contact_name_cvterm_id,
+                    project_id => $id,
+                    value => $contact_name
                 });
-            $prop_row->insert();
+            }
+            if ($contact_email && $contact_email ne '') {
+                my $contact_email_row = $schema->resultset("Project::Projectprop")->create({
+                    type_id => $contact_email_cvterm_id,
+                    project_id => $id,
+                    value => $contact_email
+                });
+            }
+
+            # Add the contact alert, if enabled
+            if ($contact_alert) {
+                my $contact_alert_row = $schema->resultset("Project::Projectprop")->create({
+                    type_id => $contact_alert_cvterm_id,
+                    project_id => $id,
+                    value => $contact_alert
+                });
+            }
 
             # save external references if specified
             if ($external_references) {
@@ -644,15 +706,34 @@ sub store_breeding_program {
                 die $error;
             }
 
-            my $row = $schema->resultset("Project::Project")->update_or_create(
-                {
-                project_id=>$id,
+            my $row = $schema->resultset("Project::Project")->update_or_create({
+                project_id => $id,
                 name => $name,
                 description => $description,
-                });
-
-            $row->insert();
+            });
             $id = $row->project_id();
+
+            # add/update the contact name, email, and alert if specified, or remove them if not
+            # (delete + re-insert, since projectprop is unique on project_id/type_id/rank)
+            my @contact_props = (
+                [ $contact_name_cvterm_id,  $contact_name ],
+                [ $contact_email_cvterm_id, $contact_email ],
+                [ $contact_alert_cvterm_id, $contact_alert ],
+            );
+            foreach my $contact_prop (@contact_props) {
+                my ($prop_type_id, $prop_value) = @$contact_prop;
+                $schema->resultset("Project::Projectprop")->search({
+                    type_id => $prop_type_id,
+                    project_id => $id,
+                })->delete();
+                if ($prop_value && $prop_value ne '') {
+                    $schema->resultset("Project::Projectprop")->create({
+                        type_id => $prop_type_id,
+                        project_id => $id,
+                        value => $prop_value,
+                    });
+                }
+            }
 
             # save external references if specified
             if ($external_references) {
