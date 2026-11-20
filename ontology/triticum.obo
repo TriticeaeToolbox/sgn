@@ -1,5 +1,5 @@
 format-version: 1.2
-date: 12:11:2026 13:43
+date: 20:11:2026 16:19
 saved-by: djw64
 auto-generated-by: convert_obo.pl/1.1
 remark: This file was converted to an SGN-compatible obo file from a standard obo file [.temp-standard.obo]
@@ -467,6 +467,14 @@ namespace: wheat_trait
 def: "Heading time extends from the time of emergence of the tip of the spike from the flag leaf sheath to when the spike has completely emerged but has not yet started to flower." []
 synonym: "Hd" EXACT []
 is_a: CO_321:Phenological
+
+[Term]
+id: CO_321:0000679
+name: Herbicide damage
+namespace: wheat_trait
+def: "Plant damage caused by herbicide." []
+synonym: "HerbicideDmg" EXACT []
+is_a: CO_321:Abiotic_stress
 
 [Term]
 id: CO_321:0000088
@@ -2206,6 +2214,13 @@ name: PrecoInc Estimation
 namespace: wheat_trait_method
 def: "Standard method for leaf rust incidence." []
 relationship: method_of CO_321:0000898
+
+[Term]
+id: CO_321:0000795
+name: HerbicideDmg Estimation
+namespace: wheat_trait_method
+def: "Standard method for herbicide damage." []
+relationship: method_of CO_321:0000679
 
 [Term]
 id: CO_321:0000831
@@ -7833,6 +7848,55 @@ namespace: wheat_trait_scale
 relationship: scale_of CO_321:0500318
 
 [Term]
+id: CO_321:0500560
+name: 0-5 DMG scale
+namespace: wheat_trait_scale
+def: "0= no crop response color or height reduction, 1= 10% color or height reduction response, 2= 20% color or height reduction response, 3= 30% color or height reduction response, 4= 40% color or height reduction response, 5= 50% + color or height reduction response" []
+relationship: scale_of CO_321:0000795
+
+[Term]
+id: CO_321:0500560/0
+name: no crop response color or height reduction
+namespace: wheat_trait_scale
+synonym: "0" EXACT []
+is_a: CO_321:0500560
+
+[Term]
+id: CO_321:0500560/1
+name: 10% color or height reduction response
+namespace: wheat_trait_scale
+synonym: "1" EXACT []
+is_a: CO_321:0500560
+
+[Term]
+id: CO_321:0500560/2
+name: 20% color or height reduction response
+namespace: wheat_trait_scale
+synonym: "2" EXACT []
+is_a: CO_321:0500560
+
+[Term]
+id: CO_321:0500560/3
+name: 30% color or height reduction response
+namespace: wheat_trait_scale
+synonym: "3" EXACT []
+is_a: CO_321:0500560
+
+[Term]
+id: CO_321:0500560/4
+name: 40% color or height reduction response
+namespace: wheat_trait_scale
+synonym: "4" EXACT []
+is_a: CO_321:0500560
+
+[Term]
+id: CO_321:0500560/5
+name: 50% + color or height reduction response
+namespace: wheat_trait_scale
+synonym: "5" EXACT []
+is_a: CO_321:0500560
+
+[Term]
 id: CO_321:0001043
 name: Agronomic score - 1-5 scoring scale
 namespace: wheat_trait
@@ -10651,9 +10715,18 @@ relationship: variable_of CO_321:0000419
 
 [Term]
 id: CO_321:0501273
-name: Root depth - cm
+name: Root Depth - cm
 namespace: wheat_trait
 def: "TRAIT: Root depth exhibited by plants grown in rhizotron METHOD: ImageJ was used to measure the vertical distance between the tip of the seed and the tip of the deepest root. SCALE: cm" []
 relationship: variable_of CO_321:0500818
 relationship: variable_of CO_321:0500319
 relationship: variable_of CO_321:0000411
+
+[Term]
+id: CO_321:0501274
+name: Herbicide damage - 0-5 DMG scale
+namespace: wheat_trait
+def: "TRAIT: Plant damage caused by herbicide. METHOD: Standard method for herbicide damage. SCALE: 0-5 DMG scale (0= no crop response color or height reduction, 1= 10% color or height reduction response, 2= 20% color or height reduction response, 3= 30% color or height reduction response, 4= 40% color or height reduction response, 5= 50% + color or height reduction response)" []
+relationship: variable_of CO_321:0000679
+relationship: variable_of CO_321:0000795
+relationship: variable_of CO_321:0500560
